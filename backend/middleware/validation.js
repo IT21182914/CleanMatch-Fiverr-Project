@@ -48,25 +48,17 @@ const registerSchema = Joi.object({
     "any.only": "Role must be either customer or cleaner",
     "any.required": "Role is required",
   }),
-  address: Joi.string().when("role", {
-    is: "cleaner",
-    then: Joi.required(),
-    otherwise: Joi.optional(),
+  address: Joi.string().required().messages({
+    "any.required": "Address is required",
   }),
-  city: Joi.string().when("role", {
-    is: "cleaner",
-    then: Joi.required(),
-    otherwise: Joi.optional(),
+  city: Joi.string().required().messages({
+    "any.required": "City is required",
   }),
-  state: Joi.string().when("role", {
-    is: "cleaner",
-    then: Joi.required(),
-    otherwise: Joi.optional(),
+  state: Joi.string().required().messages({
+    "any.required": "State is required",
   }),
-  zipCode: Joi.string().when("role", {
-    is: "cleaner",
-    then: Joi.required(),
-    otherwise: Joi.optional(),
+  zipCode: Joi.string().required().messages({
+    "any.required": "ZIP code is required",
   }),
 });
 

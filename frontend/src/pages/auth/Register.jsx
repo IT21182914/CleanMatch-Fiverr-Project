@@ -14,6 +14,9 @@ const Register = () => {
     confirmPassword: "",
     phone: "",
     role: "customer",
+    address: "",
+    city: "",
+    state: "",
     zipCode: "",
   });
   const [errors, setErrors] = useState({});
@@ -56,7 +59,8 @@ const Register = () => {
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (!validatePassword(formData.password)) {
-      newErrors.password = "Password must be at least 8 characters long";
+      newErrors.password =
+        "Password must be at least 8 characters and contain at least one lowercase letter, one uppercase letter, one number, and one special character";
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -67,6 +71,16 @@ const Register = () => {
       newErrors.phone = "Phone number is required";
     }
 
+    // Address fields are required for both customers and cleaners
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required";
+    }
+    if (!formData.city.trim()) {
+      newErrors.city = "City is required";
+    }
+    if (!formData.state.trim()) {
+      newErrors.state = "State is required";
+    }
     if (!formData.zipCode.trim()) {
       newErrors.zipCode = "ZIP code is required";
     }
@@ -82,7 +96,10 @@ const Register = () => {
 
     setLoading(true);
     try {
-      const result = await register(formData);
+      // Remove confirmPassword from the data sent to backend
+      const { confirmPassword: _confirmPassword, ...registrationData } =
+        formData;
+      const result = await register(registrationData);
       if (result.success) {
         navigate("/dashboard");
       } else {
@@ -165,16 +182,6 @@ const Register = () => {
               required
             />
 
-            <Input
-              label="ZIP Code"
-              name="zipCode"
-              value={formData.zipCode}
-              onChange={handleChange}
-              error={errors.zipCode}
-              placeholder="12345"
-              required
-            />
-
             <Select
               label="Account Type"
               name="role"
@@ -190,6 +197,49 @@ const Register = () => {
                 Cleaner - Provide cleaning services
               </option>
             </Select>
+
+            {/* Address fields for both customers and cleaners */}
+            <Input
+              label="Address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              error={errors.address}
+              placeholder="123 Main St"
+              required
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="City"
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                error={errors.city}
+                placeholder="New York"
+                required
+              />
+
+              <Input
+                label="State"
+                name="state"
+                value={formData.state}
+                onChange={handleChange}
+                error={errors.state}
+                placeholder="NY"
+                required
+              />
+            </div>
+
+            <Input
+              label="ZIP Code"
+              name="zipCode"
+              value={formData.zipCode}
+              onChange={handleChange}
+              error={errors.zipCode}
+              placeholder="12345"
+              required
+            />
 
             <Input
               label="Password"

@@ -74,7 +74,10 @@ export function validateEmail(email) {
 }
 
 export function validatePassword(password) {
-  return password.length >= 8;
+  // Backend requires: at least 8 chars, one lowercase, one uppercase, one number, one special char
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/;
+  return passwordRegex.test(password);
 }
 
 export function validateZipCode(zipCode) {

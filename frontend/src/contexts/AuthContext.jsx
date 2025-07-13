@@ -32,7 +32,7 @@ const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
-      const { token, user: userData } = response.data.data;
+      const { token, user: userData } = response.data;
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(userData));
@@ -42,6 +42,7 @@ const AuthProvider = ({ children }) => {
 
       return { success: true, user: userData };
     } catch (error) {
+      console.error("Login error:", error);
       const message = error.response?.data?.error || "Login failed";
       return { success: false, error: message };
     }
@@ -50,7 +51,7 @@ const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authAPI.register(userData);
-      const { token, user: newUser } = response.data.data;
+      const { token, user: newUser } = response.data;
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(newUser));
@@ -60,6 +61,7 @@ const AuthProvider = ({ children }) => {
 
       return { success: true, user: newUser };
     } catch (error) {
+      console.error("Registration error:", error);
       const message = error.response?.data?.error || "Registration failed";
       return { success: false, error: message };
     }
