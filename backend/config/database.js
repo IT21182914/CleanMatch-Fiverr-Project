@@ -1,0 +1,234 @@
+const { Pool } = require("pg");
+
+let pool;
+
+const connectDB = async () => {
+  try {
+    // Configure database connection
+    const config = {
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      ssl:
+        process.env.NODE_ENV === "production"
+          ? { rejectUnauthorized: false }
+          : false,
+      max: 20, // maximum number of clients in the pool
+      idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
+      connectionTimeoutMillis: 2000, // how long to try connecting before timing out
+    };
+
+    pool = new Pool(config);
+
+    // Test the connection
+    await pool.query("SELECT NOW()");
+    console.log("✅ Database connected successfully");
+
+    // Create tables if they don't exist
+    await createTables();
+  } catch (error) {
+    console.error("❌ Database connection failed:", error.message);
+    process.exit(1);
+  }
+};
+
+const createTables = async () => {
+  try {
+    // Users table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        first_name VARCHAR(100) NOT NULL,
+        last_name VARCHAR(100) NOT NULL,
+        phone VARCHAR(20),
+        role VARCHAR(20) NOT NULL DEFAULT 'customer' CHECK (role IN ('customer', 'cleaner', 'admin')),
+        profile_image TEXT,
+        address TEXT,
+        city VARCHAR(100),
+        state VARCHAR(100),
+        zip_code VARCHAR(10),
+        latitude DECIMAL(10, 8),
+        longitude DECIMAL(11, 8),
+        is_verified BOOLEAN DEFAULT FALSE,
+        is_active BOOLEAN DEFAULT TRUE,
+        stripe_customer_id VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Cleaner profiles table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS cleaner_profiles (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        bio TEXT,
+        experience_years INTEGER DEFAULT 0,
+        hourly_rate DECIMAL(10, 2),
+        availability_schedule JSONB,
+        service_radius INTEGER DEFAULT 10,
+        rating DECIMAL(3, 2) DEFAULT 0.00,
+        total_jobs INTEGER DEFAULT 0,
+        is_available BOOLEAN DEFAULT TRUE,
+        background_check_status VARCHAR(20) DEFAULT 'pending',
+        certifications TEXT[],
+        stripe_account_id VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Services table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS services (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        base_price DECIMAL(10, 2) NOT NULL,
+        duration_hours INTEGER NOT NULL,
+        category VARCHAR(100) NOT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Bookings table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS bookings (
+        id SERIAL PRIMARY KEY,
+        customer_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        cleaner_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        service_id INTEGER REFERENCES services(id) ON DELETE CASCADE,
+        booking_date DATE NOT NULL,
+        booking_time TIME NOT NULL,
+        duration_hours INTEGER NOT NULL,
+        total_amount DECIMAL(10, 2) NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'in_progress', 'completed', 'cancelled')),
+        special_instructions TEXT,
+        address TEXT NOT NULL,
+        city VARCHAR(100) NOT NULL,
+        state VARCHAR(100) NOT NULL,
+        zip_code VARCHAR(10) NOT NULL,
+        latitude DECIMAL(10, 8),
+        longitude DECIMAL(11, 8),
+        payment_status VARCHAR(20) DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'failed', 'refunded')),
+        stripe_payment_intent_id VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Reviews table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS reviews (
+        id SERIAL PRIMARY KEY,
+        booking_id INTEGER REFERENCES bookings(id) ON DELETE CASCADE,
+        reviewer_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        reviewee_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+        comment TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Subscriptions table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS subscriptions (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        plan_name VARCHAR(100) NOT NULL,
+        stripe_subscription_id VARCHAR(255) UNIQUE,
+        status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'past_due', 'unpaid')),
+        current_period_start TIMESTAMP,
+        current_period_end TIMESTAMP,
+        cancel_at_period_end BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Notifications table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        type VARCHAR(50) NOT NULL,
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create indexes for better performance
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_users_zip_code ON users(zip_code)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_bookings_customer_id ON bookings(customer_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_bookings_cleaner_id ON bookings(cleaner_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_bookings_booking_date ON bookings(booking_date)"
+    );
+
+    // Additional tables for payment processing
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS booking_transfers (
+        id SERIAL PRIMARY KEY,
+        booking_id INTEGER REFERENCES bookings(id) ON DELETE CASCADE,
+        stripe_transfer_id VARCHAR(255) UNIQUE NOT NULL,
+        amount DECIMAL(10, 2) NOT NULL,
+        platform_fee DECIMAL(10, 2) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS booking_refunds (
+        id SERIAL PRIMARY KEY,
+        booking_id INTEGER REFERENCES bookings(id) ON DELETE CASCADE,
+        stripe_refund_id VARCHAR(255) UNIQUE NOT NULL,
+        amount DECIMAL(10, 2) NOT NULL,
+        reason TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    console.log("✅ Database tables created/verified successfully");
+  } catch (error) {
+    console.error("❌ Error creating tables:", error.message);
+    throw error;
+  }
+};
+
+const query = (text, params) => {
+  return pool.query(text, params);
+};
+
+const getClient = () => {
+  return pool.connect();
+};
+
+module.exports = {
+  connectDB,
+  query,
+  getClient,
+  pool,
+};
