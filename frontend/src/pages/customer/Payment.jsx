@@ -27,14 +27,25 @@ const Payment = () => {
       try {
         // Fetch booking details
         const bookingResponse = await bookingsAPI.getById(bookingId);
-        const bookingData = bookingResponse.data.data;
+        const bookingData = bookingResponse.data.data || bookingResponse.data;
         setBooking(bookingData);
 
         // Create payment intent
         const paymentResponse = await paymentsAPI.createPaymentIntent(
           bookingId
         );
-        setClientSecret(paymentResponse.data.data.clientSecret);
+
+        // Handle different response structures
+        const clientSecret =
+          paymentResponse.data.client_secret ||
+          paymentResponse.data.data?.clientSecret ||
+          paymentResponse.data.data?.client_secret;
+
+        if (!clientSecret) {
+          throw new Error("Failed to get payment client secret");
+        }
+
+        setClientSecret(clientSecret);
       } catch (error) {
         console.error(
           "Error fetching booking or creating payment intent:",

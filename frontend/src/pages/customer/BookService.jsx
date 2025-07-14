@@ -22,6 +22,8 @@ const BookService = () => {
     scheduledDate: "",
     scheduledTime: "",
     address: "",
+    city: "",
+    state: "",
     zipCode: "",
     specialInstructions: "",
   });
@@ -108,6 +110,14 @@ const BookService = () => {
       newErrors.address = "Please enter your address";
     }
 
+    if (!formData.city.trim()) {
+      newErrors.city = "Please enter your city";
+    }
+
+    if (!formData.state.trim()) {
+      newErrors.state = "Please enter your state";
+    }
+
     if (!formData.zipCode.trim()) {
       newErrors.zipCode = "Please enter your ZIP code";
     } else if (!validateZipCode(formData.zipCode)) {
@@ -126,12 +136,26 @@ const BookService = () => {
     setSubmitting(true);
     try {
       const bookingData = {
-        ...formData,
-        scheduledDate: `${formData.scheduledDate}T${formData.scheduledTime}`,
+        serviceId: formData.serviceId,
+        bookingDate: formData.scheduledDate,
+        bookingTime: formData.scheduledTime,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+        specialInstructions: formData.specialInstructions,
+        durationHours: 2, // Default duration, you may want to make this dynamic
       };
 
       const response = await bookingsAPI.create(bookingData);
-      const booking = response.data.data || response.data;
+      console.log("Booking response:", response); // Debug log
+
+      const booking = response.data?.data || response.data;
+      console.log("Parsed booking:", booking); // Debug log
+
+      if (!booking || !booking.id) {
+        throw new Error("Invalid booking response - missing booking ID");
+      }
 
       // Redirect to payment page
       navigate(`/payment/${booking.id}`);
@@ -297,9 +321,31 @@ const BookService = () => {
                 value={formData.address}
                 onChange={handleChange}
                 error={errors.address}
-                placeholder="123 Main St, Apt 4B, City, State"
+                placeholder="123 Main St, Apt 4B"
                 required
               />
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Input
+                  label="City"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  error={errors.city}
+                  placeholder="City"
+                  required
+                />
+
+                <Input
+                  label="State"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  error={errors.state}
+                  placeholder="State"
+                  required
+                />
+              </div>
 
               <Input
                 label="ZIP Code"

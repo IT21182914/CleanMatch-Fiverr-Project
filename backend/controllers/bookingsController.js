@@ -138,7 +138,7 @@ const createBooking = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Booking created successfully",
-      booking: {
+      data: {
         ...booking,
         service_name: service.name,
         assigned_cleaner: assignedCleaner
