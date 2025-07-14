@@ -300,6 +300,7 @@ const getUserBookings = async (req, res) => {
 
     let whereClause = "";
     const queryParams = [req.user.id];
+    const countQueryParams = [req.user.id];
     let paramCount = 2;
 
     // Build where clause based on user role
@@ -318,6 +319,7 @@ const getUserBookings = async (req, res) => {
     if (status) {
       whereClause += ` AND b.status = $${paramCount++}`;
       queryParams.push(status);
+      countQueryParams.push(status);
     }
 
     const bookingsQuery = `
@@ -350,10 +352,7 @@ const getUserBookings = async (req, res) => {
       ${whereClause}
     `;
 
-    const countResult = await query(
-      countQuery,
-      queryParams.slice(0, paramCount - 2)
-    );
+    const countResult = await query(countQuery, countQueryParams);
     const total = parseInt(countResult.rows[0].total);
 
     res.json({

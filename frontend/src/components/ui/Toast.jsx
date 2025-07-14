@@ -5,7 +5,7 @@ import {
   ExclamationTriangleIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
-import { cn } from "../lib/utils";
+import { cn } from "../../lib/utils";
 
 const Toast = ({
   type = "info",

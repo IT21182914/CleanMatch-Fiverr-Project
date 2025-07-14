@@ -43,7 +43,7 @@ export const authAPI = {
   forgotPassword: (email) => api.post("/auth/forgot-password", { email }),
   resetPassword: (token, password) =>
     api.post("/auth/reset-password", { token, password }),
-  refreshToken: () => api.post("/auth/refresh-token"),
+  refreshToken: (refreshToken) => api.post("/auth/refresh", { refreshToken }),
   logout: () => api.post("/auth/logout"),
 };
 
@@ -51,29 +51,40 @@ export const authAPI = {
 export const userAPI = {
   getProfile: () => api.get("/users/profile"),
   updateProfile: (data) => api.put("/users/profile", data),
-  getCleanerProfile: () => api.get("/users/cleaner-profile"),
+  getCleanerProfile: () => api.get("/users/profile"), // Same endpoint, cleaner profile included
   updateCleanerProfile: (data) => api.put("/users/cleaner-profile", data),
   updateAvailability: (availability) =>
     api.put("/users/availability", availability),
+  changePassword: (data) => api.put("/users/change-password", data),
+  getUserBookings: (params) => api.get("/users/bookings", { params }),
+  getUserReviews: (params) => api.get("/users/reviews", { params }),
 };
 
 // Services API calls
 export const servicesAPI = {
-  getAll: () => api.get("/services"),
+  getAll: (params) => api.get("/services", { params }),
   getCategories: () => api.get("/services/categories"),
   getById: (id) => api.get(`/services/${id}`),
+  getByCategory: (category, params) =>
+    api.get(`/services/category/${category}`, { params }),
+  getPricing: (id, params) => api.get(`/services/${id}/pricing`, { params }),
 };
 
 // Bookings API calls
 export const bookingsAPI = {
   create: (bookingData) => api.post("/bookings", bookingData),
-  getCustomerBookings: () => api.get("/bookings/customer"),
-  getCleanerBookings: () => api.get("/bookings/cleaner"),
-  getAllBookings: () => api.get("/bookings"),
+  getCustomerBookings: (params) => api.get("/users/bookings", { params }),
+  getCleanerBookings: (params) => api.get("/users/bookings", { params }),
+  getAllBookings: (params) => api.get("/bookings", { params }),
   getById: (id) => api.get(`/bookings/${id}`),
-  updateStatus: (id, status) => api.patch(`/bookings/${id}/status`, { status }),
-  acceptBooking: (id) => api.patch(`/bookings/${id}/accept`),
-  rejectBooking: (id) => api.patch(`/bookings/${id}/reject`),
+  updateStatus: (id, status) => api.put(`/bookings/${id}/status`, { status }),
+  assignCleaner: (id, cleanerId) =>
+    api.post(`/bookings/${id}/assign`, { cleanerId }),
+  getRecommendations: (id) => api.get(`/bookings/${id}/recommendations`),
+  acceptBooking: (id) =>
+    api.put(`/bookings/${id}/status`, { status: "confirmed" }),
+  rejectBooking: (id) =>
+    api.put(`/bookings/${id}/status`, { status: "cancelled" }),
   addReview: (id, review) => api.post(`/bookings/${id}/review`, review),
 };
 
@@ -83,25 +94,56 @@ export const paymentsAPI = {
     api.post("/payments/create-payment-intent", { bookingId }),
   confirmPayment: (paymentIntentId) =>
     api.post("/payments/confirm", { paymentIntentId }),
-  getPaymentHistory: () => api.get("/payments/history"),
-  processRefund: (paymentId, amount) =>
-    api.post("/payments/refund", { paymentId, amount }),
+  getPaymentHistory: (params) => api.get("/payments/history", { params }),
+  processRefund: (bookingId, amount, reason) =>
+    api.post(`/payments/refund/${bookingId}`, { amount, reason }),
+
+  // Subscription endpoints
+  createSubscription: (data) => api.post("/payments/subscription", data),
+  cancelSubscription: (data) => api.put("/payments/subscription/cancel", data),
+  getUserSubscription: () => api.get("/payments/subscription"),
+
+  // Stripe Connect endpoints
+  createCleanerConnectAccount: () => api.post("/payments/connect-account"),
+  getConnectAccountStatus: () => api.get("/payments/connect-account/status"),
+  transferPayment: (bookingId) => api.post(`/payments/transfer/${bookingId}`),
 };
 
 // Admin API calls
 export const adminAPI = {
+  // Dashboard and analytics
+  getDashboardStats: () => api.get("/admin/dashboard"),
+  getAnalytics: () => api.get("/admin/analytics/revenue"),
+  getSystemStats: () => api.get("/admin/dashboard"),
+
+  // User management
   getUsers: (params) => api.get("/admin/users", { params }),
-  updateUserStatus: (userId, status) =>
-    api.patch(`/admin/users/${userId}/status`, { status }),
+  updateUserStatus: (userId, data) =>
+    api.put(`/admin/users/${userId}/status`, data),
+
+  // Booking management
   getBookings: (params) => api.get("/admin/bookings", { params }),
   assignCleaner: (bookingId, cleanerId) =>
-    api.patch(`/admin/bookings/${bookingId}/assign`, { cleanerId }),
-  getAnalytics: () => api.get("/admin/analytics"),
-  getSystemStats: () => api.get("/admin/stats"),
-  manageService: (serviceData) => api.post("/admin/services", serviceData),
-  updateService: (id, serviceData) =>
-    api.put(`/admin/services/${id}`, serviceData),
-  deleteService: (id) => api.delete(`/admin/services/${id}`),
+    api.post(`/admin/bookings/${bookingId}/assign`, { cleanerId }),
+
+  // Cleaner management
+  updateCleanerBackgroundCheck: (cleanerId, status) =>
+    api.put(`/admin/cleaners/${cleanerId}/background-check`, { status }),
+
+  // Payment management
+  getPayments: (params) => api.get("/admin/payments", { params }),
+  processRefund: (bookingId, amount, reason) =>
+    api.post(`/admin/payments/refund/${bookingId}`, { amount, reason }),
+
+  // Service management
+  getServices: (params) => api.get("/services", { params }),
+  createService: (serviceData) => api.post("/services", serviceData),
+  updateService: (id, serviceData) => api.put(`/services/${id}`, serviceData),
+  deleteService: (id) => api.delete(`/services/${id}`),
+
+  // Review management
+  getReviews: (params) => api.get("/admin/reviews", { params }),
+  deleteReview: (id) => api.delete(`/admin/reviews/${id}`),
 };
 
 export default api;

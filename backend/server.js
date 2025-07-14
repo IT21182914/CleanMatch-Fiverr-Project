@@ -13,6 +13,7 @@ const serviceRoutes = require("./routes/services");
 const bookingRoutes = require("./routes/bookings");
 const paymentRoutes = require("./routes/payments");
 const adminRoutes = require("./routes/admin");
+const notificationRoutes = require("./routes/notifications");
 
 // Import middleware
 const errorHandler = require("./middleware/errorHandler");
@@ -26,31 +27,92 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Security middleware
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+  })
+);
 app.use(compression());
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: "Too many requests from this IP, please try again later.",
+  message: {
+    error: "Too many requests from this IP, please try again later.",
+    retryAfter: "15 minutes",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use("/api/", limiter);
+
+// Stricter rate limiting for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // limit each IP to 10 auth requests per windowMs
+  message: {
+    error: "Too many authentication attempts, please try again later.",
+    retryAfter: "15 minutes",
+  },
+});
+app.use("/api/auth", authLimiter);
 
 // CORS configuration
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        process.env.FRONTEND_URL || "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:5000",
+      ];
+
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
 // Body parsing middleware
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(
+  express.json({
+    limit: "10mb",
+    type: "application/json",
+  })
+);
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: "10mb",
+  })
+);
+
+// Raw body parsing for Stripe webhooks
+app.use("/api/payments/webhook", express.raw({ type: "application/json" }));
 
 // Logging middleware
-app.use(morgan("combined"));
+if (process.env.NODE_ENV === "production") {
+  app.use(morgan("combined"));
+} else {
+  app.use(morgan("dev"));
+}
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -58,6 +120,29 @@ app.get("/health", (req, res) => {
     status: "OK",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
+    version: "1.0.0",
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+  });
+});
+
+// API Documentation endpoint
+app.get("/api", (req, res) => {
+  res.json({
+    name: "CleanMatch API",
+    version: "1.0.0",
+    description: "AI-powered cleaning services marketplace API",
+    endpoints: {
+      auth: "/api/auth",
+      users: "/api/users",
+      services: "/api/services",
+      bookings: "/api/bookings",
+      payments: "/api/payments",
+      admin: "/api/admin",
+      notifications: "/api/notifications",
+    },
+    documentation: "/api/docs",
+    health: "/health",
   });
 });
 
@@ -68,33 +153,131 @@ app.use("/api/services", serviceRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/notifications", notificationRoutes);
 
-// 404 handler
+// 404 handler for API routes
+app.use("/api/*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    error: "API endpoint not found",
+    path: req.originalUrl,
+    method: req.method,
+    message: "The requested API endpoint does not exist",
+    availableEndpoints: [
+      "/api/auth",
+      "/api/users",
+      "/api/services",
+      "/api/bookings",
+      "/api/payments",
+      "/api/admin",
+      "/api/notifications",
+    ],
+  });
+});
+
+// Serve static files in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("public"));
+
+  // Catch all handler for SPA
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+  });
+}
+
+// Global 404 handler
 app.use("*", (req, res) => {
   res.status(404).json({
+    success: false,
     error: "Route not found",
     path: req.originalUrl,
+    method: req.method,
+    message: "The requested resource does not exist",
   });
 });
 
 // Global error handler
 app.use(errorHandler);
 
-// Graceful shutdown
-process.on("SIGTERM", () => {
-  console.log("SIGTERM received. Shutting down gracefully...");
+// Graceful shutdown handlers
+const gracefulShutdown = (signal) => {
+  console.log(`${signal} received. Shutting down gracefully...`);
+
+  server.close((err) => {
+    if (err) {
+      console.error("Error during server shutdown:", err);
+      process.exit(1);
+    }
+
+    console.log("HTTP server closed.");
+
+    // Close database connections
+    if (typeof require("./config/database").pool !== "undefined") {
+      require("./config/database").pool.end(() => {
+        console.log("Database connections closed.");
+        process.exit(0);
+      });
+    } else {
+      process.exit(0);
+    }
+  });
+
+  // Force close after 10 seconds
+  setTimeout(() => {
+    console.error(
+      "Could not close connections in time, forcefully shutting down"
+    );
+    process.exit(1);
+  }, 10000);
+};
+
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+// Handle unhandled promise rejections
+process.on("unhandledRejection", (err, promise) => {
+  console.error("Unhandled Promise Rejection:", err.message);
+  console.error("Promise:", promise);
+
+  // Close server & exit process
   server.close(() => {
-    console.log("Process terminated");
+    process.exit(1);
   });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 CleanMatch Backend Server running on port ${PORT}`);
-  console.log(`📋 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+// Handle uncaught exceptions
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err.message);
+  console.error("Stack:", err.stack);
 
-  // Initialize cron jobs
-  initializeCronJobs();
+  // Exit immediately
+  process.exit(1);
 });
 
+// Start server
+const server = app.listen(PORT, () => {
+  console.log("🚀 CleanMatch Backend Server Started!");
+  console.log("═".repeat(50));
+  console.log(`📡 Server running on port: ${PORT}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  console.log(`📊 API Base URL: http://localhost:${PORT}/api`);
+  console.log(`📝 API Documentation: http://localhost:${PORT}/api`);
+  console.log("═".repeat(50));
+
+  // Initialize cron jobs only in production or when explicitly enabled
+  if (
+    process.env.NODE_ENV === "production" ||
+    process.env.ENABLE_CRON_JOBS === "true"
+  ) {
+    console.log("⏰ Initializing scheduled jobs...");
+    initializeCronJobs();
+  } else {
+    console.log("⏰ Cron jobs disabled (set ENABLE_CRON_JOBS=true to enable)");
+  }
+
+  console.log("✅ CleanMatch backend is ready to serve requests!");
+});
+
+// Export app for testing
 module.exports = app;
