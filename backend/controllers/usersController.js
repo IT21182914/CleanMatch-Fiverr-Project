@@ -357,7 +357,7 @@ const getUserBookings = async (req, res) => {
 
     res.json({
       success: true,
-      bookings: bookingsResult.rows,
+      data: bookingsResult.rows,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),

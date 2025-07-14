@@ -40,7 +40,22 @@ const CustomerDashboard = () => {
   const fetchBookings = async () => {
     try {
       const response = await bookingsAPI.getCustomerBookings();
-      const bookingsData = response.data.data;
+
+      // Handle different response structures and ensure we have an array
+      let bookingsData = [];
+      if (response.data?.data && Array.isArray(response.data.data)) {
+        bookingsData = response.data.data;
+      } else if (
+        response.data?.bookings &&
+        Array.isArray(response.data.bookings)
+      ) {
+        bookingsData = response.data.bookings;
+      } else if (response.data && Array.isArray(response.data)) {
+        bookingsData = response.data;
+      } else if (Array.isArray(response)) {
+        bookingsData = response;
+      }
+
       setBookings(bookingsData.slice(0, 5)); // Show only recent 5 bookings
 
       // Calculate stats

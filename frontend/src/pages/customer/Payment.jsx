@@ -165,10 +165,11 @@ const Payment = () => {
           <CardContent className="space-y-4">
             <div>
               <h4 className="font-medium text-gray-900">
-                {booking.service?.name}
+                {booking.service_name || booking.service?.name || "Service"}
               </h4>
               <p className="text-sm text-gray-500">
-                {booking.service?.description}
+                {booking.service?.description ||
+                  "Professional cleaning service"}
               </p>
             </div>
 
@@ -176,7 +177,9 @@ const Payment = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Date & Time:</span>
                 <span className="font-medium">
-                  {formatDateTime(booking.scheduledDate)}
+                  {formatDateTime(
+                    booking.booking_date || booking.scheduledDate
+                  )}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -188,18 +191,21 @@ const Payment = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Service Duration:</span>
                 <span className="font-medium">
-                  ~{booking.service?.estimatedDuration} minutes
+                  {booking.duration_hours ||
+                    booking.service?.estimatedDuration ||
+                    2}{" "}
+                  hours
                 </span>
               </div>
             </div>
 
-            {booking.specialInstructions && (
+            {booking.special_instructions && (
               <div>
                 <h5 className="font-medium text-gray-900 mb-1">
                   Special Instructions:
                 </h5>
                 <p className="text-sm text-gray-600">
-                  {booking.specialInstructions}
+                  {booking.special_instructions}
                 </p>
               </div>
             )}
@@ -210,7 +216,9 @@ const Payment = () => {
                   Total:
                 </span>
                 <span className="text-2xl font-bold text-blue-600">
-                  {formatCurrency(booking.totalAmount)}
+                  {formatCurrency(
+                    booking.total_amount || booking.totalAmount || 0
+                  )}
                 </span>
               </div>
               <p className="text-xs text-gray-500 mt-1">

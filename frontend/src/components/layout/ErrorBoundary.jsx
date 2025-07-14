@@ -49,7 +49,8 @@ class ErrorBoundary extends React.Component {
                     </pre>
                     <p className="font-semibold mt-2">Component Stack:</p>
                     <pre className="whitespace-pre-wrap">
-                      {this.state.errorInfo.componentStack}
+                      {this.state.errorInfo?.componentStack ||
+                        "No component stack available"}
                     </pre>
                   </div>
                 </details>
