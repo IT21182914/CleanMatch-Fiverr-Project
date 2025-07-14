@@ -39,10 +39,9 @@ const getServices = async (req, res) => {
       ${whereClause}
     `;
 
-    const countResult = await query(
-      countQuery,
-      queryParams.slice(0, paramCount - 2)
-    );
+    // For count query, we only need the filter parameters, not LIMIT and OFFSET
+    const countParams = queryParams.slice(0, -2); // Remove the last 2 params (limit and offset)
+    const countResult = await query(countQuery, countParams);
     const total = parseInt(countResult.rows[0].total);
 
     // Get unique categories
@@ -52,7 +51,7 @@ const getServices = async (req, res) => {
 
     res.json({
       success: true,
-      services: servicesResult.rows,
+      data: servicesResult.rows,
       categories: categoriesResult.rows.map((row) => row.category),
       pagination: {
         page: parseInt(page),
@@ -93,7 +92,7 @@ const getServiceById = async (req, res) => {
 
     res.json({
       success: true,
-      service: serviceResult.rows[0],
+      data: serviceResult.rows[0],
     });
   } catch (error) {
     console.error("Get service error:", error);
@@ -238,7 +237,7 @@ const getServicesByCategory = async (req, res) => {
 
     res.json({
       success: true,
-      services: servicesResult.rows,
+      data: servicesResult.rows,
       category,
       pagination: {
         page: parseInt(page),

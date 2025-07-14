@@ -37,10 +37,9 @@ const getUserNotifications = async (req, res) => {
       ${whereClause}
     `;
 
-    const countResult = await query(
-      countQuery,
-      queryParams.slice(0, paramCount - 2)
-    );
+    // For count query, we only need the filter parameters, not LIMIT and OFFSET
+    const countParams = queryParams.slice(0, -2); // Remove the last 2 params (limit and offset)
+    const countResult = await query(countQuery, countParams);
     const total = parseInt(countResult.rows[0].total);
 
     // Get unread count

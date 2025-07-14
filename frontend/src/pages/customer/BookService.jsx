@@ -16,6 +16,7 @@ const BookService = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [serviceError, setServiceError] = useState(null);
   const [formData, setFormData] = useState({
     serviceId: "",
     scheduledDate: "",
@@ -33,10 +34,35 @@ const BookService = () => {
 
   const fetchServices = async () => {
     try {
+      setLoading(true);
+      setServiceError(null);
+
+      console.log("Fetching services..."); // Debug log
       const response = await servicesAPI.getAll();
-      setServices(response.data.data);
+      console.log("Services response:", response); // Debug log
+
+      // Handle different possible response structures
+      let servicesData = [];
+      if (response.data?.data) {
+        servicesData = response.data.data;
+      } else if (response.data?.services) {
+        servicesData = response.data.services;
+      } else if (response.data) {
+        servicesData = response.data;
+      } else if (Array.isArray(response)) {
+        servicesData = response;
+      }
+
+      console.log("Parsed services data:", servicesData); // Debug log
+
+      if (!Array.isArray(servicesData)) {
+        throw new Error("Services data is not an array");
+      }
+
+      setServices(servicesData);
     } catch (error) {
       console.error("Error fetching services:", error);
+      setServiceError(error.response?.data?.error || "Failed to load services");
     } finally {
       setLoading(false);
     }
@@ -105,7 +131,7 @@ const BookService = () => {
       };
 
       const response = await bookingsAPI.create(bookingData);
-      const booking = response.data.data;
+      const booking = response.data.data || response.data;
 
       // Redirect to payment page
       navigate(`/payment/${booking.id}`);
@@ -167,6 +193,21 @@ const BookService = () => {
             <CardTitle>Service Details</CardTitle>
           </CardHeader>
           <CardContent>
+            {serviceError && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+                <p className="text-sm text-red-600">{serviceError}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchServices}
+                  className="mt-2"
+                >
+                  Retry
+                </Button>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {errors.general && (
                 <div className="bg-red-50 border border-red-200 rounded-md p-4">
@@ -182,10 +223,17 @@ const BookService = () => {
                 error={errors.serviceId}
                 required
               >
-                <option value="">Choose a cleaning service...</option>
+                <option value="">
+                  {services.length === 0
+                    ? "No services available..."
+                    : "Choose a cleaning service..."}
+                </option>
                 {services.map((service) => (
                   <option key={service.id} value={service.id}>
-                    {service.name} - {formatCurrency(service.basePrice)}
+                    {service.name} -{" "}
+                    {formatCurrency(
+                      service.base_price || service.basePrice || service.price
+                    )}
                   </option>
                 ))}
               </Select>
@@ -199,11 +247,18 @@ const BookService = () => {
                     {selectedService.description}
                   </p>
                   <p className="text-sm font-medium text-blue-900 mt-2">
-                    Starting at {formatCurrency(selectedService.basePrice)}
+                    Starting at{" "}
+                    {formatCurrency(
+                      selectedService.base_price ||
+                        selectedService.basePrice ||
+                        selectedService.price
+                    )}
                   </p>
-                  <p className="text-xs text-blue-600 mt-1">
-                    Duration: ~{selectedService.estimatedDuration} minutes
-                  </p>
+                  {selectedService.estimatedDuration && (
+                    <p className="text-xs text-blue-600 mt-1">
+                      Duration: ~{selectedService.estimatedDuration} minutes
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -277,7 +332,7 @@ const BookService = () => {
                 <Button
                   type="submit"
                   loading={submitting}
-                  disabled={submitting}
+                  disabled={submitting || services.length === 0}
                 >
                   Continue to Payment
                 </Button>

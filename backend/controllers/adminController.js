@@ -163,10 +163,9 @@ const getUsers = async (req, res) => {
       ${whereClause}
     `;
 
-    const countResult = await query(
-      countQuery,
-      queryParams.slice(0, paramCount - 2)
-    );
+    // For count query, we only need the filter parameters, not LIMIT and OFFSET
+    const countParams = queryParams.slice(0, -2); // Remove the last 2 params (limit and offset)
+    const countResult = await query(countQuery, countParams);
     const total = parseInt(countResult.rows[0].total);
 
     res.json({
@@ -305,10 +304,9 @@ const getBookings = async (req, res) => {
       ${whereClause}
     `;
 
-    const countResult = await query(
-      countQuery,
-      queryParams.slice(0, paramCount - 2)
-    );
+    // For count query, we only need the filter parameters, not LIMIT and OFFSET
+    const countParams = queryParams.slice(0, -2); // Remove the last 2 params (limit and offset)
+    const countResult = await query(countQuery, countParams);
     const total = parseInt(countResult.rows[0].total);
 
     res.json({
@@ -429,10 +427,9 @@ const getPayments = async (req, res) => {
       ${whereClause}
     `;
 
-    const summaryResult = await query(
-      summaryQuery,
-      queryParams.slice(0, paramCount - 2)
-    );
+    // For summary query, we only need the filter parameters, not LIMIT and OFFSET
+    const summaryParams = queryParams.slice(0, -2); // Remove the last 2 params (limit and offset)
+    const summaryResult = await query(summaryQuery, summaryParams);
 
     res.json({
       success: true,
@@ -565,10 +562,9 @@ const getReviews = async (req, res) => {
       ${whereClause}
     `;
 
-    const countResult = await query(
-      countQuery,
-      queryParams.slice(0, paramCount - 2)
-    );
+    // For count query, we only need the filter parameters, not LIMIT and OFFSET
+    const countParams = queryParams.slice(0, -2); // Remove the last 2 params (limit and offset)
+    const countResult = await query(countQuery, countParams);
     const total = parseInt(countResult.rows[0].total);
 
     res.json({
