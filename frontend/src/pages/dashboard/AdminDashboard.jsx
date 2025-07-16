@@ -7,6 +7,7 @@ import {
   ChartBarIcon,
   ExclamationTriangleIcon,
   ShieldCheckIcon,
+  CreditCardIcon,
 } from "@heroicons/react/24/outline";
 import {
   Card,
