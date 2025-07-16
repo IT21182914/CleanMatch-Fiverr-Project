@@ -233,6 +233,52 @@ const createTables = async () => {
       )
     `);
 
+    // Reviews system
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS reviews (
+        id SERIAL PRIMARY KEY,
+        booking_id INTEGER REFERENCES bookings(id) ON DELETE CASCADE,
+        customer_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        cleaner_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+        comment TEXT,
+        is_verified BOOLEAN DEFAULT TRUE,
+        is_visible BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(booking_id, customer_id)
+      )
+    `);
+
+    // Platform statistics
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS platform_stats (
+        id SERIAL PRIMARY KEY,
+        stat_name VARCHAR(100) NOT NULL UNIQUE,
+        stat_value DECIMAL(10, 2),
+        stat_text VARCHAR(255),
+        stat_json JSONB,
+        last_calculated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        manual_override BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Coverage areas
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS coverage_areas (
+        id SERIAL PRIMARY KEY,
+        city VARCHAR(100) NOT NULL,
+        state VARCHAR(50) NOT NULL,
+        zip_codes TEXT[], -- Array of zip codes served in this city
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(city, state)
+      )
+    `);
+
     // Create indexes for better performance
     await pool.query(
       "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)"
@@ -285,6 +331,36 @@ const createTables = async () => {
     );
     await pool.query(
       "CREATE INDEX IF NOT EXISTS idx_user_offer_usage_offer_id ON user_offer_usage(offer_id)"
+    );
+
+    // Reviews indexes
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_reviews_booking_id ON reviews(booking_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_reviews_customer_id ON reviews(customer_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_reviews_cleaner_id ON reviews(cleaner_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_reviews_visible ON reviews(is_visible)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_reviews_rating ON reviews(rating)"
+    );
+
+    // Platform stats indexes
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_platform_stats_name ON platform_stats(stat_name)"
+    );
+
+    // Coverage areas indexes
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_coverage_areas_active ON coverage_areas(is_active)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_coverage_areas_city_state ON coverage_areas(city, state)"
     );
 
     // Additional tables for payment processing

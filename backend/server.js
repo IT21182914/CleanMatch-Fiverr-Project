@@ -16,6 +16,8 @@ const membershipRoutes = require("./routes/memberships");
 const adminRoutes = require("./routes/admin");
 const notificationRoutes = require("./routes/notifications");
 const offersRoutes = require("./routes/offers");
+const reviewsRoutes = require("./routes/reviews");
+const statsRoutes = require("./routes/stats");
 
 // Import middleware
 const {
@@ -149,6 +151,8 @@ app.get("/api", (req, res) => {
       admin: "/api/admin",
       notifications: "/api/notifications",
       offers: "/api/offers",
+      reviews: "/api/reviews",
+      stats: "/api/stats",
     },
     documentation: "/api/docs",
     health: "/health",
@@ -165,6 +169,8 @@ app.use("/api/memberships", membershipRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/offers", offersRoutes);
+app.use("/api/reviews", reviewsRoutes);
+app.use("/api/stats", statsRoutes);
 
 // 404 handler for unknown API routes
 app.use("/api/*", notFoundHandler);
