@@ -1,12 +1,10 @@
 import React, { Suspense } from "react";
 import { LoadingCard, ModernPageLoader } from "../ui/Loading";
-import LazyComponents from "../ui/LazyComponents";
 
 /**
  * Route-level lazy loading wrapper
  */
 export const LazyRoute = ({
-  component: LazyComponent,
   fallback = "minimal",
   message = "Loading page...",
   ...props
