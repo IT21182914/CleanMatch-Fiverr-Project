@@ -1,6 +1,5 @@
 import { forwardRef } from "react";
 import { cn } from "../../lib/utils";
-import { ButtonLoading } from "./Loading";
 
 const Button = forwardRef(
   (
@@ -18,33 +17,78 @@ const Button = forwardRef(
     ref
   ) => {
     const variants = {
+      // Primary - Golden Yellow (main CTA)
       primary:
-        "bg-blue-600 hover:bg-blue-700 text-white border border-transparent focus:ring-blue-500",
+        "bg-yellow-500 hover:bg-yellow-600 text-white border border-transparent focus:ring-yellow-500 shadow-md hover:shadow-lg",
+
+      // Navy - Deep Navy Blue (secondary CTA)
+      navy: "text-white border border-transparent focus:ring-blue-500 shadow-md hover:shadow-lg",
+
+      // Secondary - White with primary border
       secondary:
-        "bg-white hover:bg-gray-50 text-blue-600 border border-blue-600 focus:ring-blue-500",
+        "bg-white hover:bg-yellow-50 text-yellow-700 border border-yellow-500 focus:ring-yellow-500 shadow-sm hover:shadow-md",
+
+      // Outline - Transparent with border
       outline:
-        "bg-transparent hover:bg-gray-50 text-gray-700 border border-gray-300 focus:ring-gray-500",
-      danger:
-        "bg-red-600 hover:bg-red-700 text-white border border-transparent focus:ring-red-500",
-      success:
-        "bg-green-600 hover:bg-green-700 text-white border border-transparent focus:ring-green-500",
+        "bg-transparent hover:bg-gray-50 text-gray-700 border border-gray-300 focus:ring-gray-500 hover:border-gray-400",
+
+      // Outline Primary - Transparent with yellow border
+      "outline-primary":
+        "bg-transparent hover:bg-yellow-50 text-yellow-600 border-2 border-yellow-500 focus:ring-yellow-500 hover:bg-yellow-500 hover:text-white",
+
+      // Outline Navy - Transparent with navy border
+      "outline-navy":
+        "bg-transparent hover:text-white border-2 focus:ring-blue-500 hover:shadow-md",
+
+      // Ghost - Minimal styling
       ghost:
         "bg-transparent hover:bg-gray-100 text-gray-700 border border-transparent focus:ring-gray-500",
+
+      // Success
+      success:
+        "bg-green-600 hover:bg-green-700 text-white border border-transparent focus:ring-green-500 shadow-md hover:shadow-lg",
+
+      // Danger
+      danger:
+        "bg-red-600 hover:bg-red-700 text-white border border-transparent focus:ring-red-500 shadow-md hover:shadow-lg",
+
+      // Warning
       warning:
-        "bg-yellow-600 hover:bg-yellow-700 text-white border border-transparent focus:ring-yellow-500",
-      gradient:
-        "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border border-transparent focus:ring-blue-500",
+        "bg-orange-500 hover:bg-orange-600 text-white border border-transparent focus:ring-orange-500 shadow-md hover:shadow-lg",
+
+      // Link style
+      link: "bg-transparent text-yellow-600 hover:text-yellow-700 underline hover:no-underline border border-transparent focus:ring-yellow-500 p-0",
     };
 
     const sizes = {
-      sm: "px-3 py-1.5 text-sm",
-      md: "px-4 py-2 text-sm",
-      lg: "px-6 py-3 text-base",
-      xl: "px-8 py-4 text-lg",
+      xs: "px-2.5 py-1.5 text-xs font-medium",
+      sm: "px-3 py-2 text-sm font-medium",
+      md: "px-4 py-2.5 text-sm font-semibold",
+      lg: "px-6 py-3 text-base font-semibold",
+      xl: "px-8 py-4 text-lg font-semibold",
+      "2xl": "px-10 py-5 text-xl font-bold",
     };
 
     const baseClasses =
-      "inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+      "inline-flex items-center justify-center rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium";
+
+    // Special handling for navy variant with CSS custom properties
+    const getNavyStyles = () => {
+      if (variant === "navy") {
+        return {
+          backgroundColor: "#1F2A44",
+          borderColor: "#1F2A44",
+        };
+      }
+      if (variant === "outline-navy") {
+        return {
+          color: "#1F2A44",
+          borderColor: "#1F2A44",
+          "--hover-bg": "#1F2A44",
+        };
+      }
+      return {};
+    };
 
     const buttonClasses = cn(
       baseClasses,
@@ -52,7 +96,16 @@ const Button = forwardRef(
       sizes[size],
       {
         "cursor-not-allowed opacity-60": disabled || loading,
-        "transform active:scale-95": !disabled && !loading,
+        "transform hover:scale-105 active:scale-95":
+          !disabled &&
+          !loading &&
+          (variant === "primary" || variant === "navy"),
+        "transform hover:-translate-y-0.5 active:translate-y-0":
+          !disabled &&
+          !loading &&
+          (variant === "outline" ||
+            variant === "outline-primary" ||
+            variant === "outline-navy"),
       },
       className
     );
@@ -71,15 +124,15 @@ const Button = forwardRef(
             <div className="flex items-center">
               <div className="flex space-x-1 mr-2">
                 <div
-                  className="w-1.5 h-1.5 bg-current rounded-full animate-wave"
+                  className="w-1.5 h-1.5 bg-current rounded-full animate-bounce"
                   style={{ animationDelay: "0ms" }}
                 ></div>
                 <div
-                  className="w-1.5 h-1.5 bg-current rounded-full animate-wave"
+                  className="w-1.5 h-1.5 bg-current rounded-full animate-bounce"
                   style={{ animationDelay: "150ms" }}
                 ></div>
                 <div
-                  className="w-1.5 h-1.5 bg-current rounded-full animate-wave"
+                  className="w-1.5 h-1.5 bg-current rounded-full animate-bounce"
                   style={{ animationDelay: "300ms" }}
                 ></div>
               </div>
@@ -119,6 +172,7 @@ const Button = forwardRef(
     return (
       <button
         className={buttonClasses}
+        style={getNavyStyles()}
         ref={ref}
         disabled={disabled || loading}
         {...props}
@@ -130,5 +184,91 @@ const Button = forwardRef(
 );
 
 Button.displayName = "Button";
+
+// Button Group Component for related actions
+export const ButtonGroup = ({
+  children,
+  className,
+  orientation = "horizontal",
+  ...props
+}) => {
+  const orientationClasses = {
+    horizontal: "flex flex-row",
+    vertical: "flex flex-col",
+  };
+
+  return (
+    <div
+      className={cn(
+        orientationClasses[orientation],
+        orientation === "horizontal" ? "space-x-2" : "space-y-2",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
+
+// Icon Button Component for actions with icons only
+export const IconButton = forwardRef(
+  ({ children, size = "md", className, ...props }, ref) => {
+    const iconSizes = {
+      xs: "w-6 h-6 p-1",
+      sm: "w-8 h-8 p-1.5",
+      md: "w-10 h-10 p-2",
+      lg: "w-12 h-12 p-2.5",
+      xl: "w-14 h-14 p-3",
+    };
+
+    return (
+      <Button
+        ref={ref}
+        className={cn("rounded-full", iconSizes[size], className)}
+        {...props}
+      >
+        {children}
+      </Button>
+    );
+  }
+);
+
+IconButton.displayName = "IconButton";
+
+// Floating Action Button Component
+export const FloatingActionButton = forwardRef(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <Button
+        ref={ref}
+        variant="primary"
+        size="lg"
+        className={cn(
+          "fixed bottom-6 right-6 rounded-full shadow-2xl hover:shadow-3xl z-50 w-14 h-14 p-0",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </Button>
+    );
+  }
+);
+
+FloatingActionButton.displayName = "FloatingActionButton";
+
+// Loading Button Component with built-in loading state
+export const LoadingButton = forwardRef(
+  ({ loading, children, loadingText, ...props }, ref) => {
+    return (
+      <Button ref={ref} loading={loading} loadingText={loadingText} {...props}>
+        {children}
+      </Button>
+    );
+  }
+);
+
+LoadingButton.displayName = "LoadingButton";
 
 export default Button;
