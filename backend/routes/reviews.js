@@ -10,7 +10,7 @@ const {
   toggleReviewVisibility,
   adminDeleteReview,
 } = require("../controllers/reviewsController");
-const { authenticateToken, authorize } = require("../middleware/auth");
+const { auth, authorize } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -18,40 +18,25 @@ const router = express.Router();
 router.get("/cleaner/:cleanerId", getCleanerReviews);
 
 // Customer routes (protected)
-router.post("/", authenticateToken, authorize(["customer"]), createReview);
-router.get(
-  "/my-reviews",
-  authenticateToken,
-  authorize(["customer"]),
-  getMyReviews
-);
+router.post("/", auth, authorize(["customer"]), createReview);
+router.get("/my-reviews", auth, authorize(["customer"]), getMyReviews);
 router.get(
   "/can-review/:bookingId",
-  authenticateToken,
+  auth,
   authorize(["customer"]),
   canReviewBooking
 );
-router.put("/:id", authenticateToken, authorize(["customer"]), updateReview);
-router.delete("/:id", authenticateToken, authorize(["customer"]), deleteReview);
+router.put("/:id", auth, authorize(["customer"]), updateReview);
+router.delete("/:id", auth, authorize(["customer"]), deleteReview);
 
 // Admin routes (protected)
-router.get(
-  "/admin/all",
-  authenticateToken,
-  authorize(["admin"]),
-  getAllReviews
-);
+router.get("/admin/all", auth, authorize(["admin"]), getAllReviews);
 router.put(
   "/admin/:id/toggle-visibility",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   toggleReviewVisibility
 );
-router.delete(
-  "/admin/:id",
-  authenticateToken,
-  authorize(["admin"]),
-  adminDeleteReview
-);
+router.delete("/admin/:id", auth, authorize(["admin"]), adminDeleteReview);
 
 module.exports = router;

@@ -9,7 +9,7 @@ const {
   deleteOffer,
   getOfferAnalytics,
 } = require("../controllers/offersController");
-const { authenticateToken, authorize } = require("../middleware/auth");
+const { auth, authorize } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -19,32 +19,22 @@ router.get("/", getActiveOffers);
 // Customer routes (protected)
 router.get(
   "/first-clean/eligibility",
-  authenticateToken,
+  auth,
   authorize(["customer"]),
   checkFirstCleanEligibility
 );
 router.post(
   "/first-clean/calculate",
-  authenticateToken,
+  auth,
   authorize(["customer"]),
   calculateFirstCleanPricing
 );
 
 // Admin routes (protected)
-router.get("/admin/all", authenticateToken, authorize(["admin"]), getAllOffers);
-router.post("/admin", authenticateToken, authorize(["admin"]), createOffer);
-router.put("/admin/:id", authenticateToken, authorize(["admin"]), updateOffer);
-router.delete(
-  "/admin/:id",
-  authenticateToken,
-  authorize(["admin"]),
-  deleteOffer
-);
-router.get(
-  "/admin/analytics",
-  authenticateToken,
-  authorize(["admin"]),
-  getOfferAnalytics
-);
+router.get("/admin/all", auth, authorize(["admin"]), getAllOffers);
+router.post("/admin", auth, authorize(["admin"]), createOffer);
+router.put("/admin/:id", auth, authorize(["admin"]), updateOffer);
+router.delete("/admin/:id", auth, authorize(["admin"]), deleteOffer);
+router.get("/admin/analytics", auth, authorize(["admin"]), getOfferAnalytics);
 
 module.exports = router;
