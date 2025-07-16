@@ -9,6 +9,7 @@ import {
 } from "@heroicons/react/24/outline";
 import Button from "../components/ui/Button";
 import { Card, CardContent } from "../components/ui/Card";
+import { LazySection } from "../components/ui/LazyComponents";
 
 const Home = () => {
   const features = [
@@ -264,6 +265,124 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Lazy-loaded Testimonials Section */}
+      <LazySection
+        threshold={0.2}
+        fallback={
+          <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-12">
+                <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-96 mx-auto animate-pulse"></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-white p-6 rounded-lg shadow animate-pulse"
+                  >
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 bg-gray-200 rounded-full mr-4"></div>
+                      <div>
+                        <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-16"></div>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-200 rounded"></div>
+                      <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                      <div className="h-3 bg-gray-200 rounded w-4/6"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        }
+      >
+        <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                What Our Customers Say
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Real reviews from satisfied customers who trust CleanMatch for
+                their cleaning needs.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {
+                  name: "Sarah Johnson",
+                  location: "New York, NY",
+                  rating: 5,
+                  review:
+                    "Amazing service! The cleaner was professional, thorough, and my apartment has never looked better. Highly recommend CleanMatch!",
+                },
+                {
+                  name: "Michael Chen",
+                  location: "San Francisco, CA",
+                  rating: 5,
+                  review:
+                    "I've been using CleanMatch for 6 months now. The consistency and quality are outstanding. It's such a relief to come home to a spotless house.",
+                },
+                {
+                  name: "Emily Rodriguez",
+                  location: "Chicago, IL",
+                  rating: 5,
+                  review:
+                    "The booking process was so easy and the cleaning was exceptional. The cleaner even organized my kitchen cabinets! Will definitely book again.",
+                },
+              ].map((testimonial, index) => (
+                <Card
+                  key={index}
+                  className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300"
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">
+                        {testimonial.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">
+                          {testimonial.name}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {testimonial.location}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex mb-3">
+                      {Array.from({ length: testimonial.rating }).map(
+                        (_, i) => (
+                          <StarIcon
+                            key={i}
+                            className="h-5 w-5 text-yellow-400 fill-current"
+                          />
+                        )
+                      )}
+                    </div>
+                    <p className="text-gray-700 italic">
+                      "{testimonial.review}"
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <Link to="/loading-demo">
+                <Button variant="outline" className="mx-auto">
+                  View Loading Effects Demo
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      </LazySection>
     </div>
   );
 };

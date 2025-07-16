@@ -13,7 +13,11 @@ import {
   CardContent,
 } from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
-import { LoadingCard } from "../../components/ui/Loading";
+import {
+  LoadingCard,
+  LoadingStatsCard,
+  LoadingGrid,
+} from "../../components/ui/Loading";
 import { bookingsAPI } from "../../lib/api";
 import {
   formatDateTime,
@@ -98,61 +102,69 @@ const CustomerDashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-3">
-        <Card>
-          <CardContent className="flex items-center p-4 sm:p-6">
-            <div className="flex-shrink-0">
-              <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
-            </div>
-            <div className="ml-3 sm:ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
-                  Total Bookings
-                </dt>
-                <dd className="text-base sm:text-lg font-medium text-gray-900">
-                  {stats.totalBookings}
-                </dd>
-              </dl>
-            </div>
-          </CardContent>
-        </Card>
+      {loading ? (
+        <LoadingGrid columns={3} gap="sm">
+          <LoadingStatsCard />
+          <LoadingStatsCard />
+          <LoadingStatsCard />
+        </LoadingGrid>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-3">
+          <Card>
+            <CardContent className="flex items-center p-4 sm:p-6">
+              <div className="flex-shrink-0">
+                <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              </div>
+              <div className="ml-3 sm:ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
+                    Total Bookings
+                  </dt>
+                  <dd className="text-base sm:text-lg font-medium text-gray-900">
+                    {stats.totalBookings}
+                  </dd>
+                </dl>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="flex items-center p-4 sm:p-6">
-            <div className="flex-shrink-0">
-              <ClockIcon className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600" />
-            </div>
-            <div className="ml-3 sm:ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
-                  Upcoming
-                </dt>
-                <dd className="text-base sm:text-lg font-medium text-gray-900">
-                  {stats.upcomingBookings}
-                </dd>
-              </dl>
-            </div>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardContent className="flex items-center p-4 sm:p-6">
+              <div className="flex-shrink-0">
+                <ClockIcon className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600" />
+              </div>
+              <div className="ml-3 sm:ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
+                    Upcoming
+                  </dt>
+                  <dd className="text-base sm:text-lg font-medium text-gray-900">
+                    {stats.upcomingBookings}
+                  </dd>
+                </dl>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="flex items-center p-4 sm:p-6">
-            <div className="flex-shrink-0">
-              <CheckCircleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
-            </div>
-            <div className="ml-3 sm:ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
-                  Completed
-                </dt>
-                <dd className="text-base sm:text-lg font-medium text-gray-900">
-                  {stats.completedBookings}
-                </dd>
-              </dl>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          <Card>
+            <CardContent className="flex items-center p-4 sm:p-6">
+              <div className="flex-shrink-0">
+                <CheckCircleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
+              </div>
+              <div className="ml-3 sm:ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
+                    Completed
+                  </dt>
+                  <dd className="text-base sm:text-lg font-medium text-gray-900">
+                    {stats.completedBookings}
+                  </dd>
+                </dl>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Recent Bookings */}
       <Card>
@@ -167,7 +179,11 @@ const CustomerDashboard = () => {
         </CardHeader>
         <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
           {loading ? (
-            <LoadingCard />
+            <div className="space-y-4">
+              <LoadingCard variant="booking" />
+              <LoadingCard variant="booking" />
+              <LoadingCard variant="booking" />
+            </div>
           ) : bookings.length === 0 ? (
             <div className="text-center py-6 sm:py-8">
               <CalendarIcon className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />

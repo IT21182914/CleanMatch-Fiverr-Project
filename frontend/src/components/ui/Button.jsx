@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import { cn } from "../../lib/utils";
+import { ButtonLoading } from "./Loading";
 
 const Button = forwardRef(
   (
@@ -8,6 +9,8 @@ const Button = forwardRef(
       variant = "primary",
       size = "md",
       loading = false,
+      loadingVariant = "spinner", // "spinner" | "dots" | "pulse"
+      loadingText,
       disabled = false,
       children,
       ...props
@@ -29,6 +32,8 @@ const Button = forwardRef(
         "bg-transparent hover:bg-gray-100 text-gray-700 border border-transparent focus:ring-gray-500",
       warning:
         "bg-yellow-600 hover:bg-yellow-700 text-white border border-transparent focus:ring-yellow-500",
+      gradient:
+        "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border border-transparent focus:ring-blue-500",
     };
 
     const sizes = {
@@ -39,17 +44,77 @@ const Button = forwardRef(
     };
 
     const baseClasses =
-      "inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+      "inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
     const buttonClasses = cn(
       baseClasses,
       variants[variant],
       sizes[size],
       {
-        "cursor-not-allowed opacity-50": disabled || loading,
+        "cursor-not-allowed opacity-60": disabled || loading,
+        "transform active:scale-95": !disabled && !loading,
       },
       className
     );
+
+    const renderLoadingState = () => {
+      switch (loadingVariant) {
+        case "pulse":
+          return (
+            <div className="flex items-center">
+              <div className="animate-pulse w-3 h-3 bg-current rounded-full mr-2"></div>
+              {loadingText || children}
+            </div>
+          );
+        case "dots":
+          return (
+            <div className="flex items-center">
+              <div className="flex space-x-1 mr-2">
+                <div
+                  className="w-1.5 h-1.5 bg-current rounded-full animate-wave"
+                  style={{ animationDelay: "0ms" }}
+                ></div>
+                <div
+                  className="w-1.5 h-1.5 bg-current rounded-full animate-wave"
+                  style={{ animationDelay: "150ms" }}
+                ></div>
+                <div
+                  className="w-1.5 h-1.5 bg-current rounded-full animate-wave"
+                  style={{ animationDelay: "300ms" }}
+                ></div>
+              </div>
+              {loadingText || children}
+            </div>
+          );
+        case "spinner":
+        default:
+          return (
+            <div className="flex items-center">
+              <svg
+                className="animate-spin -ml-1 mr-2 h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              {loadingText || children}
+            </div>
+          );
+      }
+    };
 
     return (
       <button
@@ -58,29 +123,7 @@ const Button = forwardRef(
         disabled={disabled || loading}
         {...props}
       >
-        {loading && (
-          <svg
-            className="animate-spin -ml-1 mr-2 h-4 w-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-        )}
-        {children}
+        {loading ? renderLoadingState() : children}
       </button>
     );
   }

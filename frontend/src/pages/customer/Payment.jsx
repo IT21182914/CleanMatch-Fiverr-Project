@@ -10,7 +10,7 @@ import {
   CardContent,
 } from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
-import { LoadingPage } from "../../components/ui/Loading";
+import { LoadingPage, ModernPageLoader } from "../../components/ui/Loading";
 import { formatCurrency, formatDateTime } from "../../lib/utils";
 import PaymentForm from "../../components/payment/PaymentForm";
 
@@ -75,7 +75,7 @@ const Payment = () => {
   };
 
   if (loading) {
-    return <LoadingPage />;
+    return <ModernPageLoader message="Loading payment details..." />;
   }
 
   if (error) {

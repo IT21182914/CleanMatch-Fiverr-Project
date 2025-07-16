@@ -9,7 +9,7 @@ import {
   CardTitle,
   CardContent,
 } from "../../components/ui/Card";
-import { LoadingCard } from "../../components/ui/Loading";
+import { LoadingCard, LoadingGrid } from "../../components/ui/Loading";
 import { formatCurrency, validateZipCode } from "../../lib/utils";
 
 const BookService = () => {
@@ -210,7 +210,10 @@ const BookService = () => {
       </div>
 
       {loading ? (
-        <LoadingCard />
+        <div className="space-y-6">
+          <LoadingCard variant="form" />
+          <LoadingCard variant="services" />
+        </div>
       ) : (
         <Card>
           <CardHeader>
@@ -378,6 +381,8 @@ const BookService = () => {
                 <Button
                   type="submit"
                   loading={submitting}
+                  loadingVariant="spinner"
+                  loadingText="Processing..."
                   disabled={submitting || services.length === 0}
                 >
                   Continue to Payment

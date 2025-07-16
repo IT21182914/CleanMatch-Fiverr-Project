@@ -268,6 +268,8 @@ const Register = () => {
             type="submit"
             className="w-full"
             loading={loading}
+            loadingVariant="pulse"
+            loadingText="Creating Account..."
             disabled={loading}
           >
             Create Account

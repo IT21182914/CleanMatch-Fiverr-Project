@@ -1,13 +1,13 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { LoadingPage } from "../ui/Loading";
+import { ModernPageLoader } from "../ui/Loading";
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    return <LoadingPage />;
+    return <ModernPageLoader message="Authenticating..." />;
   }
 
   if (!isAuthenticated) {

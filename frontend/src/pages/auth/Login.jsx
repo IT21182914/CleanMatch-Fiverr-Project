@@ -135,6 +135,8 @@ const Login = () => {
             type="submit"
             className="w-full py-3 sm:py-2"
             loading={loading}
+            loadingVariant="dots"
+            loadingText="Signing in..."
             disabled={loading}
           >
             Sign in
