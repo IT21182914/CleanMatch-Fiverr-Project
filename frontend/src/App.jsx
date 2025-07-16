@@ -19,6 +19,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 
 // Customer pages
 import BookService from "./pages/customer/BookService";
+import EnhancedBookService from "./pages/customer/EnhancedBookService";
 import CustomerBookings from "./pages/customer/CustomerBookings";
 import Payment from "./pages/customer/Payment";
 import CustomerProfile from "./pages/customer/Profile";
@@ -37,6 +38,7 @@ import AdminAnalytics from "./pages/admin/Analytics";
 
 // Home page
 import Home from "./pages/Home";
+import AIMatchingDemo from "./pages/AIMatchingDemo";
 
 function App() {
   return (
@@ -48,6 +50,7 @@ function App() {
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Home />} />
+                <Route path="/ai-demo" element={<AIMatchingDemo />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
 
@@ -67,6 +70,15 @@ function App() {
                   element={
                     <ProtectedRoute requiredRole="customer">
                       <BookService />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/book-ai"
+                  element={
+                    <ProtectedRoute requiredRole="customer">
+                      <EnhancedBookService />
                     </ProtectedRoute>
                   }
                 />

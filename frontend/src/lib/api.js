@@ -81,6 +81,9 @@ export const bookingsAPI = {
   assignCleaner: (id, cleanerId) =>
     api.post(`/bookings/${id}/assign`, { cleanerId }),
   getRecommendations: (id) => api.get(`/bookings/${id}/recommendations`),
+  // AI-Enhanced ZIP Code Matching
+  getZipBasedRecommendations: (searchData) =>
+    api.post("/bookings/recommendations-by-zip", searchData),
   acceptBooking: (id) =>
     api.put(`/bookings/${id}/status`, { status: "confirmed" }),
   rejectBooking: (id) =>

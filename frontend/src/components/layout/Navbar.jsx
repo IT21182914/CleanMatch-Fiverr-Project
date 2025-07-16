@@ -8,6 +8,7 @@ import {
   Bars3Icon,
   XMarkIcon,
   ArrowRightOnRectangleIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
@@ -27,6 +28,7 @@ const Navbar = () => {
     if (!isAuthenticated) {
       return [
         { name: "Home", href: "/", icon: HomeIcon },
+        { name: "AI Demo", href: "/ai-demo", icon: SparklesIcon },
         { name: "Services", href: "/services", icon: CalendarIcon },
       ];
     }
@@ -36,6 +38,7 @@ const Navbar = () => {
     if (user?.role === "customer") {
       return [
         ...baseNav,
+        { name: "AI Booking", href: "/book-ai", icon: SparklesIcon },
         { name: "Book Service", href: "/book", icon: CalendarIcon },
         { name: "My Bookings", href: "/customer/bookings", icon: CalendarIcon },
         { name: "Payment History", href: "/payments", icon: CreditCardIcon },
