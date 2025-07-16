@@ -5,6 +5,7 @@ import { parseApiError, logError, withRetry } from "../utils/errorHandling";
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
   timeout: 30000, // Increased timeout
+  withCredentials: true, // Enable credentials for CORS
   headers: {
     "Content-Type": "application/json",
   },
@@ -13,13 +14,23 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    // Get token from localStorage first, then sessionStorage
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
     // Add request timestamp for logging
     config.metadata = { startTime: new Date() };
+
+    // Log request details in development
+    if (import.meta.env.MODE === "development") {
+      console.log(`🚀 Making ${config.method?.toUpperCase()} request to:`, config.url);
+      console.log("Full URL:", `${config.baseURL}${config.url}`);
+      if (token) {
+        console.log("Using auth token:", token.substring(0, 20) + "...");
+      }
+    }
 
     return config;
   },
@@ -38,7 +49,8 @@ api.interceptors.response.use(
       console.log(
         `✅ ${response.config.method?.toUpperCase()} ${
           response.config.url
-        } (${duration}ms)`
+        } (${duration}ms)`,
+        response.data
       );
     }
     return response;
@@ -50,18 +62,30 @@ api.interceptors.response.use(
     const context = {
       method: error.config?.method,
       url: error.config?.url,
+      baseURL: error.config?.baseURL,
+      fullURL: error.config ? `${error.config.baseURL}${error.config.url}` : 'unknown',
       duration: error.config?.metadata
         ? new Date() - error.config.metadata.startTime
         : null,
     };
 
+    console.error("API Error:", {
+      ...parsedError,
+      context,
+      originalError: error
+    });
+
     logError(parsedError, context);
 
     // Handle authentication errors
     if (parsedError.statusCode === 401) {
-      // Clear auth data
+      // Clear auth data from both storage types
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.removeItem("refreshToken");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("refreshToken");
 
       // Only redirect to login if not already on login page
       if (!window.location.pathname.includes("/login")) {

@@ -12,6 +12,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { Input } from "../../components/ui/Form";
 import Button from "../../components/ui/Button";
 import { validateEmail } from "../../lib/utils";
+import ApiTestComponent from "../../components/ApiTestComponent";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -88,6 +89,9 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {/* API Test Component - Remove this in production */}
+      {import.meta.env.MODE === "development" && <ApiTestComponent />}
+      
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Logo and Header */}
         <div className="text-center">

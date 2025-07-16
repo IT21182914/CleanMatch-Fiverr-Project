@@ -153,6 +153,11 @@ const register = asyncHandler(async (req, res) => {
  * @access  Public
  */
 const login = asyncHandler(async (req, res) => {
+  console.log("🔐 Login attempt received");
+  console.log("Request body:", req.body);
+  console.log("Content-Type:", req.headers['content-type']);
+  console.log("Origin:", req.headers.origin);
+  
   const { email, password } = req.body;
 
   // Validate required fields
@@ -160,8 +165,11 @@ const login = asyncHandler(async (req, res) => {
 
   // Validate email format
   if (!isValidEmail(email)) {
+    console.log("❌ Invalid email format:", email);
     throw new ValidationError("Please provide a valid email address");
   }
+
+  console.log("✅ Validation passed, attempting to find user:", email);
 
   // Find user
   const userResult = await dbOperation(

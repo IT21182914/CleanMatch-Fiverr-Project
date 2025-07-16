@@ -81,10 +81,25 @@ export class PaymentError extends AppError {
 export const parseApiError = (error) => {
   // Network errors (no response)
   if (!error.response) {
+    console.log("Network error details:", {
+      code: error.code,
+      message: error.message,
+      config: error.config
+    });
+    
     if (error.code === "ECONNABORTED" || error.code === "NETWORK_ERROR") {
       return new NetworkError("Request timeout. Please try again.");
     }
-    return new NetworkError();
+    
+    if (error.code === "ECONNREFUSED" || error.message?.includes("ECONNREFUSED")) {
+      return new NetworkError("Unable to connect to server. Please ensure the backend server is running on http://localhost:5000");
+    }
+    
+    if (error.message?.includes("Network Error")) {
+      return new NetworkError("Network connection failed. Please check your internet connection and ensure the backend server is running.");
+    }
+    
+    return new NetworkError("Connection failed. Please check if the backend server is running on http://localhost:5000");
   }
 
   const { status, data } = error.response;

@@ -83,6 +83,8 @@ app.use(
         process.env.FRONTEND_URL || "http://localhost:5173",
         "http://localhost:3000",
         "http://localhost:5000",
+        "http://localhost:5174", // Add port 5174 for frontend
+        "http://localhost:5175", // Add port 5175 as backup
       ];
 
       // Allow requests with no origin (like mobile apps or curl requests)
