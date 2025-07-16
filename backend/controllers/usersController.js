@@ -327,6 +327,7 @@ const getUserBookings = async (req, res) => {
         b.id, b.booking_date, b.booking_time, b.duration_hours, b.total_amount,
         b.status, b.payment_status, b.special_instructions, b.address, b.city, b.state, b.zip_code,
         b.created_at, b.updated_at,
+        (b.booking_date || ' ' || b.booking_time)::timestamp as scheduled_date,
         s.name as service_name, s.category as service_category,
         customer.first_name as customer_first_name, customer.last_name as customer_last_name,
         customer.email as customer_email, customer.phone as customer_phone,
@@ -355,9 +356,46 @@ const getUserBookings = async (req, res) => {
     const countResult = await query(countQuery, countQueryParams);
     const total = parseInt(countResult.rows[0].total);
 
+    // Transform the booking data to match frontend expectations
+    const transformedBookings = bookingsResult.rows.map((booking) => ({
+      id: booking.id,
+      scheduledDate: booking.scheduled_date,
+      bookingDate: booking.booking_date,
+      bookingTime: booking.booking_time,
+      durationHours: booking.duration_hours,
+      totalAmount: booking.total_amount,
+      status: booking.status,
+      paymentStatus: booking.payment_status,
+      specialInstructions: booking.special_instructions,
+      address: booking.address,
+      city: booking.city,
+      state: booking.state,
+      zipCode: booking.zip_code,
+      createdAt: booking.created_at,
+      updatedAt: booking.updated_at,
+      service: {
+        name: booking.service_name,
+        category: booking.service_category,
+      },
+      customer: {
+        firstName: booking.customer_first_name,
+        lastName: booking.customer_last_name,
+        email: booking.customer_email,
+        phone: booking.customer_phone,
+      },
+      cleaner: booking.cleaner_first_name
+        ? {
+            firstName: booking.cleaner_first_name,
+            lastName: booking.cleaner_last_name,
+            email: booking.cleaner_email,
+            phone: booking.cleaner_phone,
+          }
+        : null,
+    }));
+
     res.json({
       success: true,
-      data: bookingsResult.rows,
+      data: transformedBookings,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),

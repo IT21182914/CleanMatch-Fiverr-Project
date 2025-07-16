@@ -40,19 +40,46 @@ const AdminDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [analyticsResponse, bookingsResponse] = await Promise.all([
-        adminAPI.getAnalytics(),
+      const [dashboardResponse, bookingsResponse] = await Promise.all([
+        adminAPI.getDashboardStats(),
         adminAPI.getBookings({ limit: 5 }),
       ]);
 
-      setStats(analyticsResponse.data.data);
-      setRecentBookings(bookingsResponse.data.data.bookings || []);
+      // Transform the dashboard stats to match expected format
+      const dashboardStats = dashboardResponse.data.stats;
+      const transformedStats = {
+        totalUsers:
+          dashboardStats.users?.reduce(
+            (sum, user) => sum + parseInt(user.count),
+            0
+          ) || 0,
+        totalBookings: dashboardStats.bookings?.total_bookings || 0,
+        totalRevenue: dashboardStats.bookings?.total_revenue || 0,
+        pendingBookings:
+          dashboardStats.bookings?.total_bookings -
+            dashboardStats.bookings?.completed_bookings || 0,
+      };
+
+      setStats(transformedStats);
+      setRecentBookings(bookingsResponse.data.bookings || []);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
+      // Set default values to prevent component crash
+      setStats({
+        totalUsers: 0,
+        totalBookings: 0,
+        totalRevenue: 0,
+        pendingBookings: 0,
+      });
+      setRecentBookings([]);
     } finally {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return <LoadingCard />;
+  }
 
   return (
     <div className="space-y-6">
