@@ -71,10 +71,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
@@ -88,14 +88,17 @@ const Login = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form
+          className="mt-6 sm:mt-8 space-y-4 sm:space-y-6"
+          onSubmit={handleSubmit}
+        >
           {errors.general && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="bg-red-50 border border-red-200 rounded-md p-3 sm:p-4">
               <p className="text-sm text-red-600">{errors.general}</p>
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <Input
               label="Email address"
               name="email"
@@ -122,7 +125,7 @@ const Login = () => {
           <div className="flex items-center justify-between">
             <Link
               to="/forgot-password"
-              className="text-sm text-blue-600 hover:text-blue-500"
+              className="text-xs sm:text-sm text-blue-600 hover:text-blue-500"
             >
               Forgot your password?
             </Link>
@@ -130,7 +133,7 @@ const Login = () => {
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full py-3 sm:py-2"
             loading={loading}
             disabled={loading}
           >

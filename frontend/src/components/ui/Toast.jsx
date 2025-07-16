@@ -65,24 +65,26 @@ const Toast = ({
   return (
     <div
       className={cn(
-        "max-w-sm w-full border rounded-lg p-4 shadow-lg transition-all duration-300",
+        "max-w-xs sm:max-w-sm w-full border rounded-lg p-3 sm:p-4 shadow-lg transition-all duration-300",
         colors[type],
         isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
       )}
     >
       <div className="flex">
         <div className="flex-shrink-0">
-          <Icon className={cn("h-5 w-5", iconColors[type])} />
+          <Icon className={cn("h-4 w-4 sm:h-5 sm:w-5", iconColors[type])} />
         </div>
-        <div className="ml-3 flex-1">
-          {title && <p className="text-sm font-medium">{title}</p>}
-          <p className="text-sm mt-1">{message}</p>
+        <div className="ml-2 sm:ml-3 flex-1 min-w-0">
+          {title && (
+            <p className="text-xs sm:text-sm font-medium truncate">{title}</p>
+          )}
+          <p className="text-xs sm:text-sm mt-1 break-words">{message}</p>
 
           {/* Action button */}
           {action && (
             <button
               onClick={action.onClick}
-              className="mt-2 text-sm font-medium underline hover:no-underline focus:outline-none"
+              className="mt-2 text-xs sm:text-sm font-medium underline hover:no-underline focus:outline-none"
             >
               {action.label}
             </button>
@@ -91,13 +93,13 @@ const Toast = ({
 
         {/* Close button - hide for persistent loading toasts */}
         {!(persistent && type === "loading") && (
-          <div className="ml-4 flex-shrink-0">
+          <div className="ml-2 sm:ml-4 flex-shrink-0">
             <button
-              className="inline-flex rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 hover:opacity-75"
+              className="inline-flex rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 hover:opacity-75 p-1"
               onClick={handleClose}
               aria-label="Close notification"
             >
-              <XMarkIcon className="h-5 w-5" />
+              <XMarkIcon className="h-3 w-3 sm:h-4 sm:w-4" />
             </button>
           </div>
         )}

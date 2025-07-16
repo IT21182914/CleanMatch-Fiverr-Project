@@ -9,6 +9,7 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 body {
@@ -23,16 +24,73 @@ body {
 
 #root {
   min-height: 100vh;
+  width: 100%;
 }
 
-/* Utility classes */
+/* Responsive container utility */
 .container {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.container-sm {
+  @apply max-w-3xl mx-auto px-4 sm:px-6;
+}
+
+.container-xs {
+  @apply max-w-xl mx-auto px-4 sm:px-6;
+}
+
+/* Responsive grid utilities */
+.grid-responsive {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+}
+
+.grid-responsive-2 {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6;
+}
+
+.grid-responsive-4 {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+}
+
+/* Responsive flexbox utilities */
+.flex-responsive {
+  @apply flex flex-col sm:flex-row gap-4;
+}
+
+.flex-responsive-reverse {
+  @apply flex flex-col-reverse sm:flex-row gap-4;
+}
+
+/* Responsive spacing */
+.space-responsive {
+  @apply space-y-4 sm:space-y-6 lg:space-y-8;
+}
+
+.padding-responsive {
+  @apply p-4 sm:p-6 lg:p-8;
+}
+
+.margin-responsive {
+  @apply m-4 sm:m-6 lg:m-8;
 }
 
 /* Component overrides */
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
+}
+
+/* Responsive text utilities */
+.text-responsive-lg {
+  @apply text-2xl sm:text-3xl lg:text-4xl;
+}
+
+.text-responsive-xl {
+  @apply text-3xl sm:text-4xl lg:text-5xl xl:text-6xl;
+}
+
+.text-responsive-sm {
+  @apply text-sm sm:text-base;
 }
 
 /* Loading animations */
@@ -47,6 +105,49 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .fade-in {
   animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-left {
+  animation: slideInFromLeft 0.3s ease-out;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-right {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+/* Mobile-first responsive breakpoints helper */
+@media (max-width: 640px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 641px) {
+  .show-mobile {
+    display: none !important;
+  }
 }
 
 /* Custom scrollbar */
@@ -65,4 +166,43 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Touch-friendly interactive elements */
+@media (hover: none) and (pointer: coarse) {
+  button, 
+  .button,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  a:not(.no-touch-target) {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Responsive table wrapper */
+.table-responsive {
+  @apply overflow-x-auto;
+}
+
+.table-responsive table {
+  @apply min-w-full;
+}
+
+/* Responsive card stacking */
+.card-stack {
+  @apply space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6;
+}
+
+/* Mobile navigation improvements */
+.mobile-nav-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 z-40 sm:hidden;
+}
+
+.mobile-nav-panel {
+  @apply fixed inset-y-0 left-0 max-w-xs w-full bg-white shadow-xl z-50 sm:hidden;
 }
