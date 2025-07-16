@@ -1,19 +1,19 @@
-require('dotenv').config();
-const { Pool } = require('pg');
+require("dotenv").config();
+const { Pool } = require("pg");
 
 async function fixReviewsTable() {
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+    ssl: { rejectUnauthorized: false },
   });
 
   try {
-    console.log('🔧 Fixing reviews table structure...');
-    
+    console.log("🔧 Fixing reviews table structure...");
+
     // Drop the existing reviews table
-    await pool.query('DROP TABLE IF EXISTS reviews CASCADE');
-    console.log('✅ Dropped existing reviews table');
-    
+    await pool.query("DROP TABLE IF EXISTS reviews CASCADE");
+    console.log("✅ Dropped existing reviews table");
+
     // Recreate with correct structure
     await pool.query(`
       CREATE TABLE reviews (
@@ -30,20 +30,29 @@ async function fixReviewsTable() {
         UNIQUE(booking_id, customer_id)
       )
     `);
-    console.log('✅ Recreated reviews table with correct structure');
-    
+    console.log("✅ Recreated reviews table with correct structure");
+
     // Create the indexes
-    await pool.query('CREATE INDEX IF NOT EXISTS idx_reviews_booking_id ON reviews(booking_id)');
-    await pool.query('CREATE INDEX IF NOT EXISTS idx_reviews_customer_id ON reviews(customer_id)');  
-    await pool.query('CREATE INDEX IF NOT EXISTS idx_reviews_cleaner_id ON reviews(cleaner_id)');
-    await pool.query('CREATE INDEX IF NOT EXISTS idx_reviews_visible ON reviews(is_visible)');
-    await pool.query('CREATE INDEX IF NOT EXISTS idx_reviews_rating ON reviews(rating)');
-    console.log('✅ Created reviews table indexes');
-    
-    console.log('🎉 Reviews table fixed successfully!');
-    
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_reviews_booking_id ON reviews(booking_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_reviews_customer_id ON reviews(customer_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_reviews_cleaner_id ON reviews(cleaner_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_reviews_visible ON reviews(is_visible)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_reviews_rating ON reviews(rating)"
+    );
+    console.log("✅ Created reviews table indexes");
+
+    console.log("🎉 Reviews table fixed successfully!");
   } catch (error) {
-    console.error('❌ Error fixing reviews table:', error.message);
+    console.error("❌ Error fixing reviews table:", error.message);
   } finally {
     await pool.end();
   }
