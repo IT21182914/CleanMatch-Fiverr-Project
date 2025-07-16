@@ -13,7 +13,7 @@ const {
   deleteTestimonial,
   importTestimonialFromReview,
 } = require("../controllers/trustController");
-const { authenticateToken, authorize } = require("../middleware/auth");
+const { auth, authorize } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -25,25 +25,25 @@ router.get("/badges/:type", getBadgesByType);
 // Admin routes for badges
 router.get(
   "/admin/badges",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   getAllBadges
 );
 router.post(
   "/admin/badges",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   createBadge
 );
 router.put(
   "/admin/badges/:id",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   updateBadge
 );
 router.delete(
   "/admin/badges/:id",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   deleteBadge
 );
@@ -51,31 +51,31 @@ router.delete(
 // Admin routes for testimonials
 router.get(
   "/admin/testimonials",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   getAllTestimonials
 );
 router.post(
   "/admin/testimonials",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   createTestimonial
 );
 router.put(
   "/admin/testimonials/:id",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   updateTestimonial
 );
 router.delete(
   "/admin/testimonials/:id",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   deleteTestimonial
 );
 router.post(
   "/admin/testimonials/import/:reviewId",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   importTestimonialFromReview
 );

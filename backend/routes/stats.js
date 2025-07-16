@@ -8,7 +8,7 @@ const {
   addCoverageArea,
   getAnalyticsDashboard,
 } = require("../controllers/statsController");
-const { authenticateToken, authorize } = require("../middleware/auth");
+const { auth, authorize } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -17,28 +17,28 @@ router.get("/public", getPublicStats);
 router.get("/coverage", getCoverageAreas);
 
 // Admin routes (protected)
-router.get("/admin/all", authenticateToken, authorize(["admin"]), getAllStats);
+router.get("/admin/all", auth, authorize(["admin"]), getAllStats);
 router.put(
   "/admin/:statName",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   updateStat
 );
 router.delete(
   "/admin/:statName/override",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   resetStatOverride
 );
 router.post(
   "/admin/coverage",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   addCoverageArea
 );
 router.get(
   "/admin/analytics",
-  authenticateToken,
+  auth,
   authorize(["admin"]),
   getAnalyticsDashboard
 );
