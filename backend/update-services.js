@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { query } = require("./config/database");
+const { query, connectDB } = require("./config/database");
 
 /**
  * Update services with the comprehensive cleaning services list
@@ -7,6 +7,10 @@ const { query } = require("./config/database");
 async function updateServices() {
   try {
     console.log("🛠️ Updating cleaning services...");
+
+    // Initialize database connection
+    await connectDB();
+    console.log("✅ Database connected");
 
     // Clear existing services first
     await query("DELETE FROM services");
