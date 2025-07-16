@@ -18,7 +18,7 @@ import Button from "../../components/ui/Button";
 import { LoadingCard } from "../../components/ui/Loading";
 import { userAPI, paymentsAPI } from "../../lib/api";
 import { useAuth } from "../../hooks/useAuth";
-import { validateEmail, validateZipCode } from "../../lib/utils";
+import { validateZipCode } from "../../lib/utils";
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -153,11 +153,7 @@ const Profile = () => {
       newErrors.lastName = "Last name is required";
     }
 
-    if (!profileData.email) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(profileData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
+    // Email validation removed since it's disabled
 
     if (!profileData.phone.trim()) {
       newErrors.phone = "Phone number is required";
@@ -191,13 +187,26 @@ const Profile = () => {
 
     setUpdating(true);
     setSuccessMessage("");
+    setErrors({});
 
     try {
-      const response = await userAPI.updateProfile(profileData);
+      // Exclude email from update as it's not allowed by backend
+      const updateData = {
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        phone: profileData.phone,
+        address: profileData.address,
+        city: profileData.city,
+        state: profileData.state,
+        zipCode: profileData.zipCode,
+      };
+
+      const response = await userAPI.updateProfile(updateData);
       updateUser(response.data.user);
       setSuccessMessage("Profile updated successfully!");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
+      console.error("Profile update error:", error);
       setErrors({
         general: error.response?.data?.error || "Failed to update profile",
       });
@@ -248,6 +257,7 @@ const Profile = () => {
     }
 
     setChangingPassword(true);
+    setPasswordErrors({});
 
     try {
       await userAPI.changePassword({
@@ -264,6 +274,7 @@ const Profile = () => {
       setSuccessMessage("Password changed successfully!");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
+      console.error("Password change error:", error);
       setPasswordErrors({
         general: error.response?.data?.error || "Failed to change password",
       });
@@ -352,6 +363,8 @@ const Profile = () => {
               onChange={handleProfileChange}
               error={errors.email}
               required
+              disabled
+              placeholder="Email cannot be changed"
             />
 
             <Input

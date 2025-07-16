@@ -27,7 +27,11 @@ const Payment = () => {
       try {
         // Fetch booking details
         const bookingResponse = await bookingsAPI.getById(bookingId);
-        const bookingData = bookingResponse.data.data || bookingResponse.data;
+        const bookingData =
+          bookingResponse.data.data ||
+          bookingResponse.data.booking ||
+          bookingResponse.data;
+        console.log("Payment - booking data:", bookingData);
         setBooking(bookingData);
 
         // Create payment intent
@@ -177,9 +181,43 @@ const Payment = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Date & Time:</span>
                 <span className="font-medium">
-                  {formatDateTime(
-                    booking.booking_date || booking.scheduledDate
-                  )}
+                  {(() => {
+                    // Handle different possible date formats from backend
+                    const bookingDate =
+                      booking.bookingDate ||
+                      booking.booking_date ||
+                      booking.scheduledDate;
+                    const bookingTime =
+                      booking.bookingTime || booking.booking_time;
+
+                    if (!bookingDate) {
+                      return "Date not available";
+                    }
+
+                    try {
+                      if (bookingTime) {
+                        // If we have separate date and time, combine them
+                        // Handle date format: if it's already a full datetime, use it as is
+                        // If it's just a date, combine with time
+                        const dateStr = bookingDate.includes("T")
+                          ? bookingDate
+                          : `${bookingDate}T${bookingTime}`;
+                        return formatDateTime(dateStr);
+                      } else {
+                        return formatDateTime(bookingDate);
+                      }
+                    } catch (error) {
+                      console.error(
+                        "Date formatting error:",
+                        error,
+                        "Date:",
+                        bookingDate,
+                        "Time:",
+                        bookingTime
+                      );
+                      return "Invalid date format";
+                    }
+                  })()}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -191,7 +229,8 @@ const Payment = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Service Duration:</span>
                 <span className="font-medium">
-                  {booking.duration_hours ||
+                  {booking.durationHours ||
+                    booking.duration_hours ||
                     booking.service?.estimatedDuration ||
                     2}{" "}
                   hours
@@ -199,13 +238,13 @@ const Payment = () => {
               </div>
             </div>
 
-            {booking.special_instructions && (
+            {(booking.specialInstructions || booking.special_instructions) && (
               <div>
                 <h5 className="font-medium text-gray-900 mb-1">
                   Special Instructions:
                 </h5>
                 <p className="text-sm text-gray-600">
-                  {booking.special_instructions}
+                  {booking.specialInstructions || booking.special_instructions}
                 </p>
               </div>
             )}
@@ -217,7 +256,7 @@ const Payment = () => {
                 </span>
                 <span className="text-2xl font-bold text-blue-600">
                   {formatCurrency(
-                    booking.total_amount || booking.totalAmount || 0
+                    booking.totalAmount || booking.total_amount || 0
                   )}
                 </span>
               </div>

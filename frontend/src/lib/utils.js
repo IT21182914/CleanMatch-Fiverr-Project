@@ -12,21 +12,35 @@ export function formatCurrency(amount) {
 }
 
 export function formatDate(date) {
+  if (!date) return "Date not set";
+
+  const dateObj = new Date(date);
+  if (isNaN(dateObj.getTime())) {
+    return "Invalid date";
+  }
+
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  }).format(new Date(date));
+  }).format(dateObj);
 }
 
 export function formatDateTime(date) {
+  if (!date) return "Date not set";
+
+  const dateObj = new Date(date);
+  if (isNaN(dateObj.getTime())) {
+    return "Invalid date";
+  }
+
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(new Date(date));
+  }).format(dateObj);
 }
 
 export function formatTime(timeString) {

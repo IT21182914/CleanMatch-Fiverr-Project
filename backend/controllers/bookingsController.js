@@ -213,9 +213,50 @@ const getBookingById = async (req, res) => {
       });
     }
 
+    // Format the response with better structure
+    const formattedBooking = {
+      id: booking.id,
+      customerId: booking.customer_id,
+      cleanerId: booking.cleaner_id,
+      serviceId: booking.service_id,
+      bookingDate: booking.booking_date,
+      bookingTime: booking.booking_time,
+      durationHours: booking.duration_hours,
+      totalAmount: booking.total_amount,
+      status: booking.status,
+      paymentStatus: booking.payment_status,
+      address: booking.address,
+      city: booking.city,
+      state: booking.state,
+      zipCode: booking.zip_code,
+      specialInstructions: booking.special_instructions,
+      createdAt: booking.created_at,
+      updatedAt: booking.updated_at,
+      service: {
+        name: booking.service_name,
+        category: booking.service_category,
+      },
+      customer: {
+        firstName: booking.customer_first_name,
+        lastName: booking.customer_last_name,
+        email: booking.customer_email,
+        phone: booking.customer_phone,
+      },
+      cleaner: booking.cleaner_id
+        ? {
+            firstName: booking.cleaner_first_name,
+            lastName: booking.cleaner_last_name,
+            email: booking.cleaner_email,
+            phone: booking.cleaner_phone,
+            rating: booking.cleaner_rating,
+            hourlyRate: booking.cleaner_hourly_rate,
+          }
+        : null,
+    };
+
     res.json({
       success: true,
-      booking,
+      data: formattedBooking,
     });
   } catch (error) {
     console.error("Get booking error:", error);

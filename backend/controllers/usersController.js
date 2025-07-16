@@ -114,7 +114,7 @@ const updateUserProfile = async (req, res) => {
       UPDATE users 
       SET ${updateFields.join(", ")}
       WHERE id = $${paramCount}
-      RETURNING id, email, first_name, last_name, phone, address, city, state, zip_code
+      RETURNING id, email, first_name, last_name, phone, address, city, state, zip_code, role
     `;
 
     const result = await query(updateQuery, values);
@@ -122,7 +122,18 @@ const updateUserProfile = async (req, res) => {
     res.json({
       success: true,
       message: "Profile updated successfully",
-      user: result.rows[0],
+      user: {
+        id: result.rows[0].id,
+        email: result.rows[0].email,
+        firstName: result.rows[0].first_name,
+        lastName: result.rows[0].last_name,
+        phone: result.rows[0].phone,
+        address: result.rows[0].address,
+        city: result.rows[0].city,
+        state: result.rows[0].state,
+        zipCode: result.rows[0].zip_code,
+        role: result.rows[0].role,
+      },
     });
   } catch (error) {
     console.error("Update profile error:", error);
