@@ -53,6 +53,9 @@ const createBooking = async (req, res) => {
 
     const service = serviceResult.rows[0];
     const baseAmount = parseFloat(service.base_price) * durationHours;
+    const membershipAmount = service.membership_price
+      ? parseFloat(service.membership_price) * durationHours
+      : baseAmount;
 
     // Check for active membership and calculate discount
     const membershipResult = await client.query(
@@ -101,12 +104,20 @@ const createBooking = async (req, res) => {
         totalAmount = baseAmount - offerDiscount;
       }
     } else if (membershipResult.rows.length > 0) {
-      // Apply membership discount only if no special offer
+      // Apply membership pricing only if no special offer
       const membership = membershipResult.rows[0];
       membershipId = membership.id;
-      const discountPercentage = parseFloat(membership.discount_percentage);
-      membershipDiscount = baseAmount * (discountPercentage / 100);
-      totalAmount = baseAmount - membershipDiscount;
+
+      if (service.membership_price) {
+        // Use fixed membership price if available
+        totalAmount = membershipAmount;
+        membershipDiscount = baseAmount - membershipAmount;
+      } else {
+        // Fallback to percentage discount if no membership_price set
+        const discountPercentage = parseFloat(membership.discount_percentage);
+        membershipDiscount = baseAmount * (discountPercentage / 100);
+        totalAmount = baseAmount - membershipDiscount;
+      }
     }
 
     // Get user details
