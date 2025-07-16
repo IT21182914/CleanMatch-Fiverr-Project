@@ -18,6 +18,7 @@ const notificationRoutes = require("./routes/notifications");
 const offersRoutes = require("./routes/offers");
 const reviewsRoutes = require("./routes/reviews");
 const statsRoutes = require("./routes/stats");
+const trustRoutes = require("./routes/trust");
 
 // Import middleware
 const {
@@ -153,6 +154,7 @@ app.get("/api", (req, res) => {
       offers: "/api/offers",
       reviews: "/api/reviews",
       stats: "/api/stats",
+      trust: "/api/trust",
     },
     documentation: "/api/docs",
     health: "/health",
@@ -171,6 +173,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/offers", offersRoutes);
 app.use("/api/reviews", reviewsRoutes);
 app.use("/api/stats", statsRoutes);
+app.use("/api/trust", trustRoutes);
 
 // 404 handler for unknown API routes
 app.use("/api/*", notFoundHandler);

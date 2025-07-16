@@ -6,6 +6,7 @@ import {
   CurrencyDollarIcon,
   ChartBarIcon,
   ExclamationTriangleIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import {
   Card,
@@ -264,6 +265,24 @@ const AdminDashboard = () => {
                   </h3>
                   <p className="mt-2 text-sm text-gray-500">
                     View detailed platform analytics
+                  </p>
+                </div>
+              </div>
+            </Link>
+
+            <Link to="/admin/trust">
+              <div className="relative rounded-lg border border-gray-300 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div>
+                  <span className="rounded-lg inline-flex p-3 bg-indigo-50 text-indigo-600">
+                    <ShieldCheckIcon className="h-6 w-6" />
+                  </span>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Trust Management
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Manage trust badges and testimonials
                   </p>
                 </div>
               </div>

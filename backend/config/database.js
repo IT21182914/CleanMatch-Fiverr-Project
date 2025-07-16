@@ -279,6 +279,45 @@ const createTables = async () => {
       )
     `);
 
+    // Trust badges for credibility
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS trust_badges (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        image_url TEXT NOT NULL,
+        external_url TEXT,
+        display_order INTEGER DEFAULT 0,
+        is_active BOOLEAN DEFAULT TRUE,
+        badge_type VARCHAR(50) DEFAULT 'media' CHECK (badge_type IN ('media', 'certification', 'award', 'partner')),
+        created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Customer testimonials
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS testimonials (
+        id SERIAL PRIMARY KEY,
+        customer_name VARCHAR(255) NOT NULL,
+        customer_title VARCHAR(255),
+        customer_location VARCHAR(255),
+        content TEXT NOT NULL,
+        rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+        service_type VARCHAR(255),
+        image_url TEXT,
+        is_featured BOOLEAN DEFAULT FALSE,
+        is_active BOOLEAN DEFAULT TRUE,
+        display_order INTEGER DEFAULT 0,
+        source VARCHAR(50) DEFAULT 'manual' CHECK (source IN ('manual', 'review', 'import')),
+        source_review_id INTEGER REFERENCES reviews(id) ON DELETE SET NULL,
+        created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Create indexes for better performance
     await pool.query(
       "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)"
@@ -361,6 +400,31 @@ const createTables = async () => {
     );
     await pool.query(
       "CREATE INDEX IF NOT EXISTS idx_coverage_areas_city_state ON coverage_areas(city, state)"
+    );
+
+    // Trust badges indexes
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_trust_badges_active ON trust_badges(is_active)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_trust_badges_order ON trust_badges(display_order)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_trust_badges_type ON trust_badges(badge_type)"
+    );
+
+    // Testimonials indexes
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_testimonials_active ON testimonials(is_active)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_testimonials_featured ON testimonials(is_featured)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_testimonials_order ON testimonials(display_order)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_testimonials_source ON testimonials(source)"
     );
 
     // Additional tables for payment processing
