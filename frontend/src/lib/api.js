@@ -187,7 +187,7 @@ export const paymentsAPI = {
   processRefund: (bookingId, amount, reason) =>
     enhancedApi.post(`/payments/refund/${bookingId}`, { amount, reason }),
 
-  // Subscription endpoints
+  // Legacy subscription endpoints (kept for backward compatibility)
   createSubscription: (data) =>
     enhancedApi.post("/payments/subscription", data),
   cancelSubscription: (data) =>
@@ -241,6 +241,27 @@ export const adminAPI = {
   // Review management
   getReviews: (params) => enhancedApi.get("/admin/reviews", { params }),
   deleteReview: (id) => enhancedApi.delete(`/admin/reviews/${id}`),
+};
+
+// ForeverClean Membership API endpoints
+export const membershipAPI = {
+  // Public endpoints
+  getPlans: () => enhancedApi.get("/memberships/plans"),
+
+  // Customer endpoints
+  subscribe: (data) => enhancedApi.post("/memberships/subscribe", data),
+  getCurrentMembership: () => enhancedApi.get("/memberships/current"),
+  cancelMembership: (data) => enhancedApi.put("/memberships/cancel", data),
+  reactivateMembership: () => enhancedApi.put("/memberships/reactivate"),
+  updatePaymentMethod: (data) =>
+    enhancedApi.put("/memberships/payment-method", data),
+  calculatePricing: (data) =>
+    enhancedApi.post("/memberships/calculate-pricing", data),
+
+  // Admin endpoints
+  getAnalytics: () => enhancedApi.get("/memberships/analytics"),
+  getAllMemberships: (params) =>
+    enhancedApi.get("/memberships/all", { params }),
 };
 
 export default enhancedApi;

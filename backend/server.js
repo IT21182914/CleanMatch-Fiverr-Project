@@ -12,6 +12,7 @@ const userRoutes = require("./routes/users");
 const serviceRoutes = require("./routes/services");
 const bookingRoutes = require("./routes/bookings");
 const paymentRoutes = require("./routes/payments");
+const membershipRoutes = require("./routes/memberships");
 const adminRoutes = require("./routes/admin");
 const notificationRoutes = require("./routes/notifications");
 
@@ -143,6 +144,7 @@ app.get("/api", (req, res) => {
       services: "/api/services",
       bookings: "/api/bookings",
       payments: "/api/payments",
+      memberships: "/api/memberships",
       admin: "/api/admin",
       notifications: "/api/notifications",
     },
@@ -157,6 +159,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/memberships", membershipRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
 

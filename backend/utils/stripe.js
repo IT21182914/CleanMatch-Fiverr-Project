@@ -289,9 +289,23 @@ const handleSubscriptionPayment = async (invoice) => {
     );
     const userId = subscription.metadata.user_id;
 
+    // Update both legacy subscriptions and new memberships tables
     await query(
       `UPDATE subscriptions 
        SET status = $1, current_period_start = $2, current_period_end = $3 
+       WHERE stripe_subscription_id = $4`,
+      [
+        subscription.status,
+        new Date(subscription.current_period_start * 1000),
+        new Date(subscription.current_period_end * 1000),
+        subscription.id,
+      ]
+    );
+
+    // Update memberships table
+    await query(
+      `UPDATE memberships 
+       SET status = $1, current_period_start = $2, current_period_end = $3, updated_at = CURRENT_TIMESTAMP
        WHERE stripe_subscription_id = $4`,
       [
         subscription.status,
@@ -312,10 +326,26 @@ const handleSubscriptionPayment = async (invoice) => {
  */
 const handleSubscriptionUpdate = async (subscription) => {
   try {
+    // Update legacy subscriptions table
     await query(
       `UPDATE subscriptions 
        SET status = $1, current_period_start = $2, current_period_end = $3, 
            cancel_at_period_end = $4
+       WHERE stripe_subscription_id = $5`,
+      [
+        subscription.status,
+        new Date(subscription.current_period_start * 1000),
+        new Date(subscription.current_period_end * 1000),
+        subscription.cancel_at_period_end,
+        subscription.id,
+      ]
+    );
+
+    // Update memberships table
+    await query(
+      `UPDATE memberships 
+       SET status = $1, current_period_start = $2, current_period_end = $3, 
+           cancel_at_period_end = $4, updated_at = CURRENT_TIMESTAMP
        WHERE stripe_subscription_id = $5`,
       [
         subscription.status,
@@ -337,8 +367,15 @@ const handleSubscriptionUpdate = async (subscription) => {
  */
 const handleSubscriptionCancellation = async (subscription) => {
   try {
+    // Update legacy subscriptions table
     await query(
       "UPDATE subscriptions SET status = $1 WHERE stripe_subscription_id = $2",
+      ["cancelled", subscription.id]
+    );
+
+    // Update memberships table
+    await query(
+      "UPDATE memberships SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE stripe_subscription_id = $2",
       ["cancelled", subscription.id]
     );
   } catch (error) {

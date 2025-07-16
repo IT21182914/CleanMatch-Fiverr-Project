@@ -130,7 +130,44 @@ const createTables = async () => {
       )
     `);
 
-    // Subscriptions table
+    // ForeverClean Memberships table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS memberships (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        plan_name VARCHAR(100) NOT NULL DEFAULT 'ForeverClean',
+        tier VARCHAR(50) NOT NULL DEFAULT 'basic' CHECK (tier IN ('basic', 'premium', 'gold')),
+        monthly_fee DECIMAL(10, 2) NOT NULL DEFAULT 49.00,
+        discount_percentage DECIMAL(5, 2) NOT NULL DEFAULT 15.00,
+        stripe_subscription_id VARCHAR(255) UNIQUE,
+        status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'past_due', 'unpaid', 'trialing')),
+        start_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        end_date TIMESTAMP,
+        current_period_start TIMESTAMP,
+        current_period_end TIMESTAMP,
+        cancel_at_period_end BOOLEAN DEFAULT FALSE,
+        auto_renewal BOOLEAN DEFAULT TRUE,
+        billing_cycle_anchor INTEGER,
+        trial_end TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Membership usage tracking
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS membership_usage (
+        id SERIAL PRIMARY KEY,
+        membership_id INTEGER REFERENCES memberships(id) ON DELETE CASCADE,
+        booking_id INTEGER REFERENCES bookings(id) ON DELETE CASCADE,
+        discount_applied DECIMAL(10, 2) NOT NULL,
+        original_amount DECIMAL(10, 2) NOT NULL,
+        discounted_amount DECIMAL(10, 2) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Legacy subscriptions table for backward compatibility
     await pool.query(`
       CREATE TABLE IF NOT EXISTS subscriptions (
         id SERIAL PRIMARY KEY,
@@ -180,6 +217,23 @@ const createTables = async () => {
     );
     await pool.query(
       "CREATE INDEX IF NOT EXISTS idx_bookings_booking_date ON bookings(booking_date)"
+    );
+
+    // Membership table indexes
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_memberships_user_id ON memberships(user_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_memberships_status ON memberships(status)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_memberships_stripe_subscription_id ON memberships(stripe_subscription_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_membership_usage_membership_id ON membership_usage(membership_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_membership_usage_booking_id ON membership_usage(booking_id)"
     );
 
     // Additional tables for payment processing

@@ -30,6 +30,9 @@ const CustomerBookings = React.lazy(() =>
 );
 const Payment = React.lazy(() => import("./pages/customer/Payment"));
 const CustomerProfile = React.lazy(() => import("./pages/customer/Profile"));
+const MembershipSubscription = React.lazy(() =>
+  import("./pages/customer/MembershipSubscription")
+);
 
 // Cleaner pages
 const CleanerJobs = React.lazy(() => import("./pages/cleaner/Jobs"));
@@ -44,6 +47,7 @@ const AdminUsers = React.lazy(() => import("./pages/admin/Users"));
 const AdminServices = React.lazy(() => import("./pages/admin/Services"));
 const AdminBookings = React.lazy(() => import("./pages/admin/Bookings"));
 const AdminAnalytics = React.lazy(() => import("./pages/admin/Analytics"));
+const AdminMemberships = React.lazy(() => import("./pages/admin/Memberships"));
 
 // Home page - Keep this eagerly loaded as it's the landing page
 import Home from "./pages/Home";
@@ -116,6 +120,15 @@ function App() {
                     element={
                       <ProtectedRoute requiredRole="customer">
                         <CustomerProfile />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/customer/membership"
+                    element={
+                      <ProtectedRoute requiredRole="customer">
+                        <MembershipSubscription />
                       </ProtectedRoute>
                     }
                   />
@@ -199,6 +212,15 @@ function App() {
                     element={
                       <ProtectedRoute requiredRole="admin">
                         <AdminAnalytics />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/admin/memberships"
+                    element={
+                      <ProtectedRoute requiredRole="admin">
+                        <AdminMemberships />
                       </ProtectedRoute>
                     }
                   />

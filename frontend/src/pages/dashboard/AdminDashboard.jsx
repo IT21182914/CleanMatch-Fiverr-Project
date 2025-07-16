@@ -100,6 +100,12 @@ const AdminDashboard = () => {
               Manage Users
             </Button>
           </Link>
+          <Link to="/admin/memberships">
+            <Button variant="outline" className="inline-flex items-center">
+              <CreditCardIcon className="h-4 w-4 mr-2" />
+              Memberships
+            </Button>
+          </Link>
           <Link to="/admin/analytics">
             <Button className="inline-flex items-center">
               <ChartBarIcon className="h-4 w-4 mr-2" />

@@ -7,6 +7,7 @@ const {
   createPaymentIntent,
   createStripeCustomer,
 } = require("../utils/stripe");
+const { recordMembershipUsage } = require("./membershipController");
 
 /**
  * @desc    Create new booking
@@ -47,7 +48,27 @@ const createBooking = async (req, res) => {
     }
 
     const service = serviceResult.rows[0];
-    const totalAmount = parseFloat(service.base_price) * durationHours;
+    const baseAmount = parseFloat(service.base_price) * durationHours;
+
+    // Check for active membership and calculate discount
+    const membershipResult = await client.query(
+      `SELECT * FROM memberships 
+       WHERE user_id = $1 AND status = 'active' 
+       AND current_period_end > NOW()`,
+      [req.user.id]
+    );
+
+    let totalAmount = baseAmount;
+    let membershipDiscount = 0;
+    let membershipId = null;
+
+    if (membershipResult.rows.length > 0) {
+      const membership = membershipResult.rows[0];
+      membershipId = membership.id;
+      const discountPercentage = parseFloat(membership.discount_percentage);
+      membershipDiscount = baseAmount * (discountPercentage / 100);
+      totalAmount = baseAmount - membershipDiscount;
+    }
 
     // Get user details
     const userResult = await client.query("SELECT * FROM users WHERE id = $1", [
@@ -79,6 +100,21 @@ const createBooking = async (req, res) => {
     );
 
     const booking = bookingResult.rows[0];
+
+    // Record membership usage if membership was applied
+    if (membershipId && membershipDiscount > 0) {
+      try {
+        await recordMembershipUsage(
+          membershipId,
+          booking.id,
+          baseAmount,
+          totalAmount
+        );
+      } catch (error) {
+        console.error("Error recording membership usage:", error);
+        // Continue with booking creation even if usage recording fails
+      }
+    }
     let assignedCleaner = null;
 
     // Auto-assign cleaner if requested

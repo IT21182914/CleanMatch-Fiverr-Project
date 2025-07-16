@@ -9,6 +9,7 @@ import {
 import { Input } from "../../components/ui/Form";
 import Button from "../../components/ui/Button";
 import { LoadingCard } from "../../components/ui/Loading";
+import MembershipCard from "../../components/membership/MembershipCard";
 import { userAPI } from "../../lib/api";
 import { useAuth } from "../../hooks/useAuth";
 import { validateZipCode } from "../../lib/utils";
@@ -412,6 +413,9 @@ const Profile = () => {
           </form>
         </CardContent>
       </Card>
+
+      {/* ForeverClean Membership */}
+      <MembershipCard />
 
       {/* Account Information */}
       <Card>

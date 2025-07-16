@@ -263,7 +263,7 @@ const getServicesByCategory = async (req, res) => {
 const getServicePricing = async (req, res) => {
   try {
     const { id } = req.params;
-    const { hours = 1, membershipTier } = req.query;
+    const { hours = 1, userId } = req.query;
 
     const serviceResult = await query(
       "SELECT id, name, base_price, duration_hours FROM services WHERE id = $1 AND is_active = true",
@@ -285,32 +285,31 @@ const getServicePricing = async (req, res) => {
     let totalPrice = basePrice * requestedHours;
     let discountAmount = 0;
     let discountReason = null;
+    let membershipTier = null;
 
-    // Apply membership discounts
-    if (membershipTier) {
-      switch (membershipTier.toLowerCase()) {
-        case "premium":
-          discountAmount = totalPrice * 0.15; // 15% discount
-          discountReason = "Premium Membership Discount";
-          break;
-        case "gold":
-          discountAmount = totalPrice * 0.1; // 10% discount
-          discountReason = "Gold Membership Discount";
-          break;
-        case "silver":
-          discountAmount = totalPrice * 0.05; // 5% discount
-          discountReason = "Silver Membership Discount";
-          break;
+    // Check for active membership if userId is provided
+    if (userId) {
+      const membershipResult = await query(
+        `SELECT * FROM memberships 
+         WHERE user_id = $1 AND status = 'active' 
+         AND current_period_end > NOW() AND cancel_at_period_end = false`,
+        [userId]
+      );
+
+      if (membershipResult.rows.length > 0) {
+        const membership = membershipResult.rows[0];
+        membershipTier = membership.tier;
+        const membershipDiscount = parseFloat(membership.discount_percentage);
+        discountAmount = totalPrice * (membershipDiscount / 100);
+        discountReason = `${membership.plan_name} ${membershipDiscount}% Discount`;
       }
     }
 
-    // Apply bulk hour discounts
-    if (requestedHours >= 4 && !membershipTier) {
+    // Apply bulk hour discounts if no membership discount
+    if (requestedHours >= 4 && discountAmount === 0) {
       const bulkDiscount = totalPrice * 0.1; // 10% discount for 4+ hours
-      if (bulkDiscount > discountAmount) {
-        discountAmount = bulkDiscount;
-        discountReason = "Bulk Hours Discount (4+ hours)";
-      }
+      discountAmount = bulkDiscount;
+      discountReason = "Bulk Hours Discount (4+ hours)";
     }
 
     const finalPrice = totalPrice - discountAmount;
@@ -328,8 +327,14 @@ const getServicePricing = async (req, res) => {
           requestedHours,
           subtotal: totalPrice,
           discountAmount: Math.round(discountAmount * 100) / 100,
+          discountPercentage:
+            discountAmount > 0
+              ? Math.round((discountAmount / totalPrice) * 100 * 100) / 100
+              : 0,
           discountReason,
           total: Math.round(finalPrice * 100) / 100,
+          membershipTier,
+          hasMembership: membershipTier !== null,
         },
       },
     });
