@@ -117,19 +117,6 @@ const createTables = async () => {
       )
     `);
 
-    // Reviews table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS reviews (
-        id SERIAL PRIMARY KEY,
-        booking_id INTEGER REFERENCES bookings(id) ON DELETE CASCADE,
-        reviewer_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        reviewee_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
-        comment TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
     // ForeverClean Memberships table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS memberships (
