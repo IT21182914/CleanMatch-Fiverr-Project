@@ -8,6 +8,10 @@ const {
   createStripeCustomer,
 } = require("../utils/stripe");
 const { recordMembershipUsage } = require("./membershipController");
+const {
+  checkFirstCleanEligibilityInternal,
+  recordOfferUsage,
+} = require("./offersController");
 
 /**
  * @desc    Create new booking
@@ -61,8 +65,43 @@ const createBooking = async (req, res) => {
     let totalAmount = baseAmount;
     let membershipDiscount = 0;
     let membershipId = null;
+    let appliedOffer = null;
+    let offerDiscount = 0;
 
-    if (membershipResult.rows.length > 0) {
+    // Check for first clean offer eligibility
+    let firstCleanOffer = null;
+    try {
+      const eligibilityCheck = await checkFirstCleanEligibilityInternal(
+        req.user.id
+      );
+      if (eligibilityCheck.eligible) {
+        const validHours = [2, 3, 4, 6];
+        if (validHours.includes(durationHours)) {
+          firstCleanOffer = eligibilityCheck.offer;
+        }
+      }
+    } catch (error) {
+      console.error("Error checking first clean eligibility:", error);
+      // Continue without offer
+    }
+
+    // Apply first clean offer if eligible (takes priority over membership discount)
+    if (firstCleanOffer) {
+      appliedOffer = firstCleanOffer;
+
+      if (firstCleanOffer.discount_type === "fixed_price") {
+        totalAmount = parseFloat(firstCleanOffer.discount_value);
+        offerDiscount = baseAmount - totalAmount;
+      } else if (firstCleanOffer.discount_type === "fixed_amount") {
+        offerDiscount = parseFloat(firstCleanOffer.discount_value);
+        totalAmount = Math.max(0, baseAmount - offerDiscount);
+      } else if (firstCleanOffer.discount_type === "percentage") {
+        offerDiscount =
+          baseAmount * (parseFloat(firstCleanOffer.discount_value) / 100);
+        totalAmount = baseAmount - offerDiscount;
+      }
+    } else if (membershipResult.rows.length > 0) {
+      // Apply membership discount only if no special offer
       const membership = membershipResult.rows[0];
       membershipId = membership.id;
       const discountPercentage = parseFloat(membership.discount_percentage);
@@ -112,6 +151,23 @@ const createBooking = async (req, res) => {
         );
       } catch (error) {
         console.error("Error recording membership usage:", error);
+        // Continue with booking creation even if usage recording fails
+      }
+    }
+
+    // Record offer usage if offer was applied
+    if (appliedOffer && offerDiscount > 0) {
+      try {
+        await recordOfferUsage(
+          req.user.id,
+          appliedOffer.id,
+          booking.id,
+          baseAmount,
+          totalAmount,
+          offerDiscount
+        );
+      } catch (error) {
+        console.error("Error recording offer usage:", error);
         // Continue with booking creation even if usage recording fails
       }
     }
@@ -177,6 +233,21 @@ const createBooking = async (req, res) => {
       data: {
         ...booking,
         service_name: service.name,
+        pricing_breakdown: {
+          base_amount: Math.round(baseAmount * 100) / 100,
+          membership_discount: Math.round(membershipDiscount * 100) / 100,
+          offer_discount: Math.round(offerDiscount * 100) / 100,
+          total_amount: Math.round(totalAmount * 100) / 100,
+          applied_offer: appliedOffer
+            ? {
+                id: appliedOffer.id,
+                name: appliedOffer.name,
+                type: appliedOffer.offer_type,
+                discount_type: appliedOffer.discount_type,
+                discount_value: appliedOffer.discount_value,
+              }
+            : null,
+        },
         assigned_cleaner: assignedCleaner
           ? {
               id: assignedCleaner.id,

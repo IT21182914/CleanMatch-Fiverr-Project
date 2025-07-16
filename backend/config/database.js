@@ -196,6 +196,43 @@ const createTables = async () => {
       )
     `);
 
+    // Special offers table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS special_offers (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        offer_type VARCHAR(50) NOT NULL CHECK (offer_type IN ('first_clean', 'membership_bonus', 'seasonal', 'referral')),
+        discount_type VARCHAR(20) NOT NULL CHECK (discount_type IN ('fixed_amount', 'percentage', 'fixed_price')),
+        discount_value DECIMAL(10, 2) NOT NULL,
+        conditions JSONB NOT NULL DEFAULT '{}',
+        is_active BOOLEAN DEFAULT TRUE,
+        valid_from TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        valid_until TIMESTAMP,
+        max_uses_per_user INTEGER DEFAULT 1,
+        max_total_uses INTEGER,
+        current_total_uses INTEGER DEFAULT 0,
+        created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // User offer usage tracking
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_offer_usage (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        offer_id INTEGER REFERENCES special_offers(id) ON DELETE CASCADE,
+        booking_id INTEGER REFERENCES bookings(id) ON DELETE CASCADE,
+        discount_applied DECIMAL(10, 2) NOT NULL,
+        original_amount DECIMAL(10, 2) NOT NULL,
+        final_amount DECIMAL(10, 2) NOT NULL,
+        used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, offer_id)
+      )
+    `);
+
     // Create indexes for better performance
     await pool.query(
       "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)"
@@ -234,6 +271,20 @@ const createTables = async () => {
     );
     await pool.query(
       "CREATE INDEX IF NOT EXISTS idx_membership_usage_booking_id ON membership_usage(booking_id)"
+    );
+
+    // Special offers table indexes
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_special_offers_type ON special_offers(offer_type)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_special_offers_active ON special_offers(is_active)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_user_offer_usage_user_id ON user_offer_usage(user_id)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_user_offer_usage_offer_id ON user_offer_usage(offer_id)"
     );
 
     // Additional tables for payment processing
