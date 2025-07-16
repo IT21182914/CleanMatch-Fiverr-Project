@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { authAPI } from "../lib/api";
+import { parseApiError, logError } from "../utils/errorHandling";
 
 const AuthContext = createContext();
 
@@ -42,9 +43,20 @@ const AuthProvider = ({ children }) => {
 
       return { success: true, user: userData };
     } catch (error) {
-      console.error("Login error:", error);
-      const message = error.response?.data?.error || "Login failed";
-      return { success: false, error: message };
+      const parsedError = parseApiError(error);
+
+      // Log error with context
+      logError(parsedError, {
+        action: "login",
+        email: credentials.email,
+      });
+
+      return {
+        success: false,
+        error: parsedError.message,
+        type: parsedError.type,
+        field: parsedError.field,
+      };
     }
   };
 
@@ -61,22 +73,50 @@ const AuthProvider = ({ children }) => {
 
       return { success: true, user: newUser };
     } catch (error) {
-      console.error("Registration error:", error);
-      const message = error.response?.data?.error || "Registration failed";
-      return { success: false, error: message };
+      const parsedError = parseApiError(error);
+
+      // Log error with context
+      logError(parsedError, {
+        action: "register",
+        email: userData.email,
+        role: userData.role,
+      });
+
+      return {
+        success: false,
+        error: parsedError.message,
+        type: parsedError.type,
+        field: parsedError.field,
+      };
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUser(null);
-    setIsAuthenticated(false);
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+      setIsAuthenticated(false);
+      return { success: true };
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Force logout even if error occurs
+      setUser(null);
+      setIsAuthenticated(false);
+      return { success: false, error: "Failed to logout completely" };
+    }
   };
 
   const updateUser = (updatedUser) => {
-    setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    try {
+      const newUser = { ...user, ...updatedUser };
+      setUser(newUser);
+      localStorage.setItem("user", JSON.stringify(newUser));
+      return { success: true };
+    } catch (error) {
+      console.error("Error updating user data:", error);
+      return { success: false, error: "Failed to update user data" };
+    }
   };
 
   const value = {

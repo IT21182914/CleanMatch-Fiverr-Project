@@ -4,6 +4,7 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import { cn } from "../../lib/utils";
 
@@ -14,11 +15,13 @@ const Toast = ({
   onClose,
   autoClose = true,
   duration = 5000,
+  persistent = false,
+  action = null,
 }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    if (autoClose) {
+    if (autoClose && !persistent) {
       const timer = setTimeout(() => {
         setIsVisible(false);
         setTimeout(onClose, 300); // Wait for animation
@@ -26,13 +29,14 @@ const Toast = ({
 
       return () => clearTimeout(timer);
     }
-  }, [autoClose, duration, onClose]);
+  }, [autoClose, duration, onClose, persistent]);
 
   const icons = {
     success: CheckCircleIcon,
     error: ExclamationTriangleIcon,
     warning: ExclamationTriangleIcon,
     info: InformationCircleIcon,
+    loading: ArrowPathIcon,
   };
 
   const colors = {
@@ -40,6 +44,7 @@ const Toast = ({
     error: "bg-red-50 border-red-200 text-red-800",
     warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
     info: "bg-blue-50 border-blue-200 text-blue-800",
+    loading: "bg-gray-50 border-gray-200 text-gray-800",
   };
 
   const iconColors = {
@@ -47,14 +52,20 @@ const Toast = ({
     error: "text-red-400",
     warning: "text-yellow-400",
     info: "text-blue-400",
+    loading: "text-gray-400 animate-spin",
   };
 
   const Icon = icons[type];
 
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(onClose, 300);
+  };
+
   return (
     <div
       className={cn(
-        "fixed top-4 right-4 z-50 max-w-sm w-full border rounded-lg p-4 shadow-lg transition-all duration-300",
+        "max-w-sm w-full border rounded-lg p-4 shadow-lg transition-all duration-300",
         colors[type],
         isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
       )}
@@ -65,19 +76,31 @@ const Toast = ({
         </div>
         <div className="ml-3 flex-1">
           {title && <p className="text-sm font-medium">{title}</p>}
-          {message && <p className="text-sm mt-1">{message}</p>}
+          <p className="text-sm mt-1">{message}</p>
+
+          {/* Action button */}
+          {action && (
+            <button
+              onClick={action.onClick}
+              className="mt-2 text-sm font-medium underline hover:no-underline focus:outline-none"
+            >
+              {action.label}
+            </button>
+          )}
         </div>
-        <div className="ml-4 flex-shrink-0">
-          <button
-            className="inline-flex rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2"
-            onClick={() => {
-              setIsVisible(false);
-              setTimeout(onClose, 300);
-            }}
-          >
-            <XMarkIcon className="h-5 w-5" />
-          </button>
-        </div>
+
+        {/* Close button - hide for persistent loading toasts */}
+        {!(persistent && type === "loading") && (
+          <div className="ml-4 flex-shrink-0">
+            <button
+              className="inline-flex rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 hover:opacity-75"
+              onClick={handleClose}
+              aria-label="Close notification"
+            >
+              <XMarkIcon className="h-5 w-5" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

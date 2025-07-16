@@ -16,7 +16,12 @@ const adminRoutes = require("./routes/admin");
 const notificationRoutes = require("./routes/notifications");
 
 // Import middleware
-const errorHandler = require("./middleware/errorHandler");
+const {
+  errorHandler,
+  notFoundHandler,
+  unhandledRejectionHandler,
+  uncaughtExceptionHandler,
+} = require("./middleware/errorHandler");
 const { connectDB } = require("./config/database");
 const { initializeCronJobs } = require("./utils/scheduler");
 
@@ -155,24 +160,25 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-// 404 handler for API routes
-app.use("/api/*", (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: "API endpoint not found",
-    path: req.originalUrl,
-    method: req.method,
-    message: "The requested API endpoint does not exist",
-    availableEndpoints: [
-      "/api/auth",
-      "/api/users",
-      "/api/services",
-      "/api/bookings",
-      "/api/payments",
-      "/api/admin",
-      "/api/notifications",
-    ],
-  });
+// 404 handler for unknown API routes
+app.use("/api/*", notFoundHandler);
+
+// General 404 handler for non-API routes
+app.use("*", (req, res) => {
+  if (req.originalUrl.startsWith("/api/")) {
+    return notFoundHandler(req, res);
+  }
+
+  // For non-API routes, serve index.html in production or show a message in development
+  if (process.env.NODE_ENV === "production") {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+  } else {
+    res.status(404).json({
+      success: false,
+      error: "Page not found",
+      message: "The requested page does not exist",
+    });
+  }
 });
 
 // Serve static files in production
@@ -235,24 +241,10 @@ process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
 // Handle unhandled promise rejections
-process.on("unhandledRejection", (err, promise) => {
-  console.error("Unhandled Promise Rejection:", err.message);
-  console.error("Promise:", promise);
-
-  // Close server & exit process
-  server.close(() => {
-    process.exit(1);
-  });
-});
+process.on("unhandledRejection", unhandledRejectionHandler);
 
 // Handle uncaught exceptions
-process.on("uncaughtException", (err) => {
-  console.error("Uncaught Exception:", err.message);
-  console.error("Stack:", err.stack);
-
-  // Exit immediately
-  process.exit(1);
-});
+process.on("uncaughtException", uncaughtExceptionHandler);
 
 // Start server
 const server = app.listen(PORT, () => {

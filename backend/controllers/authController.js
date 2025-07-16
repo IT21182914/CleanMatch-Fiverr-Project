@@ -2,6 +2,17 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { query } = require("../config/database");
 const { createStripeCustomer } = require("../utils/stripe");
+const { asyncHandler } = require("../middleware/errorHandler");
+const {
+  dbOperation,
+  validateRequired,
+  ensureResourceExists,
+  isValidEmail,
+  validatePasswordStrength,
+  ValidationError,
+  AuthenticationError,
+  ConflictError,
+} = require("../utils/errorUtils");
 
 // Generate JWT token
 const generateToken = (userId) => {
@@ -22,237 +33,246 @@ const generateRefreshToken = (userId) => {
  * @route   POST /api/auth/register
  * @access  Public
  */
-const register = async (req, res) => {
-  try {
-    const {
-      email,
-      password,
-      firstName,
-      lastName,
-      phone,
-      role,
-      address,
-      city,
-      state,
-      zipCode,
-    } = req.body;
+const register = asyncHandler(async (req, res) => {
+  const {
+    email,
+    password,
+    firstName,
+    lastName,
+    phone,
+    role,
+    address,
+    city,
+    state,
+    zipCode,
+  } = req.body;
 
-    // Check if user already exists
-    const existingUser = await query("SELECT id FROM users WHERE email = $1", [
-      email.toLowerCase(),
-    ]);
+  // Validate required fields
+  validateRequired(
+    ["email", "password", "firstName", "lastName", "role"],
+    req.body
+  );
 
-    if (existingUser.rows.length > 0) {
-      return res.status(400).json({
-        success: false,
-        error: "User with this email already exists",
-      });
-    }
+  // Validate email format
+  if (!isValidEmail(email)) {
+    throw new ValidationError("Please provide a valid email address");
+  }
 
-    // Hash password
-    const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+  // Validate password strength
+  validatePasswordStrength(password);
 
-    // Create user
-    const userResult = await query(
-      `INSERT INTO users (
+  // Validate role
+  if (!["customer", "cleaner"].includes(role)) {
+    throw new ValidationError("Role must be either customer or cleaner");
+  }
+
+  // Check if user already exists
+  const existingUser = await dbOperation(
+    () => query("SELECT id FROM users WHERE email = $1", [email.toLowerCase()]),
+    "Failed to check existing user"
+  );
+
+  if (existingUser.rows.length > 0) {
+    throw new ConflictError("User with this email already exists");
+  }
+
+  // Hash password
+  const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  // Create user
+  const userResult = await dbOperation(
+    () =>
+      query(
+        `INSERT INTO users (
         email, password, first_name, last_name, phone, role, 
         address, city, state, zip_code
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
       RETURNING id, email, first_name, last_name, role, created_at`,
-      [
-        email.toLowerCase(),
-        hashedPassword,
-        firstName,
-        lastName,
-        phone,
-        role,
-        address,
-        city,
-        state,
-        zipCode,
-      ]
+        [
+          email.toLowerCase(),
+          hashedPassword,
+          firstName,
+          lastName,
+          phone,
+          role,
+          address,
+          city,
+          state,
+          zipCode,
+        ]
+      ),
+    "Failed to create user account"
+  );
+
+  const user = userResult.rows[0];
+
+  // Create Stripe customer (non-blocking)
+  try {
+    await createStripeCustomer(user);
+  } catch (stripeError) {
+    console.error(
+      "Warning: Failed to create Stripe customer:",
+      stripeError.message
     );
-
-    const user = userResult.rows[0];
-
-    // Create Stripe customer
-    try {
-      await createStripeCustomer(user);
-    } catch (stripeError) {
-      console.error("Error creating Stripe customer:", stripeError);
-      // Continue with registration even if Stripe customer creation fails
-    }
-
-    // If user is a cleaner, create cleaner profile
-    if (role === "cleaner") {
-      await query("INSERT INTO cleaner_profiles (user_id) VALUES ($1)", [
-        user.id,
-      ]);
-    }
-
-    // Generate tokens
-    const token = generateToken(user.id);
-    const refreshToken = generateRefreshToken(user.id);
-
-    res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        role: user.role,
-        createdAt: user.created_at,
-      },
-      token,
-      refreshToken,
-    });
-  } catch (error) {
-    console.error("Registration error:", error);
-    res.status(500).json({
-      success: false,
-      error: "Server error during registration",
-    });
+    // Continue with registration even if Stripe customer creation fails
   }
-};
+
+  // If user is a cleaner, create cleaner profile
+  if (role === "cleaner") {
+    await dbOperation(
+      () =>
+        query("INSERT INTO cleaner_profiles (user_id) VALUES ($1)", [user.id]),
+      "Failed to create cleaner profile"
+    );
+  }
+
+  // Generate tokens
+  const token = generateToken(user.id);
+  const refreshToken = generateRefreshToken(user.id);
+
+  res.status(201).json({
+    success: true,
+    message: "User registered successfully",
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.role,
+      createdAt: user.created_at,
+    },
+    token,
+    refreshToken,
+  });
+});
 
 /**
  * @desc    Login user
  * @route   POST /api/auth/login
  * @access  Public
  */
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+const login = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
 
-    // Find user
-    const userResult = await query(
-      `SELECT id, email, password, first_name, last_name, role, is_active 
-       FROM users WHERE email = $1`,
-      [email.toLowerCase()]
-    );
+  // Validate required fields
+  validateRequired(["email", "password"], req.body);
 
-    if (userResult.rows.length === 0) {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid credentials",
-      });
-    }
-
-    const user = userResult.rows[0];
-
-    // Check if account is active
-    if (!user.is_active) {
-      return res.status(401).json({
-        success: false,
-        error: "Account is deactivated. Please contact support.",
-      });
-    }
-
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid credentials",
-      });
-    }
-
-    // Generate tokens
-    const token = generateToken(user.id);
-    const refreshToken = generateRefreshToken(user.id);
-
-    res.json({
-      success: true,
-      message: "Login successful",
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        role: user.role,
-      },
-      token,
-      refreshToken,
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({
-      success: false,
-      error: "Server error during login",
-    });
+  // Validate email format
+  if (!isValidEmail(email)) {
+    throw new ValidationError("Please provide a valid email address");
   }
-};
+
+  // Find user
+  const userResult = await dbOperation(
+    () =>
+      query(
+        `SELECT id, email, password, first_name, last_name, role, is_active 
+       FROM users WHERE email = $1`,
+        [email.toLowerCase()]
+      ),
+    "Failed to authenticate user"
+  );
+
+  if (userResult.rows.length === 0) {
+    throw new AuthenticationError("Invalid email or password");
+  }
+
+  const user = userResult.rows[0];
+
+  // Check if account is active
+  if (!user.is_active) {
+    throw new AuthenticationError(
+      "Account is deactivated. Please contact support."
+    );
+  }
+
+  // Verify password
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    throw new AuthenticationError("Invalid email or password");
+  }
+
+  // Generate tokens
+  const token = generateToken(user.id);
+  const refreshToken = generateRefreshToken(user.id);
+
+  res.json({
+    success: true,
+    message: "Login successful",
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.role,
+    },
+    token,
+    refreshToken,
+  });
+});
 
 /**
  * @desc    Refresh access token
  * @route   POST /api/auth/refresh
  * @access  Public
  */
-const refreshToken = async (req, res) => {
+const refreshToken = asyncHandler(async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    throw new AuthenticationError("Refresh token is required");
+  }
+
+  // Verify refresh token
+  let decoded;
   try {
-    const { refreshToken } = req.body;
-
-    if (!refreshToken) {
-      return res.status(401).json({
-        success: false,
-        error: "Refresh token is required",
-      });
-    }
-
-    // Verify refresh token
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-
-    // Check if user still exists and is active
-    const userResult = await query(
-      "SELECT id, email, first_name, last_name, role, is_active FROM users WHERE id = $1",
-      [decoded.userId]
-    );
-
-    if (userResult.rows.length === 0 || !userResult.rows[0].is_active) {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid refresh token",
-      });
-    }
-
-    const user = userResult.rows[0];
-
-    // Generate new access token
-    const newToken = generateToken(user.id);
-
-    res.json({
-      success: true,
-      token: newToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        role: user.role,
-      },
-    });
+    decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
   } catch (error) {
-    console.error("Token refresh error:", error);
-
     if (
       error.name === "JsonWebTokenError" ||
       error.name === "TokenExpiredError"
     ) {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid refresh token",
-      });
+      throw new AuthenticationError("Invalid or expired refresh token");
     }
-
-    res.status(500).json({
-      success: false,
-      error: "Server error during token refresh",
-    });
+    throw error;
   }
-};
+
+  // Check if user still exists and is active
+  const userResult = await dbOperation(
+    () =>
+      query(
+        "SELECT id, email, first_name, last_name, role, is_active FROM users WHERE id = $1",
+        [decoded.userId]
+      ),
+    "Failed to verify user"
+  );
+
+  if (userResult.rows.length === 0) {
+    throw new AuthenticationError("User not found");
+  }
+
+  const user = userResult.rows[0];
+
+  if (!user.is_active) {
+    throw new AuthenticationError("Account is deactivated");
+  }
+
+  // Generate new access token
+  const newToken = generateToken(user.id);
+
+  res.json({
+    success: true,
+    token: newToken,
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.role,
+    },
+  });
+});
 
 /**
  * @desc    Request password reset

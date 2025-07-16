@@ -1,9 +1,10 @@
 import axios from "axios";
+import { parseApiError, logError, withRetry } from "../utils/errorHandling";
 
 // Create axios instance with base configuration
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
-  timeout: 10000,
+  timeout: 30000, // Increased timeout
   headers: {
     "Content-Type": "application/json",
   },
@@ -16,137 +17,230 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Add request timestamp for logging
+    config.metadata = { startTime: new Date() };
+
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    logError(parseApiError(error), { phase: "request" });
+    return Promise.reject(parseApiError(error));
   }
 );
 
-// Response interceptor to handle auth errors
+// Response interceptor to handle auth errors and logging
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Log successful requests in development
+    if (import.meta.env.MODE === "development") {
+      const duration = new Date() - response.config.metadata.startTime;
+      console.log(
+        `✅ ${response.config.method?.toUpperCase()} ${
+          response.config.url
+        } (${duration}ms)`
+      );
+    }
+    return response;
+  },
   (error) => {
-    if (error.response?.status === 401) {
+    const parsedError = parseApiError(error);
+
+    // Log error with context
+    const context = {
+      method: error.config?.method,
+      url: error.config?.url,
+      duration: error.config?.metadata
+        ? new Date() - error.config.metadata.startTime
+        : null,
+    };
+
+    logError(parsedError, context);
+
+    // Handle authentication errors
+    if (parsedError.statusCode === 401) {
+      // Clear auth data
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      window.location.href = "/login";
+
+      // Only redirect to login if not already on login page
+      if (!window.location.pathname.includes("/login")) {
+        window.location.href = "/login";
+      }
     }
-    return Promise.reject(error);
+
+    return Promise.reject(parsedError);
   }
 );
+
+// Enhanced API wrapper with retry logic
+const createApiMethod = (method) => {
+  return (url, data = null, config = {}) => {
+    const apiCall = () => {
+      switch (method) {
+        case "get":
+          return api.get(url, config);
+        case "post":
+          return api.post(url, data, config);
+        case "put":
+          return api.put(url, data, config);
+        case "patch":
+          return api.patch(url, data, config);
+        case "delete":
+          return api.delete(url, config);
+        default:
+          throw new Error(`Unsupported HTTP method: ${method}`);
+      }
+    };
+
+    // Apply retry logic for GET requests and safe operations
+    if (method === "get" || config.retry !== false) {
+      return withRetry(apiCall, config.maxRetries || 2);
+    }
+
+    return apiCall();
+  };
+};
+
+// Create enhanced API methods
+const enhancedApi = {
+  get: createApiMethod("get"),
+  post: createApiMethod("post"),
+  put: createApiMethod("put"),
+  patch: createApiMethod("patch"),
+  delete: createApiMethod("delete"),
+  // Original axios instance for special cases
+  raw: api,
+};
 
 // Auth API calls
 export const authAPI = {
-  register: (userData) => api.post("/auth/register", userData),
-  login: (credentials) => api.post("/auth/login", credentials),
-  forgotPassword: (email) => api.post("/auth/forgot-password", { email }),
+  register: (userData) => enhancedApi.post("/auth/register", userData),
+  login: (credentials) => enhancedApi.post("/auth/login", credentials),
+  forgotPassword: (email) =>
+    enhancedApi.post("/auth/forgot-password", { email }),
   resetPassword: (token, password) =>
-    api.post("/auth/reset-password", { token, password }),
-  refreshToken: (refreshToken) => api.post("/auth/refresh", { refreshToken }),
-  logout: () => api.post("/auth/logout"),
+    enhancedApi.post("/auth/reset-password", { token, password }),
+  refreshToken: (refreshToken) =>
+    enhancedApi.post("/auth/refresh", { refreshToken }),
+  logout: () => enhancedApi.post("/auth/logout"),
 };
 
 // User API calls
 export const userAPI = {
-  getProfile: () => api.get("/users/profile"),
-  updateProfile: (data) => api.put("/users/profile", data),
-  getCleanerProfile: () => api.get("/users/profile"), // Same endpoint, cleaner profile included
-  updateCleanerProfile: (data) => api.put("/users/cleaner-profile", data),
+  getProfile: () => enhancedApi.get("/users/profile"),
+  updateProfile: (data) => enhancedApi.put("/users/profile", data),
+  getCleanerProfile: () => enhancedApi.get("/users/profile"), // Same endpoint, cleaner profile included
+  updateCleanerProfile: (data) =>
+    enhancedApi.put("/users/cleaner-profile", data),
   updateAvailability: (availability) =>
-    api.put("/users/availability", availability),
-  changePassword: (data) => api.put("/users/change-password", data),
-  getUserBookings: (params) => api.get("/users/bookings", { params }),
-  getUserReviews: (params) => api.get("/users/reviews", { params }),
+    enhancedApi.put("/users/availability", availability),
+  changePassword: (data) => enhancedApi.put("/users/change-password", data),
+  getUserBookings: (params) => enhancedApi.get("/users/bookings", { params }),
+  getUserReviews: (params) => enhancedApi.get("/users/reviews", { params }),
 };
 
 // Services API calls
 export const servicesAPI = {
-  getAll: (params) => api.get("/services", { params }),
-  getCategories: () => api.get("/services/categories"),
-  getById: (id) => api.get(`/services/${id}`),
+  getAll: (params) => enhancedApi.get("/services", { params }),
+  getCategories: () => enhancedApi.get("/services/categories"),
+  getById: (id) => enhancedApi.get(`/services/${id}`),
   getByCategory: (category, params) =>
-    api.get(`/services/category/${category}`, { params }),
-  getPricing: (id, params) => api.get(`/services/${id}/pricing`, { params }),
+    enhancedApi.get(`/services/category/${category}`, { params }),
+  getPricing: (id, params) =>
+    enhancedApi.get(`/services/${id}/pricing`, { params }),
 };
 
 // Bookings API calls
 export const bookingsAPI = {
-  create: (bookingData) => api.post("/bookings", bookingData),
-  getCustomerBookings: (params) => api.get("/users/bookings", { params }),
-  getCleanerBookings: (params) => api.get("/users/bookings", { params }),
-  getAllBookings: (params) => api.get("/bookings", { params }),
-  getById: (id) => api.get(`/bookings/${id}`),
-  updateStatus: (id, status) => api.put(`/bookings/${id}/status`, { status }),
+  create: (bookingData) => enhancedApi.post("/bookings", bookingData),
+  getCustomerBookings: (params) =>
+    enhancedApi.get("/users/bookings", { params }),
+  getCleanerBookings: (params) =>
+    enhancedApi.get("/users/bookings", { params }),
+  getAllBookings: (params) => enhancedApi.get("/bookings", { params }),
+  getById: (id) => enhancedApi.get(`/bookings/${id}`),
+  updateStatus: (id, status) =>
+    enhancedApi.put(`/bookings/${id}/status`, { status }),
   assignCleaner: (id, cleanerId) =>
-    api.post(`/bookings/${id}/assign`, { cleanerId }),
-  getRecommendations: (id) => api.get(`/bookings/${id}/recommendations`),
+    enhancedApi.post(`/bookings/${id}/assign`, { cleanerId }),
+  getRecommendations: (id) =>
+    enhancedApi.get(`/bookings/${id}/recommendations`),
   // AI-Enhanced ZIP Code Matching
   getZipBasedRecommendations: (searchData) =>
-    api.post("/bookings/recommendations-by-zip", searchData),
+    enhancedApi.post("/bookings/recommendations-by-zip", searchData),
   acceptBooking: (id) =>
-    api.put(`/bookings/${id}/status`, { status: "confirmed" }),
+    enhancedApi.put(`/bookings/${id}/status`, { status: "confirmed" }),
   rejectBooking: (id) =>
-    api.put(`/bookings/${id}/status`, { status: "cancelled" }),
-  addReview: (id, review) => api.post(`/bookings/${id}/review`, review),
+    enhancedApi.put(`/bookings/${id}/status`, { status: "cancelled" }),
+  addReview: (id, review) => enhancedApi.post(`/bookings/${id}/review`, review),
 };
 
 // Payment API calls
 export const paymentsAPI = {
   createPaymentIntent: (bookingId) =>
-    api.post("/payments/create-payment-intent", { bookingId }),
+    enhancedApi.post("/payments/create-payment-intent", { bookingId }),
   confirmPayment: (paymentIntentId) =>
-    api.post("/payments/confirm", { paymentIntentId }),
-  getPaymentHistory: (params) => api.get("/payments/history", { params }),
+    enhancedApi.post("/payments/confirm", { paymentIntentId }),
+  getPaymentHistory: (params) =>
+    enhancedApi.get("/payments/history", { params }),
   processRefund: (bookingId, amount, reason) =>
-    api.post(`/payments/refund/${bookingId}`, { amount, reason }),
+    enhancedApi.post(`/payments/refund/${bookingId}`, { amount, reason }),
 
   // Subscription endpoints
-  createSubscription: (data) => api.post("/payments/subscription", data),
-  cancelSubscription: (data) => api.put("/payments/subscription/cancel", data),
-  getUserSubscription: () => api.get("/payments/subscription"),
+  createSubscription: (data) =>
+    enhancedApi.post("/payments/subscription", data),
+  cancelSubscription: (data) =>
+    enhancedApi.put("/payments/subscription/cancel", data),
+  getUserSubscription: () => enhancedApi.get("/payments/subscription"),
 
   // Stripe Connect endpoints
-  createCleanerConnectAccount: () => api.post("/payments/connect-account"),
-  getConnectAccountStatus: () => api.get("/payments/connect-account/status"),
-  transferPayment: (bookingId) => api.post(`/payments/transfer/${bookingId}`),
+  createCleanerConnectAccount: () =>
+    enhancedApi.post("/payments/connect-account"),
+  getConnectAccountStatus: () =>
+    enhancedApi.get("/payments/connect-account/status"),
+  transferPayment: (bookingId) =>
+    enhancedApi.post(`/payments/transfer/${bookingId}`),
 };
 
 // Admin API calls
 export const adminAPI = {
   // Dashboard and analytics
-  getDashboardStats: () => api.get("/admin/dashboard"),
-  getAnalytics: () => api.get("/admin/analytics/revenue"),
-  getSystemStats: () => api.get("/admin/dashboard"),
+  getDashboardStats: () => enhancedApi.get("/admin/dashboard"),
+  getAnalytics: () => enhancedApi.get("/admin/analytics/revenue"),
+  getSystemStats: () => enhancedApi.get("/admin/dashboard"),
 
   // User management
-  getUsers: (params) => api.get("/admin/users", { params }),
+  getUsers: (params) => enhancedApi.get("/admin/users", { params }),
   updateUserStatus: (userId, data) =>
-    api.put(`/admin/users/${userId}/status`, data),
+    enhancedApi.put(`/admin/users/${userId}/status`, data),
 
   // Booking management
-  getBookings: (params) => api.get("/admin/bookings", { params }),
+  getBookings: (params) => enhancedApi.get("/admin/bookings", { params }),
   assignCleaner: (bookingId, cleanerId) =>
-    api.post(`/admin/bookings/${bookingId}/assign`, { cleanerId }),
+    enhancedApi.post(`/admin/bookings/${bookingId}/assign`, { cleanerId }),
 
   // Cleaner management
   updateCleanerBackgroundCheck: (cleanerId, status) =>
-    api.put(`/admin/cleaners/${cleanerId}/background-check`, { status }),
+    enhancedApi.put(`/admin/cleaners/${cleanerId}/background-check`, {
+      status,
+    }),
 
   // Payment management
-  getPayments: (params) => api.get("/admin/payments", { params }),
+  getPayments: (params) => enhancedApi.get("/admin/payments", { params }),
   processRefund: (bookingId, amount, reason) =>
-    api.post(`/admin/payments/refund/${bookingId}`, { amount, reason }),
+    enhancedApi.post(`/admin/payments/refund/${bookingId}`, { amount, reason }),
 
   // Service management
-  getServices: (params) => api.get("/services", { params }),
-  createService: (serviceData) => api.post("/services", serviceData),
-  updateService: (id, serviceData) => api.put(`/services/${id}`, serviceData),
-  deleteService: (id) => api.delete(`/services/${id}`),
+  getServices: (params) => enhancedApi.get("/services", { params }),
+  createService: (serviceData) => enhancedApi.post("/services", serviceData),
+  updateService: (id, serviceData) =>
+    enhancedApi.put(`/services/${id}`, serviceData),
+  deleteService: (id) => enhancedApi.delete(`/services/${id}`),
 
   // Review management
-  getReviews: (params) => api.get("/admin/reviews", { params }),
-  deleteReview: (id) => api.delete(`/admin/reviews/${id}`),
+  getReviews: (params) => enhancedApi.get("/admin/reviews", { params }),
+  deleteReview: (id) => enhancedApi.delete(`/admin/reviews/${id}`),
 };
 
-export default api;
+export default enhancedApi;
