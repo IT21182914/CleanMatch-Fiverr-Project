@@ -12,13 +12,11 @@ import { useAuth } from "../../hooks/useAuth";
 import { Input } from "../../components/ui/Form";
 import Button from "../../components/ui/Button";
 import { validateEmail } from "../../lib/utils";
-import ApiTestComponent from "../../components/ApiTestComponent";
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    rememberMe: false,
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -31,10 +29,10 @@ const Login = () => {
   const from = location.state?.from?.pathname || "/dashboard";
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
     if (errors[name]) {
       setErrors((prev) => ({
@@ -55,8 +53,6 @@ const Login = () => {
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
     }
 
     setErrors(newErrors);
@@ -89,9 +85,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      {/* API Test Component - Remove this in production */}
-      {import.meta.env.MODE === "development" && <ApiTestComponent />}
-      
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Logo and Header */}
         <div className="text-center">
@@ -135,60 +128,39 @@ const Login = () => {
               </div>
             )}
 
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-semibold text-gray-700 mb-2"
-              >
-                Email address
-              </label>
+            <div className="space-y-4">
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10 mt-6">
                   <UserIcon className="h-5 w-5 text-gray-400" />
                 </div>
-                <input
-                  id="email"
+                <Input
+                  label="Email address"
                   name="email"
                   type="email"
-                  autoComplete="email"
-                  required
                   value={formData.email}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pl-10 pr-3 py-3 border ${
-                    errors.email ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                  error={errors.email}
                   placeholder="Enter your email address"
+                  className="pl-10 focus:ring-yellow-500 focus:border-yellow-500"
+                  required
                 />
               </div>
-              {errors.email && (
-                <p className="mt-2 text-sm text-red-600">{errors.email}</p>
-              )}
-            </div>
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-semibold text-gray-700 mb-2"
-              >
-                Password
-              </label>
               <div className="relative">
-                <input
-                  id="password"
+                <Input
+                  label="Password"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  required
                   value={formData.password}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pr-10 pl-3 py-3 border ${
-                    errors.password ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                  error={errors.password}
                   placeholder="Enter your password"
+                  className="pr-10 focus:ring-yellow-500 focus:border-yellow-500"
+                  required
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center mt-6 z-10"
                   onClick={togglePasswordVisibility}
                 >
                   {showPassword ? (
@@ -198,35 +170,15 @@ const Login = () => {
                   )}
                 </button>
               </div>
-              {errors.password && (
-                <p className="mt-2 text-sm text-red-600">{errors.password}</p>
-              )}
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="rememberMe"
-                  type="checkbox"
-                  checked={formData.rememberMe}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-700"
-                >
-                  Remember me
-                </label>
-              </div>
-
               <div className="text-sm">
                 <Link
                   to="/forgot-password"
                   className="font-medium text-yellow-600 hover:text-yellow-500 transition-colors duration-200"
                 >
-                  Forgot password?
+                  Forgot your password?
                 </Link>
               </div>
             </div>
@@ -234,11 +186,9 @@ const Login = () => {
             <div>
               <Button
                 type="submit"
-                variant="primary"
-                size="lg"
-                className="w-full flex justify-center py-3 text-base font-semibold"
+                className="w-full flex justify-center py-3 text-base font-semibold bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg focus:ring-yellow-500"
                 loading={loading}
-                loadingVariant="spinner"
+                loadingVariant="dots"
                 loadingText="Signing you in..."
                 disabled={loading}
               >
