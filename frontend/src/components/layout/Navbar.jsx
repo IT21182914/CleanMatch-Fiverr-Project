@@ -37,19 +37,23 @@ const Navbar = () => {
       return [
         ...baseNav,
         { name: "Book Service", href: "/book", icon: CalendarIcon },
-        { name: "My Bookings", href: "/bookings", icon: CalendarIcon },
+        { name: "My Bookings", href: "/customer/bookings", icon: CalendarIcon },
         { name: "Payment History", href: "/payments", icon: CreditCardIcon },
-        { name: "Profile", href: "/profile", icon: UserIcon },
+        { name: "Profile", href: "/customer/profile", icon: UserIcon },
       ];
     }
 
     if (user?.role === "cleaner") {
       return [
         ...baseNav,
-        { name: "My Jobs", href: "/jobs", icon: CalendarIcon },
-        { name: "Availability", href: "/availability", icon: CalendarIcon },
-        { name: "Earnings", href: "/earnings", icon: CreditCardIcon },
-        { name: "Profile", href: "/profile", icon: UserIcon },
+        { name: "My Jobs", href: "/cleaner/jobs", icon: CalendarIcon },
+        {
+          name: "Availability",
+          href: "/cleaner/availability",
+          icon: CalendarIcon,
+        },
+        { name: "Earnings", href: "/cleaner/earnings", icon: CreditCardIcon },
+        { name: "Profile", href: "/cleaner/profile", icon: UserIcon },
       ];
     }
 

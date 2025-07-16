@@ -107,7 +107,7 @@ const CleanerDashboard = () => {
           </p>
         </div>
         <div className="mt-4 flex md:ml-4 md:mt-0">
-          <Link to="/availability">
+          <Link to="/cleaner/availability">
             <Button className="inline-flex items-center">
               <CalendarIcon className="h-4 w-4 mr-2" />
               Update Availability
@@ -194,13 +194,15 @@ const CleanerDashboard = () => {
       {/* Recent Jobs */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle>Recent Jobs</CardTitle>
-          <Link
-            to="/jobs"
-            className="text-sm text-blue-600 hover:text-blue-500"
-          >
-            View all
-          </Link>
+          <CardTitle>Recent Jobs </CardTitle>
+          <div className="flex items-center">
+            <Link
+              to="/cleaner/jobs"
+              className="text-sm text-blue-600 hover:text-blue-500"
+            >
+              View all
+            </Link>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {loading ? (
@@ -214,7 +216,7 @@ const CleanerDashboard = () => {
               <p className="text-gray-500 mb-4">
                 Complete your profile to start receiving job assignments.
               </p>
-              <Link to="/profile">
+              <Link to="/cleaner/profile">
                 <Button>Complete Profile</Button>
               </Link>
             </div>
