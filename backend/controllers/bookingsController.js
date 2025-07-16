@@ -618,11 +618,86 @@ const createBookingReview = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get cleaner recommendations with ZIP code priority
+ * @route   POST /api/bookings/recommendations-by-zip
+ * @access  Private (Customers/Admins)
+ */
+const getZipBasedRecommendations = async (req, res) => {
+  try {
+    const {
+      zipCode,
+      latitude,
+      longitude,
+      bookingDate,
+      bookingTime,
+      durationHours,
+      serviceId,
+      limit = 10,
+    } = req.body;
+
+    // Validate required fields
+    if (!zipCode || !bookingDate || !bookingTime || !durationHours) {
+      return res.status(400).json({
+        success: false,
+        error: "ZIP code, booking date, time, and duration are required",
+      });
+    }
+
+    const bookingDetails = {
+      zipCode,
+      latitude,
+      longitude,
+      bookingDate,
+      bookingTime,
+      durationHours,
+      serviceId,
+    };
+
+    const recommendations = await getCleanerRecommendations(
+      bookingDetails,
+      limit
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalFound: recommendations.length,
+        zipCode,
+        recommendations: recommendations.map((cleaner) => ({
+          id: cleaner.id,
+          name: `${cleaner.first_name} ${cleaner.last_name}`,
+          rating: cleaner.rating,
+          hourlyRate: cleaner.hourly_rate,
+          experienceYears: cleaner.experience_years,
+          totalJobs: cleaner.total_jobs,
+          distance: cleaner.distance,
+          zipProximityScore: cleaner.zipProximityScore || 0,
+          matchScore: cleaner.matchScore,
+          zipCode: cleaner.zip_code,
+          isInSameZip: cleaner.zip_code === zipCode,
+          isInSameArea:
+            cleaner.zip_code &&
+            zipCode &&
+            cleaner.zip_code.substring(0, 3) === zipCode.substring(0, 3),
+        })),
+      },
+    });
+  } catch (error) {
+    console.error("Get ZIP-based recommendations error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error getting recommendations",
+    });
+  }
+};
+
 module.exports = {
   createBooking,
   getBookingById,
   updateBookingStatus,
   assignCleanerToBooking,
   getCleanerRecommendationsForBooking,
+  getZipBasedRecommendations,
   createBookingReview,
 };

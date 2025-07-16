@@ -23,7 +23,71 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 /**
+ * Calculate ZIP code proximity score
+ * @param {string} customerZip - Customer's ZIP code
+ * @param {string} cleanerZip - Cleaner's ZIP code
+ * @returns {number} Proximity score (0-100)
+ */
+const calculateZipProximityScore = (customerZip, cleanerZip) => {
+  if (!customerZip || !cleanerZip) return 0;
+
+  // Exact match gets highest score
+  if (customerZip === cleanerZip) return 100;
+
+  // Check if ZIP codes are in same area (first 3 digits)
+  const customerPrefix = customerZip.substring(0, 3);
+  const cleanerPrefix = cleanerZip.substring(0, 3);
+
+  if (customerPrefix === cleanerPrefix) return 75;
+
+  // Check regional proximity (first 2 digits)
+  const customerRegion = customerZip.substring(0, 2);
+  const cleanerRegion = cleanerZip.substring(0, 2);
+
+  if (customerRegion === cleanerRegion) return 50;
+
+  // Different regions get low score
+  return 25;
+};
+
+/**
+ * Enhanced distance calculation with ZIP code fallback
+ * @param {number} lat1 - Latitude 1
+ * @param {number} lon1 - Longitude 1
+ * @param {number} lat2 - Latitude 2
+ * @param {number} lon2 - Longitude 2
+ * @param {string} zip1 - ZIP code 1 (fallback)
+ * @param {string} zip2 - ZIP code 2 (fallback)
+ * @returns {number} Distance in miles
+ */
+const calculateDistanceWithZipFallback = (
+  lat1,
+  lon1,
+  lat2,
+  lon2,
+  zip1,
+  zip2
+) => {
+  // If coordinates are available, use precise calculation
+  if (lat1 && lon1 && lat2 && lon2) {
+    return calculateDistance(lat1, lon1, lat2, lon2);
+  }
+
+  // Fallback to ZIP-based distance estimation
+  if (zip1 && zip2) {
+    const zipScore = calculateZipProximityScore(zip1, zip2);
+    if (zipScore === 100) return 2; // Same ZIP ~2 miles
+    if (zipScore === 75) return 8; // Same area ~8 miles
+    if (zipScore === 50) return 15; // Same region ~15 miles
+    return 25; // Different region ~25 miles
+  }
+
+  return null; // No location data available
+};
+
+/**
  * Get available cleaners based on location, date, and service requirements
+ * Enhanced with ZIP code priority matching
  * @param {Object} bookingDetails - Booking details including location, date, service
  * @returns {Array} Array of matched cleaners sorted by priority
  */
@@ -39,7 +103,7 @@ const findAvailableCleaners = async (bookingDetails) => {
   } = bookingDetails;
 
   try {
-    // Get all active cleaners with their profiles
+    // Get all active cleaners with their profiles, prioritizing ZIP code matches
     const cleanersQuery = `
       SELECT 
         u.id,
@@ -56,66 +120,80 @@ const findAvailableCleaners = async (bookingDetails) => {
         cp.total_jobs,
         cp.is_available,
         cp.availability_schedule,
-        cp.experience_years
+        cp.experience_years,
+        CASE 
+          WHEN u.zip_code = $1 THEN 1
+          WHEN LEFT(u.zip_code, 3) = LEFT($1, 3) THEN 2
+          WHEN LEFT(u.zip_code, 2) = LEFT($1, 2) THEN 3
+          ELSE 4
+        END as zip_priority
       FROM users u
       JOIN cleaner_profiles cp ON u.id = cp.user_id
       WHERE u.role = 'cleaner' 
         AND u.is_active = true 
         AND cp.is_available = true
         AND cp.background_check_status = 'approved'
+      ORDER BY zip_priority ASC, cp.rating DESC
     `;
 
-    const cleanersResult = await query(cleanersQuery);
+    const cleanersResult = await query(cleanersQuery, [zipCode || "00000"]);
     const availableCleaners = [];
 
     for (const cleaner of cleanersResult.rows) {
-      // Check if cleaner is within service radius
-      let distance = 0;
-      if (cleaner.latitude && cleaner.longitude && latitude && longitude) {
-        distance = calculateDistance(
-          parseFloat(cleaner.latitude),
-          parseFloat(cleaner.longitude),
-          parseFloat(latitude),
-          parseFloat(longitude)
-        );
-      } else {
-        // Fallback to ZIP code matching if coordinates not available
-        if (cleaner.zip_code === zipCode) {
-          distance = 5; // Assume 5 miles for same ZIP
-        } else {
-          distance = 50; // Default high distance for different ZIP
-        }
+      // Calculate distance with ZIP fallback
+      const distance = calculateDistanceWithZipFallback(
+        parseFloat(cleaner.latitude),
+        parseFloat(cleaner.longitude),
+        parseFloat(latitude),
+        parseFloat(longitude),
+        cleaner.zip_code,
+        zipCode
+      );
+
+      if (distance === null || distance > cleaner.service_radius) {
+        continue; // Skip if no location data or outside service radius
       }
 
-      if (distance <= cleaner.service_radius) {
-        // Check availability for the specific date and time
-        const isAvailable = await checkCleanerAvailability(
-          cleaner.id,
-          bookingDate,
-          bookingTime,
-          durationHours,
-          cleaner.availability_schedule
+      // Check availability for the specific date and time
+      const isAvailable = await checkCleanerAvailability(
+        cleaner.id,
+        bookingDate,
+        bookingTime,
+        durationHours,
+        cleaner.availability_schedule
+      );
+
+      if (isAvailable) {
+        // Calculate ZIP proximity score
+        const zipProximityScore = calculateZipProximityScore(
+          zipCode,
+          cleaner.zip_code
         );
 
-        if (isAvailable) {
-          // Calculate matching score
-          const matchScore = calculateMatchScore(
-            cleaner,
-            distance,
-            bookingDetails
-          );
+        // Calculate enhanced matching score
+        const matchScore = calculateEnhancedMatchScore(
+          cleaner,
+          distance,
+          zipProximityScore,
+          bookingDetails
+        );
 
-          availableCleaners.push({
-            ...cleaner,
-            distance: Math.round(distance * 100) / 100,
-            matchScore,
-          });
-        }
+        availableCleaners.push({
+          ...cleaner,
+          distance: Math.round(distance * 100) / 100,
+          zipProximityScore,
+          matchScore,
+        });
       }
     }
 
-    // Sort by match score (higher is better)
-    return availableCleaners.sort((a, b) => b.matchScore - a.matchScore);
+    // Sort by ZIP proximity first, then match score
+    return availableCleaners.sort((a, b) => {
+      if (a.zipProximityScore !== b.zipProximityScore) {
+        return b.zipProximityScore - a.zipProximityScore;
+      }
+      return b.matchScore - a.matchScore;
+    });
   } catch (error) {
     console.error("Error finding available cleaners:", error);
     throw error;
@@ -254,6 +332,59 @@ const calculateMatchScore = (cleaner, distance, bookingDetails) => {
 };
 
 /**
+ * Enhanced match score calculation with ZIP code proximity
+ * @param {Object} cleaner - Cleaner object
+ * @param {number} distance - Distance from customer
+ * @param {number} zipProximityScore - ZIP code proximity score (0-100)
+ * @param {Object} bookingDetails - Booking details
+ * @returns {number} Enhanced match score (0-100)
+ */
+const calculateEnhancedMatchScore = (
+  cleaner,
+  distance,
+  zipProximityScore,
+  bookingDetails
+) => {
+  let score = 0;
+
+  // ZIP code proximity bonus - 25 points max (highest priority)
+  score += (zipProximityScore / 100) * 25;
+
+  // Distance score (closer is better) - 20 points max (reduced from 30)
+  const maxDistance = 25; // miles
+  const distanceScore = Math.max(
+    0,
+    ((maxDistance - distance) / maxDistance) * 20
+  );
+  score += distanceScore;
+
+  // Rating score - 20 points max
+  const ratingScore = (cleaner.rating / 5) * 20;
+  score += ratingScore;
+
+  // Experience score - 15 points max
+  const experienceScore = Math.min(cleaner.experience_years / 10, 1) * 15;
+  score += experienceScore;
+
+  // Job completion rate (based on total jobs) - 10 points max
+  const jobsScore = Math.min(cleaner.total_jobs / 50, 1) * 10;
+  score += jobsScore;
+
+  // Rate competitiveness - 10 points max
+  const avgHourlyRate = 25; // Assumed average rate
+  const rateScore =
+    cleaner.hourly_rate <= avgHourlyRate
+      ? 10
+      : Math.max(
+          0,
+          10 - ((cleaner.hourly_rate - avgHourlyRate) / avgHourlyRate) * 5
+        );
+  score += rateScore;
+
+  return Math.round(score * 100) / 100;
+};
+
+/**
  * Auto-assign the best available cleaner to a booking
  * @param {Object} bookingDetails - Booking details
  * @returns {Object} Best matched cleaner or null if none available
@@ -295,6 +426,9 @@ module.exports = {
   autoAssignCleaner,
   getCleanerRecommendations,
   calculateDistance,
+  calculateDistanceWithZipFallback,
+  calculateZipProximityScore,
   checkCleanerAvailability,
   calculateMatchScore,
+  calculateEnhancedMatchScore,
 };

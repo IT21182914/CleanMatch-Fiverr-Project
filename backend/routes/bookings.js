@@ -11,6 +11,7 @@ const {
   updateBookingStatus,
   assignCleanerToBooking,
   getCleanerRecommendationsForBooking,
+  getZipBasedRecommendations,
   createBookingReview,
 } = require("../controllers/bookingsController");
 const router = express.Router();
@@ -45,6 +46,11 @@ router.post("/:id/assign", auth, assignCleanerToBooking);
 // @desc    Get cleaner recommendations for booking
 // @access  Private (Admin or Customer)
 router.get("/:id/recommendations", auth, getCleanerRecommendationsForBooking);
+
+// @route   POST /api/bookings/recommendations-by-zip
+// @desc    Get cleaner recommendations with ZIP code priority
+// @access  Private (Customers/Admins)
+router.post("/recommendations-by-zip", auth, getZipBasedRecommendations);
 
 // @route   POST /api/bookings/:id/review
 // @desc    Add review for completed booking
