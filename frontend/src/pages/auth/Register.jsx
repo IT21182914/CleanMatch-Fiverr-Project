@@ -134,25 +134,25 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 flex flex-col justify-center py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-lg">
         {/* Logo and Header */}
-        <div className="text-center">
-          <div className="mx-auto w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center shadow-lg mb-6">
-            <SparklesIcon className="h-8 w-8 text-white" />
+        <div className="text-center mb-6">
+          <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-yellow-500 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+            <SparklesIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Join CleanMatch Today
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600">
             Create your account and experience spotless cleaning services
           </p>
         </div>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-gray-100 sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+      <div className="mx-auto w-full max-w-lg">
+        <div className="bg-white py-6 px-4 sm:py-8 sm:px-6 shadow-xl rounded-2xl border border-gray-100">
+          <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
             {errors.general && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <div className="flex">
@@ -179,7 +179,7 @@ const Register = () => {
             )}
 
             {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label
                   htmlFor="firstName"
@@ -198,9 +198,9 @@ const Register = () => {
                     required
                     value={formData.firstName}
                     onChange={handleChange}
-                    className={`appearance-none relative block w-full pl-10 pr-3 py-3 border ${
+                    className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                       errors.firstName ? "border-red-300" : "border-gray-300"
-                    } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                    } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
                     placeholder="First name"
                   />
                 </div>
@@ -225,9 +225,9 @@ const Register = () => {
                   required
                   value={formData.lastName}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full px-3 py-3 border ${
+                  className={`appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
                     errors.lastName ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="Last name"
                 />
                 {errors.lastName && (
@@ -247,7 +247,7 @@ const Register = () => {
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <EnvelopeIcon className="h-5 w-5 text-gray-400" />
-                </div>
+                </div>{" "}
                 <input
                   id="email"
                   name="email"
@@ -256,9 +256,9 @@ const Register = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pl-10 pr-3 py-3 border ${
+                  className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                     errors.email ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="Enter your email address"
                 />
               </div>
@@ -286,9 +286,9 @@ const Register = () => {
                   required
                   value={formData.phone}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pl-10 pr-3 py-3 border ${
+                  className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                     errors.phone ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="(555) 123-4567"
                 />
               </div>
@@ -311,7 +311,7 @@ const Register = () => {
                 value={formData.role}
                 onChange={handleChange}
                 required
-                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200"
+                className="appearance-none relative block w-full px-3 py-2.5 sm:py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200"
               >
                 <option value="customer">
                   Customer - Book cleaning services
@@ -336,7 +336,7 @@ const Register = () => {
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <HomeIcon className="h-5 w-5 text-gray-400" />
-                </div>
+                </div>{" "}
                 <input
                   id="address"
                   name="address"
@@ -344,9 +344,9 @@ const Register = () => {
                   required
                   value={formData.address}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pl-10 pr-3 py-3 border ${
+                  className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                     errors.address ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="123 Main St"
                 />
               </div>
@@ -356,7 +356,7 @@ const Register = () => {
             </div>
 
             {/* City, State, ZIP */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label
                   htmlFor="city"
@@ -375,9 +375,9 @@ const Register = () => {
                     required
                     value={formData.city}
                     onChange={handleChange}
-                    className={`appearance-none relative block w-full pl-10 pr-3 py-3 border ${
+                    className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                       errors.city ? "border-red-300" : "border-gray-300"
-                    } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                    } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
                     placeholder="New York"
                   />
                 </div>
@@ -400,9 +400,9 @@ const Register = () => {
                   required
                   value={formData.state}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full px-3 py-3 border ${
+                  className={`appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
                     errors.state ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="NY"
                 />
                 {errors.state && (
@@ -426,9 +426,9 @@ const Register = () => {
                 required
                 value={formData.zipCode}
                 onChange={handleChange}
-                className={`appearance-none relative block w-full px-3 py-3 border ${
+                className={`appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
                   errors.zipCode ? "border-red-300" : "border-gray-300"
-                } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
                 placeholder="12345"
               />
               {errors.zipCode && (
@@ -445,6 +445,7 @@ const Register = () => {
                 Password
               </label>
               <div className="relative">
+                {" "}
                 <input
                   id="password"
                   name="password"
@@ -453,9 +454,9 @@ const Register = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pr-10 pl-3 py-3 border ${
+                  className={`appearance-none relative block w-full pr-10 pl-3 py-2.5 sm:py-3 border ${
                     errors.password ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="Enter your password"
                 />
                 <button
@@ -492,11 +493,11 @@ const Register = () => {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pr-10 pl-3 py-3 border ${
+                  className={`appearance-none relative block w-full pr-10 pl-3 py-2.5 sm:py-3 border ${
                     errors.confirmPassword
                       ? "border-red-300"
                       : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="Confirm your password"
                 />
                 <button
@@ -524,7 +525,7 @@ const Register = () => {
                 type="submit"
                 variant="primary"
                 size="lg"
-                className="w-full flex justify-center py-3 text-base font-semibold"
+                className="w-full flex justify-center py-2.5 sm:py-3 text-sm sm:text-base font-semibold"
                 loading={loading}
                 loadingVariant="spinner"
                 loadingText="Creating your account..."
@@ -540,7 +541,7 @@ const Register = () => {
             </div>
 
             {/* Divider */}
-            <div className="mt-6">
+            <div className="mt-4 sm:mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300" />
@@ -554,10 +555,10 @@ const Register = () => {
             </div>
 
             {/* Sign In Link */}
-            <div className="mt-6">
+            <div className="mt-4 sm:mt-6">
               <Link
                 to="/login"
-                className="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
+                className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
               >
                 Sign in to your account
               </Link>
@@ -565,8 +566,8 @@ const Register = () => {
           </form>
 
           {/* Trust Indicators */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <div className="flex items-center justify-center space-x-6 text-xs text-gray-500">
+          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200">
+            <div className="flex items-center justify-center space-x-4 sm:space-x-6 text-xs text-gray-500">
               <div className="flex items-center">
                 <ShieldCheckIcon className="h-4 w-4 text-green-500 mr-1" />
                 <span>Secure Registration</span>
@@ -580,8 +581,8 @@ const Register = () => {
         </div>
 
         {/* Additional Info */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-600">
+        <div className="mt-6 sm:mt-8 text-center px-2">
+          <p className="text-xs sm:text-sm text-gray-600">
             By creating an account, you agree to our{" "}
             <Link
               to="/terms"
@@ -600,11 +601,11 @@ const Register = () => {
         </div>
 
         {/* Benefits Preview */}
-        <div className="mt-8 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+        <div className="mt-6 sm:mt-8 bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-sm">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 text-center">
             What you'll get with CleanMatch
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {[
               "Access to vetted and insured professional cleaners",
               "Flexible scheduling that fits your lifestyle",
@@ -612,17 +613,19 @@ const Register = () => {
               "Easy booking and payment through our platform",
             ].map((benefit, index) => (
               <div key={index} className="flex items-center">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3 flex-shrink-0"></div>
-                <span className="text-sm text-gray-600">{benefit}</span>
+                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2 sm:mr-3 flex-shrink-0"></div>
+                <span className="text-xs sm:text-sm text-gray-600">
+                  {benefit}
+                </span>
               </div>
             ))}
           </div>
 
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex items-center">
-              <SparklesIcon className="h-5 w-5 text-yellow-600 mr-2" />
+              <SparklesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 mr-2" />
               <div>
-                <p className="text-sm font-semibold text-yellow-800">
+                <p className="text-xs sm:text-sm font-semibold text-yellow-800">
                   New customers get $19 First Clean
                 </p>
                 <p className="text-xs text-yellow-700 mt-1">
