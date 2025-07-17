@@ -6,8 +6,8 @@ import {
   CheckCircleIcon,
   SparklesIcon,
   StarIcon,
-  CrownIcon,
 } from "@heroicons/react/24/outline";
+import { FaCrown } from "react-icons/fa";
 import {
   Card,
   CardHeader,
@@ -96,7 +96,7 @@ const MembershipSubscription = () => {
   const getTierIcon = (tier) => {
     switch (tier) {
       case "gold":
-        return <CrownIcon className="h-8 w-8 text-yellow-500" />;
+        return <FaCrown className="h-8 w-8 text-yellow-500" />;
       case "premium":
         return <StarIcon className="h-8 w-8 text-purple-500" />;
       default:
