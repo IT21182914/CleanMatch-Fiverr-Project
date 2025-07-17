@@ -15,6 +15,14 @@ const generateSecret = (length = 64) => {
 const envPath = path.join(__dirname, '.env');
 const envExamplePath = path.join(__dirname, '.env.example');
 
+// Skip setup in production environment if environment variables are already set
+if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+  console.log('✅ Production environment detected with DATABASE_URL set');
+  console.log('✅ Skipping .env file setup');
+  console.log('\n🎉 CleanMatch Backend setup complete!');
+  process.exit(0);
+}
+
 if (!fs.existsSync(envPath)) {
   if (fs.existsSync(envExamplePath)) {
     console.log('📝 Creating .env file from template...');
@@ -39,7 +47,13 @@ if (!fs.existsSync(envPath)) {
     console.log('✅ .env file created with secure random secrets');
   } else {
     console.log('❌ .env.example file not found');
-    process.exit(1);
+    console.log('⚠️  This might be a deployment environment. Ensure environment variables are set.');
+    // Don't exit with error in deployment environments
+    if (process.env.NODE_ENV === 'production') {
+      console.log('✅ Continuing setup for production environment');
+    } else {
+      process.exit(1);
+    }
   }
 } else {
   console.log('✅ .env file already exists');
