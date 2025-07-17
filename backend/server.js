@@ -27,7 +27,7 @@ const {
   unhandledRejectionHandler,
   uncaughtExceptionHandler,
 } = require("./middleware/errorHandler");
-const { connectDB } = require("./config/database");
+const { connectDB, gracefulShutdown: closeDatabase, healthCheck } = require("./config/database");
 const { initializeCronJobs } = require("./utils/scheduler");
 
 const app = express();
@@ -127,14 +127,17 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Health check endpoint
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "OK",
+app.get("/health", async (req, res) => {
+  const dbHealth = await healthCheck();
+  
+  res.status(dbHealth.connected ? 200 : 503).json({
+    status: dbHealth.connected ? "OK" : "Service Unavailable",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
     version: "1.0.0",
     uptime: process.uptime(),
     memory: process.memoryUsage(),
+    database: dbHealth,
   });
 });
 
@@ -223,10 +226,10 @@ app.use("*", (req, res) => {
 app.use(errorHandler);
 
 // Graceful shutdown handlers
-const gracefulShutdown = (signal) => {
+const gracefulShutdown = async (signal) => {
   console.log(`${signal} received. Shutting down gracefully...`);
 
-  server.close((err) => {
+  server.close(async (err) => {
     if (err) {
       console.error("Error during server shutdown:", err);
       process.exit(1);
@@ -235,13 +238,13 @@ const gracefulShutdown = (signal) => {
     console.log("HTTP server closed.");
 
     // Close database connections
-    if (typeof require("./config/database").pool !== "undefined") {
-      require("./config/database").pool.end(() => {
-        console.log("Database connections closed.");
-        process.exit(0);
-      });
-    } else {
+    try {
+      await closeDatabase();
+      console.log("Database connections closed.");
       process.exit(0);
+    } catch (error) {
+      console.error("Error closing database connections:", error);
+      process.exit(1);
     }
   });
 
