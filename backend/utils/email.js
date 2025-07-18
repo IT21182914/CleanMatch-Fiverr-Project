@@ -53,7 +53,7 @@ const sendWelcomeEmail = async (email, firstName, role) => {
           <p>Get started by completing your profile and exploring our platform!</p>
           
           <div style="margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
-            <p><strong>Need help?</strong> Contact our support team at support@cleanmatch.com</p>
+            <p><strong>Need help?</strong> Contact our support team at support@CleanMatch.com</p>
           </div>
           
           <p>Best regards,<br>The CleanMatch Team</p>

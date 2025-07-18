@@ -139,7 +139,7 @@ const CleanerDashboard = () => {
         <Card>
           <CardContent className="flex items-center">
             <div className="flex-shrink-0">
-              <ClockIcon className="h-8 w-8 text-yellow-600" />
+              <ClockIcon className="h-8 w-8 text-cyan-600" />
             </div>
             <div className="ml-5 w-0 flex-1">
               <dl>

@@ -15,7 +15,7 @@ const connectDB = async (retries = 5) => {
       connectionTimeoutMillis: 10000,
       statement_timeout: 30000,
       query_timeout: 30000,
-      application_name: 'cleanmatch-backend',
+      application_name: "CleanMatch-backend",
       keepAlive: true,
       keepAliveInitialDelayMillis: 10000,
     };
@@ -23,28 +23,28 @@ const connectDB = async (retries = 5) => {
     pool = new Pool(config);
 
     // Handle connection errors
-    pool.on('error', (err) => {
-      console.error('❌ Database pool error:', err);
+    pool.on("error", (err) => {
+      console.error("❌ Database pool error:", err);
       isConnected = false;
-      
+
       // Attempt to reconnect after a delay
       setTimeout(() => {
-        console.log('🔄 Attempting to reconnect to database...');
+        console.log("🔄 Attempting to reconnect to database...");
         connectDB();
       }, 5000);
     });
 
-    pool.on('connect', () => {
-      console.log('✅ Database client connected');
+    pool.on("connect", () => {
+      console.log("✅ Database client connected");
       isConnected = true;
     });
 
-    pool.on('acquire', () => {
-      console.log('📡 Database client acquired from pool');
+    pool.on("acquire", () => {
+      console.log("📡 Database client acquired from pool");
     });
 
-    pool.on('release', () => {
-      console.log('🔄 Database client released back to pool');
+    pool.on("release", () => {
+      console.log("🔄 Database client released back to pool");
     });
 
     // Test the connection
@@ -54,7 +54,7 @@ const connectDB = async (retries = 5) => {
 
     // Create tables if they don't exist
     await createTables();
-    
+
     // Set up connection health check
     setInterval(async () => {
       try {
@@ -68,12 +68,13 @@ const connectDB = async (retries = 5) => {
         isConnected = false;
       }
     }, 30000); // Check every 30 seconds
-    
   } catch (error) {
     console.error("❌ Database connection failed:", error.message);
-    
+
     if (retries > 0) {
-      console.log(`🔄 Retrying connection in 5 seconds... (${retries} attempts remaining)`);
+      console.log(
+        `🔄 Retrying connection in 5 seconds... (${retries} attempts remaining)`
+      );
       setTimeout(() => connectDB(retries - 1), 5000);
     } else {
       console.error("❌ Max retries exceeded. Exiting...");
@@ -504,14 +505,17 @@ const query = async (text, params, retries = 3) => {
       const result = await pool.query(text, params);
       return result;
     } catch (error) {
-      console.error(`❌ Database query failed (attempt ${i + 1}):`, error.message);
-      
+      console.error(
+        `❌ Database query failed (attempt ${i + 1}):`,
+        error.message
+      );
+
       if (i === retries - 1) {
         throw error;
       }
-      
+
       // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1)));
     }
   }
 };
@@ -522,14 +526,17 @@ const getClient = async (retries = 3) => {
       const client = await pool.connect();
       return client;
     } catch (error) {
-      console.error(`❌ Failed to get database client (attempt ${i + 1}):`, error.message);
-      
+      console.error(
+        `❌ Failed to get database client (attempt ${i + 1}):`,
+        error.message
+      );
+
       if (i === retries - 1) {
         throw error;
       }
-      
+
       // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1)));
     }
   }
 };
@@ -538,21 +545,21 @@ const getClient = async (retries = 3) => {
 const healthCheck = async () => {
   try {
     await query("SELECT 1");
-    return { status: 'healthy', connected: true };
+    return { status: "healthy", connected: true };
   } catch (error) {
-    return { status: 'unhealthy', connected: false, error: error.message };
+    return { status: "unhealthy", connected: false, error: error.message };
   }
 };
 
 // Graceful shutdown
 const gracefulShutdown = async () => {
   try {
-    console.log('🔄 Closing database pool...');
+    console.log("🔄 Closing database pool...");
     await pool.end();
-    console.log('✅ Database pool closed gracefully');
+    console.log("✅ Database pool closed gracefully");
     isConnected = false;
   } catch (error) {
-    console.error('❌ Error during database shutdown:', error.message);
+    console.error("❌ Error during database shutdown:", error.message);
   }
 };
 

@@ -11,7 +11,7 @@ const Card = forwardRef(
       outlined:
         "rounded-lg border-2 border-gray-200 bg-white text-gray-950 hover:border-gray-300 transition-colors duration-200",
       primary:
-        "rounded-lg border border-yellow-200 bg-yellow-50 text-gray-950 shadow-sm",
+        "rounded-lg border border-cyan-200 bg-cyan-50 text-gray-950 shadow-sm",
       success:
         "rounded-lg border border-green-200 bg-green-50 text-gray-950 shadow-sm",
       warning:
@@ -49,7 +49,7 @@ const CardHeader = forwardRef(
       bordered: "flex flex-col space-y-1.5 p-4 sm:p-6 border-b border-gray-200",
       accent: "flex flex-col space-y-1.5 p-4 sm:p-6 bg-gray-50 rounded-t-lg",
       primary:
-        "flex flex-col space-y-1.5 p-4 sm:p-6 bg-yellow-50 rounded-t-lg border-b border-yellow-200",
+        "flex flex-col space-y-1.5 p-4 sm:p-6 bg-cyan-50 rounded-t-lg border-b border-cyan-200",
     };
 
     return (
@@ -122,7 +122,7 @@ const CardFooter = forwardRef(
       bordered: "flex items-center p-4 sm:p-6 pt-0 border-t border-gray-200",
       accent: "flex items-center p-4 sm:p-6 pt-0 bg-gray-50 rounded-b-lg",
       primary:
-        "flex items-center p-4 sm:p-6 pt-0 bg-yellow-50 rounded-b-lg border-t border-yellow-200",
+        "flex items-center p-4 sm:p-6 pt-0 bg-cyan-50 rounded-b-lg border-t border-cyan-200",
     };
 
     return (
@@ -156,7 +156,7 @@ const ServiceCard = forwardRef(
       hover={true}
       className={cn(
         "relative overflow-hidden",
-        isPopular && "ring-2 ring-yellow-500",
+        isPopular && "ring-2 ring-cyan-500",
         className
       )}
       onClick={onClick}
@@ -164,7 +164,7 @@ const ServiceCard = forwardRef(
     >
       {isPopular && (
         <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-          <span className="bg-yellow-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+          <span className="bg-cyan-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
             Most Popular
           </span>
         </div>
@@ -242,7 +242,7 @@ const TestimonialCard = forwardRef(
             {[...Array(rating)].map((_, i) => (
               <svg
                 key={i}
-                className="h-5 w-5 text-yellow-400 fill-current"
+                className="h-5 w-5 text-cyan-400 fill-current"
                 viewBox="0 0 20 20"
               >
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -266,7 +266,7 @@ const TestimonialCard = forwardRef(
               className="w-10 h-10 rounded-full mr-3"
             />
           ) : (
-            <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center mr-3 text-white font-semibold">
+            <div className="w-10 h-10 bg-cyan-500 rounded-full flex items-center justify-center mr-3 text-white font-semibold">
               {name.charAt(0)}
             </div>
           )}
@@ -302,14 +302,14 @@ const PricingCard = forwardRef(
       variant={isPopular ? "primary" : "elevated"}
       className={cn(
         "relative overflow-hidden",
-        isPopular && "ring-2 ring-yellow-500 scale-105",
+        isPopular && "ring-2 ring-cyan-500 scale-105",
         className
       )}
       {...props}
     >
       {isPopular && (
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2">
-          <span className="bg-yellow-500 text-white px-4 py-2 rounded-b-lg text-sm font-semibold">
+          <span className="bg-cyan-500 text-white px-4 py-2 rounded-b-lg text-sm font-semibold">
             Best Value
           </span>
         </div>
@@ -354,7 +354,7 @@ const PricingCard = forwardRef(
           className={cn(
             "w-full py-3 px-4 rounded-lg font-semibold transition-colors duration-200",
             isPopular
-              ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+              ? "bg-cyan-500 hover:bg-cyan-600 text-white"
               : "bg-gray-900 hover:bg-gray-800 text-white"
           )}
         >
@@ -408,8 +408,8 @@ const StatsCard = forwardRef(
             )}
           </div>
           {Icon && (
-            <div className="p-3 bg-yellow-100 rounded-lg">
-              <Icon className="h-6 w-6 text-yellow-600" />
+            <div className="p-3 bg-cyan-100 rounded-lg">
+              <Icon className="h-6 w-6 text-cyan-600" />
             </div>
           )}
         </div>

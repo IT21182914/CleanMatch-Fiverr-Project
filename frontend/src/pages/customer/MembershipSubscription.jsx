@@ -96,7 +96,7 @@ const MembershipSubscription = () => {
   const getTierIcon = (tier) => {
     switch (tier) {
       case "gold":
-        return <FaCrown className="h-8 w-8 text-yellow-500" />;
+        return <FaCrown className="h-8 w-8 text-cyan-500" />;
       case "premium":
         return <StarIcon className="h-8 w-8 text-purple-500" />;
       default:
@@ -107,7 +107,7 @@ const MembershipSubscription = () => {
   const getTierGradient = (tier) => {
     switch (tier) {
       case "gold":
-        return "from-yellow-400 to-yellow-600";
+        return "from-cyan-400 to-cyan-600";
       case "premium":
         return "from-purple-400 to-purple-600";
       default:
@@ -119,7 +119,7 @@ const MembershipSubscription = () => {
     if (!isSelected) return "border-gray-200";
     switch (tier) {
       case "gold":
-        return "border-yellow-400 ring-2 ring-yellow-400";
+        return "border-cyan-400 ring-2 ring-cyan-400";
       case "premium":
         return "border-purple-400 ring-2 ring-purple-400";
       default:

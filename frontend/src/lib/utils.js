@@ -62,7 +62,7 @@ export function capitalizeFirst(str) {
 
 export function getStatusColor(status) {
   const statusColors = {
-    pending: "bg-yellow-100 text-yellow-800",
+    pending: "bg-cyan-100 text-cyan-800",
     confirmed: "bg-blue-100 text-blue-800",
     in_progress: "bg-indigo-100 text-indigo-800",
     completed: "bg-green-100 text-green-800",

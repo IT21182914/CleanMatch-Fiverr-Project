@@ -176,7 +176,7 @@ const AdminDashboard = () => {
         <Card>
           <CardContent className="flex items-center">
             <div className="flex-shrink-0">
-              <ExclamationTriangleIcon className="h-8 w-8 text-yellow-600" />
+              <ExclamationTriangleIcon className="h-8 w-8 text-cyan-600" />
             </div>
             <div className="ml-5 w-0 flex-1">
               <dl>
@@ -256,7 +256,7 @@ const AdminDashboard = () => {
             <Link to="/admin/analytics">
               <div className="relative rounded-lg border border-gray-300 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div>
-                  <span className="rounded-lg inline-flex p-3 bg-yellow-50 text-yellow-600">
+                  <span className="rounded-lg inline-flex p-3 bg-cyan-50 text-cyan-600">
                     <CurrencyDollarIcon className="h-6 w-6" />
                   </span>
                 </div>

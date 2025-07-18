@@ -79,7 +79,7 @@ const TrustIndicators = ({
           <svg
             key={i}
             className={`w-4 h-4 ${
-              i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
+              i < rating ? "text-cyan-400 fill-current" : "text-gray-300"
             }`}
             viewBox="0 0 20 20"
           >

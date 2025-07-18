@@ -21,7 +21,7 @@ const seedDatabase = async () => {
 
     console.log("✅ Database seeding completed successfully!");
     console.log("📋 Sample accounts created:");
-    console.log("   🔐 Admin: admin@cleanmatch.com / admin123!");
+    console.log("   🔐 Admin: admin@CleanMatch.com / admin123!");
     console.log("   👤 Customer: customer@example.com / customer123!");
     console.log(
       "   🧹 Cleaners: cleaner1@example.com, cleaner2@example.com, cleaner3@example.com / cleaner123!"
@@ -43,7 +43,7 @@ const seedDatabase = async () => {
 const seedAdminUser = async () => {
   try {
     const existingAdmin = await query("SELECT id FROM users WHERE email = $1", [
-      "admin@cleanmatch.com",
+      "admin@CleanMatch.com",
     ]);
 
     if (existingAdmin.rows.length > 0) {
@@ -58,7 +58,7 @@ const seedAdminUser = async () => {
         address, city, state, zip_code, is_verified, is_active
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
       [
-        "admin@cleanmatch.com",
+        "admin@CleanMatch.com",
         adminPassword,
         "Admin",
         "User",
@@ -73,7 +73,7 @@ const seedAdminUser = async () => {
       ]
     );
 
-    console.log("✅ Admin user created: admin@cleanmatch.com");
+    console.log("✅ Admin user created: admin@CleanMatch.com");
   } catch (error) {
     console.error("Error seeding admin user:", error);
   }

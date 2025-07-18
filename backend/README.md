@@ -84,7 +84,7 @@ FRONTEND_URL=http://localhost:3000
 # Database
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=cleanmatch_db
+DB_NAME=CleanMatch_db
 DB_USER=postgres
 DB_PASSWORD=your_password
 
@@ -111,7 +111,7 @@ EMAIL_PASSWORD=your_app_password
 Create PostgreSQL database:
 
 ```sql
-CREATE DATABASE cleanmatch_db;
+CREATE DATABASE CleanMatch_db;
 ```
 
 The application will automatically create tables on first run.
@@ -123,7 +123,7 @@ npm run seed
 ```
 
 This creates sample users and services:
-- Admin: `admin@cleanmatch.com` / `admin123!`
+- Admin: `admin@CleanMatch.com` / `admin123!`
 - Customer: `customer@example.com` / `customer123!`
 - Cleaners: `cleaner1@example.com` / `cleaner123!`
 
@@ -439,7 +439,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For support:
 - Create an issue in the repository
-- Email: support@cleanmatch.com
+- Email: support@CleanMatch.com
 - Documentation: [API Docs](./docs/api.md)
 
 ## 🔮 Future Enhancements

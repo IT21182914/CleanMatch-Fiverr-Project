@@ -279,7 +279,7 @@ const BookService = () => {
   return (
     <div className="bg-white min-h-screen">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 py-8 sm:py-12">
+      <div className="bg-gradient-to-r from-cyan-50 to-cyan-100 py-8 sm:py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -308,14 +308,14 @@ const BookService = () => {
                       {index > 0 && (
                         <div
                           className={`hidden sm:block w-8 h-0.5 mr-4 ${
-                            isCompleted ? "bg-yellow-500" : "bg-gray-300"
+                            isCompleted ? "bg-cyan-500" : "bg-gray-300"
                           }`}
                         />
                       )}
                       <div
                         className={`flex items-center space-x-2 px-3 py-2 rounded-lg ${
                           isActive
-                            ? "bg-yellow-500 text-white"
+                            ? "bg-cyan-500 text-white"
                             : isCompleted
                             ? "bg-green-500 text-white"
                             : "bg-white text-gray-400 border border-gray-300"
@@ -390,7 +390,7 @@ const BookService = () => {
                                 key={service.id}
                                 className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
                                   formData.serviceId === service.id.toString()
-                                    ? "border-yellow-500 bg-yellow-50"
+                                    ? "border-cyan-500 bg-cyan-50"
                                     : "border-gray-200 hover:border-gray-300"
                                 }`}
                                 onClick={() =>
@@ -408,7 +408,7 @@ const BookService = () => {
                                     <p className="text-sm text-gray-600 mt-1">
                                       {service.description}
                                     </p>
-                                    <p className="text-lg font-bold text-yellow-600 mt-2">
+                                    <p className="text-lg font-bold text-cyan-600 mt-2">
                                       Starting at{" "}
                                       {formatCurrency(
                                         service.base_price ||
@@ -421,7 +421,7 @@ const BookService = () => {
                                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                                       formData.serviceId ===
                                       service.id.toString()
-                                        ? "border-yellow-500 bg-yellow-500"
+                                        ? "border-cyan-500 bg-cyan-500"
                                         : "border-gray-300"
                                     }`}
                                   >
@@ -518,7 +518,7 @@ const BookService = () => {
                                 name="pets"
                                 checked={formData.pets}
                                 onChange={handleChange}
-                                className="h-4 w-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                                className="h-4 w-4 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500"
                               />
                               <span className="ml-2 text-sm text-gray-700">
                                 I have pets in my home
@@ -538,7 +538,7 @@ const BookService = () => {
                                 key={addOn.id}
                                 className={`border rounded-lg p-3 cursor-pointer transition-all ${
                                   selectedAddOns[addOn.id]
-                                    ? "border-yellow-500 bg-yellow-50"
+                                    ? "border-cyan-500 bg-cyan-50"
                                     : "border-gray-200 hover:border-gray-300"
                                 }`}
                                 onClick={() =>
@@ -550,14 +550,14 @@ const BookService = () => {
                                     <p className="font-medium text-gray-900">
                                       {addOn.name}
                                     </p>
-                                    <p className="text-sm text-yellow-600">
+                                    <p className="text-sm text-cyan-600">
                                       +{formatCurrency(addOn.price)}
                                     </p>
                                   </div>
                                   <div
                                     className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
                                       selectedAddOns[addOn.id]
-                                        ? "border-yellow-500 bg-yellow-500"
+                                        ? "border-cyan-500 bg-cyan-500"
                                         : "border-gray-300"
                                     }`}
                                   >
@@ -754,7 +754,7 @@ const BookService = () => {
                 <Card className="shadow-lg">
                   <CardHeader className="bg-gray-50 rounded-t-lg">
                     <CardTitle className="flex items-center">
-                      <CreditCardIcon className="h-5 w-5 mr-2 text-yellow-500" />
+                      <CreditCardIcon className="h-5 w-5 mr-2 text-cyan-500" />
                       Booking Summary
                     </CardTitle>
                   </CardHeader>

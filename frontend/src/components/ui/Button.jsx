@@ -17,24 +17,24 @@ const Button = forwardRef(
     ref
   ) => {
     const variants = {
-      // Primary - Golden Yellow (main CTA)
+      // Primary - Turquoise Blue (main CTA)
       primary:
-        "bg-yellow-500 hover:bg-yellow-600 text-white border border-transparent focus:ring-yellow-500 shadow-md hover:shadow-lg",
+        "bg-cyan-400 hover:bg-cyan-500 text-white border border-transparent focus:ring-cyan-500 shadow-md hover:shadow-lg",
 
       // Navy - Deep Navy Blue (secondary CTA)
       navy: "text-white border border-transparent focus:ring-blue-500 shadow-md hover:shadow-lg",
 
       // Secondary - White with primary border
       secondary:
-        "bg-white hover:bg-yellow-50 text-yellow-700 border border-yellow-500 focus:ring-yellow-500 shadow-sm hover:shadow-md",
+        "bg-white hover:bg-cyan-50 text-cyan-700 border border-cyan-500 focus:ring-cyan-500 shadow-sm hover:shadow-md",
 
       // Outline - Transparent with border
       outline:
         "bg-transparent hover:bg-gray-50 text-gray-700 border border-gray-300 focus:ring-gray-500 hover:border-gray-400",
 
-      // Outline Primary - Transparent with yellow border
+      // Outline Primary - Transparent with cyan border
       "outline-primary":
-        "bg-transparent hover:bg-yellow-50 text-yellow-600 border-2 border-yellow-500 focus:ring-yellow-500 hover:bg-yellow-500 hover:text-white",
+        "bg-transparent hover:bg-cyan-50 text-cyan-600 border-2 border-cyan-500 focus:ring-cyan-500 hover:bg-cyan-500 hover:text-white",
 
       // Outline Navy - Transparent with navy border
       "outline-navy":
@@ -57,7 +57,7 @@ const Button = forwardRef(
         "bg-orange-500 hover:bg-orange-600 text-white border border-transparent focus:ring-orange-500 shadow-md hover:shadow-lg",
 
       // Link style
-      link: "bg-transparent text-yellow-600 hover:text-yellow-700 underline hover:no-underline border border-transparent focus:ring-yellow-500 p-0",
+      link: "bg-transparent text-cyan-600 hover:text-cyan-700 underline hover:no-underline border border-transparent focus:ring-cyan-500 p-0",
     };
 
     const sizes = {

@@ -41,7 +41,7 @@ const Layout = ({ children }) => {
               {/* Company Info */}
               <div className="lg:col-span-1">
                 <div className="flex items-center space-x-2 mb-4">
-                  <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
                     <svg
                       className="h-5 w-5 text-white"
                       fill="currentColor"
@@ -52,19 +52,19 @@ const Layout = ({ children }) => {
                   </div>
                   <div>
                     <div className="text-xl font-bold">CleanMatch</div>
-                    <div className="text-xs text-yellow-400">
+                    <div className="text-xs text-cyan-400">
                       Professional Cleaning
                     </div>
                   </div>
                 </div>
                 <p className="text-gray-300 text-sm mb-4">
-                  Connecting you with trusted, professional cleaners in your
-                  area. Quality cleaning services made simple.
+                  Become your own boss,choose your own schedule,and work in your
+                  preferred areas.
                 </p>
                 <div className="flex space-x-4">
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-yellow-400 transition-colors"
+                    className="text-gray-400 hover:text-cyan-400 transition-colors"
                   >
                     <svg
                       className="h-5 w-5"
@@ -76,7 +76,7 @@ const Layout = ({ children }) => {
                   </a>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-yellow-400 transition-colors"
+                    className="text-gray-400 hover:text-cyan-400 transition-colors"
                   >
                     <svg
                       className="h-5 w-5"
@@ -88,7 +88,7 @@ const Layout = ({ children }) => {
                   </a>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-yellow-400 transition-colors"
+                    className="text-gray-400 hover:text-cyan-400 transition-colors"
                   >
                     <svg
                       className="h-5 w-5"
@@ -100,7 +100,7 @@ const Layout = ({ children }) => {
                   </a>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-yellow-400 transition-colors"
+                    className="text-gray-400 hover:text-cyan-400 transition-colors"
                   >
                     <svg
                       className="h-5 w-5"
@@ -120,7 +120,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       House Cleaning
                     </a>
@@ -128,7 +128,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Deep Cleaning
                     </a>
@@ -136,7 +136,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Office Cleaning
                     </a>
@@ -144,7 +144,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Move-in/out Cleaning
                     </a>
@@ -152,7 +152,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Post-construction
                     </a>
@@ -175,7 +175,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       About Us
                     </a>
@@ -183,7 +183,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       How It Works
                     </a>
@@ -191,7 +191,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Careers
                     </a>
@@ -199,7 +199,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Become a Cleaner
                     </a>
@@ -207,7 +207,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Press
                     </a>
@@ -215,7 +215,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Blog
                     </a>
@@ -230,7 +230,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Help Center
                     </a>
@@ -238,7 +238,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Contact Us
                     </a>
@@ -246,7 +246,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Safety
                     </a>
@@ -254,7 +254,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Trust & Safety
                     </a>
@@ -262,7 +262,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Terms of Service
                     </a>
@@ -270,7 +270,7 @@ const Layout = ({ children }) => {
                   <li>
                     <a
                       href="#"
-                      className="hover:text-yellow-400 transition-colors"
+                      className="hover:text-cyan-400 transition-colors"
                     >
                       Privacy Policy
                     </a>
@@ -283,17 +283,17 @@ const Layout = ({ children }) => {
                   <div className="space-y-2 text-sm text-gray-300">
                     <div className="flex items-center">
                       <svg
-                        className="h-4 w-4 mr-2 text-yellow-400"
+                        className="h-4 w-4 mr-2 text-cyan-400"
                         fill="currentColor"
                         viewBox="0 0 24 24"
                       >
                         <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                       </svg>
-                      support@cleanmatch.com
+                      support@CleanMatch.com
                     </div>
                     <div className="flex items-center">
                       <svg
-                        className="h-4 w-4 mr-2 text-yellow-400"
+                        className="h-4 w-4 mr-2 text-cyan-400"
                         fill="currentColor"
                         viewBox="0 0 24 24"
                       >
@@ -303,7 +303,7 @@ const Layout = ({ children }) => {
                     </div>
                     <div className="flex items-start">
                       <svg
-                        className="h-4 w-4 mr-2 mt-1 text-yellow-400"
+                        className="h-4 w-4 mr-2 mt-1 text-cyan-400"
                         fill="currentColor"
                         viewBox="0 0 24 24"
                       >

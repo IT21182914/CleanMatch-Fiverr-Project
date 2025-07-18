@@ -174,9 +174,9 @@ const Home = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             {/* Special Offer Badge */}
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-yellow-50 border border-yellow-200 mb-6">
-              <SparklesIcon className="h-5 w-5 text-yellow-600 mr-2" />
-              <span className="text-sm font-medium text-yellow-800">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-cyan-50 border border-cyan-200 mb-6">
+              <SparklesIcon className="h-5 w-5 text-cyan-600 mr-2" />
+              <span className="text-sm font-medium text-cyan-800">
                 Limited Time Offer
               </span>
             </div>
@@ -184,11 +184,11 @@ const Home = () => {
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 mb-6">
               Professional House Cleaning
-              <span className="block text-yellow-500">Starting at $19</span>
+              <span className="block text-cyan-500">Starting at $19</span>
             </h1>
 
             {/* First Clean Offer */}
-            <div className="bg-yellow-500 text-white py-4 px-8 rounded-2xl inline-block mb-8 transform hover:scale-105 transition-transform duration-200">
+            <div className="bg-cyan-500 text-white py-4 px-8 rounded-2xl inline-block mb-8 transform hover:scale-105 transition-transform duration-200">
               <p className="text-2xl sm:text-3xl font-bold">$19 First Clean</p>
               <p className="text-sm opacity-90">
                 Book your trial cleaning today
@@ -244,11 +244,11 @@ const Home = () => {
                 <div key={index} className="text-center relative">
                   {/* Connector Line */}
                   {index < steps.length - 1 && (
-                    <div className="hidden md:block absolute top-12 left-1/2 w-full h-0.5 bg-yellow-300 z-0 transform translate-x-1/2"></div>
+                    <div className="hidden md:block absolute top-12 left-1/2 w-full h-0.5 bg-cyan-300 z-0 transform translate-x-1/2"></div>
                   )}
 
                   <div className="relative z-10">
-                    <div className="mx-auto w-24 h-24 bg-yellow-500 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <div className="mx-auto w-24 h-24 bg-cyan-500 rounded-full flex items-center justify-center mb-6 shadow-lg">
                       <Icon className="h-10 w-10 text-white" />
                     </div>
                     <div
@@ -288,13 +288,13 @@ const Home = () => {
                 key={index}
                 className={`relative h-full ${
                   service.popular
-                    ? "ring-2 ring-yellow-500 shadow-xl"
+                    ? "ring-2 ring-cyan-500 shadow-xl"
                     : "shadow-lg"
                 } hover:shadow-xl transition-shadow duration-300`}
               >
                 {service.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-yellow-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                    <span className="bg-cyan-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
                       Most Popular
                     </span>
                   </div>
@@ -348,7 +348,7 @@ const Home = () => {
                           <span className="text-sm text-gray-600">
                             {addOn.name}
                           </span>
-                          <span className="text-sm font-medium text-yellow-600">
+                          <span className="text-sm font-medium text-cyan-600">
                             {addOn.price}
                           </span>
                         </li>
@@ -360,7 +360,7 @@ const Home = () => {
                     <Button
                       className={`w-full font-semibold ${
                         service.popular
-                          ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                          ? "bg-cyan-500 hover:bg-cyan-600 text-white"
                           : "border-2 border-gray-300 hover:border-gray-400 text-gray-700"
                       }`}
                       variant={service.popular ? "primary" : "outline"}
@@ -393,13 +393,13 @@ const Home = () => {
 
           <div className="bg-white text-gray-900 rounded-2xl p-8 max-w-4xl mx-auto shadow-2xl">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-yellow-100 text-yellow-800 mb-4">
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-cyan-100 text-cyan-800 mb-4">
                 <SparklesIcon className="h-5 w-5 mr-2" />
                 <span className="font-semibold">Best Value</span>
               </div>
               <h3 className="text-2xl font-bold mb-2">ForeverClean Plan</h3>
               <div className="flex items-baseline justify-center">
-                <span className="text-4xl font-bold text-yellow-500">$49</span>
+                <span className="text-4xl font-bold text-cyan-500">$49</span>
                 <span className="text-lg text-gray-500 ml-2">/month</span>
               </div>
             </div>
@@ -449,7 +449,7 @@ const Home = () => {
               <Link to="/customer/membership">
                 <Button
                   size="lg"
-                  className="px-8 py-4 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
+                  className="px-8 py-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold"
                 >
                   Start ForeverClean Membership
                 </Button>
@@ -479,7 +479,7 @@ const Home = () => {
               const Icon = stat.icon;
               return (
                 <div key={index} className="text-center">
-                  <div className="mx-auto w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mb-4">
+                  <div className="mx-auto w-16 h-16 bg-cyan-500 rounded-full flex items-center justify-center mb-4">
                     <Icon className="h-8 w-8 text-white" />
                   </div>
                   <div className="text-3xl font-bold text-gray-900 mb-2">
@@ -504,7 +504,7 @@ const Home = () => {
                       {[...Array(testimonial.rating)].map((_, i) => (
                         <StarIcon
                           key={i}
-                          className="h-5 w-5 text-yellow-400 fill-current"
+                          className="h-5 w-5 text-cyan-400 fill-current"
                         />
                       ))}
                     </div>
@@ -549,7 +549,7 @@ const Home = () => {
                 className="h-full shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
               >
                 <CardContent className="p-6 text-center">
-                  <div className="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
+                  <div className="w-20 h-20 bg-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
                     {cleaner.avatar}
                   </div>
 
@@ -561,7 +561,7 @@ const Home = () => {
                   </h3>
 
                   <div className="flex items-center justify-center mb-3">
-                    <StarIcon className="h-5 w-5 text-yellow-400 fill-current" />
+                    <StarIcon className="h-5 w-5 text-cyan-400 fill-current" />
                     <span className="font-semibold ml-1">{cleaner.rating}</span>
                     <span className="text-gray-500 ml-1">
                       ({cleaner.reviews} reviews)
@@ -576,7 +576,7 @@ const Home = () => {
                     {cleaner.specialties.map((specialty, specialtyIndex) => (
                       <span
                         key={specialtyIndex}
-                        className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs"
+                        className="px-3 py-1 bg-cyan-100 text-cyan-800 rounded-full text-xs"
                       >
                         {specialty}
                       </span>
@@ -590,12 +590,12 @@ const Home = () => {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-16 sm:py-20 bg-yellow-500 text-center">
+      <section className="py-16 sm:py-20 bg-cyan-500 text-center">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
             Ready to Transform Your Home?
           </h2>
-          <p className="text-lg text-yellow-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-cyan-100 mb-8 max-w-2xl mx-auto">
             Join thousands of satisfied customers who trust CleanMatch for their
             cleaning needs. Book your $19 trial cleaning today!
           </p>
@@ -603,7 +603,7 @@ const Home = () => {
             <Link to="/register" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="w-full sm:w-auto px-8 py-4 bg-white text-yellow-600 hover:bg-gray-50 font-semibold text-lg"
+                className="w-full sm:w-auto px-8 py-4 bg-white text-cyan-600 hover:bg-gray-50 font-semibold text-lg"
               >
                 Book $19 First Clean
                 <ArrowRightIcon className="ml-2 h-5 w-5" />
@@ -611,7 +611,7 @@ const Home = () => {
             </Link>
             <button
               onClick={() => setShowTermsModal(true)}
-              className="text-white hover:text-yellow-100 text-sm underline"
+              className="text-white hover:text-cyan-100 text-sm underline"
             >
               Terms & Conditions
             </button>

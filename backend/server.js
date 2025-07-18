@@ -27,7 +27,11 @@ const {
   unhandledRejectionHandler,
   uncaughtExceptionHandler,
 } = require("./middleware/errorHandler");
-const { connectDB, gracefulShutdown: closeDatabase, healthCheck } = require("./config/database");
+const {
+  connectDB,
+  gracefulShutdown: closeDatabase,
+  healthCheck,
+} = require("./config/database");
 const { initializeCronJobs } = require("./utils/scheduler");
 
 const app = express();
@@ -129,7 +133,7 @@ if (process.env.NODE_ENV === "production") {
 // Health check endpoint
 app.get("/health", async (req, res) => {
   const dbHealth = await healthCheck();
-  
+
   res.status(dbHealth.connected ? 200 : 503).json({
     status: dbHealth.connected ? "OK" : "Service Unavailable",
     timestamp: new Date().toISOString(),

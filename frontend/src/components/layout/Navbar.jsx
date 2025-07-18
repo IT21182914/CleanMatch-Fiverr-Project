@@ -108,14 +108,14 @@ const Navbar = () => {
           {/* Logo Section */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-yellow-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-cyan-500 rounded-lg flex items-center justify-center">
                 <SparklesIcon className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl lg:text-2xl font-bold text-gray-900">
                   CleanMatch
                 </span>
-                <span className="text-xs text-yellow-600 font-medium leading-none">
+                <span className="text-xs text-cyan-600 font-medium leading-none">
                   Professional Cleaning
                 </span>
               </div>
@@ -135,9 +135,9 @@ const Navbar = () => {
                   className={cn(
                     "inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
                     isActive
-                      ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                      ? "bg-cyan-50 text-cyan-700 border border-cyan-200"
                       : item.highlight
-                      ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                      ? "bg-cyan-500 text-white hover:bg-cyan-600"
                       : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   )}
                 >
@@ -162,7 +162,7 @@ const Navbar = () => {
                       {user?.role}
                     </p>
                   </div>
-                  <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center">
                     <span className="text-white font-semibold text-sm">
                       {(user?.firstName || user?.email || "U")
                         .charAt(0)
@@ -210,7 +210,7 @@ const Navbar = () => {
           <div className="flex items-center lg:hidden">
             {isAuthenticated && (
               <div className="mr-3 flex items-center">
-                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center">
                   <span className="text-white font-semibold text-sm">
                     {(user?.firstName || user?.email || "U")
                       .charAt(0)
@@ -245,7 +245,7 @@ const Navbar = () => {
           <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
                   <SparklesIcon className="h-5 w-5 text-white" />
                 </div>
                 <span className="text-lg font-bold text-gray-900">
@@ -273,9 +273,9 @@ const Navbar = () => {
                     className={cn(
                       "flex items-center px-3 py-3 rounded-lg text-base font-medium transition-colors duration-200",
                       isActive
-                        ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                        ? "bg-cyan-50 text-cyan-700 border border-cyan-200"
                         : item.highlight
-                        ? "bg-yellow-500 text-white"
+                        ? "bg-cyan-500 text-white"
                         : "text-gray-700 hover:bg-gray-50"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -293,7 +293,7 @@ const Navbar = () => {
                 <div className="space-y-4">
                   {/* User Info */}
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-cyan-500 rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold">
                         {(user?.firstName || user?.email || "U")
                           .charAt(0)
@@ -387,7 +387,7 @@ const Navbar = () => {
                           key={index}
                           className="flex items-center text-gray-600"
                         >
-                          <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                          <div className="w-2 h-2 bg-cyan-500 rounded-full mr-3"></div>
                           {feature}
                         </div>
                       ))}

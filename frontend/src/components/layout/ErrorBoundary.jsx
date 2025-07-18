@@ -199,7 +199,7 @@ class ErrorBoundary extends React.Component {
                   <button
                     onClick={() =>
                       window.open(
-                        "mailto:support@cleanmatch.com?subject=Error Report&body=" +
+                        "mailto:support@CleanMatch.com?subject=Error Report&body=" +
                           encodeURIComponent(
                             `Error ID: ${errorId}\nURL: ${window.location.href}\nUser Agent: ${navigator.userAgent}`
                           )

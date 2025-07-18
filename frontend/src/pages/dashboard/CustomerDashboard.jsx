@@ -131,7 +131,7 @@ const CustomerDashboard = () => {
           <Card>
             <CardContent className="flex items-center p-4 sm:p-6">
               <div className="flex-shrink-0">
-                <ClockIcon className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600" />
+                <ClockIcon className="h-6 w-6 sm:h-8 sm:w-8 text-cyan-600" />
               </div>
               <div className="ml-3 sm:ml-5 w-0 flex-1">
                 <dl>
