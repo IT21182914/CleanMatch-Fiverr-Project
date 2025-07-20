@@ -5,11 +5,39 @@ let isConnected = false;
 
 const connectDB = async (retries = 5) => {
   try {
-    const config = {
-      connectionString: process.env.DATABASE_URL,
-      ssl: {
+    // Construct DATABASE_URL from individual variables if not provided
+    let databaseUrl = process.env.DATABASE_URL;
+
+    if (!databaseUrl && process.env.DATABASE_HOST) {
+      const host = process.env.DATABASE_HOST;
+      const port = process.env.DATABASE_PORT || 5432;
+      const database = process.env.DATABASE_NAME;
+      const user = process.env.DATABASE_USER;
+      const password = process.env.DATABASE_PASSWORD;
+
+      databaseUrl = `postgresql://${user}:${password}@${host}:${port}/${database}`;
+    }
+
+    // Determine SSL configuration based on environment and database URL
+    let sslConfig = false;
+
+    // Use SSL for cloud databases (Supabase, AWS, Heroku, etc.)
+    if (
+      databaseUrl &&
+      (databaseUrl.includes("supabase.co") ||
+        databaseUrl.includes("amazonaws.com") ||
+        databaseUrl.includes("render.com") ||
+        databaseUrl.includes("heroku.com") ||
+        process.env.NODE_ENV === "production")
+    ) {
+      sslConfig = {
         rejectUnauthorized: false,
-      },
+      };
+    }
+
+    const config = {
+      connectionString: databaseUrl,
+      ssl: sslConfig,
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
