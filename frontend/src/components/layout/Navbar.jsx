@@ -197,8 +197,16 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-navy-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity duration-200"
-                  style={{ backgroundColor: "#1F2A44" }}
+                  className="text-cyan-500 border border-cyan-500 hover:bg-cyan-500 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                  style={{ color: "#4EC6E5", borderColor: "#4EC6E5" }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = "#4EC6E5";
+                    e.target.style.color = "white";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = "transparent";
+                    e.target.style.color = "#4EC6E5";
+                  }}
                 >
                   Book Now
                 </Link>
