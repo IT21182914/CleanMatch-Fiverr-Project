@@ -15,6 +15,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
+import ServicesDropdown from "../ui/ServicesDropdown";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -36,11 +37,6 @@ const Navbar = () => {
           href: "/register",
           icon: CalendarIcon,
           highlight: true,
-        },
-        {
-          name: "How It Works",
-          href: "/#how-it-works",
-          icon: ClipboardDocumentListIcon,
         },
         { name: "Support", href: "/#support", icon: ChatBubbleLeftRightIcon },
       ];
@@ -129,21 +125,24 @@ const Navbar = () => {
               const isActive = location.pathname === item.href;
 
               return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={cn(
-                    "inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
-                    isActive
-                      ? "bg-cyan-50 text-cyan-700 border border-cyan-200"
-                      : item.highlight
-                      ? "bg-cyan-500 text-white hover:bg-cyan-600"
-                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                  )}
-                >
-                  <Icon className="h-4 w-4 mr-2" />
-                  {item.name}
-                </Link>
+                <div key={item.name} className="flex items-center">
+                  <Link
+                    to={item.href}
+                    className={cn(
+                      "inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+                      isActive
+                        ? "bg-cyan-50 text-cyan-700 border border-cyan-200"
+                        : item.highlight
+                        ? "bg-cyan-500 text-white hover:bg-cyan-600"
+                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    )}
+                  >
+                    <Icon className="h-4 w-4 mr-2" />
+                    {item.name}
+                  </Link>
+                  {/* Show Services dropdown after Home */}
+                  {item.name === "Home" && <ServicesDropdown />}
+                </div>
               );
             })}
           </div>
