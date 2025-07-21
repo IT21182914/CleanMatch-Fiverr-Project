@@ -31,7 +31,7 @@ const Navbar = () => {
   const getNavigation = () => {
     if (!isAuthenticated) {
       return [
-        { name: "Home", href: "/", icon: HomeIcon },
+        { name: "Home", href: "/", icon: HomeIcon, highlight: true },
         {
           name: "Book Cleaning",
           href: "/register",
@@ -98,7 +98,7 @@ const Navbar = () => {
   const navigation = getNavigation();
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 lg:h-20">
           {/* Logo Section */}
@@ -109,48 +109,37 @@ const Navbar = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-xl lg:text-2xl font-bold text-gray-900">
-                  CleanMatch
+                  SIMORGH SERVICE
                 </span>
                 <span className="text-xs text-cyan-600 font-medium leading-none">
-                  Professional Cleaning
+                  SOLUTION FOR YOUR COMPANY
                 </span>
               </div>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex lg:items-center lg:space-x-1">
+          <div className="hidden lg:flex lg:items-center lg:space-x-3">
             {navigation.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.href;
+              const isActive =
+                location.pathname === item.href ||
+                (item.href === "/" && location.pathname === "/") ||
+                (item.href === "/register" &&
+                  location.pathname === "/register");
 
               return (
                 <div key={item.name} className="flex items-center">
                   <Link
                     to={item.href}
                     className={cn(
-                      "inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border",
+                      "navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 border overflow-hidden transform-gpu",
                       isActive
-                        ? "bg-cyan-50 text-cyan-700 border-cyan-200 shadow-sm"
+                        ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white border-cyan-600 shadow-lg scale-105 ring-2 ring-cyan-200"
                         : item.highlight
-                        ? "text-white border-transparent shadow-sm hover:shadow-md hover:-translate-y-0.5"
-                        : "text-gray-600 hover:text-gray-900 bg-transparent hover:bg-gray-50 border-transparent hover:border-gray-200"
+                        ? "text-cyan-600 border-cyan-500 bg-white shadow-md hover:bg-cyan-500 hover:text-white hover:border-cyan-500 hover:shadow-xl hover:scale-105"
+                        : "text-gray-600 hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500 border-transparent hover:border-cyan-200 hover:shadow-lg hover:scale-105"
                     )}
-                    style={item.highlight ? { backgroundColor: "#4EC6E5" } : {}}
-                    onMouseEnter={
-                      item.highlight
-                        ? (e) => {
-                            e.target.style.backgroundColor = "#3BB8DF";
-                          }
-                        : undefined
-                    }
-                    onMouseLeave={
-                      item.highlight
-                        ? (e) => {
-                            e.target.style.backgroundColor = "#4EC6E5";
-                          }
-                        : undefined
-                    }
                   >
                     <Icon className="h-4 w-4 mr-2" />
                     {item.name}
@@ -191,7 +180,7 @@ const Navbar = () => {
                 {/* Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400 transition-all duration-200"
+                  className="navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 border border-gray-300 hover:border-red-500 transition-all duration-300 hover:shadow-lg hover:scale-105 transform-gpu"
                 >
                   <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
                   Logout
@@ -208,28 +197,13 @@ const Navbar = () => {
                 {/* Auth Buttons */}
                 <Link
                   to="/login"
-                  className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 bg-transparent hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all duration-200"
+                  className="navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 border border-transparent hover:border-gray-200 transition-all duration-300 hover:shadow-lg hover:scale-105 transform-gpu"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/register"
-                  className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium border transition-all duration-200 hover:shadow-sm hover:-translate-y-0.5"
-                  style={{
-                    color: "#4EC6E5",
-                    borderColor: "#4EC6E5",
-                    backgroundColor: "transparent",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = "#4EC6E5";
-                    e.target.style.color = "white";
-                    e.target.style.borderColor = "#4EC6E5";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = "transparent";
-                    e.target.style.color = "#4EC6E5";
-                    e.target.style.borderColor = "#4EC6E5";
-                  }}
+                  className="navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium border transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu overflow-hidden text-cyan-500 border-cyan-500 bg-transparent hover:bg-cyan-500 hover:text-white hover:border-cyan-500"
                 >
                   Book Now
                 </Link>
@@ -305,12 +279,12 @@ const Navbar = () => {
                     key={item.name}
                     to={item.href}
                     className={cn(
-                      "flex items-center px-3 py-3 rounded-lg text-base font-medium transition-colors duration-200",
+                      "group flex items-center px-3 py-3 rounded-lg text-base font-medium transition-all duration-300 transform-gpu",
                       isActive
-                        ? "bg-cyan-50 text-cyan-700 border border-cyan-200"
+                        ? "bg-cyan-500 text-white border border-cyan-500 shadow-lg scale-105"
                         : item.highlight
-                        ? "bg-cyan-500 text-white"
-                        : "text-gray-700 hover:bg-gray-50"
+                        ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg hover:shadow-xl hover:scale-105"
+                        : "text-gray-700 hover:text-white hover:bg-gradient-to-r hover:from-cyan-400 hover:to-blue-400 hover:shadow-lg hover:scale-105"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -372,7 +346,7 @@ const Navbar = () => {
                       handleLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="flex items-center w-full px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                    className="flex items-center w-full px-3 py-2 text-red-600 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105 transform-gpu"
                   >
                     <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3" />
                     Sign Out
@@ -390,15 +364,14 @@ const Navbar = () => {
                   <div className="space-y-3">
                     <Link
                       to="/login"
-                      className="block w-full text-center py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors duration-200"
+                      className="block w-full text-center py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:text-white hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 transition-all duration-300 hover:shadow-lg hover:scale-105 transform-gpu"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Sign In
                     </Link>
                     <Link
                       to="/register"
-                      className="block w-full text-center py-3 px-4 rounded-lg text-white font-medium transition-opacity duration-200"
-                      style={{ backgroundColor: "#1F2A44" }}
+                      className="block w-full text-center py-3 px-4 rounded-lg text-white font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu bg-cyan-500 hover:bg-cyan-600"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Book Your First Clean - $19

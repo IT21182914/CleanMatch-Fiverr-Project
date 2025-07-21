@@ -14,6 +14,7 @@ import {
   BuildingStorefrontIcon,
   HeartIcon,
 } from "@heroicons/react/24/outline";
+import { cn } from "../../lib/utils";
 
 const ServicesDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -132,11 +133,18 @@ const ServicesDropdown = () => {
   return (
     <div
       ref={dropdownRef}
-      className="relative ml-1"
+      className="relative ml-2"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <button className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 bg-transparent hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all duration-200">
+      <button
+        className={cn(
+          "navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 border overflow-hidden transform-gpu",
+          isOpen
+            ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white border-cyan-600 shadow-lg scale-105 ring-2 ring-cyan-200"
+            : "text-gray-600 hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500 border-transparent hover:border-cyan-200 hover:shadow-lg hover:scale-105"
+        )}
+      >
         <SparklesIcon className="h-4 w-4 mr-2" />
         Services
         <ChevronDownIcon
@@ -148,13 +156,21 @@ const ServicesDropdown = () => {
 
       {/* Dropdown Menu */}
       <div
-        className={`absolute top-full left-0 mt-2 transition-all duration-300 ease-out z-50 ${
+        className={`absolute top-full left-0 mt-2 transition-all duration-300 ease-out z-[9999] ${
           isOpen
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 -translate-y-2 pointer-events-none"
         }`}
+        style={{ zIndex: 9999 }}
       >
-        <div className="w-[800px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden backdrop-blur-sm">
+        <div
+          className="w-[800px] bg-white rounded-2xl shadow-2xl border-2 border-gray-200 overflow-hidden backdrop-blur-sm relative"
+          style={{
+            left: "-200px",
+            boxShadow:
+              "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)",
+          }}
+        >
           {/* Header */}
           <div className="bg-gradient-to-r from-cyan-50 to-blue-50 px-6 py-4 border-b border-gray-100">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center">
