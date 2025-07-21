@@ -13,6 +13,7 @@ import {
   ChatBubbleLeftRightIcon,
   ClipboardDocumentListIcon,
   ChevronDownIcon,
+  BellIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
@@ -166,20 +167,23 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-slate-200/60 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 lg:h-20">
+        <div className="flex justify-between h-18 lg:h-20">
           {/* Logo Section */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-cyan-500 rounded-lg flex items-center justify-center">
-                <SparklesIcon className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
+            <Link to="/" className="flex items-center space-x-3 group">
+              <div className="relative">
+                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-xl shadow-[#4EC6E5]/25 group-hover:shadow-2xl group-hover:shadow-[#4EC6E5]/40 transition-all duration-300 group-hover:scale-110">
+                  <SparklesIcon className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl lg:text-2xl font-bold text-gray-900">
+                <span className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent tracking-tight">
                   SIMORGH SERVICE
                 </span>
-                <span className="text-xs text-cyan-600 font-medium leading-none">
+                <span className="text-xs font-semibold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent leading-none tracking-wide">
                   SOLUTION FOR YOUR COMPANY
                 </span>
               </div>
@@ -187,86 +191,116 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex lg:items-center lg:space-x-3">
-            {navigation.map((item) => {
+          <div className="hidden lg:flex lg:items-center lg:space-x-4">
+            {navigation.map((item, index) => {
               const Icon = item.icon;
               const isActive =
                 location.pathname === item.href ||
                 (item.href === "/" && location.pathname === "/");
 
               return (
-                <div key={item.name} className="flex items-center">
-                  <Link
-                    to={item.href}
-                    className={cn(
-                      "navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 border overflow-hidden transform-gpu",
-                      isActive
-                        ? "bg-gradient-to-r from-cyan-600 to-blue-600 !text-white border-cyan-600 shadow-lg scale-105 ring-2 ring-cyan-200"
-                        : item.highlight
-                        ? "text-cyan-600 border-cyan-500 bg-white shadow-md hover:bg-cyan-500 hover:text-white hover:border-cyan-500 hover:shadow-xl hover:scale-105"
-                        : "text-gray-600 hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500 border-transparent hover:border-cyan-200 hover:shadow-lg hover:scale-105"
-                    )}
-                  >
-                    <Icon className="h-4 w-4 mr-2" />
-                    {item.name}
-                  </Link>
-                  {/* Show Services dropdown after Home */}
-                  {item.name === "Home" && <ServicesDropdown />}
+                <div
+                  key={item.name}
+                  className="flex items-center relative"
+                  style={{ zIndex: 100 - index }}
+                >
+                  <div className="relative">
+                    <Link
+                      to={item.href}
+                      className={cn(
+                        "group relative inline-flex items-center px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-300 border backdrop-blur-sm isolate",
+                        "before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-500 hover:before:translate-x-[100%]",
+                        isActive
+                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white border-[#4EC6E5] shadow-xl shadow-[#4EC6E5]/25 scale-105"
+                          : item.highlight
+                          ? "text-[#4EC6E5] border-[#4EC6E5]/30 bg-[#F0FBFE] hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:text-white hover:border-[#4EC6E5] hover:shadow-xl hover:shadow-[#4EC6E5]/25 hover:scale-105 hover:z-50"
+                          : "text-slate-700 hover:text-white bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:scale-105 hover:z-50"
+                      )}
+                    >
+                      <Icon className="h-4 w-4 mr-2.5" />
+                      <span className="relative z-10">{item.name}</span>
+                    </Link>
+                  </div>
+
+                  {/* Services Dropdown - Show right after Home */}
+                  {!isAuthenticated && item.name === "Home" && (
+                    <div className="relative ml-2" style={{ zIndex: 200 }}>
+                      <ServicesDropdown />
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
 
           {/* Desktop Auth Section */}
-          <div className="hidden lg:flex lg:items-center lg:space-x-4">
+          <div className="hidden lg:flex lg:items-center lg:space-x-5">
             {isAuthenticated ? (
               <>
-                {/* User Info */}
-                <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">
-                      {user?.firstName || user?.email?.split("@")[0]}
-                    </p>
-                    <p className="text-xs text-gray-500 capitalize">
-                      {user?.role}
-                    </p>
-                  </div>
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm border-2 border-white"
-                    style={{ backgroundColor: "#4EC6E5" }}
-                  >
-                    <span className="text-white font-semibold text-sm">
-                      {(user?.firstName || user?.email || "U")
-                        .charAt(0)
-                        .toUpperCase()}
+                {/* Notifications */}
+                <div className="relative" style={{ zIndex: 80 }}>
+                  <button className="relative p-2.5 rounded-xl text-slate-600 hover:text-[#4EC6E5] hover:bg-[#F0FBFE] transition-all duration-200 group isolate hover:z-50">
+                    <BellIcon className="h-5 w-5" />
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                      3
                     </span>
+                  </button>
+                </div>
+
+                {/* User Info */}
+                <div className="relative" style={{ zIndex: 70 }}>
+                  <div className="flex items-center space-x-3 px-4 py-2 rounded-xl bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] border border-[#BAEDFB]/30 isolate">
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-slate-900">
+                        {user?.firstName || user?.email?.split("@")[0]}
+                      </p>
+                      <p className="text-xs text-[#2BA8CD] capitalize font-medium">
+                        {user?.role}
+                      </p>
+                    </div>
+                    <div className="relative">
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] flex items-center justify-center shadow-lg shadow-[#4EC6E5]/25">
+                        <span className="text-white font-bold text-sm">
+                          {(user?.firstName || user?.email || "U")
+                            .charAt(0)
+                            .toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Logout Button */}
-                <button
-                  onClick={handleLogout}
-                  className="navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 border border-gray-300 hover:border-red-500 transition-all duration-300 hover:shadow-lg hover:scale-105 transform-gpu"
-                >
-                  <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
-                  Logout
-                </button>
+                <div className="relative" style={{ zIndex: 60 }}>
+                  <button
+                    onClick={handleLogout}
+                    className="group relative inline-flex items-center px-5 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:text-white bg-white/50 hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 border border-slate-200 hover:border-red-500 transition-all duration-300 hover:shadow-lg hover:scale-105 backdrop-blur-sm isolate hover:z-50"
+                  >
+                    <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+                    <span className="relative z-10">Logout</span>
+                  </button>
+                </div>
               </>
             ) : (
               <>
                 {/* Auth Buttons */}
-                <Link
-                  to="/login"
-                  className="navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium border transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu overflow-hidden text-cyan-500 border-cyan-500 bg-transparent hover:bg-cyan-500 hover:!text-white hover:border-cyan-500"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/register"
-                  className="navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium border transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu overflow-hidden !text-white border-cyan-500 bg-cyan-500 hover:bg-cyan-600 hover:border-cyan-600"
-                >
-                  Register
-                </Link>
+                <div className="relative" style={{ zIndex: 80 }}>
+                  <Link
+                    to="/login"
+                    className="group relative inline-flex items-center px-6 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm text-[#4EC6E5] border-[#4EC6E5]/30 bg-white/70 hover:bg-[#4EC6E5] hover:text-white hover:border-[#4EC6E5] isolate hover:z-50"
+                  >
+                    <span className="relative z-10">Sign In</span>
+                  </Link>
+                </div>
+                <div className="relative" style={{ zIndex: 70 }}>
+                  <Link
+                    to="/register"
+                    className="group relative inline-flex items-center px-6 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm text-white bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-[#4EC6E5] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 isolate hover:z-50"
+                  >
+                    <span className="relative z-10">Register</span>
+                  </Link>
+                </div>
               </>
             )}
           </div>
@@ -275,21 +309,21 @@ const Navbar = () => {
           <div className="flex items-center lg:hidden">
             {isAuthenticated && (
               <div className="mr-3 flex items-center">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm border-2 border-white"
-                  style={{ backgroundColor: "#4EC6E5" }}
-                >
-                  <span className="text-white font-semibold text-sm">
-                    {(user?.firstName || user?.email || "U")
-                      .charAt(0)
-                      .toUpperCase()}
-                  </span>
+                <div className="relative">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] flex items-center justify-center shadow-lg shadow-[#4EC6E5]/25">
+                    <span className="text-white font-semibold text-sm">
+                      {(user?.firstName || user?.email || "U")
+                        .charAt(0)
+                        .toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                 </div>
               </div>
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="inline-flex items-center justify-center p-2.5 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-transparent hover:border-gray-200 transition-all duration-200"
+              className="inline-flex items-center justify-center p-3 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-[#F0FBFE] border border-transparent hover:border-[#BAEDFB] transition-all duration-200 backdrop-blur-sm"
             >
               {isMobileMenuOpen ? (
                 <XMarkIcon className="block h-6 w-6" />
@@ -305,31 +339,32 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="lg:hidden">
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
           {/* Mobile Menu Panel */}
-          <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
-                  <SparklesIcon className="h-5 w-5 text-white" />
+          <div className="fixed inset-y-0 right-0 max-w-sm w-full bg-white/95 backdrop-blur-xl shadow-2xl z-50 transform transition-transform duration-300 ease-out border-l border-slate-200/60">
+            {/* Mobile Header */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-xl flex items-center justify-center shadow-lg">
+                  <SparklesIcon className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-lg font-bold text-gray-900">
-                  CleanMatch
+                <span className="text-lg font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                  SIMORGH SERVICE
                 </span>
               </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 rounded-lg text-gray-400 hover:text-gray-600"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-white/50 transition-colors duration-200"
               >
                 <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
 
             {/* Mobile Navigation */}
-            <div className="px-4 py-6 space-y-2">
+            <div className="px-6 py-6 space-y-3 max-h-[60vh] overflow-y-auto">
               {navigation.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.href;
@@ -339,12 +374,12 @@ const Navbar = () => {
                     key={item.name}
                     to={item.href}
                     className={cn(
-                      "group flex items-center px-3 py-3 rounded-lg text-base font-medium transition-all duration-300 transform-gpu",
+                      "group flex items-center px-4 py-3.5 rounded-xl text-base font-semibold transition-all duration-300",
                       isActive
-                        ? "bg-cyan-500 !text-white border border-cyan-500 shadow-lg scale-105"
+                        ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-lg shadow-[#4EC6E5]/25 scale-105"
                         : item.highlight
-                        ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg hover:shadow-xl hover:scale-105"
-                        : "text-gray-700 hover:text-white hover:bg-gradient-to-r hover:from-cyan-400 hover:to-blue-400 hover:shadow-lg hover:scale-105"
+                        ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-lg hover:shadow-xl hover:scale-105"
+                        : "text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-lg hover:scale-105"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -355,41 +390,41 @@ const Navbar = () => {
               })}
 
               {/* Mobile Services Section */}
-              <div className="border-t border-gray-200 pt-4 mt-4">
+              <div className="border-t border-slate-200/60 pt-4 mt-6">
                 <button
                   onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                  className="w-full flex items-center justify-between px-3 py-3 rounded-lg text-base font-medium text-gray-700 hover:text-white hover:bg-gradient-to-r hover:from-cyan-400 hover:to-blue-400 hover:shadow-lg hover:scale-105 transition-all duration-300 transform-gpu"
+                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-base font-semibold text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-lg hover:scale-105 transition-all duration-300"
                 >
                   <div className="flex items-center">
                     <SparklesIcon className="h-5 w-5 mr-3" />
                     Services
                   </div>
                   <ChevronDownIcon
-                    className={`h-5 w-5 transition-transform duration-200 ${
+                    className={`h-5 w-5 transition-transform duration-300 ${
                       mobileServicesOpen ? "rotate-180" : "rotate-0"
                     }`}
                   />
                 </button>
 
                 {mobileServicesOpen && (
-                  <div className="mt-2 max-h-64 overflow-y-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300">
-                    <div className="space-y-3 px-3">
+                  <div className="mt-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300">
+                    <div className="space-y-4 px-4">
                       {servicesCategories.map((category, categoryIndex) => (
                         <div
                           key={categoryIndex}
-                          className="border-l-2 border-cyan-200 pl-3"
+                          className="border-l-4 border-[#BAEDFB] pl-4 py-2 bg-gradient-to-r from-[#F0FBFE] to-transparent rounded-r-xl"
                         >
-                          <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                          <h4 className="text-sm font-bold text-slate-900 mb-3">
                             {category.title}
                           </h4>
-                          <div className="space-y-1">
+                          <div className="space-y-2">
                             {category.services.map((service, serviceIndex) => (
                               <Link
                                 key={serviceIndex}
                                 to={`/services/${service
                                   .toLowerCase()
                                   .replace(/[^a-z0-9]+/g, "-")}`}
-                                className="block px-2 py-1 text-xs text-gray-600 hover:text-cyan-600 hover:bg-cyan-50 rounded transition-colors duration-150"
+                                className="block px-3 py-2 text-xs text-slate-600 hover:text-[#4EC6E5] hover:bg-white rounded-lg transition-all duration-200 hover:shadow-sm hover:translate-x-1"
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
                                 {service}
@@ -401,18 +436,18 @@ const Navbar = () => {
                     </div>
 
                     {/* Mobile Services Footer */}
-                    <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                      <div className="flex space-x-2">
+                    <div className="mt-6 p-4 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] rounded-xl border border-[#BAEDFB]/30">
+                      <div className="flex space-x-3">
                         <Link
                           to="/services"
-                          className="flex-1 text-center py-2 px-3 bg-white border border-gray-200 text-xs font-medium text-gray-700 rounded hover:bg-gray-50 transition-colors duration-200"
+                          className="flex-1 text-center py-3 px-4 bg-white border border-[#BAEDFB] text-xs font-semibold text-[#2BA8CD] rounded-xl hover:bg-[#F0FBFE] transition-colors duration-200"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           All Services
                         </Link>
                         <Link
                           to="/contact"
-                          className="flex-1 text-center py-2 px-3 bg-cyan-500 text-white text-xs font-medium rounded hover:bg-cyan-600 transition-colors duration-200"
+                          className="flex-1 text-center py-3 px-4 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white text-xs font-semibold rounded-xl hover:from-[#3BB8DF] hover:to-[#2293B5] transition-all duration-200 shadow-lg"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           Get Quote
@@ -425,23 +460,23 @@ const Navbar = () => {
             </div>
 
             {/* Mobile User Section */}
-            <div className="border-t border-gray-200 px-4 py-6">
+            <div className="border-t border-slate-200/60 px-6 py-6 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
               {isAuthenticated ? (
                 <div className="space-y-4">
                   {/* User Info */}
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="w-10 h-10 bg-cyan-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold">
+                  <div className="flex items-center space-x-4 p-4 bg-white/70 backdrop-blur-sm rounded-2xl border border-[#BAEDFB]/30 shadow-lg">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-lg">
+                      <span className="text-white font-bold text-lg">
                         {(user?.firstName || user?.email || "U")
                           .charAt(0)
                           .toUpperCase()}
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-bold text-slate-900">
                         {user?.firstName || user?.email?.split("@")[0]}
                       </p>
-                      <p className="text-sm text-gray-500 capitalize">
+                      <p className="text-sm text-[#2BA8CD] capitalize font-medium">
                         {user?.role} Account
                       </p>
                     </div>
@@ -451,7 +486,7 @@ const Navbar = () => {
                   <div className="space-y-2">
                     <Link
                       to="/customer/profile"
-                      className="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
+                      className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/50 rounded-xl transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <UserIcon className="h-5 w-5 mr-3" />
@@ -460,7 +495,7 @@ const Navbar = () => {
                     {user?.role === "customer" && (
                       <Link
                         to="/customer/membership"
-                        className="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
+                        className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/50 rounded-xl transition-all duration-200"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <CreditCardIcon className="h-5 w-5 mr-3" />
@@ -475,7 +510,7 @@ const Navbar = () => {
                       handleLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="flex items-center w-full px-3 py-2 text-red-600 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105 transform-gpu"
+                    className="flex items-center w-full px-4 py-3 text-red-600 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105"
                   >
                     <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3" />
                     Sign Out
@@ -487,14 +522,14 @@ const Navbar = () => {
                   <div className="space-y-3">
                     <Link
                       to="/login"
-                      className="block w-full text-center py-3 px-4 border border-cyan-500 rounded-lg text-cyan-500 font-medium hover:bg-cyan-500 hover:!text-white hover:border-cyan-500 transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu"
+                      className="block w-full text-center py-4 px-6 border border-[#4EC6E5]/30 rounded-2xl text-[#4EC6E5] font-semibold hover:bg-[#4EC6E5] hover:text-white hover:border-[#4EC6E5] transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm bg-white/70"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Sign In
                     </Link>
                     <Link
                       to="/register"
-                      className="block w-full text-center py-3 px-4 rounded-lg !text-white font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu bg-cyan-500 border border-cyan-500 hover:bg-cyan-600 hover:border-cyan-600"
+                      className="block w-full text-center py-4 px-6 rounded-2xl text-white font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Register
@@ -502,11 +537,11 @@ const Navbar = () => {
                   </div>
 
                   {/* Features */}
-                  <div className="pt-4 border-t border-gray-200">
-                    <p className="text-sm text-gray-500 text-center mb-3">
-                      Why choose CleanMatch?
+                  <div className="pt-4 border-t border-[#BAEDFB]/30">
+                    <p className="text-sm text-slate-600 text-center mb-4 font-medium">
+                      Why choose SIMORGH SERVICE?
                     </p>
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-3 text-sm">
                       {[
                         "Professional vetted cleaners",
                         "Satisfaction guaranteed",
@@ -515,9 +550,9 @@ const Navbar = () => {
                       ].map((feature, index) => (
                         <div
                           key={index}
-                          className="flex items-center text-gray-600"
+                          className="flex items-center text-slate-600"
                         >
-                          <div className="w-2 h-2 bg-cyan-500 rounded-full mr-3"></div>
+                          <div className="w-2.5 h-2.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] rounded-full mr-3"></div>
                           {feature}
                         </div>
                       ))}
