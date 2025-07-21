@@ -12,6 +12,7 @@ import {
   PhoneIcon,
   ChatBubbleLeftRightIcon,
   ClipboardDocumentListIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
@@ -19,6 +20,7 @@ import ServicesDropdown from "../ui/ServicesDropdown";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -92,6 +94,76 @@ const Navbar = () => {
   };
 
   const navigation = getNavigation();
+
+  // Services data for mobile view
+  const servicesCategories = [
+    {
+      title: "Residential",
+      services: [
+        "House and Apartment Cleaning",
+        "Deep Cleaning Services",
+        "Move-in / Move-out Cleaning",
+        "Maid and Domestic Help Services",
+        "Luxury Villa Cleaning",
+        "Airbnb & Short-Term Rental Cleaning",
+      ],
+    },
+    {
+      title: "Commercial",
+      services: [
+        "Office and Workspace Cleaning",
+        "Shop and Retail Store Cleaning",
+        "Hotel Room and Hall Cleaning",
+        "School & University Cleaning",
+        "Commercial Property Cleaning",
+        "Warehouse Cleaning Solutions",
+      ],
+    },
+    {
+      title: "Specialized",
+      services: [
+        "Window and Glass Cleaning",
+        "Post-Construction Cleaning",
+        "Pool Maintenance and Cleaning",
+        "Aircraft & Private Jet Cleaning",
+        "Yacht & Boat Cleaning",
+        "Industrial and Factory Cleaning",
+      ],
+    },
+    {
+      title: "Health & Safety",
+      services: [
+        "Disinfection & Sanitization",
+        "Hospital & Clinic Cleaning",
+        "Mold Inspection & Removal",
+        "Pest Control & Fumigation",
+        "24/7 Emergency Cleaning Services",
+        "Green / Eco-Friendly Cleaning Services",
+      ],
+    },
+    {
+      title: "Maintenance",
+      services: [
+        "Routine Maintenance Cleaning",
+        "Janitor and Caretaker Services",
+        "Floor Scrubbing & Polishing",
+        "Carpet and Rug Shampooing",
+        "Sofa & Upholstery Cleaning",
+        "Laundry and Ironing Services",
+      ],
+    },
+    {
+      title: "Outdoor & More",
+      services: [
+        "Lawn Mowing & Weed Removal",
+        "Snow & Winter Services",
+        "Garden and Outdoor Cleaning",
+        "Roof & Terrace Cleaning",
+        "Car Interior & Exterior Detailing",
+        "Event Cleanup Services",
+      ],
+    },
+  ];
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
@@ -281,6 +353,75 @@ const Navbar = () => {
                   </Link>
                 );
               })}
+
+              {/* Mobile Services Section */}
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <button
+                  onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                  className="w-full flex items-center justify-between px-3 py-3 rounded-lg text-base font-medium text-gray-700 hover:text-white hover:bg-gradient-to-r hover:from-cyan-400 hover:to-blue-400 hover:shadow-lg hover:scale-105 transition-all duration-300 transform-gpu"
+                >
+                  <div className="flex items-center">
+                    <SparklesIcon className="h-5 w-5 mr-3" />
+                    Services
+                  </div>
+                  <ChevronDownIcon
+                    className={`h-5 w-5 transition-transform duration-200 ${
+                      mobileServicesOpen ? "rotate-180" : "rotate-0"
+                    }`}
+                  />
+                </button>
+
+                {mobileServicesOpen && (
+                  <div className="mt-2 max-h-64 overflow-y-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300">
+                    <div className="space-y-3 px-3">
+                      {servicesCategories.map((category, categoryIndex) => (
+                        <div
+                          key={categoryIndex}
+                          className="border-l-2 border-cyan-200 pl-3"
+                        >
+                          <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                            {category.title}
+                          </h4>
+                          <div className="space-y-1">
+                            {category.services.map((service, serviceIndex) => (
+                              <Link
+                                key={serviceIndex}
+                                to={`/services/${service
+                                  .toLowerCase()
+                                  .replace(/[^a-z0-9]+/g, "-")}`}
+                                className="block px-2 py-1 text-xs text-gray-600 hover:text-cyan-600 hover:bg-cyan-50 rounded transition-colors duration-150"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                {service}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Mobile Services Footer */}
+                    <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                      <div className="flex space-x-2">
+                        <Link
+                          to="/services"
+                          className="flex-1 text-center py-2 px-3 bg-white border border-gray-200 text-xs font-medium text-gray-700 rounded hover:bg-gray-50 transition-colors duration-200"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          All Services
+                        </Link>
+                        <Link
+                          to="/contact"
+                          className="flex-1 text-center py-2 px-3 bg-cyan-500 text-white text-xs font-medium rounded hover:bg-cyan-600 transition-colors duration-200"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Get Quote
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Mobile User Section */}
