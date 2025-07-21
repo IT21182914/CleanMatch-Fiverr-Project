@@ -32,13 +32,9 @@ const Navbar = () => {
     if (!isAuthenticated) {
       return [
         { name: "Home", href: "/", icon: HomeIcon, highlight: true },
-        {
-          name: "Book Cleaning",
-          href: "/register",
-          icon: CalendarIcon,
-          highlight: true,
-        },
-        { name: "Support", href: "/#support", icon: ChatBubbleLeftRightIcon },
+        { name: "Agencies", href: "/agencies", icon: UserIcon },
+        { name: "About us", href: "/about", icon: ClipboardDocumentListIcon },
+        { name: "Contact us", href: "/contact", icon: ChatBubbleLeftRightIcon },
       ];
     }
 
@@ -124,9 +120,7 @@ const Navbar = () => {
               const Icon = item.icon;
               const isActive =
                 location.pathname === item.href ||
-                (item.href === "/" && location.pathname === "/") ||
-                (item.href === "/register" &&
-                  location.pathname === "/register");
+                (item.href === "/" && location.pathname === "/");
 
               return (
                 <div key={item.name} className="flex items-center">
@@ -135,7 +129,7 @@ const Navbar = () => {
                     className={cn(
                       "navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 border overflow-hidden transform-gpu",
                       isActive
-                        ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white border-cyan-600 shadow-lg scale-105 ring-2 ring-cyan-200"
+                        ? "bg-gradient-to-r from-cyan-600 to-blue-600 !text-white border-cyan-600 shadow-lg scale-105 ring-2 ring-cyan-200"
                         : item.highlight
                         ? "text-cyan-600 border-cyan-500 bg-white shadow-md hover:bg-cyan-500 hover:text-white hover:border-cyan-500 hover:shadow-xl hover:scale-105"
                         : "text-gray-600 hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500 border-transparent hover:border-cyan-200 hover:shadow-lg hover:scale-105"
@@ -188,24 +182,18 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                {/* Phone Number */}
-                <div className="flex items-center text-gray-600">
-                  <PhoneIcon className="h-4 w-4 mr-2" />
-                  <span className="text-sm font-medium">(555) 123-CLEAN</span>
-                </div>
-
                 {/* Auth Buttons */}
                 <Link
                   to="/login"
-                  className="navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 border border-transparent hover:border-gray-200 transition-all duration-300 hover:shadow-lg hover:scale-105 transform-gpu"
+                  className="navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium border transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu overflow-hidden text-cyan-500 border-cyan-500 bg-transparent hover:bg-cyan-500 hover:!text-white hover:border-cyan-500"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/register"
-                  className="navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium border transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu overflow-hidden text-cyan-500 border-cyan-500 bg-transparent hover:bg-cyan-500 hover:text-white hover:border-cyan-500"
+                  className="navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium border transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu overflow-hidden !text-white border-cyan-500 bg-cyan-500 hover:bg-cyan-600 hover:border-cyan-600"
                 >
-                  Book Now
+                  Register
                 </Link>
               </>
             )}
@@ -281,7 +269,7 @@ const Navbar = () => {
                     className={cn(
                       "group flex items-center px-3 py-3 rounded-lg text-base font-medium transition-all duration-300 transform-gpu",
                       isActive
-                        ? "bg-cyan-500 text-white border border-cyan-500 shadow-lg scale-105"
+                        ? "bg-cyan-500 !text-white border border-cyan-500 shadow-lg scale-105"
                         : item.highlight
                         ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg hover:shadow-xl hover:scale-105"
                         : "text-gray-700 hover:text-white hover:bg-gradient-to-r hover:from-cyan-400 hover:to-blue-400 hover:shadow-lg hover:scale-105"
@@ -354,27 +342,21 @@ const Navbar = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {/* Phone */}
-                  <div className="flex items-center justify-center text-gray-600 p-3 bg-gray-50 rounded-lg">
-                    <PhoneIcon className="h-5 w-5 mr-2" />
-                    <span className="font-medium">(555) 123-CLEAN</span>
-                  </div>
-
                   {/* Auth Buttons */}
                   <div className="space-y-3">
                     <Link
                       to="/login"
-                      className="block w-full text-center py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:text-white hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 transition-all duration-300 hover:shadow-lg hover:scale-105 transform-gpu"
+                      className="block w-full text-center py-3 px-4 border border-cyan-500 rounded-lg text-cyan-500 font-medium hover:bg-cyan-500 hover:!text-white hover:border-cyan-500 transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Sign In
                     </Link>
                     <Link
                       to="/register"
-                      className="block w-full text-center py-3 px-4 rounded-lg text-white font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu bg-cyan-500 hover:bg-cyan-600"
+                      className="block w-full text-center py-3 px-4 rounded-lg !text-white font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 transform-gpu bg-cyan-500 border border-cyan-500 hover:bg-cyan-600 hover:border-cyan-600"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      Book Your First Clean - $19
+                      Register
                     </Link>
                   </div>
 
