@@ -132,16 +132,16 @@ const ServicesDropdown = () => {
   return (
     <div
       ref={dropdownRef}
-      className="relative"
+      className="relative ml-1"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <button className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 group">
-        <SparklesIcon className="h-4 w-4 mr-2 group-hover:text-cyan-500 transition-colors duration-200" />
+      <button className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 bg-transparent hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all duration-200">
+        <SparklesIcon className="h-4 w-4 mr-2" />
         Services
         <ChevronDownIcon
-          className={`h-4 w-4 ml-1 transition-all duration-300 ${
-            isOpen ? "rotate-180 text-cyan-500" : "rotate-0"
+          className={`h-4 w-4 ml-1 transition-transform duration-200 ${
+            isOpen ? "rotate-180" : "rotate-0"
           }`}
         />
       </button>

@@ -129,13 +129,28 @@ const Navbar = () => {
                   <Link
                     to={item.href}
                     className={cn(
-                      "inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+                      "inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border",
                       isActive
-                        ? "bg-cyan-50 text-cyan-700 border border-cyan-200"
+                        ? "bg-cyan-50 text-cyan-700 border-cyan-200 shadow-sm"
                         : item.highlight
-                        ? "bg-cyan-500 text-white hover:bg-cyan-600"
-                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                        ? "text-white border-transparent shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                        : "text-gray-600 hover:text-gray-900 bg-transparent hover:bg-gray-50 border-transparent hover:border-gray-200"
                     )}
+                    style={item.highlight ? { backgroundColor: "#4EC6E5" } : {}}
+                    onMouseEnter={
+                      item.highlight
+                        ? (e) => {
+                            e.target.style.backgroundColor = "#3BB8DF";
+                          }
+                        : undefined
+                    }
+                    onMouseLeave={
+                      item.highlight
+                        ? (e) => {
+                            e.target.style.backgroundColor = "#4EC6E5";
+                          }
+                        : undefined
+                    }
                   >
                     <Icon className="h-4 w-4 mr-2" />
                     {item.name}
@@ -161,7 +176,10 @@ const Navbar = () => {
                       {user?.role}
                     </p>
                   </div>
-                  <div className="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm border-2 border-white"
+                    style={{ backgroundColor: "#4EC6E5" }}
+                  >
                     <span className="text-white font-semibold text-sm">
                       {(user?.firstName || user?.email || "U")
                         .charAt(0)
@@ -173,7 +191,7 @@ const Navbar = () => {
                 {/* Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200"
+                  className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400 transition-all duration-200"
                 >
                   <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
                   Logout
@@ -190,21 +208,27 @@ const Navbar = () => {
                 {/* Auth Buttons */}
                 <Link
                   to="/login"
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                  className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 bg-transparent hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all duration-200"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/register"
-                  className="text-cyan-500 border border-cyan-500 hover:bg-cyan-500 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-                  style={{ color: "#4EC6E5", borderColor: "#4EC6E5" }}
+                  className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium border transition-all duration-200 hover:shadow-sm hover:-translate-y-0.5"
+                  style={{
+                    color: "#4EC6E5",
+                    borderColor: "#4EC6E5",
+                    backgroundColor: "transparent",
+                  }}
                   onMouseEnter={(e) => {
                     e.target.style.backgroundColor = "#4EC6E5";
                     e.target.style.color = "white";
+                    e.target.style.borderColor = "#4EC6E5";
                   }}
                   onMouseLeave={(e) => {
                     e.target.style.backgroundColor = "transparent";
                     e.target.style.color = "#4EC6E5";
+                    e.target.style.borderColor = "#4EC6E5";
                   }}
                 >
                   Book Now
@@ -217,7 +241,10 @@ const Navbar = () => {
           <div className="flex items-center lg:hidden">
             {isAuthenticated && (
               <div className="mr-3 flex items-center">
-                <div className="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm border-2 border-white"
+                  style={{ backgroundColor: "#4EC6E5" }}
+                >
                   <span className="text-white font-semibold text-sm">
                     {(user?.firstName || user?.email || "U")
                       .charAt(0)
@@ -228,7 +255,7 @@ const Navbar = () => {
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200"
+              className="inline-flex items-center justify-center p-2.5 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-transparent hover:border-gray-200 transition-all duration-200"
             >
               {isMobileMenuOpen ? (
                 <XMarkIcon className="block h-6 w-6" />
