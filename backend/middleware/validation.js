@@ -3,8 +3,8 @@ const Joi = require("joi");
 const validate = (schema) => {
   return (req, res, next) => {
     console.log("🔍 Validating request body:", req.body);
-    console.log("🔍 Content-Type:", req.headers['content-type']);
-    
+    console.log("🔍 Content-Type:", req.headers["content-type"]);
+
     const { error } = schema.validate(req.body);
     if (error) {
       console.log("❌ Validation error:", error.details[0].message);
@@ -110,11 +110,11 @@ const bookingSchema = Joi.object({
   city: Joi.string().required(),
   state: Joi.string().required(),
   zipCode: Joi.string().required(),
-  homeSize: Joi.string().valid('small', 'medium', 'large', 'xlarge'),
+  homeSize: Joi.string().valid("small", "medium", "large", "xlarge"),
   bedrooms: Joi.string(),
   bathrooms: Joi.string(),
   pets: Joi.boolean(),
-  frequency: Joi.string().valid('one-time', 'weekly', 'bi-weekly', 'monthly'),
+  frequency: Joi.string().valid("one-time", "weekly", "bi-weekly", "monthly"),
   addOns: Joi.array().items(
     Joi.object({
       id: Joi.number().integer().positive().required(),
