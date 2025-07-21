@@ -6,105 +6,115 @@ import {
   HomeIcon,
   BuildingOfficeIcon,
   TruckIcon,
-  WindowIcon,
   ShieldCheckIcon,
-  UserGroupIcon,
-  CalendarDaysIcon,
   WrenchScrewdriverIcon,
-  BuildingStorefrontIcon,
-  HeartIcon,
+  CalendarDaysIcon,
+  ArrowRightIcon,
+  StarIcon,
 } from "@heroicons/react/24/outline";
 import { cn } from "../../lib/utils";
 
 const ServicesDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [hoveredCategory, setHoveredCategory] = useState(null);
   const dropdownRef = useRef(null);
   const timeoutRef = useRef(null);
 
-  // Enhanced services data with categories and icons
   const servicesCategories = [
     {
-      title: "Residential",
+      title: "Residential Services",
+      subtitle: "Premium home cleaning solutions",
       icon: HomeIcon,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      iconColor: "text-blue-600",
+      gradient: "from-blue-600 to-indigo-600",
+      bgGradient: "from-blue-50 to-indigo-50",
       services: [
-        "House and Apartment Cleaning",
-        "Deep Cleaning Services",
-        "Move-in / Move-out Cleaning",
-        "Maid and Domestic Help Services",
-        "Luxury Villa Cleaning",
-        "Airbnb & Short-Term Rental Cleaning",
+        { name: "Luxury Home Cleaning", popular: true },
+        { name: "Deep Cleaning & Sanitization", popular: false },
+        { name: "Move-in / Move-out Services", popular: true },
+        { name: "Executive Maid Services", popular: false },
+        { name: "Premium Villa Maintenance", popular: false },
+        { name: "Airbnb Property Management", popular: true },
       ],
     },
     {
-      title: "Commercial",
+      title: "Commercial Solutions",
+      subtitle: "Enterprise-grade cleaning services",
       icon: BuildingOfficeIcon,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
+      iconColor: "text-emerald-600",
+      gradient: "from-emerald-600 to-teal-600",
+      bgGradient: "from-emerald-50 to-teal-50",
       services: [
-        "Office and Workspace Cleaning",
-        "Shop and Retail Store Cleaning",
-        "Hotel Room and Hall Cleaning",
-        "School & University Cleaning",
-        "Commercial Property Cleaning",
-        "Warehouse Cleaning Solutions",
+        { name: "Corporate Office Cleaning", popular: true },
+        { name: "Retail & Showroom Services", popular: false },
+        { name: "Hospitality Solutions", popular: true },
+        { name: "Educational Facility Care", popular: false },
+        { name: "Medical Facility Cleaning", popular: true },
+        { name: "Industrial Complex Services", popular: false },
       ],
     },
     {
-      title: "Specialized",
+      title: "Specialized Services",
+      subtitle: "Expert technical cleaning solutions",
       icon: WrenchScrewdriverIcon,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
+      iconColor: "text-violet-600",
+      gradient: "from-violet-600 to-purple-600",
+      bgGradient: "from-violet-50 to-purple-50",
       services: [
-        "Window and Glass Cleaning",
-        "Post-Construction Cleaning",
-        "Pool Maintenance and Cleaning",
-        "Aircraft & Private Jet Cleaning",
-        "Yacht & Boat Cleaning",
-        "Industrial and Factory Cleaning",
+        { name: "Window & Facade Cleaning", popular: false },
+        { name: "Post-Construction Cleanup", popular: true },
+        { name: "Pool & Spa Maintenance", popular: false },
+        { name: "Luxury Vehicle Detailing", popular: true },
+        { name: "Marine Vessel Cleaning", popular: false },
+        { name: "Aircraft Interior Services", popular: false },
       ],
     },
     {
       title: "Health & Safety",
+      subtitle: "Advanced sanitization protocols",
       icon: ShieldCheckIcon,
-      color: "text-red-600",
-      bgColor: "bg-red-50",
+      iconColor: "text-red-600",
+      gradient: "from-red-600 to-rose-600",
+      bgGradient: "from-red-50 to-rose-50",
       services: [
-        "Disinfection & Sanitization",
-        "Hospital & Clinic Cleaning",
-        "Mold Inspection & Removal",
-        "Pest Control & Fumigation",
-        "24/7 Emergency Cleaning Services",
-        "Green / Eco-Friendly Cleaning Services",
+        { name: "Medical-Grade Disinfection", popular: true },
+        { name: "Biohazard Cleanup Services", popular: false },
+        { name: "Mold Remediation", popular: true },
+        { name: "Pest Management Solutions", popular: false },
+        { name: "Emergency Response Team", popular: true },
+        { name: "Green Cleaning Protocols", popular: false },
       ],
     },
     {
-      title: "Maintenance",
+      title: "Maintenance Programs",
+      subtitle: "Ongoing care and upkeep services",
       icon: TruckIcon,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
+      iconColor: "text-orange-600",
+      gradient: "from-orange-600 to-amber-600",
+      bgGradient: "from-orange-50 to-amber-50",
       services: [
-        "Routine Maintenance Cleaning",
-        "Janitor and Caretaker Services",
-        "Floor Scrubbing & Polishing",
-        "Carpet and Rug Shampooing",
-        "Sofa & Upholstery Cleaning",
-        "Laundry and Ironing Services",
+        { name: "Facility Management", popular: true },
+        { name: "Floor Care & Restoration", popular: false },
+        { name: "Textile & Upholstery Care", popular: true },
+        { name: "Laundry & Pressing Services", popular: false },
+        { name: "HVAC System Cleaning", popular: false },
+        { name: "Preventive Maintenance", popular: true },
       ],
     },
     {
-      title: "Outdoor & More",
+      title: "Outdoor & Seasonal",
+      subtitle: "Comprehensive exterior services",
       icon: CalendarDaysIcon,
-      color: "text-cyan-600",
-      bgColor: "bg-cyan-50",
+      iconColor: "text-cyan-600",
+      gradient: "from-cyan-600 to-sky-600",
+      bgGradient: "from-cyan-50 to-sky-50",
       services: [
-        "Lawn Mowing & Weed Removal",
-        "Snow & Winter Services",
-        "Garden and Outdoor Cleaning",
-        "Roof & Terrace Cleaning",
-        "Car Interior & Exterior Detailing",
-        "Event Cleanup Services",
+        { name: "Landscape & Garden Care", popular: false },
+        { name: "Seasonal Deep Cleaning", popular: true },
+        { name: "Exterior Building Wash", popular: false },
+        { name: "Event Setup & Cleanup", popular: true },
+        { name: "Winter Services", popular: false },
+        { name: "Pressure Washing Services", popular: false },
       ],
     },
   ];
@@ -119,7 +129,8 @@ const ServicesDropdown = () => {
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => {
       setIsOpen(false);
-    }, 150);
+      setHoveredCategory(null);
+    }, 200);
   };
 
   useEffect(() => {
@@ -137,84 +148,135 @@ const ServicesDropdown = () => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
+      {/* Trigger Button */}
       <button
         className={cn(
-          "navbar-button group relative inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 border overflow-hidden transform-gpu",
+          "group relative inline-flex items-center px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-500 ease-out backdrop-blur-sm border",
+          "before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-700 before:ease-out hover:before:translate-x-[100%]",
           isOpen
-            ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white border-cyan-600 shadow-lg scale-105 ring-2 ring-cyan-200"
-            : "text-gray-600 hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500 border-transparent hover:border-cyan-200 hover:shadow-lg hover:scale-105"
+            ? "bg-gradient-to-r from-slate-900 to-slate-800 text-white border-slate-700 shadow-2xl shadow-slate-900/25 scale-105"
+            : "text-slate-700 bg-white/80 hover:bg-white border-slate-200/60 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-900/10 hover:scale-105 hover:-translate-y-0.5"
         )}
       >
-        <SparklesIcon className="h-4 w-4 mr-2" />
-        Services
-        <ChevronDownIcon
-          className={`h-4 w-4 ml-1 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : "rotate-0"
-          }`}
-        />
+        <div className="relative z-10 flex items-center">
+          <SparklesIcon className="h-4 w-4 mr-2.5 transition-transform duration-300 group-hover:rotate-12" />
+          <span className="tracking-wide">Services</span>
+          <ChevronDownIcon
+            className={`h-4 w-4 ml-2 transition-all duration-300 ${
+              isOpen ? "rotate-180 scale-110" : "rotate-0"
+            }`}
+          />
+        </div>
       </button>
 
       {/* Dropdown Menu */}
       <div
-        className={`absolute top-full left-0 mt-2 transition-all duration-300 ease-out z-[9999] ${
+        className={`absolute top-full left-0 mt-3 transition-all duration-500 ease-out z-[9999] ${
           isOpen
-            ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 -translate-y-2 pointer-events-none"
+            ? "opacity-100 translate-y-0 pointer-events-auto scale-100"
+            : "opacity-0 -translate-y-4 pointer-events-none scale-95"
         }`}
         style={{ zIndex: 9999 }}
       >
         <div
-          className="w-[800px] bg-white rounded-2xl shadow-2xl border-2 border-gray-200 overflow-hidden backdrop-blur-sm relative max-h-[80vh]"
+          className="w-[900px] bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/60 overflow-hidden relative shadow-2xl shadow-slate-900/20 flex flex-col"
           style={{
-            left: "-200px",
-            boxShadow:
-              "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)",
+            left: "-250px",
+            background:
+              "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)",
+            maxHeight: "80vh",
           }}
         >
-          {/* Header */}
-          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 px-6 py-4 border-b border-gray-100 sticky top-0 z-10">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-              <SparklesIcon className="h-5 w-5 mr-2 text-cyan-500" />
-              Professional Cleaning Services
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Comprehensive cleaning solutions for every need
-            </p>
+          {/* Premium Header */}
+          <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-8 py-6 overflow-hidden flex-shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-cyan-600/10"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold text-white flex items-center tracking-tight">
+                    <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 mr-3 shadow-lg">
+                      <SparklesIcon className="h-6 w-6 text-white" />
+                    </div>
+                    Professional Services
+                  </h3>
+                  <p className="text-slate-300 mt-2 text-sm font-medium">
+                    Premium cleaning solutions tailored for excellence
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center text-slate-300 text-sm">
+                    <StarIcon className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+                    <span className="font-semibold">4.9/5</span>
+                    <span className="ml-1">Rating</span>
+                  </div>
+                  <p className="text-slate-400 text-xs mt-1">1000+ Projects</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Scrollable Services Grid */}
-          <div className="max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
-            <div className="grid grid-cols-3 gap-6 p-6">
+          {/* Services Grid */}
+          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300 hover:scrollbar-thumb-slate-400 min-h-0">
+            <div className="grid grid-cols-3 gap-6 p-8">
               {servicesCategories.map((category, categoryIndex) => {
                 const Icon = category.icon;
+                const isHovered = hoveredCategory === categoryIndex;
+
                 return (
                   <div
                     key={categoryIndex}
-                    className="group/category hover:bg-gray-50 rounded-xl p-4 transition-all duration-200"
+                    className={cn(
+                      "group/category relative rounded-2xl p-6 transition-all duration-300 cursor-pointer border",
+                      isHovered
+                        ? "bg-white shadow-xl shadow-slate-900/10 border-slate-300 scale-105 -translate-y-1"
+                        : "bg-gradient-to-br from-white to-slate-50/50 border-slate-200/60 hover:border-slate-300"
+                    )}
+                    onMouseEnter={() => setHoveredCategory(categoryIndex)}
+                    onMouseLeave={() => setHoveredCategory(null)}
                   >
                     {/* Category Header */}
-                    <div className="flex items-center mb-3">
-                      <div
-                        className={`p-2 rounded-lg ${category.bgColor} group-hover/category:scale-110 transition-transform duration-200`}
-                      >
-                        <Icon className={`h-4 w-4 ${category.color}`} />
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center">
+                        <div
+                          className={cn(
+                            "p-3 rounded-2xl bg-gradient-to-br transition-all duration-300 shadow-lg",
+                            category.bgGradient,
+                            isHovered ? "scale-110 shadow-xl" : "shadow-md"
+                          )}
+                        >
+                          <Icon className="h-5 w-5 text-slate-700" />
+                        </div>
                       </div>
-                      <h4 className="ml-3 font-semibold text-gray-900 text-sm">
+                    </div>
+
+                    <div className="mb-4">
+                      <h4 className="font-bold text-slate-900 text-lg mb-1 tracking-tight">
                         {category.title}
                       </h4>
+                      <p className="text-slate-500 text-xs font-medium leading-relaxed">
+                        {category.subtitle}
+                      </p>
                     </div>
 
                     {/* Services List */}
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {category.services.map((service, serviceIndex) => (
                         <Link
                           key={serviceIndex}
-                          to={`/services/${service
+                          to={`/services/${service.name
                             .toLowerCase()
                             .replace(/[^a-z0-9]+/g, "-")}`}
-                          className="block px-3 py-2 text-xs text-gray-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-all duration-150 hover:translate-x-1 hover:shadow-sm"
+                          className="group/service flex items-center justify-between px-3 py-2.5 text-sm text-slate-600 hover:text-slate-900 bg-white/50 hover:bg-white rounded-xl transition-all duration-200 hover:shadow-md hover:translate-x-1 border border-transparent hover:border-slate-200"
                         >
-                          {service}
+                          <div className="flex items-center">
+                            <span className="font-medium">{service.name}</span>
+                            {service.popular && (
+                              <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full">
+                                Popular
+                              </span>
+                            )}
+                          </div>
+                          <ArrowRightIcon className="h-4 w-4 opacity-0 group-hover/service:opacity-100 transition-opacity duration-200 text-slate-400" />
                         </Link>
                       ))}
                     </div>
@@ -224,30 +286,43 @@ const ServicesDropdown = () => {
             </div>
           </div>
 
-          {/* Footer - Sticky at bottom */}
-          <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 sticky bottom-0 z-10">
+          {/* Premium Footer */}
+          <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-8 py-6 border-t border-slate-200/60 flex-shrink-0">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">
-                  Need something specific?
-                </p>
-                <p className="text-xs text-gray-500">
-                  Contact us for custom cleaning solutions
-                </p>
+              <div className="flex items-center space-x-6">
+                <div>
+                  <p className="font-semibold text-slate-900 text-sm">
+                    Need Custom Solutions?
+                  </p>
+                  <p className="text-slate-600 text-xs mt-0.5">
+                    Tailored services for unique requirements
+                  </p>
+                </div>
+                <div className="flex items-center text-slate-500 text-xs space-x-4">
+                  <span className="flex items-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-1.5"></div>
+                    24/7 Available
+                  </span>
+                  <span className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-1.5"></div>
+                    Insured & Bonded
+                  </span>
+                </div>
               </div>
+
               <div className="flex space-x-3">
                 <Link
                   to="/services"
-                  className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  className="inline-flex items-center px-6 py-2.5 bg-white border border-slate-300 text-sm font-semibold text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 hover:shadow-lg"
                 >
-                  All Services
+                  Browse All Services
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-flex items-center px-4 py-2 bg-cyan-500 text-white text-sm font-medium rounded-lg hover:bg-cyan-600 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
-                  style={{ backgroundColor: "#4EC6E5" }}
+                  className="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 group"
                 >
-                  Get Quote →
+                  Get Free Quote
+                  <ArrowRightIcon className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                 </Link>
               </div>
             </div>
