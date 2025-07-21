@@ -164,7 +164,7 @@ const ServicesDropdown = () => {
         style={{ zIndex: 9999 }}
       >
         <div
-          className="w-[800px] bg-white rounded-2xl shadow-2xl border-2 border-gray-200 overflow-hidden backdrop-blur-sm relative"
+          className="w-[800px] bg-white rounded-2xl shadow-2xl border-2 border-gray-200 overflow-hidden backdrop-blur-sm relative max-h-[80vh]"
           style={{
             left: "-200px",
             boxShadow:
@@ -172,7 +172,7 @@ const ServicesDropdown = () => {
           }}
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 px-6 py-4 border-b border-gray-100">
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 px-6 py-4 border-b border-gray-100 sticky top-0 z-10">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center">
               <SparklesIcon className="h-5 w-5 mr-2 text-cyan-500" />
               Professional Cleaning Services
@@ -182,48 +182,50 @@ const ServicesDropdown = () => {
             </p>
           </div>
 
-          {/* Services Grid */}
-          <div className="grid grid-cols-3 gap-6 p-6">
-            {servicesCategories.map((category, categoryIndex) => {
-              const Icon = category.icon;
-              return (
-                <div
-                  key={categoryIndex}
-                  className="group/category hover:bg-gray-50 rounded-xl p-4 transition-all duration-200"
-                >
-                  {/* Category Header */}
-                  <div className="flex items-center mb-3">
-                    <div
-                      className={`p-2 rounded-lg ${category.bgColor} group-hover/category:scale-110 transition-transform duration-200`}
-                    >
-                      <Icon className={`h-4 w-4 ${category.color}`} />
-                    </div>
-                    <h4 className="ml-3 font-semibold text-gray-900 text-sm">
-                      {category.title}
-                    </h4>
-                  </div>
-
-                  {/* Services List */}
-                  <div className="space-y-1">
-                    {category.services.map((service, serviceIndex) => (
-                      <Link
-                        key={serviceIndex}
-                        to={`/services/${service
-                          .toLowerCase()
-                          .replace(/[^a-z0-9]+/g, "-")}`}
-                        className="block px-3 py-2 text-xs text-gray-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-all duration-150 hover:translate-x-1 hover:shadow-sm"
+          {/* Scrollable Services Grid */}
+          <div className="max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+            <div className="grid grid-cols-3 gap-6 p-6">
+              {servicesCategories.map((category, categoryIndex) => {
+                const Icon = category.icon;
+                return (
+                  <div
+                    key={categoryIndex}
+                    className="group/category hover:bg-gray-50 rounded-xl p-4 transition-all duration-200"
+                  >
+                    {/* Category Header */}
+                    <div className="flex items-center mb-3">
+                      <div
+                        className={`p-2 rounded-lg ${category.bgColor} group-hover/category:scale-110 transition-transform duration-200`}
                       >
-                        {service}
-                      </Link>
-                    ))}
+                        <Icon className={`h-4 w-4 ${category.color}`} />
+                      </div>
+                      <h4 className="ml-3 font-semibold text-gray-900 text-sm">
+                        {category.title}
+                      </h4>
+                    </div>
+
+                    {/* Services List */}
+                    <div className="space-y-1">
+                      {category.services.map((service, serviceIndex) => (
+                        <Link
+                          key={serviceIndex}
+                          to={`/services/${service
+                            .toLowerCase()
+                            .replace(/[^a-z0-9]+/g, "-")}`}
+                          className="block px-3 py-2 text-xs text-gray-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-all duration-150 hover:translate-x-1 hover:shadow-sm"
+                        >
+                          {service}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
-          {/* Footer */}
-          <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+          {/* Footer - Sticky at bottom */}
+          <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 sticky bottom-0 z-10">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">
