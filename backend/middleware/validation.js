@@ -110,6 +110,18 @@ const bookingSchema = Joi.object({
   city: Joi.string().required(),
   state: Joi.string().required(),
   zipCode: Joi.string().required(),
+  homeSize: Joi.string().valid('small', 'medium', 'large', 'xlarge'),
+  bedrooms: Joi.string(),
+  bathrooms: Joi.string(),
+  pets: Joi.boolean(),
+  frequency: Joi.string().valid('one-time', 'weekly', 'bi-weekly', 'monthly'),
+  addOns: Joi.array().items(
+    Joi.object({
+      id: Joi.number().integer().positive().required(),
+      price: Joi.number().positive().required(),
+    })
+  ),
+  autoAssign: Joi.boolean(),
 });
 
 // Service validation
