@@ -304,6 +304,7 @@ const Services = () => {
             <Link
               to="/book"
               className="px-8 py-4 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-[#4EC6E5]/25"
+              style={{ color: "#ffffff" }}
             >
               Book Now
             </Link>
