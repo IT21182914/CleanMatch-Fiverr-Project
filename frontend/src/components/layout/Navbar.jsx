@@ -17,11 +17,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
-import ServicesDropdown from "../ui/ServicesDropdown";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -61,6 +59,7 @@ const Navbar = () => {
     if (!isAuthenticated) {
       return [
         { name: "Home", href: "/", icon: HomeIcon, highlight: true },
+        { name: "Services", href: "/services", icon: SparklesIcon },
         { name: "Agencies", href: "/agencies", icon: UserIcon },
         { name: "About us", href: "/about", icon: ClipboardDocumentListIcon },
         { name: "Contact us", href: "/contact", icon: ChatBubbleLeftRightIcon },
@@ -121,76 +120,6 @@ const Navbar = () => {
   };
 
   const navigation = getNavigation();
-
-  // Services data for mobile view
-  const servicesCategories = [
-    {
-      title: "Residential",
-      services: [
-        "House and Apartment Cleaning",
-        "Deep Cleaning Services",
-        "Move-in / Move-out Cleaning",
-        "Maid and Domestic Help Services",
-        "Luxury Villa Cleaning",
-        "Airbnb & Short-Term Rental Cleaning",
-      ],
-    },
-    {
-      title: "Commercial",
-      services: [
-        "Office and Workspace Cleaning",
-        "Shop and Retail Store Cleaning",
-        "Hotel Room and Hall Cleaning",
-        "School & University Cleaning",
-        "Commercial Property Cleaning",
-        "Warehouse Cleaning Solutions",
-      ],
-    },
-    {
-      title: "Specialized",
-      services: [
-        "Window and Glass Cleaning",
-        "Post-Construction Cleaning",
-        "Pool Maintenance and Cleaning",
-        "Aircraft & Private Jet Cleaning",
-        "Yacht & Boat Cleaning",
-        "Industrial and Factory Cleaning",
-      ],
-    },
-    {
-      title: "Health & Safety",
-      services: [
-        "Disinfection & Sanitization",
-        "Hospital & Clinic Cleaning",
-        "Mold Inspection & Removal",
-        "Pest Control & Fumigation",
-        "24/7 Emergency Cleaning Services",
-        "Green / Eco-Friendly Cleaning Services",
-      ],
-    },
-    {
-      title: "Maintenance",
-      services: [
-        "Routine Maintenance Cleaning",
-        "Janitor and Caretaker Services",
-        "Floor Scrubbing & Polishing",
-        "Carpet and Rug Shampooing",
-        "Sofa & Upholstery Cleaning",
-        "Laundry and Ironing Services",
-      ],
-    },
-    {
-      title: "Outdoor & More",
-      services: [
-        "Lawn Mowing & Weed Removal",
-        "Snow & Winter Services",
-        "Garden and Outdoor Cleaning",
-        "Roof & Terrace Cleaning",
-        "Car Interior & Exterior Detailing",
-        "Event Cleanup Services",
-      ],
-    },
-  ];
 
   return (
     <nav
@@ -263,16 +192,6 @@ const Navbar = () => {
                       </span>
                     </Link>
                   </div>
-
-                  {/* Services Dropdown - Show right after Home */}
-                  {!isAuthenticated && item.name === "Home" && (
-                    <div
-                      className="relative ml-1 md:ml-2"
-                      style={{ zIndex: 200 }}
-                    >
-                      <ServicesDropdown />
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -463,78 +382,17 @@ const Navbar = () => {
                   );
                 })}
 
-                {/* Mobile Services Section */}
+                {/* Services Link for non-authenticated users */}
                 {!isAuthenticated && (
                   <div className="border-t border-slate-200/60 pt-4 mt-4">
-                    <button
-                      onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                      className="w-full flex items-center justify-between px-4 py-4 rounded-xl font-medium text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-[#4EC6E5] bg-white touch-manipulation min-h-[52px]"
+                    <Link
+                      to="/services"
+                      className="w-full flex items-center px-4 py-4 rounded-xl font-medium text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-[#4EC6E5] bg-white touch-manipulation min-h-[52px]"
+                      onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <div className="flex items-center">
-                        <SparklesIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                        <span className="text-base sm:text-sm">
-                          Our Services
-                        </span>
-                      </div>
-                      <ChevronDownIcon
-                        className={`h-5 w-5 transition-transform duration-300 flex-shrink-0 ${
-                          mobileServicesOpen ? "rotate-180" : "rotate-0"
-                        }`}
-                      />
-                    </button>
-
-                    {mobileServicesOpen && (
-                      <div className="mt-3 max-h-64 overflow-y-auto mobile-nav-scroll scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300 rounded-xl">
-                        <div className="space-y-3 px-2">
-                          {servicesCategories.map((category, categoryIndex) => (
-                            <div
-                              key={categoryIndex}
-                              className="border-l-4 border-[#4EC6E5] pl-4 py-2 bg-gradient-to-r from-[#F0FBFE] to-transparent rounded-r-xl"
-                            >
-                              <h4 className="text-sm font-bold text-slate-900 mb-2">
-                                {category.title}
-                              </h4>
-                              <div className="space-y-1">
-                                {category.services.map(
-                                  (service, serviceIndex) => (
-                                    <Link
-                                      key={serviceIndex}
-                                      to={`/services/${service
-                                        .toLowerCase()
-                                        .replace(/[^a-z0-9]+/g, "-")}`}
-                                      className="block px-3 py-2 text-sm text-slate-600 hover:text-[#4EC6E5] hover:bg-white rounded-lg transition-all duration-200 touch-manipulation"
-                                      onClick={() => setIsMobileMenuOpen(false)}
-                                    >
-                                      {service}
-                                    </Link>
-                                  )
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Mobile Services Footer */}
-                        <div className="mt-3 p-3 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] rounded-lg border border-[#BAEDFB]/30">
-                          <div className="flex space-x-2">
-                            <Link
-                              to="/services"
-                              className="flex-1 text-center py-2 px-3 bg-white border border-[#BAEDFB] text-xs font-medium text-[#2BA8CD] rounded-lg hover:bg-[#F0FBFE] transition-colors duration-200"
-                              onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                              All Services
-                            </Link>
-                            <Link
-                              to="/contact"
-                              className="flex-1 text-center py-2 px-3 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white text-xs font-medium rounded-lg hover:from-[#3BB8DF] hover:to-[#2293B5] transition-all duration-200"
-                              onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                              Get Quote
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                      <SparklesIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                      <span className="text-base sm:text-sm">Our Services</span>
+                    </Link>
                   </div>
                 )}
               </div>
