@@ -213,8 +213,8 @@ const Navbar = () => {
                         isActive
                           ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white border-[#4EC6E5] shadow-xl shadow-[#4EC6E5]/25 scale-105"
                           : item.highlight
-                          ? "text-[#4EC6E5] border-[#4EC6E5]/30 bg-[#F0FBFE] hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:text-white hover:border-[#4EC6E5] hover:shadow-xl hover:shadow-[#4EC6E5]/25 hover:scale-105 hover:z-50"
-                          : "text-slate-700 hover:text-white bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:scale-105 hover:z-50"
+                          ? "text-[#4EC6E5] border-[#4EC6E5]/30 bg-[#F0FBFE] hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:!text-white hover:border-[#4EC6E5] hover:shadow-xl hover:shadow-[#4EC6E5]/25 hover:scale-105 hover:z-50"
+                          : "text-slate-700 hover:!text-white bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:scale-105 hover:z-50"
                       )}
                     >
                       <Icon className="h-4 w-4 mr-2.5" />
@@ -288,7 +288,7 @@ const Navbar = () => {
                 <div className="relative" style={{ zIndex: 80 }}>
                   <Link
                     to="/login"
-                    className="group relative inline-flex items-center px-6 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm text-[#4EC6E5] border-[#4EC6E5]/30 bg-white/70 hover:bg-[#4EC6E5] hover:text-white hover:border-[#4EC6E5] isolate hover:z-50"
+                    className="group relative inline-flex items-center px-6 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm text-[#4EC6E5] border-[#4EC6E5]/30 bg-white/70 hover:bg-[#4EC6E5] hover:!text-white hover:border-[#4EC6E5] isolate hover:z-50"
                   >
                     <span className="relative z-10">Sign In</span>
                   </Link>
@@ -379,7 +379,7 @@ const Navbar = () => {
                         ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-lg shadow-[#4EC6E5]/25 scale-105"
                         : item.highlight
                         ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-lg hover:shadow-xl hover:scale-105"
-                        : "text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-lg hover:scale-105"
+                        : "text-slate-700 hover:!text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-lg hover:scale-105"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -522,7 +522,7 @@ const Navbar = () => {
                   <div className="space-y-3">
                     <Link
                       to="/login"
-                      className="block w-full text-center py-4 px-6 border border-[#4EC6E5]/30 rounded-2xl text-[#4EC6E5] font-semibold hover:bg-[#4EC6E5] hover:text-white hover:border-[#4EC6E5] transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm bg-white/70"
+                      className="block w-full text-center py-4 px-6 border border-[#4EC6E5]/30 rounded-2xl text-[#4EC6E5] font-semibold hover:bg-[#4EC6E5] hover:!text-white hover:border-[#4EC6E5] transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm bg-white/70"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Sign In
