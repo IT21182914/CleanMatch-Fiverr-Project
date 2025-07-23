@@ -211,7 +211,7 @@ const Navbar = () => {
                         "group relative inline-flex items-center px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-300 border backdrop-blur-sm isolate",
                         "before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-500 hover:before:translate-x-[100%]",
                         isActive
-                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white border-[#4EC6E5] shadow-xl shadow-[#4EC6E5]/25 scale-105"
+                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white border-2 border-[#2BA8CD] shadow-2xl shadow-[#4EC6E5]/50 scale-105 transform relative before:absolute before:inset-0 before:bg-white/20 before:rounded-xl before:animate-pulse"
                           : item.highlight
                           ? "text-[#4EC6E5] border-[#4EC6E5]/30 bg-[#F0FBFE] hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:!text-white hover:border-[#4EC6E5] hover:shadow-xl hover:shadow-[#4EC6E5]/25 hover:scale-105 hover:z-50"
                           : "text-slate-700 hover:!text-white bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:scale-105 hover:z-50"
@@ -376,7 +376,7 @@ const Navbar = () => {
                     className={cn(
                       "group flex items-center px-4 py-3.5 rounded-xl text-base font-semibold transition-all duration-300",
                       isActive
-                        ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-lg shadow-[#4EC6E5]/25 scale-105"
+                        ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white shadow-2xl shadow-[#4EC6E5]/50 scale-105 transform border-2 border-[#2BA8CD] relative before:absolute before:inset-0 before:bg-white/20 before:rounded-xl before:animate-pulse"
                         : item.highlight
                         ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-lg hover:shadow-xl hover:scale-105"
                         : "text-slate-700 hover:!text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-lg hover:scale-105"
