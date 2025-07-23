@@ -250,14 +250,24 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
             <Link
               to="/book"
               onClick={onClose}
-              className="px-3 py-1.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white font-medium text-sm rounded-lg transition-all duration-300 shadow-md shadow-[#4EC6E5]/25"
+              className="px-3 py-1.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] font-medium text-sm rounded-lg transition-all duration-300 shadow-md shadow-[#4EC6E5]/25"
+              style={{ color: "white" }}
             >
               Book Now
             </Link>
             <Link
               to="/services"
               onClick={onClose}
-              className="px-3 py-1.5 border border-[#4EC6E5]/30 text-[#4EC6E5] hover:bg-[#4EC6E5] hover:text-white font-medium text-sm rounded-lg transition-all duration-300 bg-white/70"
+              className="px-3 py-1.5 border border-[#4EC6E5]/30 text-[#4EC6E5] hover:bg-[#4EC6E5] font-medium text-sm rounded-lg transition-all duration-300 bg-white/70 hover:text-white"
+              style={{
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.color = "white";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = "#4EC6E5";
+              }}
             >
               View All
             </Link>
