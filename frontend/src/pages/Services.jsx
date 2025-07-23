@@ -148,7 +148,17 @@ const Services = () => {
         </div>
 
         {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div
+          className={`grid gap-6 ${
+            sortedServices.length === 1
+              ? "grid-cols-1 max-w-2xl mx-auto"
+              : sortedServices.length <= 3
+              ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+              : sortedServices.length <= 6
+              ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+              : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          }`}
+        >
           {sortedServices.map((service) => {
             const Icon = service.icon;
 
@@ -156,7 +166,9 @@ const Services = () => {
               <div key={service.id} className="group relative">
                 <Link
                   to={`/services/${service.id}`}
-                  className="block h-full p-6 bg-white/80 hover:bg-white rounded-2xl border border-slate-200/60 hover:border-[#4EC6E5]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden"
+                  className={`block h-full bg-white/80 hover:bg-white rounded-2xl border border-slate-200/60 hover:border-[#4EC6E5]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 relative overflow-hidden ${
+                    sortedServices.length === 1 ? "p-8" : "p-6"
+                  }`}
                 >
                   {/* Background Gradient on Hover */}
                   <div className="absolute inset-0 bg-gradient-to-br from-[#F0FBFE] to-[#E0F6FD] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
@@ -167,7 +179,11 @@ const Services = () => {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
                         <div
-                          className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                          className={`rounded-xl flex items-center justify-center transition-all duration-300 ${
+                            sortedServices.length === 1
+                              ? "w-16 h-16"
+                              : "w-12 h-12"
+                          } ${
                             service.premium
                               ? "bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/25"
                               : service.emergency
@@ -175,7 +191,13 @@ const Services = () => {
                               : "bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] shadow-lg shadow-[#4EC6E5]/25"
                           } group-hover:scale-110`}
                         >
-                          <Icon className="h-6 w-6 text-white" />
+                          <Icon
+                            className={`text-white ${
+                              sortedServices.length === 1
+                                ? "h-8 w-8"
+                                : "h-6 w-6"
+                            }`}
+                          />
                         </div>
                         <div className="flex flex-col">
                           {service.popular && (
@@ -208,29 +230,47 @@ const Services = () => {
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-bold text-slate-900 mb-3 text-lg leading-tight group-hover:text-[#2BA8CD] transition-colors duration-200 flex-grow">
+                    <h3
+                      className={`font-bold text-slate-900 mb-3 leading-tight group-hover:text-[#2BA8CD] transition-colors duration-200 flex-grow ${
+                        sortedServices.length === 1 ? "text-2xl" : "text-lg"
+                      }`}
+                    >
                       {service.name}
                     </h3>
 
                     {/* Description */}
-                    <p className="text-sm text-slate-600 mb-4 leading-relaxed">
+                    <p
+                      className={`text-slate-600 mb-4 leading-relaxed ${
+                        sortedServices.length === 1 ? "text-base" : "text-sm"
+                      }`}
+                    >
                       {service.description}
                     </p>
 
                     {/* Features */}
                     <div className="mb-4">
                       <div className="flex flex-wrap gap-1">
-                        {service.features?.slice(0, 3).map((feature, index) => (
-                          <span
-                            key={index}
-                            className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-lg"
-                          >
-                            {feature}
-                          </span>
-                        ))}
-                        {service.features?.length > 3 && (
+                        {service.features
+                          ?.slice(0, sortedServices.length === 1 ? 6 : 3)
+                          .map((feature, index) => (
+                            <span
+                              key={index}
+                              className={`bg-slate-100 text-slate-600 rounded-lg ${
+                                sortedServices.length === 1
+                                  ? "text-sm px-3 py-1"
+                                  : "text-xs px-2 py-1"
+                              }`}
+                            >
+                              {feature}
+                            </span>
+                          ))}
+                        {service.features?.length >
+                          (sortedServices.length === 1 ? 6 : 3) && (
                           <span className="text-xs text-[#4EC6E5] font-medium">
-                            +{service.features.length - 3} more
+                            +
+                            {service.features.length -
+                              (sortedServices.length === 1 ? 6 : 3)}{" "}
+                            more
                           </span>
                         )}
                       </div>
@@ -240,14 +280,32 @@ const Services = () => {
                     <div className="mt-auto">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-2">
-                          <span className="text-xl font-bold text-[#4EC6E5]">
+                          <span
+                            className={`font-bold text-[#4EC6E5] ${
+                              sortedServices.length === 1
+                                ? "text-3xl"
+                                : "text-xl"
+                            }`}
+                          >
                             {service.memberPrice}
                           </span>
-                          <span className="text-sm text-slate-400 line-through">
+                          <span
+                            className={`text-slate-400 line-through ${
+                              sortedServices.length === 1
+                                ? "text-base"
+                                : "text-sm"
+                            }`}
+                          >
                             {service.regularPrice}
                           </span>
                         </div>
-                        <span className="text-xs bg-[#E0F6FD] text-[#2BA8CD] px-3 py-1 rounded-lg font-medium">
+                        <span
+                          className={`bg-[#E0F6FD] text-[#2BA8CD] rounded-lg font-medium ${
+                            sortedServices.length === 1
+                              ? "text-sm px-4 py-2"
+                              : "text-xs px-3 py-1"
+                          }`}
+                        >
                           {service.category}
                         </span>
                       </div>
