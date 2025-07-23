@@ -19,6 +19,7 @@ import {
 import Button from "../components/ui/Button";
 import { Card, CardContent } from "../components/ui/Card";
 import { LazySection } from "../components/ui/LazyComponents";
+import { residentialServices, specializedServices } from "../data/services";
 
 const Home = () => {
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -44,59 +45,30 @@ const Home = () => {
     },
   ];
 
+  // Get featured services from our actual data (mix of popular services)
   const services = [
     {
-      name: "Regular House Cleaning",
-      description: "Weekly or bi-weekly cleaning to keep your home spotless",
-      price: "$80",
-      originalPrice: "$99",
-      features: [
-        "Dusting & vacuuming all rooms",
-        "Kitchen & bathroom deep clean",
-        "Trash removal & bed making",
-        "Window sill cleaning",
-      ],
+      ...residentialServices[0], // House cleaning - most popular
       addOns: [
         { name: "Inside oven cleaning", price: "+$25" },
         { name: "Inside refrigerator", price: "+$20" },
         { name: "Interior window cleaning", price: "+$30" },
       ],
-      popular: false,
     },
     {
-      name: "Deep Cleaning",
-      description: "Comprehensive cleaning for move-ins or seasonal refresh",
-      price: "$150",
-      originalPrice: "$200",
-      features: [
-        "Everything in regular cleaning",
-        "Inside appliances cleaning",
-        "Baseboards & window cleaning",
-        "Cabinet interior cleaning",
-        "Light fixture cleaning",
-      ],
+      ...residentialServices[1], // Deep cleaning - very popular
       addOns: [
         { name: "Garage cleaning", price: "+$50" },
         { name: "Basement cleaning", price: "+$40" },
         { name: "Attic organization", price: "+$60" },
       ],
-      popular: true,
     },
     {
-      name: "Office Cleaning",
-      description: "Professional cleaning services for your workplace",
-      price: "$120",
-      originalPrice: "$150",
-      features: [
-        "Desk sanitization & organization",
-        "Floor maintenance & vacuuming",
-        "Restroom deep cleaning",
-        "Common area cleaning",
-      ],
+      ...specializedServices[0], // Move in & out cleaning - high demand
       addOns: [
-        { name: "Conference room setup", price: "+$35" },
-        { name: "Kitchen area cleaning", price: "+$25" },
-        { name: "After-hours service", price: "+$40" },
+        { name: "Carpet steam cleaning", price: "+$45" },
+        { name: "Appliance deep clean", price: "+$35" },
+        { name: "Paint touch-ups", price: "+$50" },
       ],
       popular: false,
     },
@@ -364,10 +336,10 @@ const Home = () => {
                   <div className="mb-8">
                     <div className="flex items-baseline">
                       <span className="text-4xl font-bold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent">
-                        {service.price}
+                        {service.memberPrice}
                       </span>
                       <span className="text-xl text-slate-400 line-through ml-3">
-                        {service.originalPrice}
+                        {service.regularPrice}
                       </span>
                     </div>
                   </div>
@@ -425,6 +397,16 @@ const Home = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {/* View All Services Button */}
+          <div className="text-center mt-16">
+            <Link to="/services">
+              <Button className="px-8 py-4 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white font-bold rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg shadow-[#4EC6E5]/25 group">
+                View All Services
+                <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
