@@ -206,21 +206,24 @@ const Navbar = () => {
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="flex justify-between items-center min-h-[80px] lg:min-h-[96px] w-full">
+        <div className="flex justify-between items-center min-h-[72px] sm:min-h-[80px] lg:min-h-[96px] w-full">
           {/* Logo Section */}
-          <div className="flex items-center min-w-0 flex-shrink-0">
-            <Link to="/" className="flex items-center space-x-3 group">
+          <div className="flex items-center min-w-0 flex-shrink-0 mr-4">
+            <Link
+              to="/"
+              className="flex items-center space-x-2 sm:space-x-3 group"
+            >
               <div className="relative">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-xl shadow-[#4EC6E5]/25 group-hover:shadow-2xl group-hover:shadow-[#4EC6E5]/40 transition-all duration-300 group-hover:scale-110">
-                  <SparklesIcon className="h-5 w-5 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-xl shadow-[#4EC6E5]/25 group-hover:shadow-2xl group-hover:shadow-[#4EC6E5]/40 transition-all duration-300 group-hover:scale-110">
+                  <SparklesIcon className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
               </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
+              <div className="flex flex-col min-w-0 max-w-[180px] sm:max-w-none">
+                <span className="text-base sm:text-lg lg:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent tracking-tight truncate">
                   SIMORGH SERVICE
                 </span>
-                <span className="text-xs font-semibold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent leading-none tracking-wide whitespace-nowrap">
+                <span className="text-xs font-semibold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent leading-none tracking-wide truncate hidden sm:block">
                   SOLUTION FOR YOUR COMPANY
                 </span>
               </div>
@@ -347,8 +350,8 @@ const Navbar = () => {
             {isAuthenticated && (
               <div className="mr-3 flex items-center">
                 <div className="relative">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] flex items-center justify-center shadow-lg shadow-[#4EC6E5]/25">
-                    <span className="text-white font-semibold text-sm">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] flex items-center justify-center shadow-lg shadow-[#4EC6E5]/25">
+                    <span className="text-white font-bold text-sm">
                       {(user?.firstName || user?.email || "U")
                         .charAt(0)
                         .toUpperCase()}
@@ -360,16 +363,28 @@ const Navbar = () => {
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="inline-flex items-center justify-center p-3 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-[#F0FBFE] border border-transparent hover:border-[#BAEDFB] transition-all duration-200 backdrop-blur-sm touch-manipulation min-w-[48px] min-h-[48px]"
-              aria-expanded="false"
+              className="inline-flex items-center justify-center p-3 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-[#F0FBFE] border border-transparent hover:border-[#BAEDFB] transition-all duration-200 backdrop-blur-sm touch-manipulation min-w-[48px] min-h-[48px] active:scale-95"
+              aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-menu"
               aria-label="Toggle navigation menu"
             >
-              {isMobileMenuOpen ? (
-                <XMarkIcon className="block h-6 w-6" />
-              ) : (
-                <Bars3Icon className="block h-6 w-6" />
-              )}
+              <div className="relative w-6 h-6">
+                <span
+                  className={`absolute top-0 left-0 h-0.5 w-6 bg-current transform transition-all duration-300 ease-in-out ${
+                    isMobileMenuOpen ? "rotate-45 translate-y-2.5" : ""
+                  }`}
+                />
+                <span
+                  className={`absolute top-2.5 left-0 h-0.5 w-6 bg-current transform transition-all duration-300 ease-in-out ${
+                    isMobileMenuOpen ? "opacity-0" : ""
+                  }`}
+                />
+                <span
+                  className={`absolute top-5 left-0 h-0.5 w-6 bg-current transform transition-all duration-300 ease-in-out ${
+                    isMobileMenuOpen ? "-rotate-45 -translate-y-2.5" : ""
+                  }`}
+                />
+              </div>
             </button>
           </div>
         </div>
@@ -381,26 +396,32 @@ const Navbar = () => {
           {/* Full Screen Mobile Menu */}
           <div className="fixed inset-0 bg-white z-[70] transform transition-transform duration-300 ease-out flex flex-col mobile-menu-panel">
             {/* Mobile Header */}
-            <div className="flex items-center justify-between p-4 border-b border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] flex-shrink-0">
-              <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-lg flex items-center justify-center shadow-lg">
-                  <SparklesIcon className="h-3 w-3 text-white" />
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] flex-shrink-0">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-xl flex items-center justify-center shadow-lg">
+                  <SparklesIcon className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-sm font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                  SIMORGH SERVICE
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-base font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    SIMORGH SERVICE
+                  </span>
+                  <span className="text-xs font-semibold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent">
+                    SOLUTION FOR YOUR COMPANY
+                  </span>
+                </div>
               </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-white/50 transition-colors duration-200 min-w-[40px] min-h-[40px] flex items-center justify-center"
+                className="p-3 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-white/60 transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                aria-label="Close menu"
               >
-                <XMarkIcon className="h-5 w-5" />
+                <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
 
             {/* Mobile Navigation */}
             <div className="flex-1 overflow-hidden flex flex-col bg-white">
-              <div className="px-4 py-4 space-y-2 overflow-y-auto mobile-nav-scroll flex-1">
+              <div className="px-3 sm:px-4 py-4 space-y-2 overflow-y-auto mobile-nav-scroll flex-1">
                 {navigation.map((item) => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.href;
@@ -410,48 +431,56 @@ const Navbar = () => {
                       key={item.name}
                       to={item.href}
                       className={cn(
-                        "group flex items-center px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 w-full",
+                        "group flex items-center px-4 py-4 rounded-xl font-medium transition-all duration-300 w-full touch-manipulation min-h-[52px]",
+                        "text-base sm:text-sm",
                         isActive
-                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white shadow-lg shadow-[#4EC6E5]/30"
+                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white shadow-lg shadow-[#4EC6E5]/30 scale-[1.02]"
                           : item.highlight
                           ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-md"
-                          : "text-slate-700 hover:!text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md border border-slate-200 hover:border-[#4EC6E5] bg-white"
+                          : "text-slate-700 hover:!text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md border border-slate-200 hover:border-[#4EC6E5] bg-white hover:scale-[1.02]"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <Icon className="h-5 w-5 mr-3 flex-shrink-0" />
-                      <span className="text-sm">{item.name}</span>
+                      <Icon className="h-5 w-5 sm:h-4 sm:w-4 mr-3 flex-shrink-0" />
+                      <span className="truncate flex-1">{item.name}</span>
+                      {item.highlight && (
+                        <div className="ml-2 flex-shrink-0">
+                          <div className="w-2 h-2 bg-white/80 rounded-full animate-pulse"></div>
+                        </div>
+                      )}
                     </Link>
                   );
                 })}
 
                 {/* Mobile Services Section */}
                 {!isAuthenticated && (
-                  <div className="border-t border-slate-200/60 pt-3 mt-4">
+                  <div className="border-t border-slate-200/60 pt-4 mt-4">
                     <button
                       onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-[#4EC6E5] bg-white"
+                      className="w-full flex items-center justify-between px-4 py-4 rounded-xl font-medium text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-[#4EC6E5] bg-white touch-manipulation min-h-[52px]"
                     >
                       <div className="flex items-center">
-                        <SparklesIcon className="h-4 w-4 mr-2 flex-shrink-0" />
-                        <span className="text-sm">Services</span>
+                        <SparklesIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                        <span className="text-base sm:text-sm">
+                          Our Services
+                        </span>
                       </div>
                       <ChevronDownIcon
-                        className={`h-4 w-4 transition-transform duration-300 flex-shrink-0 ${
+                        className={`h-5 w-5 transition-transform duration-300 flex-shrink-0 ${
                           mobileServicesOpen ? "rotate-180" : "rotate-0"
                         }`}
                       />
                     </button>
 
                     {mobileServicesOpen && (
-                      <div className="mt-2 max-h-48 overflow-y-auto mobile-nav-scroll scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300">
-                        <div className="space-y-2 px-2">
+                      <div className="mt-3 max-h-64 overflow-y-auto mobile-nav-scroll scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300 rounded-xl">
+                        <div className="space-y-3 px-2">
                           {servicesCategories.map((category, categoryIndex) => (
                             <div
                               key={categoryIndex}
-                              className="border-l-2 border-[#BAEDFB] pl-3 py-1 bg-gradient-to-r from-[#F0FBFE] to-transparent rounded-r-lg"
+                              className="border-l-4 border-[#4EC6E5] pl-4 py-2 bg-gradient-to-r from-[#F0FBFE] to-transparent rounded-r-xl"
                             >
-                              <h4 className="text-xs font-semibold text-slate-900 mb-1">
+                              <h4 className="text-sm font-bold text-slate-900 mb-2">
                                 {category.title}
                               </h4>
                               <div className="space-y-1">
@@ -462,7 +491,7 @@ const Navbar = () => {
                                       to={`/services/${service
                                         .toLowerCase()
                                         .replace(/[^a-z0-9]+/g, "-")}`}
-                                      className="block px-2 py-1 text-xs text-slate-600 hover:text-[#4EC6E5] hover:bg-white rounded transition-all duration-200"
+                                      className="block px-3 py-2 text-sm text-slate-600 hover:text-[#4EC6E5] hover:bg-white rounded-lg transition-all duration-200 touch-manipulation"
                                       onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                       {service}
@@ -501,78 +530,137 @@ const Navbar = () => {
             </div>
 
             {/* Mobile User Section */}
-            <div className="border-t border-slate-200/60 px-4 py-3 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] flex-shrink-0">
+            <div className="border-t border-slate-200/60 px-3 sm:px-4 py-4 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] flex-shrink-0">
               {isAuthenticated ? (
-                <div className="space-y-3">
-                  {/* User Info */}
-                  <div className="flex items-center space-x-3 p-3 bg-white/70 backdrop-blur-sm rounded-xl border border-[#BAEDFB]/30 shadow-md">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <span className="text-white font-semibold text-sm">
+                <div className="space-y-4">
+                  {/* User Info Card */}
+                  <div className="flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-[#BAEDFB]/30 shadow-md">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                      <span className="text-white font-bold text-base">
                         {(user?.firstName || user?.email || "U")
                           .charAt(0)
                           .toUpperCase()}
                       </span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-sm text-slate-900 truncate">
+                      <p className="font-bold text-base text-slate-900 truncate">
                         {user?.firstName || user?.email?.split("@")[0]}
                       </p>
-                      <p className="text-xs text-[#2BA8CD] capitalize font-medium">
+                      <p className="text-sm text-[#2BA8CD] capitalize font-semibold">
                         {user?.role} Account
                       </p>
                     </div>
+                    <div className="flex-shrink-0">
+                      <div className="w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
+                    </div>
                   </div>
 
-                  {/* Quick Actions */}
-                  <div className="space-y-1">
-                    <Link
-                      to="/customer/profile"
-                      className="flex items-center px-3 py-2 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/50 rounded-lg transition-all duration-200"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <UserIcon className="h-4 w-4 mr-2 flex-shrink-0" />
-                      <span className="text-sm truncate">Profile Settings</span>
-                    </Link>
+                  {/* Role-Specific Quick Actions */}
+                  <div className="space-y-2">
                     {user?.role === "customer" && (
-                      <Link
-                        to="/customer/membership"
-                        className="flex items-center px-3 py-2 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/50 rounded-lg transition-all duration-200"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <CreditCardIcon className="h-4 w-4 mr-2 flex-shrink-0" />
-                        <span className="text-sm truncate">
-                          ForeverClean Membership
-                        </span>
-                      </Link>
+                      <>
+                        <Link
+                          to="/customer/profile"
+                          className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <UserIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-sm font-medium truncate flex-1">
+                            Profile Settings
+                          </span>
+                        </Link>
+                        <Link
+                          to="/customer/membership"
+                          className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <CreditCardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-sm font-medium truncate flex-1">
+                            ForeverClean Membership
+                          </span>
+                        </Link>
+                      </>
+                    )}
+
+                    {user?.role === "cleaner" && (
+                      <>
+                        <Link
+                          to="/cleaner/profile"
+                          className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <UserIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-sm font-medium truncate flex-1">
+                            Profile Settings
+                          </span>
+                        </Link>
+                        <Link
+                          to="/cleaner/earnings"
+                          className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <CreditCardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-sm font-medium truncate flex-1">
+                            My Earnings
+                          </span>
+                        </Link>
+                      </>
+                    )}
+
+                    {user?.role === "admin" && (
+                      <>
+                        <Link
+                          to="/admin/users"
+                          className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <UserIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-sm font-medium truncate flex-1">
+                            Manage Users
+                          </span>
+                        </Link>
+                        <Link
+                          to="/admin/analytics"
+                          className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <CreditCardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-sm font-medium truncate flex-1">
+                            Analytics
+                          </span>
+                        </Link>
+                      </>
                     )}
                   </div>
 
                   {/* Logout */}
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="flex items-center w-full px-3 py-2 text-red-600 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 rounded-lg transition-all duration-300"
-                  >
-                    <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Sign Out</span>
-                  </button>
+                  <div className="pt-2 border-t border-[#BAEDFB]/30">
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex items-center w-full px-4 py-3 text-red-600 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 rounded-xl transition-all duration-300 touch-manipulation min-h-[48px] font-medium"
+                    >
+                      <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                      <span className="text-sm truncate flex-1">Sign Out</span>
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {/* Auth Buttons */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <Link
                       to="/login"
-                      className="block w-full text-center py-3 px-4 border border-[#4EC6E5]/30 rounded-xl text-[#4EC6E5] font-medium hover:bg-[#4EC6E5] hover:!text-white hover:border-[#4EC6E5] transition-all duration-300 backdrop-blur-sm bg-white/70 text-sm"
+                      className="w-full text-center py-4 px-4 border-2 border-[#4EC6E5]/30 rounded-xl text-[#4EC6E5] font-semibold hover:bg-[#4EC6E5] hover:!text-white hover:border-[#4EC6E5] transition-all duration-300 backdrop-blur-sm bg-white/70 touch-manipulation min-h-[52px] flex items-center justify-center"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Sign In
                     </Link>
                     <Link
                       to="/register"
-                      className="block w-full text-center py-3 px-4 rounded-xl !text-white font-medium transition-all duration-300 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-sm"
+                      className="w-full text-center py-4 px-4 rounded-xl !text-white font-semibold transition-all duration-300 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 touch-manipulation min-h-[52px] flex items-center justify-center"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Register
