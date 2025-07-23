@@ -60,8 +60,18 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="px-4 py-2 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white rounded-xl text-sm font-semibold shadow-lg">
+          <div className="flex items-center space-x-3">
+            {/* View All Button - Prominently Displayed */}
+            <Link to="/services">
+              <button
+                onClick={onClose}
+                className="px-6 py-3 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-[#4EC6E5]/25 group flex items-center"
+              >
+                <span>View All Services</span>
+                <ChevronRightIcon className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
+              </button>
+            </Link>
+            <div className="px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-xl text-sm font-semibold shadow-lg">
               Up to 50% OFF with Membership
             </div>
           </div>
