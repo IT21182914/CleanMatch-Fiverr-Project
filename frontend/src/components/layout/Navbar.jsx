@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   HomeIcon,
@@ -17,12 +17,32 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
+import ServicesDropdown from "./ServicesDropdown";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const servicesRef = useRef(null);
+
+  // Close services dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (servicesRef.current && !servicesRef.current.contains(event.target)) {
+        setIsServicesDropdownOpen(false);
+      }
+    };
+
+    if (isServicesDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isServicesDropdownOpen]);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -59,7 +79,16 @@ const Navbar = () => {
     if (!isAuthenticated) {
       return [
         { name: "Home", href: "/", icon: HomeIcon },
-        { name: "Services", href: "/services", icon: SparklesIcon },
+        {
+          name: "Services",
+          href: "/services",
+          icon: SparklesIcon,
+          hasDropdown: true,
+          onClick: (e) => {
+            e.preventDefault();
+            setIsServicesDropdownOpen(!isServicesDropdownOpen);
+          },
+        },
         { name: "Agencies", href: "/agencies", icon: UserIcon },
         { name: "About us", href: "/about", icon: ClipboardDocumentListIcon },
         { name: "Contact us", href: "/contact", icon: ChatBubbleLeftRightIcon },
@@ -134,7 +163,7 @@ const Navbar = () => {
         backgroundColor: "rgba(255, 255, 255, 0.95)",
       }}
     >
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 w-full">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 w-full relative">
         <div className="flex justify-between items-center min-h-[64px] sm:min-h-[72px] md:min-h-[80px] lg:min-h-[88px] xl:min-h-[96px] w-full">
           {/* Logo Section */}
           <div className="flex items-center min-w-0 flex-shrink-0 mr-2 sm:mr-4">
@@ -167,6 +196,50 @@ const Navbar = () => {
                 location.pathname === item.href ||
                 (item.href === "/" && location.pathname === "/");
 
+              // Services dropdown item
+              if (item.hasDropdown) {
+                return (
+                  <div
+                    key={item.name}
+                    className="flex items-center relative"
+                    style={{ zIndex: 100 - index }}
+                    ref={servicesRef}
+                  >
+                    <div className="relative">
+                      <button
+                        onClick={item.onClick}
+                        className={cn(
+                          "group relative inline-flex items-center px-3 py-2 md:px-4 md:py-2.5 lg:px-5 lg:py-3 rounded-lg md:rounded-xl text-xs md:text-sm lg:text-sm font-semibold transition-all duration-300 border backdrop-blur-sm isolate",
+                          "before:absolute before:inset-0 before:rounded-lg md:before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-500 hover:before:translate-x-[100%]",
+                          isServicesDropdownOpen
+                            ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white border-2 border-[#2BA8CD] shadow-lg md:shadow-2xl shadow-[#4EC6E5]/50 scale-105 transform relative before:absolute before:inset-0 before:bg-white/20 before:rounded-lg md:before:rounded-xl before:animate-pulse"
+                            : "text-slate-700 hover:!text-white bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:scale-105 hover:z-50"
+                        )}
+                      >
+                        <Icon className="h-3 w-3 md:h-4 md:w-4 mr-1.5 md:mr-2.5" />
+                        <span className="relative z-10 truncate mr-1">
+                          {item.name}
+                        </span>
+                        <ChevronDownIcon
+                          className={cn(
+                            "h-3 w-3 md:h-4 md:w-4 transition-transform duration-200",
+                            isServicesDropdownOpen ? "rotate-180" : ""
+                          )}
+                        />
+                      </button>
+
+                      {/* Services Dropdown */}
+                      <ServicesDropdown
+                        isOpen={isServicesDropdownOpen}
+                        onClose={() => setIsServicesDropdownOpen(false)}
+                        className="left-1/2 transform -translate-x-1/2"
+                      />
+                    </div>
+                  </div>
+                );
+              }
+
+              // Regular navigation items
               return (
                 <div
                   key={item.name}
@@ -356,6 +429,67 @@ const Navbar = () => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.href;
 
+                  // Services dropdown for mobile
+                  if (item.hasDropdown) {
+                    return (
+                      <div key={item.name} className="space-y-2">
+                        <Link
+                          to="/services"
+                          className="group flex items-center px-3 sm:px-4 py-3 sm:py-4 rounded-lg sm:rounded-xl font-medium transition-all duration-300 w-full touch-manipulation min-h-[48px] sm:min-h-[52px] text-sm sm:text-base text-slate-700 hover:!text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md border border-slate-200 hover:border-[#4EC6E5] bg-white hover:scale-[1.02] active:scale-100"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-2.5 sm:mr-3 flex-shrink-0" />
+                          <span className="truncate flex-1">{item.name}</span>
+                          <ChevronDownIcon className="h-4 w-4 text-slate-400" />
+                        </Link>
+
+                        {/* Mobile Services Quick Access */}
+                        <div className="ml-4 space-y-1">
+                          <Link
+                            to="/services/1"
+                            className="flex items-center text-slate-600 hover:text-[#4EC6E5] py-2 px-3 rounded-lg text-sm transition-colors duration-200"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <HomeIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                            House Cleaning
+                            <span className="ml-auto text-xs text-[#4EC6E5] font-semibold">
+                              $18/h
+                            </span>
+                          </Link>
+                          <Link
+                            to="/services/2"
+                            className="flex items-center text-slate-600 hover:text-[#4EC6E5] py-2 px-3 rounded-lg text-sm transition-colors duration-200"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <SparklesIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                            Deep Cleaning
+                            <span className="ml-auto text-xs text-[#4EC6E5] font-semibold">
+                              $22/h
+                            </span>
+                          </Link>
+                          <Link
+                            to="/services/3"
+                            className="flex items-center text-slate-600 hover:text-[#4EC6E5] py-2 px-3 rounded-lg text-sm transition-colors duration-200"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <CalendarIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                            Office Cleaning
+                            <span className="ml-auto text-xs text-[#4EC6E5] font-semibold">
+                              $22/h
+                            </span>
+                          </Link>
+                          <Link
+                            to="/services"
+                            className="flex items-center text-[#4EC6E5] hover:text-[#2BA8CD] py-2 px-3 rounded-lg text-sm font-semibold transition-colors duration-200"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            View All 50+ Services →
+                          </Link>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <Link
                       key={item.name}
@@ -391,7 +525,9 @@ const Navbar = () => {
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <SparklesIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                      <span className="text-base sm:text-sm">Our Services</span>
+                      <span className="text-base sm:text-sm">
+                        View All Services
+                      </span>
                     </Link>
                   </div>
                 )}
