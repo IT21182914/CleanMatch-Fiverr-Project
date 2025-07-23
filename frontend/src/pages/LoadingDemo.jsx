@@ -223,19 +223,17 @@ const LoadingDemo = () => {
         </CardContent>
       </Card>
 
-      {/* Golden Yellow Loading Theme */}
-      <Card className="bg-amber-50 border-amber-200">
+      {/* Cyan Loading Theme */}
+      <Card className="bg-cyan-50 border-cyan-200">
         <CardHeader>
-          <CardTitle className="text-amber-800">
-            Consistent Golden Theme
-          </CardTitle>
+          <CardTitle className="text-cyan-800">Consistent Cyan Theme</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center">
             <Spinner size="lg" className="mb-4" />
-            <p className="text-amber-700 mb-4">
-              All loading indicators use a consistent golden yellow color scheme
-              for a unified, elegant user experience throughout the application.
+            <p className="text-cyan-700 mb-4">
+              All loading indicators use a consistent cyan color scheme for a
+              unified, elegant user experience throughout the application.
             </p>
             <div className="flex justify-center space-x-4">
               <DotsLoader />

@@ -84,11 +84,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 flex flex-col justify-center py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-cyan-50 flex flex-col justify-center py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-lg">
         {/* Logo and Header */}
         <div className="text-center mb-6">
-          <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-yellow-500 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+          <div
+            className="mx-auto w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-lg mb-4"
+            style={{ backgroundColor: "#6ED1EA" }}
+          >
             <SparklesIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
@@ -141,7 +144,11 @@ const Login = () => {
                   onChange={handleChange}
                   error={errors.email}
                   placeholder="Enter your email address"
-                  className="pl-10 focus:ring-yellow-500 focus:border-yellow-500 py-2.5 sm:py-3 text-sm"
+                  className="pl-10 py-2.5 sm:py-3 text-sm"
+                  style={{
+                    "--tw-ring-color": "#6ED1EA",
+                    "--tw-border-color": "#6ED1EA",
+                  }}
                   required
                 />
               </div>
@@ -155,7 +162,11 @@ const Login = () => {
                   onChange={handleChange}
                   error={errors.password}
                   placeholder="Enter your password"
-                  className="pr-10 focus:ring-yellow-500 focus:border-yellow-500 py-2.5 sm:py-3 text-sm"
+                  className="pr-10 py-2.5 sm:py-3 text-sm"
+                  style={{
+                    "--tw-ring-color": "#6ED1EA",
+                    "--tw-border-color": "#6ED1EA",
+                  }}
                   required
                 />
                 <button
@@ -176,7 +187,8 @@ const Login = () => {
               <div className="text-sm">
                 <Link
                   to="/forgot-password"
-                  className="font-medium text-yellow-600 hover:text-yellow-500 transition-colors duration-200"
+                  className="font-medium transition-colors duration-200"
+                  style={{ color: "#6ED1EA" }}
                 >
                   Forgot your password?
                 </Link>
@@ -186,7 +198,8 @@ const Login = () => {
             <div>
               <Button
                 type="submit"
-                className="w-full flex justify-center py-2.5 sm:py-3 text-sm sm:text-base font-semibold bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg focus:ring-yellow-500"
+                className="w-full flex justify-center py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-white rounded-lg"
+                style={{ backgroundColor: "#6ED1EA" }}
                 loading={loading}
                 loadingVariant="dots"
                 loadingText="Signing you in..."
@@ -219,7 +232,8 @@ const Login = () => {
             <div className="mt-4 sm:mt-6">
               <Link
                 to="/register"
-                className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
+                className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200"
+                style={{ "--tw-ring-color": "#6ED1EA" }}
               >
                 Create your account
               </Link>
@@ -234,7 +248,10 @@ const Login = () => {
                 <span>Secure Login</span>
               </div>
               <div className="flex items-center">
-                <SparklesIcon className="h-4 w-4 text-yellow-500 mr-1" />
+                <SparklesIcon
+                  className="h-4 w-4 mr-1"
+                  style={{ color: "#6ED1EA" }}
+                />
                 <span>Trusted Service</span>
               </div>
             </div>
@@ -247,14 +264,16 @@ const Login = () => {
             By signing in, you agree to our{" "}
             <Link
               to="/terms"
-              className="font-medium text-yellow-600 hover:text-yellow-500"
+              className="font-medium"
+              style={{ color: "#6ED1EA" }}
             >
               Terms of Service
             </Link>{" "}
             and{" "}
             <Link
               to="/privacy"
-              className="font-medium text-yellow-600 hover:text-yellow-500"
+              className="font-medium"
+              style={{ color: "#6ED1EA" }}
             >
               Privacy Policy
             </Link>
@@ -274,7 +293,10 @@ const Login = () => {
               "Flexible scheduling that fits your life",
             ].map((benefit, index) => (
               <div key={index} className="flex items-center">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2 sm:mr-3 flex-shrink-0"></div>
+                <div
+                  className="w-2 h-2 rounded-full mr-2 sm:mr-3 flex-shrink-0"
+                  style={{ backgroundColor: "#6ED1EA" }}
+                ></div>
                 <span className="text-xs sm:text-sm text-gray-600">
                   {benefit}
                 </span>
@@ -282,14 +304,17 @@ const Login = () => {
             ))}
           </div>
 
-          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-cyan-50 border border-cyan-200 rounded-lg">
             <div className="flex items-center">
-              <SparklesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 mr-2" />
+              <SparklesIcon
+                className="h-4 w-4 sm:h-5 sm:w-5 mr-2"
+                style={{ color: "#6ED1EA" }}
+              />
               <div>
-                <p className="text-xs sm:text-sm font-semibold text-yellow-800">
+                <p className="text-xs sm:text-sm font-semibold text-cyan-800">
                   New customers save with $19 First Clean
                 </p>
-                <p className="text-xs text-yellow-700 mt-1">
+                <p className="text-xs text-cyan-700 mt-1">
                   Professional cleaning service starting at just $19 for your
                   first booking
                 </p>

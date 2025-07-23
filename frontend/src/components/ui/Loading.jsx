@@ -1,6 +1,6 @@
 import { Card, CardContent } from "./Card";
 
-// Simple Golden Spinner
+// Simple Cyan Spinner
 export const Spinner = ({ size = "md", className = "" }) => {
   const sizes = {
     sm: "h-4 w-4 border-2",
@@ -11,12 +11,13 @@ export const Spinner = ({ size = "md", className = "" }) => {
 
   return (
     <div
-      className={`inline-block animate-spin rounded-full border-amber-200 border-t-amber-500 ${sizes[size]} ${className}`}
+      className={`inline-block animate-spin rounded-full border-cyan-200 border-t-cyan-500 ${sizes[size]} ${className}`}
+      style={{ borderTopColor: "#6ED1EA" }}
     />
   );
 };
 
-// Golden Pulse Loader
+// Cyan Pulse Loader
 export const PulseLoader = ({ size = "md", className = "" }) => {
   const sizes = {
     sm: "h-2 w-2",
@@ -29,8 +30,9 @@ export const PulseLoader = ({ size = "md", className = "" }) => {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className={`${sizes[size]} bg-amber-500 rounded-full animate-pulse`}
+          className={`${sizes[size]} rounded-full animate-pulse`}
           style={{
+            backgroundColor: "#6ED1EA",
             animationDelay: `${i * 0.2}s`,
             animationDuration: "1.4s",
           }}
@@ -41,7 +43,7 @@ export const PulseLoader = ({ size = "md", className = "" }) => {
 };
 
 // Modern Dots Loader
-// Golden Dots Loader
+// Cyan Dots Loader
 export const DotsLoader = ({ size = "md", className = "" }) => {
   const sizes = {
     sm: "h-1.5 w-1.5",
@@ -54,8 +56,9 @@ export const DotsLoader = ({ size = "md", className = "" }) => {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className={`${sizes[size]} bg-amber-500 rounded-full animate-bounce`}
+          className={`${sizes[size]} rounded-full animate-bounce`}
           style={{
+            backgroundColor: "#6ED1EA",
             animationDelay: `${i * 0.1}s`,
             animationDuration: "1s",
           }}
@@ -77,7 +80,7 @@ export const WaveLoader = ({ size = "md", color = "blue", className = "" }) => {
     blue: "bg-blue-600",
     green: "bg-green-600",
     red: "bg-red-600",
-    yellow: "bg-yellow-600",
+    yellow: "#6ED1EA",
     purple: "bg-purple-600",
   };
 
@@ -86,8 +89,9 @@ export const WaveLoader = ({ size = "md", color = "blue", className = "" }) => {
       {[0, 1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className={`w-1 ${colors[color]} rounded-t-sm wave-animation`}
+          className={`w-1 rounded-t-sm wave-animation`}
           style={{
+            backgroundColor: color === "yellow" ? colors[color] : undefined,
             height: "20%",
             animationDelay: `${i * 0.1}s`,
             animationDuration: "1.2s",
@@ -345,9 +349,12 @@ export const ButtonLoading = ({ variant = "spinner", size = "sm" }) => {
     return <PulseLoader size={size} className="-ml-1 mr-2" />;
   }
 
-  // Default golden spinner
+  // Default cyan spinner
   return (
-    <div className="animate-spin -ml-1 mr-2 h-4 w-4 border-2 border-amber-200 border-t-amber-500 rounded-full"></div>
+    <div
+      className="animate-spin -ml-1 mr-2 h-4 w-4 border-2 border-cyan-200 rounded-full"
+      style={{ borderTopColor: "#6ED1EA" }}
+    ></div>
   );
 };
 
@@ -385,25 +392,32 @@ export const LoadingStatsCard = () => (
   </Card>
 );
 
-// Modern Page Loader with Golden Yellow
+// Modern Page Loader with Cyan
 export const ModernPageLoader = ({ message = "Loading..." }) => {
   return (
     <div className="fixed inset-0 bg-white bg-opacity-95 z-50 flex items-center justify-center">
       <div className="text-center">
         <div className="relative mb-6">
           {/* Main spinner */}
-          <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin mx-auto"></div>
+          <div
+            className="w-16 h-16 border-4 border-cyan-200 rounded-full animate-spin mx-auto"
+            style={{ borderTopColor: "#6ED1EA" }}
+          ></div>
           {/* Counter-rotating inner ring */}
           <div
-            className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-amber-400 rounded-full animate-spin mx-auto"
+            className="absolute inset-0 w-16 h-16 border-4 border-transparent rounded-full animate-spin mx-auto"
             style={{
+              borderRightColor: "#6ED1EA",
               animationDirection: "reverse",
               animationDuration: "1.5s",
             }}
           ></div>
           {/* Pulsing center dot */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></div>
+            <div
+              className="w-3 h-3 rounded-full animate-pulse"
+              style={{ backgroundColor: "#6ED1EA" }}
+            ></div>
           </div>
         </div>
 
@@ -413,22 +427,36 @@ export const ModernPageLoader = ({ message = "Loading..." }) => {
           {/* Bouncing dots */}
           <div className="flex justify-center space-x-1">
             <div
-              className="w-2 h-2 bg-amber-500 rounded-full animate-bounce"
-              style={{ animationDelay: "0ms" }}
+              className="w-2 h-2 rounded-full animate-bounce"
+              style={{
+                backgroundColor: "#6ED1EA",
+                animationDelay: "0ms",
+              }}
             ></div>
             <div
-              className="w-2 h-2 bg-amber-500 rounded-full animate-bounce"
-              style={{ animationDelay: "150ms" }}
+              className="w-2 h-2 rounded-full animate-bounce"
+              style={{
+                backgroundColor: "#6ED1EA",
+                animationDelay: "150ms",
+              }}
             ></div>
             <div
-              className="w-2 h-2 bg-amber-500 rounded-full animate-bounce"
-              style={{ animationDelay: "300ms" }}
+              className="w-2 h-2 rounded-full animate-bounce"
+              style={{
+                backgroundColor: "#6ED1EA",
+                animationDelay: "300ms",
+              }}
             ></div>
           </div>
 
           {/* Progress bar */}
-          <div className="w-48 h-1 bg-amber-100 rounded-full mx-auto overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full animate-pulse"></div>
+          <div className="w-48 h-1 bg-cyan-100 rounded-full mx-auto overflow-hidden">
+            <div
+              className="h-full rounded-full animate-pulse"
+              style={{
+                background: `linear-gradient(to right, #6ED1EA, #4BC0D9)`,
+              }}
+            ></div>
           </div>
         </div>
       </div>

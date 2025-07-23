@@ -134,11 +134,14 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 flex flex-col justify-center py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-cyan-50 flex flex-col justify-center py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-lg">
         {/* Logo and Header */}
         <div className="text-center mb-6">
-          <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-yellow-500 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+          <div
+            className="mx-auto w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-lg mb-4"
+            style={{ backgroundColor: "#6ED1EA" }}
+          >
             <SparklesIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
@@ -200,7 +203,7 @@ const Register = () => {
                     onChange={handleChange}
                     className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                       errors.firstName ? "border-red-300" : "border-gray-300"
-                    } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
+                    } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
                     placeholder="First name"
                   />
                 </div>
@@ -227,7 +230,7 @@ const Register = () => {
                   onChange={handleChange}
                   className={`appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
                     errors.lastName ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="Last name"
                 />
                 {errors.lastName && (
@@ -258,7 +261,7 @@ const Register = () => {
                   onChange={handleChange}
                   className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                     errors.email ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="Enter your email address"
                 />
               </div>
@@ -288,7 +291,7 @@ const Register = () => {
                   onChange={handleChange}
                   className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                     errors.phone ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="(555) 123-4567"
                 />
               </div>
@@ -311,7 +314,7 @@ const Register = () => {
                 value={formData.role}
                 onChange={handleChange}
                 required
-                className="appearance-none relative block w-full px-3 py-2.5 sm:py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200"
+                className="appearance-none relative block w-full px-3 py-2.5 sm:py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200"
               >
                 <option value="customer">
                   Customer - Book cleaning services
@@ -346,7 +349,7 @@ const Register = () => {
                   onChange={handleChange}
                   className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                     errors.address ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="123 Main St"
                 />
               </div>
@@ -377,7 +380,7 @@ const Register = () => {
                     onChange={handleChange}
                     className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                       errors.city ? "border-red-300" : "border-gray-300"
-                    } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
+                    } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
                     placeholder="New York"
                   />
                 </div>
@@ -402,7 +405,7 @@ const Register = () => {
                   onChange={handleChange}
                   className={`appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
                     errors.state ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="NY"
                 />
                 {errors.state && (
@@ -428,7 +431,7 @@ const Register = () => {
                 onChange={handleChange}
                 className={`appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
                   errors.zipCode ? "border-red-300" : "border-gray-300"
-                } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
+                } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
                 placeholder="12345"
               />
               {errors.zipCode && (
@@ -456,7 +459,7 @@ const Register = () => {
                   onChange={handleChange}
                   className={`appearance-none relative block w-full pr-10 pl-3 py-2.5 sm:py-3 border ${
                     errors.password ? "border-red-300" : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="Enter your password"
                 />
                 <button
@@ -497,7 +500,7 @@ const Register = () => {
                     errors.confirmPassword
                       ? "border-red-300"
                       : "border-gray-300"
-                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 text-sm transition-colors duration-200`}
+                  } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
                   placeholder="Confirm your password"
                 />
                 <button
@@ -558,7 +561,8 @@ const Register = () => {
             <div className="mt-4 sm:mt-6">
               <Link
                 to="/login"
-                className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
+                className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200"
+                style={{ "--tw-ring-color": "#6ED1EA" }}
               >
                 Sign in to your account
               </Link>
@@ -573,7 +577,10 @@ const Register = () => {
                 <span>Secure Registration</span>
               </div>
               <div className="flex items-center">
-                <SparklesIcon className="h-4 w-4 text-yellow-500 mr-1" />
+                <SparklesIcon
+                  className="h-4 w-4 mr-1"
+                  style={{ color: "#6ED1EA" }}
+                />
                 <span>Trusted Service</span>
               </div>
             </div>
@@ -586,14 +593,16 @@ const Register = () => {
             By creating an account, you agree to our{" "}
             <Link
               to="/terms"
-              className="font-medium text-yellow-600 hover:text-yellow-500"
+              className="font-medium"
+              style={{ color: "#6ED1EA" }}
             >
               Terms of Service
             </Link>{" "}
             and{" "}
             <Link
               to="/privacy"
-              className="font-medium text-yellow-600 hover:text-yellow-500"
+              className="font-medium"
+              style={{ color: "#6ED1EA" }}
             >
               Privacy Policy
             </Link>
@@ -613,7 +622,10 @@ const Register = () => {
               "Easy booking and payment through our platform",
             ].map((benefit, index) => (
               <div key={index} className="flex items-center">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2 sm:mr-3 flex-shrink-0"></div>
+                <div
+                  className="w-2 h-2 rounded-full mr-2 sm:mr-3 flex-shrink-0"
+                  style={{ backgroundColor: "#6ED1EA" }}
+                ></div>
                 <span className="text-xs sm:text-sm text-gray-600">
                   {benefit}
                 </span>
@@ -621,14 +633,17 @@ const Register = () => {
             ))}
           </div>
 
-          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-cyan-50 border border-cyan-200 rounded-lg">
             <div className="flex items-center">
-              <SparklesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 mr-2" />
+              <SparklesIcon
+                className="h-4 w-4 sm:h-5 sm:w-5 mr-2"
+                style={{ color: "#6ED1EA" }}
+              />
               <div>
-                <p className="text-xs sm:text-sm font-semibold text-yellow-800">
+                <p className="text-xs sm:text-sm font-semibold text-cyan-800">
                   New customers get $19 First Clean
                 </p>
-                <p className="text-xs text-yellow-700 mt-1">
+                <p className="text-xs text-cyan-700 mt-1">
                   Start your cleaning journey with a special introductory rate
                 </p>
               </div>

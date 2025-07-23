@@ -56,29 +56,25 @@ const Toast = ({
       success:
         "bg-green-50 border-green-200 text-green-800 shadow-green-100/50",
       error: "bg-red-50 border-red-200 text-red-800 shadow-red-100/50",
-      warning:
-        "bg-yellow-50 border-yellow-200 text-yellow-800 shadow-yellow-100/50",
+      warning: "bg-cyan-50 border-cyan-200 text-cyan-800 shadow-cyan-100/50",
       info: "bg-blue-50 border-blue-200 text-blue-800 shadow-blue-100/50",
       loading: "bg-gray-50 border-gray-200 text-gray-800 shadow-gray-100/50",
       booking:
         "bg-purple-50 border-purple-200 text-purple-800 shadow-purple-100/50",
       payment:
         "bg-green-50 border-green-200 text-green-800 shadow-green-100/50",
-      service:
-        "bg-yellow-50 border-yellow-200 text-yellow-800 shadow-yellow-100/50",
+      service: "bg-cyan-50 border-cyan-200 text-cyan-800 shadow-cyan-100/50",
     },
     modern: {
       success: "bg-white border-l-4 border-l-green-500 text-gray-800 shadow-xl",
       error: "bg-white border-l-4 border-l-red-500 text-gray-800 shadow-xl",
-      warning:
-        "bg-white border-l-4 border-l-yellow-500 text-gray-800 shadow-xl",
+      warning: "bg-white border-l-4 border-l-cyan-500 text-gray-800 shadow-xl",
       info: "bg-white border-l-4 border-l-blue-500 text-gray-800 shadow-xl",
       loading: "bg-white border-l-4 border-l-gray-400 text-gray-800 shadow-xl",
       booking:
         "bg-white border-l-4 border-l-purple-500 text-gray-800 shadow-xl",
       payment: "bg-white border-l-4 border-l-green-500 text-gray-800 shadow-xl",
-      service:
-        "bg-white border-l-4 border-l-yellow-500 text-gray-800 shadow-xl",
+      service: "bg-white border-l-4 border-l-cyan-500 text-gray-800 shadow-xl",
     },
     minimal: {
       success: "bg-white border border-gray-200 text-gray-800 shadow-lg",
@@ -96,7 +92,7 @@ const Toast = ({
       error:
         "bg-white border border-red-200 text-gray-800 shadow-lg ring-1 ring-red-500/20",
       warning:
-        "bg-white border border-yellow-200 text-gray-800 shadow-lg ring-1 ring-yellow-500/20",
+        "bg-white border border-cyan-200 text-gray-800 shadow-lg ring-1 ring-cyan-500/20",
       info: "bg-white border border-blue-200 text-gray-800 shadow-lg ring-1 ring-blue-500/20",
       loading:
         "bg-white border border-gray-200 text-gray-800 shadow-lg ring-1 ring-gray-400/20",
@@ -105,19 +101,19 @@ const Toast = ({
       payment:
         "bg-white border border-green-200 text-gray-800 shadow-lg ring-1 ring-green-500/20",
       service:
-        "bg-yellow-50 border border-yellow-200 text-gray-800 shadow-lg ring-1 ring-yellow-500/20",
+        "bg-cyan-50 border border-cyan-200 text-gray-800 shadow-lg ring-1 ring-cyan-500/20",
     },
   };
 
   const iconColors = {
     success: "text-green-500",
     error: "text-red-500",
-    warning: "text-yellow-500",
+    warning: "text-cyan-500",
     info: "text-blue-500",
     loading: "text-gray-400 animate-spin",
     booking: "text-purple-500",
     payment: "text-green-500",
-    service: "text-yellow-500",
+    service: "text-cyan-500",
   };
 
   const animations = {
@@ -206,7 +202,7 @@ const Toast = ({
               className={cn(
                 "font-semibold leading-tight",
                 variant === "minimal" ? "text-sm" : "text-sm sm:text-base",
-                variant === "branded" && type === "service" && "text-yellow-800"
+                variant === "branded" && type === "service" && "text-cyan-800"
               )}
             >
               {title}
@@ -219,7 +215,7 @@ const Toast = ({
               title ? "mt-1" : "mt-0",
               variant === "minimal" ? "text-xs" : "text-sm",
               variant === "modern" && "text-gray-600",
-              variant === "branded" && type === "service" && "text-yellow-700"
+              variant === "branded" && type === "service" && "text-cyan-700"
             )}
           >
             {message}
@@ -232,13 +228,13 @@ const Toast = ({
               className={cn(
                 "mt-3 text-sm font-medium underline hover:no-underline focus:outline-none transition-colors duration-200",
                 type === "service"
-                  ? "text-yellow-600 hover:text-yellow-700"
+                  ? "text-yellow-600 hover:text-cyan-700"
                   : type === "success"
                   ? "text-green-600 hover:text-green-700"
                   : type === "error"
                   ? "text-red-600 hover:text-red-700"
                   : type === "warning"
-                  ? "text-yellow-600 hover:text-yellow-700"
+                  ? "text-yellow-600 hover:text-cyan-700"
                   : type === "booking"
                   ? "text-purple-600 hover:text-purple-700"
                   : type === "payment"
