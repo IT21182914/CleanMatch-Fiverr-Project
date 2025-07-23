@@ -296,7 +296,7 @@ const Navbar = () => {
                 <div className="relative" style={{ zIndex: 70 }}>
                   <Link
                     to="/register"
-                    className="group relative inline-flex items-center px-6 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm text-white bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-[#4EC6E5] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 isolate hover:z-50"
+                    className="group relative inline-flex items-center px-6 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm !text-white bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-[#4EC6E5] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 isolate hover:z-50"
                   >
                     <span className="relative z-10">Register</span>
                   </Link>
@@ -529,7 +529,7 @@ const Navbar = () => {
                     </Link>
                     <Link
                       to="/register"
-                      className="block w-full text-center py-4 px-6 rounded-2xl text-white font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg"
+                      className="block w-full text-center py-4 px-6 rounded-2xl !text-white font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Register
