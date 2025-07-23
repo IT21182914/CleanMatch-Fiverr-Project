@@ -249,11 +249,11 @@ const Home = () => {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-8">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-8 leading-tight">
               <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent">
                 Professional Cleaning Solutions
               </span>
-              <span className="block bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent mt-2">
+              <span className="block bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent mt-2 py-1">
                 Starting at $18/hour
               </span>
             </h1>
