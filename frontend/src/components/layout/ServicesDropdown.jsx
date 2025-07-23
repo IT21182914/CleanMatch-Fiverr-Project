@@ -41,11 +41,11 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
   return (
     <div
       ref={dropdownRef}
-      className={`absolute top-full left-0 right-0 bg-white/98 backdrop-blur-2xl shadow-2xl border border-slate-200/60 rounded-3xl z-[100] mt-4 max-h-[95vh] flex flex-col animate-fade-in-scale ${className}`}
+      className={`absolute top-full left-0 right-0 bg-white/98 backdrop-blur-2xl shadow-2xl border border-slate-200/60 rounded-3xl z-[100] mt-4 max-h-[85vh] flex flex-col overflow-hidden animate-fade-in-scale ${className}`}
       style={{ minWidth: "900px", maxWidth: "1200px" }}
     >
       {/* Header */}
-      <div className="p-4 border-b border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
+      <div className="flex-shrink-0 p-4 border-b border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-lg">
@@ -102,7 +102,7 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
       </div>
 
       {/* Services Grid */}
-      <div className="flex-1 px-6 pt-6 pb-8 overflow-y-auto custom-scrollbar">
+      <div className="flex-1 min-h-0 px-6 pt-6 pb-8 overflow-y-auto custom-scrollbar">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6">
           {filteredServices.map((service) => {
             const Icon = service.icon;
@@ -234,32 +234,32 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center text-sm text-slate-600">
-              <CheckBadgeIcon className="h-4 w-4 text-[#4EC6E5] mr-2" />
-              <span className="font-medium">All cleaners vetted & insured</span>
+      <div className="flex-shrink-0 px-4 py-2 border-t border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-2">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center text-xs text-slate-600">
+              <CheckBadgeIcon className="h-3 w-3 text-[#4EC6E5] mr-1" />
+              <span className="font-medium">Vetted & insured</span>
             </div>
-            <div className="flex items-center text-sm text-slate-600">
-              <ShieldCheckIcon className="h-4 w-4 text-[#4EC6E5] mr-2" />
+            <div className="flex items-center text-xs text-slate-600">
+              <ShieldCheckIcon className="h-3 w-3 text-[#4EC6E5] mr-1" />
               <span className="font-medium">Satisfaction guaranteed</span>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <Link
               to="/book"
               onClick={onClose}
-              className="px-5 py-2.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-[#4EC6E5]/25"
+              className="px-3 py-1.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white font-medium text-sm rounded-lg transition-all duration-300 shadow-md shadow-[#4EC6E5]/25"
             >
               Book Now
             </Link>
             <Link
               to="/services"
               onClick={onClose}
-              className="px-5 py-2.5 border-2 border-[#4EC6E5]/30 text-[#4EC6E5] hover:bg-[#4EC6E5] hover:text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 bg-white/70"
+              className="px-3 py-1.5 border border-[#4EC6E5]/30 text-[#4EC6E5] hover:bg-[#4EC6E5] hover:text-white font-medium text-sm rounded-lg transition-all duration-300 bg-white/70"
             >
-              View All Services
+              View All
             </Link>
           </div>
         </div>
