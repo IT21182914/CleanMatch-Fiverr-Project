@@ -58,7 +58,7 @@ const Navbar = () => {
   const getNavigation = () => {
     if (!isAuthenticated) {
       return [
-        { name: "Home", href: "/", icon: HomeIcon, highlight: true },
+        { name: "Home", href: "/", icon: HomeIcon },
         { name: "Services", href: "/services", icon: SparklesIcon },
         { name: "Agencies", href: "/agencies", icon: UserIcon },
         { name: "About us", href: "/about", icon: ClipboardDocumentListIcon },
