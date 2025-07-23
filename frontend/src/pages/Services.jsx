@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   SparklesIcon,
@@ -17,6 +17,7 @@ const Services = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Services");
   const [sortBy, setSortBy] = useState("popular"); // popular, price-low, price-high, name
+  const servicesGridRef = useRef(null);
 
   const filteredServices = searchServices(searchTerm, selectedCategory);
 
@@ -43,6 +44,24 @@ const Services = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Auto-scroll to services grid when searching
+  useEffect(() => {
+    if (searchTerm.trim() !== "" && servicesGridRef.current) {
+      // Small delay to ensure the filtering has completed
+      const timer = setTimeout(() => {
+        const headerHeight = 200; // Approximate height of sticky header + some padding
+        const elementTop = servicesGridRef.current.offsetTop - headerHeight;
+
+        window.scrollTo({
+          top: Math.max(0, elementTop),
+          behavior: "smooth",
+        });
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [searchTerm, sortedServices.length]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50">
@@ -93,7 +112,11 @@ const Services = () => {
                 placeholder="Search services..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#4EC6E5] focus:border-transparent text-sm transition-all duration-200"
+                className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#4EC6E5] focus:border-transparent text-sm transition-all duration-200 ${
+                  searchTerm.trim() !== ""
+                    ? "border-[#4EC6E5] ring-1 ring-[#4EC6E5]/20"
+                    : "border-slate-200"
+                }`}
               />
             </div>
 
@@ -133,17 +156,38 @@ const Services = () => {
       </div>
 
       {/* Services Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div
+        ref={servicesGridRef}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+      >
         {/* Results Info */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">
-            {selectedCategory === "All Services"
-              ? "All Services"
-              : selectedCategory}
+            {searchTerm.trim() !== "" ? (
+              <>
+                Search Results for "{searchTerm}"
+                {selectedCategory !== "All Services" && (
+                  <span className="text-lg font-normal text-slate-600">
+                    {" "}
+                    in {selectedCategory}
+                  </span>
+                )}
+              </>
+            ) : selectedCategory === "All Services" ? (
+              "All Services"
+            ) : (
+              selectedCategory
+            )}
           </h2>
           <p className="text-slate-600">
             {sortedServices.length} service
             {sortedServices.length !== 1 ? "s" : ""} found
+            {searchTerm.trim() !== "" && (
+              <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-[#4EC6E5]/10 text-[#4EC6E5] font-medium">
+                <MagnifyingGlassIcon className="h-3 w-3 mr-1" />
+                Filtered
+              </span>
+            )}
           </p>
         </div>
 
