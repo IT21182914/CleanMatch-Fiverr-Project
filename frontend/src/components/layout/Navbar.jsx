@@ -381,26 +381,26 @@ const Navbar = () => {
           {/* Full Screen Mobile Menu */}
           <div className="fixed inset-0 bg-white z-[70] transform transition-transform duration-300 ease-out flex flex-col mobile-menu-panel">
             {/* Mobile Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] flex-shrink-0">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-xl flex items-center justify-center shadow-lg">
-                  <SparklesIcon className="h-4 w-4 text-white" />
+            <div className="flex items-center justify-between p-4 border-b border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] flex-shrink-0">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-lg flex items-center justify-center shadow-lg">
+                  <SparklesIcon className="h-3 w-3 text-white" />
                 </div>
-                <span className="text-lg font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                <span className="text-sm font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                   SIMORGH SERVICE
                 </span>
               </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-3 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-white/50 transition-colors duration-200 min-w-[48px] min-h-[48px] flex items-center justify-center"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-white/50 transition-colors duration-200 min-w-[40px] min-h-[40px] flex items-center justify-center"
               >
-                <XMarkIcon className="h-6 w-6" />
+                <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
 
             {/* Mobile Navigation */}
             <div className="flex-1 overflow-hidden flex flex-col bg-white">
-              <div className="px-6 py-6 space-y-4 overflow-y-auto mobile-nav-scroll flex-1">
+              <div className="px-4 py-4 space-y-2 overflow-y-auto mobile-nav-scroll flex-1">
                 {navigation.map((item) => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.href;
@@ -410,51 +410,51 @@ const Navbar = () => {
                       key={item.name}
                       to={item.href}
                       className={cn(
-                        "group flex items-center px-6 py-4 rounded-2xl text-lg font-semibold transition-all duration-300 w-full",
+                        "group flex items-center px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 w-full",
                         isActive
-                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white shadow-2xl shadow-[#4EC6E5]/50 scale-105 transform border-2 border-[#2BA8CD] relative before:absolute before:inset-0 before:bg-white/20 before:rounded-2xl before:animate-pulse"
+                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white shadow-lg shadow-[#4EC6E5]/30"
                           : item.highlight
-                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-lg hover:shadow-xl hover:scale-105"
-                          : "text-slate-700 hover:!text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-lg hover:scale-105 border border-slate-200 hover:border-[#4EC6E5]"
+                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-md"
+                          : "text-slate-700 hover:!text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md border border-slate-200 hover:border-[#4EC6E5] bg-white"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <Icon className="h-6 w-6 mr-4 flex-shrink-0" />
-                      <span className="text-left">{item.name}</span>
+                      <Icon className="h-5 w-5 mr-3 flex-shrink-0" />
+                      <span className="text-sm">{item.name}</span>
                     </Link>
                   );
                 })}
 
                 {/* Mobile Services Section */}
                 {!isAuthenticated && (
-                  <div className="border-t border-slate-200/60 pt-4 mt-6">
+                  <div className="border-t border-slate-200/60 pt-3 mt-4">
                     <button
                       onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                      className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-base font-semibold text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-lg hover:scale-105 transition-all duration-300"
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-[#4EC6E5] bg-white"
                     >
                       <div className="flex items-center">
-                        <SparklesIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                        Services
+                        <SparklesIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <span className="text-sm">Services</span>
                       </div>
                       <ChevronDownIcon
-                        className={`h-5 w-5 transition-transform duration-300 flex-shrink-0 ${
+                        className={`h-4 w-4 transition-transform duration-300 flex-shrink-0 ${
                           mobileServicesOpen ? "rotate-180" : "rotate-0"
                         }`}
                       />
                     </button>
 
                     {mobileServicesOpen && (
-                      <div className="mt-3 max-h-64 overflow-y-auto mobile-nav-scroll scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300">
-                        <div className="space-y-4 px-4">
+                      <div className="mt-2 max-h-48 overflow-y-auto mobile-nav-scroll scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300">
+                        <div className="space-y-2 px-2">
                           {servicesCategories.map((category, categoryIndex) => (
                             <div
                               key={categoryIndex}
-                              className="border-l-4 border-[#BAEDFB] pl-4 py-2 bg-gradient-to-r from-[#F0FBFE] to-transparent rounded-r-xl"
+                              className="border-l-2 border-[#BAEDFB] pl-3 py-1 bg-gradient-to-r from-[#F0FBFE] to-transparent rounded-r-lg"
                             >
-                              <h4 className="text-sm font-bold text-slate-900 mb-3">
+                              <h4 className="text-xs font-semibold text-slate-900 mb-1">
                                 {category.title}
                               </h4>
-                              <div className="space-y-2">
+                              <div className="space-y-1">
                                 {category.services.map(
                                   (service, serviceIndex) => (
                                     <Link
@@ -462,7 +462,7 @@ const Navbar = () => {
                                       to={`/services/${service
                                         .toLowerCase()
                                         .replace(/[^a-z0-9]+/g, "-")}`}
-                                      className="block px-3 py-2 text-xs text-slate-600 hover:text-[#4EC6E5] hover:bg-white rounded-lg transition-all duration-200 hover:shadow-sm hover:translate-x-1"
+                                      className="block px-2 py-1 text-xs text-slate-600 hover:text-[#4EC6E5] hover:bg-white rounded transition-all duration-200"
                                       onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                       {service}
@@ -475,18 +475,18 @@ const Navbar = () => {
                         </div>
 
                         {/* Mobile Services Footer */}
-                        <div className="mt-6 p-4 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] rounded-xl border border-[#BAEDFB]/30">
-                          <div className="flex space-x-3">
+                        <div className="mt-3 p-3 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] rounded-lg border border-[#BAEDFB]/30">
+                          <div className="flex space-x-2">
                             <Link
                               to="/services"
-                              className="flex-1 text-center py-3 px-4 bg-white border border-[#BAEDFB] text-xs font-semibold text-[#2BA8CD] rounded-xl hover:bg-[#F0FBFE] transition-colors duration-200"
+                              className="flex-1 text-center py-2 px-3 bg-white border border-[#BAEDFB] text-xs font-medium text-[#2BA8CD] rounded-lg hover:bg-[#F0FBFE] transition-colors duration-200"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >
                               All Services
                             </Link>
                             <Link
                               to="/contact"
-                              className="flex-1 text-center py-3 px-4 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white text-xs font-semibold rounded-xl hover:from-[#3BB8DF] hover:to-[#2293B5] transition-all duration-200 shadow-lg"
+                              className="flex-1 text-center py-2 px-3 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white text-xs font-medium rounded-lg hover:from-[#3BB8DF] hover:to-[#2293B5] transition-all duration-200"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >
                               Get Quote
@@ -501,46 +501,46 @@ const Navbar = () => {
             </div>
 
             {/* Mobile User Section */}
-            <div className="border-t border-slate-200/60 px-6 py-4 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] flex-shrink-0">
+            <div className="border-t border-slate-200/60 px-4 py-3 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] flex-shrink-0">
               {isAuthenticated ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* User Info */}
-                  <div className="flex items-center space-x-4 p-4 bg-white/70 backdrop-blur-sm rounded-2xl border border-[#BAEDFB]/30 shadow-lg">
-                    <div className="w-12 h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <span className="text-white font-bold text-lg">
+                  <div className="flex items-center space-x-3 p-3 bg-white/70 backdrop-blur-sm rounded-xl border border-[#BAEDFB]/30 shadow-md">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                      <span className="text-white font-semibold text-sm">
                         {(user?.firstName || user?.email || "U")
                           .charAt(0)
                           .toUpperCase()}
                       </span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-bold text-slate-900 truncate">
+                      <p className="font-semibold text-sm text-slate-900 truncate">
                         {user?.firstName || user?.email?.split("@")[0]}
                       </p>
-                      <p className="text-sm text-[#2BA8CD] capitalize font-medium">
+                      <p className="text-xs text-[#2BA8CD] capitalize font-medium">
                         {user?.role} Account
                       </p>
                     </div>
                   </div>
 
                   {/* Quick Actions */}
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <Link
                       to="/customer/profile"
-                      className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/50 rounded-xl transition-all duration-200"
+                      className="flex items-center px-3 py-2 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/50 rounded-lg transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <UserIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                      <span className="truncate">Profile Settings</span>
+                      <UserIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <span className="text-sm truncate">Profile Settings</span>
                     </Link>
                     {user?.role === "customer" && (
                       <Link
                         to="/customer/membership"
-                        className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/50 rounded-xl transition-all duration-200"
+                        className="flex items-center px-3 py-2 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/50 rounded-lg transition-all duration-200"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <CreditCardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                        <span className="truncate">
+                        <CreditCardIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <span className="text-sm truncate">
                           ForeverClean Membership
                         </span>
                       </Link>
@@ -553,26 +553,26 @@ const Navbar = () => {
                       handleLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="flex items-center w-full px-4 py-3 text-red-600 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105"
+                    className="flex items-center w-full px-3 py-2 text-red-600 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 rounded-lg transition-all duration-300"
                   >
-                    <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                    <span>Sign Out</span>
+                    <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Sign Out</span>
                   </button>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* Auth Buttons */}
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <Link
                       to="/login"
-                      className="block w-full text-center py-4 px-6 border border-[#4EC6E5]/30 rounded-2xl text-[#4EC6E5] font-semibold hover:bg-[#4EC6E5] hover:!text-white hover:border-[#4EC6E5] transition-all duration-300 hover:shadow-xl hover:scale-105 backdrop-blur-sm bg-white/70"
+                      className="block w-full text-center py-3 px-4 border border-[#4EC6E5]/30 rounded-xl text-[#4EC6E5] font-medium hover:bg-[#4EC6E5] hover:!text-white hover:border-[#4EC6E5] transition-all duration-300 backdrop-blur-sm bg-white/70 text-sm"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Sign In
                     </Link>
                     <Link
                       to="/register"
-                      className="block w-full text-center py-4 px-6 rounded-2xl !text-white font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg"
+                      className="block w-full text-center py-3 px-4 rounded-xl !text-white font-medium transition-all duration-300 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-sm"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Register
@@ -580,11 +580,11 @@ const Navbar = () => {
                   </div>
 
                   {/* Features */}
-                  <div className="pt-4 border-t border-[#BAEDFB]/30">
-                    <p className="text-sm text-slate-600 text-center mb-4 font-medium">
+                  <div className="pt-3 border-t border-[#BAEDFB]/30">
+                    <p className="text-xs text-slate-600 text-center mb-3 font-medium">
                       Why choose SIMORGH SERVICE?
                     </p>
-                    <div className="space-y-3 text-sm">
+                    <div className="space-y-2 text-xs">
                       {[
                         "Professional vetted cleaners",
                         "Satisfaction guaranteed",
@@ -595,8 +595,8 @@ const Navbar = () => {
                           key={index}
                           className="flex items-center text-slate-600"
                         >
-                          <div className="w-2.5 h-2.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] rounded-full mr-3 flex-shrink-0"></div>
-                          <span className="truncate">{feature}</span>
+                          <div className="w-2 h-2 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] rounded-full mr-2 flex-shrink-0"></div>
+                          <span className="truncate text-xs">{feature}</span>
                         </div>
                       ))}
                     </div>
