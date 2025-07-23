@@ -45,7 +45,7 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
       style={{ minWidth: "900px", maxWidth: "1200px" }}
     >
       {/* Header */}
-      <div className="p-6 border-b border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
+      <div className="p-4 border-b border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-lg">
@@ -68,7 +68,7 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
         </div>
 
         {/* Search and Categories */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           <div className="flex-1 relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" />
@@ -82,16 +82,16 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
             />
           </div>
 
-          {/* Responsive Category Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+          {/* Compact Category Tabs */}
+          <div className="flex flex-wrap gap-1.5">
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-center transition-all duration-200 ${
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
                   selectedCategory === category
-                    ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-lg transform scale-105"
-                    : "bg-white/70 text-slate-600 hover:bg-white hover:text-[#4EC6E5] border border-slate-200 hover:border-[#4EC6E5]/30 hover:scale-105"
+                    ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-md"
+                    : "bg-white/70 text-slate-600 hover:bg-white hover:text-[#4EC6E5] border border-slate-200/60 hover:border-[#4EC6E5]/30"
                 }`}
               >
                 {category}
@@ -102,7 +102,7 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
       </div>
 
       {/* Services Grid */}
-      <div className="p-6 overflow-y-auto max-h-[60vh] custom-scrollbar">
+      <div className="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredServices.map((service) => {
             const Icon = service.icon;
