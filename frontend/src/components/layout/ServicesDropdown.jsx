@@ -41,7 +41,7 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
   return (
     <div
       ref={dropdownRef}
-      className={`absolute top-full left-0 right-0 bg-white/98 backdrop-blur-2xl shadow-2xl border border-slate-200/60 rounded-3xl z-[100] mt-4 max-h-[85vh] overflow-hidden animate-fade-in-scale ${className}`}
+      className={`absolute top-full left-0 right-0 bg-white/98 backdrop-blur-2xl shadow-2xl border border-slate-200/60 rounded-3xl z-[100] mt-4 max-h-[95vh] flex flex-col animate-fade-in-scale ${className}`}
       style={{ minWidth: "900px", maxWidth: "1200px" }}
     >
       {/* Header */}
@@ -102,8 +102,8 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
       </div>
 
       {/* Services Grid */}
-      <div className="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex-1 px-6 pt-6 pb-8 overflow-y-auto custom-scrollbar">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6">
           {filteredServices.map((service) => {
             const Icon = service.icon;
             const isHovered = hoveredService === service.id;
@@ -219,7 +219,7 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
         </div>
 
         {filteredServices.length === 0 && (
-          <div className="text-center py-12">
+          <div className="text-center py-12 mb-4">
             <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <SparklesIcon className="h-8 w-8 text-slate-400" />
             </div>
@@ -234,8 +234,8 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
       </div>
 
       {/* Footer */}
-      <div className="p-6 border-t border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+      <div className="p-4 border-t border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
           <div className="flex items-center space-x-4">
             <div className="flex items-center text-sm text-slate-600">
               <CheckBadgeIcon className="h-4 w-4 text-[#4EC6E5] mr-2" />
@@ -250,14 +250,14 @@ const ServicesDropdown = ({ isOpen, onClose, className = "" }) => {
             <Link
               to="/book"
               onClick={onClose}
-              className="px-6 py-3 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-[#4EC6E5]/25"
+              className="px-5 py-2.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-[#4EC6E5]/25"
             >
               Book Now
             </Link>
             <Link
               to="/services"
               onClick={onClose}
-              className="px-6 py-3 border-2 border-[#4EC6E5]/30 text-[#4EC6E5] hover:bg-[#4EC6E5] hover:text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 bg-white/70"
+              className="px-5 py-2.5 border-2 border-[#4EC6E5]/30 text-[#4EC6E5] hover:bg-[#4EC6E5] hover:text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 bg-white/70"
             >
               View All Services
             </Link>
