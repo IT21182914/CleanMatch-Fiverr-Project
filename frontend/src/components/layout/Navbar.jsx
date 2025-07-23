@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   HomeIcon,
@@ -25,6 +25,32 @@ const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+      document.body.style.height = "100%";
+      document.body.classList.add("mobile-menu-open");
+    } else {
+      document.body.style.overflow = "unset";
+      document.body.style.position = "unset";
+      document.body.style.width = "unset";
+      document.body.style.height = "unset";
+      document.body.classList.remove("mobile-menu-open");
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "unset";
+      document.body.style.position = "unset";
+      document.body.style.width = "unset";
+      document.body.style.height = "unset";
+      document.body.classList.remove("mobile-menu-open");
+    };
+  }, [isMobileMenuOpen]);
 
   const handleLogout = () => {
     logout();
@@ -167,23 +193,34 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-slate-200/60 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-18 lg:h-20">
+    <nav
+      className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-slate-200/60 sticky top-0 z-50 w-full min-h-[80px]"
+      style={{
+        visibility: "visible",
+        display: "block",
+        position: "sticky",
+        top: 0,
+        zIndex: 50,
+        minHeight: "80px",
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+      }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="flex justify-between items-center min-h-[80px] lg:min-h-[96px] w-full">
           {/* Logo Section */}
-          <div className="flex items-center">
+          <div className="flex items-center min-w-0 flex-shrink-0">
             <Link to="/" className="flex items-center space-x-3 group">
               <div className="relative">
-                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-xl shadow-[#4EC6E5]/25 group-hover:shadow-2xl group-hover:shadow-[#4EC6E5]/40 transition-all duration-300 group-hover:scale-110">
-                  <SparklesIcon className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
+                <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-xl shadow-[#4EC6E5]/25 group-hover:shadow-2xl group-hover:shadow-[#4EC6E5]/40 transition-all duration-300 group-hover:scale-110">
+                  <SparklesIcon className="h-5 w-5 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
               </div>
-              <div className="flex flex-col">
-                <span className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent tracking-tight">
+              <div className="flex flex-col min-w-0">
+                <span className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
                   SIMORGH SERVICE
                 </span>
-                <span className="text-xs font-semibold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent leading-none tracking-wide">
+                <span className="text-xs font-semibold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent leading-none tracking-wide whitespace-nowrap">
                   SOLUTION FOR YOUR COMPANY
                 </span>
               </div>
@@ -191,7 +228,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex lg:items-center lg:space-x-4">
+          <div className="hidden lg:flex lg:items-center lg:space-x-4 flex-shrink-0">
             {navigation.map((item, index) => {
               const Icon = item.icon;
               const isActive =
@@ -234,7 +271,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Auth Section */}
-          <div className="hidden lg:flex lg:items-center lg:space-x-5">
+          <div className="hidden lg:flex lg:items-center lg:space-x-5 flex-shrink-0">
             {isAuthenticated ? (
               <>
                 {/* Notifications */}
@@ -306,7 +343,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex items-center lg:hidden">
+          <div className="flex items-center lg:hidden flex-shrink-0">
             {isAuthenticated && (
               <div className="mr-3 flex items-center">
                 <div className="relative">
@@ -323,7 +360,10 @@ const Navbar = () => {
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="inline-flex items-center justify-center p-3 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-[#F0FBFE] border border-transparent hover:border-[#BAEDFB] transition-all duration-200 backdrop-blur-sm"
+              className="inline-flex items-center justify-center p-3 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-[#F0FBFE] border border-transparent hover:border-[#BAEDFB] transition-all duration-200 backdrop-blur-sm touch-manipulation min-w-[48px] min-h-[48px]"
+              aria-expanded="false"
+              aria-controls="mobile-menu"
+              aria-label="Toggle navigation menu"
             >
               {isMobileMenuOpen ? (
                 <XMarkIcon className="block h-6 w-6" />
@@ -337,16 +377,11 @@ const Navbar = () => {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden">
-          <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-
-          {/* Mobile Menu Panel */}
-          <div className="fixed inset-y-0 right-0 max-w-sm w-full bg-white/95 backdrop-blur-xl shadow-2xl z-50 transform transition-transform duration-300 ease-out border-l border-slate-200/60">
+        <div className="lg:hidden fixed inset-0 z-[60]">
+          {/* Full Screen Mobile Menu */}
+          <div className="fixed inset-0 bg-white z-[70] transform transition-transform duration-300 ease-out flex flex-col mobile-menu-panel">
             {/* Mobile Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
+            <div className="flex items-center justify-between p-6 border-b border-slate-200/60 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] flex-shrink-0">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-xl flex items-center justify-center shadow-lg">
                   <SparklesIcon className="h-4 w-4 text-white" />
@@ -357,123 +392,129 @@ const Navbar = () => {
               </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-white/50 transition-colors duration-200"
+                className="p-3 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-white/50 transition-colors duration-200 min-w-[48px] min-h-[48px] flex items-center justify-center"
               >
                 <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
 
             {/* Mobile Navigation */}
-            <div className="px-6 py-6 space-y-3 max-h-[60vh] overflow-y-auto">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.href;
+            <div className="flex-1 overflow-hidden flex flex-col bg-white">
+              <div className="px-6 py-6 space-y-4 overflow-y-auto mobile-nav-scroll flex-1">
+                {navigation.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.href;
 
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={cn(
-                      "group flex items-center px-4 py-3.5 rounded-xl text-base font-semibold transition-all duration-300",
-                      isActive
-                        ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white shadow-2xl shadow-[#4EC6E5]/50 scale-105 transform border-2 border-[#2BA8CD] relative before:absolute before:inset-0 before:bg-white/20 before:rounded-xl before:animate-pulse"
-                        : item.highlight
-                        ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-lg hover:shadow-xl hover:scale-105"
-                        : "text-slate-700 hover:!text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-lg hover:scale-105"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Icon className="h-5 w-5 mr-3" />
-                    {item.name}
-                  </Link>
-                );
-              })}
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={cn(
+                        "group flex items-center px-6 py-4 rounded-2xl text-lg font-semibold transition-all duration-300 w-full",
+                        isActive
+                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white shadow-2xl shadow-[#4EC6E5]/50 scale-105 transform border-2 border-[#2BA8CD] relative before:absolute before:inset-0 before:bg-white/20 before:rounded-2xl before:animate-pulse"
+                          : item.highlight
+                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-lg hover:shadow-xl hover:scale-105"
+                          : "text-slate-700 hover:!text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-lg hover:scale-105 border border-slate-200 hover:border-[#4EC6E5]"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Icon className="h-6 w-6 mr-4 flex-shrink-0" />
+                      <span className="text-left">{item.name}</span>
+                    </Link>
+                  );
+                })}
 
-              {/* Mobile Services Section */}
-              <div className="border-t border-slate-200/60 pt-4 mt-6">
-                <button
-                  onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-base font-semibold text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-lg hover:scale-105 transition-all duration-300"
-                >
-                  <div className="flex items-center">
-                    <SparklesIcon className="h-5 w-5 mr-3" />
-                    Services
-                  </div>
-                  <ChevronDownIcon
-                    className={`h-5 w-5 transition-transform duration-300 ${
-                      mobileServicesOpen ? "rotate-180" : "rotate-0"
-                    }`}
-                  />
-                </button>
+                {/* Mobile Services Section */}
+                {!isAuthenticated && (
+                  <div className="border-t border-slate-200/60 pt-4 mt-6">
+                    <button
+                      onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                      className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-base font-semibold text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-lg hover:scale-105 transition-all duration-300"
+                    >
+                      <div className="flex items-center">
+                        <SparklesIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                        Services
+                      </div>
+                      <ChevronDownIcon
+                        className={`h-5 w-5 transition-transform duration-300 flex-shrink-0 ${
+                          mobileServicesOpen ? "rotate-180" : "rotate-0"
+                        }`}
+                      />
+                    </button>
 
-                {mobileServicesOpen && (
-                  <div className="mt-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300">
-                    <div className="space-y-4 px-4">
-                      {servicesCategories.map((category, categoryIndex) => (
-                        <div
-                          key={categoryIndex}
-                          className="border-l-4 border-[#BAEDFB] pl-4 py-2 bg-gradient-to-r from-[#F0FBFE] to-transparent rounded-r-xl"
-                        >
-                          <h4 className="text-sm font-bold text-slate-900 mb-3">
-                            {category.title}
-                          </h4>
-                          <div className="space-y-2">
-                            {category.services.map((service, serviceIndex) => (
-                              <Link
-                                key={serviceIndex}
-                                to={`/services/${service
-                                  .toLowerCase()
-                                  .replace(/[^a-z0-9]+/g, "-")}`}
-                                className="block px-3 py-2 text-xs text-slate-600 hover:text-[#4EC6E5] hover:bg-white rounded-lg transition-all duration-200 hover:shadow-sm hover:translate-x-1"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                              >
-                                {service}
-                              </Link>
-                            ))}
+                    {mobileServicesOpen && (
+                      <div className="mt-3 max-h-64 overflow-y-auto mobile-nav-scroll scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300">
+                        <div className="space-y-4 px-4">
+                          {servicesCategories.map((category, categoryIndex) => (
+                            <div
+                              key={categoryIndex}
+                              className="border-l-4 border-[#BAEDFB] pl-4 py-2 bg-gradient-to-r from-[#F0FBFE] to-transparent rounded-r-xl"
+                            >
+                              <h4 className="text-sm font-bold text-slate-900 mb-3">
+                                {category.title}
+                              </h4>
+                              <div className="space-y-2">
+                                {category.services.map(
+                                  (service, serviceIndex) => (
+                                    <Link
+                                      key={serviceIndex}
+                                      to={`/services/${service
+                                        .toLowerCase()
+                                        .replace(/[^a-z0-9]+/g, "-")}`}
+                                      className="block px-3 py-2 text-xs text-slate-600 hover:text-[#4EC6E5] hover:bg-white rounded-lg transition-all duration-200 hover:shadow-sm hover:translate-x-1"
+                                      onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                      {service}
+                                    </Link>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Mobile Services Footer */}
+                        <div className="mt-6 p-4 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] rounded-xl border border-[#BAEDFB]/30">
+                          <div className="flex space-x-3">
+                            <Link
+                              to="/services"
+                              className="flex-1 text-center py-3 px-4 bg-white border border-[#BAEDFB] text-xs font-semibold text-[#2BA8CD] rounded-xl hover:bg-[#F0FBFE] transition-colors duration-200"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                              All Services
+                            </Link>
+                            <Link
+                              to="/contact"
+                              className="flex-1 text-center py-3 px-4 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white text-xs font-semibold rounded-xl hover:from-[#3BB8DF] hover:to-[#2293B5] transition-all duration-200 shadow-lg"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                              Get Quote
+                            </Link>
                           </div>
                         </div>
-                      ))}
-                    </div>
-
-                    {/* Mobile Services Footer */}
-                    <div className="mt-6 p-4 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] rounded-xl border border-[#BAEDFB]/30">
-                      <div className="flex space-x-3">
-                        <Link
-                          to="/services"
-                          className="flex-1 text-center py-3 px-4 bg-white border border-[#BAEDFB] text-xs font-semibold text-[#2BA8CD] rounded-xl hover:bg-[#F0FBFE] transition-colors duration-200"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          All Services
-                        </Link>
-                        <Link
-                          to="/contact"
-                          className="flex-1 text-center py-3 px-4 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white text-xs font-semibold rounded-xl hover:from-[#3BB8DF] hover:to-[#2293B5] transition-all duration-200 shadow-lg"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          Get Quote
-                        </Link>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
               </div>
             </div>
 
             {/* Mobile User Section */}
-            <div className="border-t border-slate-200/60 px-6 py-6 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD]">
+            <div className="border-t border-slate-200/60 px-6 py-4 bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] flex-shrink-0">
               {isAuthenticated ? (
                 <div className="space-y-4">
                   {/* User Info */}
                   <div className="flex items-center space-x-4 p-4 bg-white/70 backdrop-blur-sm rounded-2xl border border-[#BAEDFB]/30 shadow-lg">
-                    <div className="w-12 h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-lg">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
                       <span className="text-white font-bold text-lg">
                         {(user?.firstName || user?.email || "U")
                           .charAt(0)
                           .toUpperCase()}
                       </span>
                     </div>
-                    <div>
-                      <p className="font-bold text-slate-900">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-slate-900 truncate">
                         {user?.firstName || user?.email?.split("@")[0]}
                       </p>
                       <p className="text-sm text-[#2BA8CD] capitalize font-medium">
@@ -489,8 +530,8 @@ const Navbar = () => {
                       className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/50 rounded-xl transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <UserIcon className="h-5 w-5 mr-3" />
-                      Profile Settings
+                      <UserIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                      <span className="truncate">Profile Settings</span>
                     </Link>
                     {user?.role === "customer" && (
                       <Link
@@ -498,8 +539,10 @@ const Navbar = () => {
                         className="flex items-center px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/50 rounded-xl transition-all duration-200"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <CreditCardIcon className="h-5 w-5 mr-3" />
-                        ForeverClean Membership
+                        <CreditCardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                        <span className="truncate">
+                          ForeverClean Membership
+                        </span>
                       </Link>
                     )}
                   </div>
@@ -512,8 +555,8 @@ const Navbar = () => {
                     }}
                     className="flex items-center w-full px-4 py-3 text-red-600 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105"
                   >
-                    <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3" />
-                    Sign Out
+                    <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                    <span>Sign Out</span>
                   </button>
                 </div>
               ) : (
@@ -552,8 +595,8 @@ const Navbar = () => {
                           key={index}
                           className="flex items-center text-slate-600"
                         >
-                          <div className="w-2.5 h-2.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] rounded-full mr-3"></div>
-                          {feature}
+                          <div className="w-2.5 h-2.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] rounded-full mr-3 flex-shrink-0"></div>
+                          <span className="truncate">{feature}</span>
                         </div>
                       ))}
                     </div>
