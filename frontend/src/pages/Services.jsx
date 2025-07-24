@@ -12,6 +12,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { allServices, searchServices } from "../data/services";
 import { categories } from "../data/services/categories";
+import { getServiceImage } from "../utils/serviceImages";
 
 const Services = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -219,58 +220,53 @@ const Services = () => {
 
                   {/* Content */}
                   <div className="relative z-10 h-full flex flex-col">
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className={`rounded-xl flex items-center justify-center transition-all duration-300 ${
-                            sortedServices.length === 1
-                              ? "w-16 h-16"
-                              : "w-12 h-12"
-                          } ${
-                            service.premium
-                              ? "bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/25"
-                              : service.emergency
-                              ? "bg-gradient-to-br from-red-500 to-red-600 shadow-lg shadow-red-500/25"
-                              : "bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] shadow-lg shadow-[#4EC6E5]/25"
-                          } group-hover:scale-110`}
-                        >
-                          <Icon
-                            className={`text-white ${
-                              sortedServices.length === 1
-                                ? "h-8 w-8"
-                                : "h-6 w-6"
-                            }`}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          {service.popular && (
-                            <div className="flex items-center mb-1">
-                              <StarIcon className="h-3 w-3 text-amber-500 fill-amber-500 mr-1" />
-                              <span className="text-xs font-semibold text-amber-600">
-                                Popular
-                              </span>
-                            </div>
-                          )}
-                          {service.premium && (
-                            <div className="flex items-center mb-1">
-                              <StarIcon className="h-3 w-3 text-amber-500 fill-amber-500 mr-1" />
-                              <span className="text-xs font-semibold text-amber-600">
-                                Premium
-                              </span>
-                            </div>
-                          )}
-                          {service.emergency && (
-                            <div className="flex items-center mb-1">
-                              <ExclamationTriangleIcon className="h-3 w-3 text-red-500 mr-1" />
-                              <span className="text-xs font-semibold text-red-600">
-                                24/7 Emergency
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                    {/* Service Image Header */}
+                    <div className="relative mb-4">
+                      <div className="w-full h-48 rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
+                        <img
+                          src={getServiceImage(service.name)}
+                          alt={service.name}
+                          className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
+                          onError={(e) => {
+                            e.target.src =
+                              "/services/1/House & Apartment Cleaning.png";
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       </div>
-                      <ChevronRightIcon className="h-5 w-5 text-slate-400 group-hover:text-[#4EC6E5] group-hover:translate-x-1 transition-all duration-200" />
+
+                      {/* Badges overlay */}
+                      <div className="absolute top-3 left-3 flex flex-col gap-1">
+                        {service.popular && (
+                          <div className="flex items-center bg-amber-500/90 backdrop-blur-sm rounded-full px-2 py-1">
+                            <StarIcon className="h-3 w-3 text-white mr-1" />
+                            <span className="text-xs font-semibold text-white">
+                              Popular
+                            </span>
+                          </div>
+                        )}
+                        {service.premium && (
+                          <div className="flex items-center bg-amber-500/90 backdrop-blur-sm rounded-full px-2 py-1">
+                            <StarIcon className="h-3 w-3 text-white mr-1" />
+                            <span className="text-xs font-semibold text-white">
+                              Premium
+                            </span>
+                          </div>
+                        )}
+                        {service.emergency && (
+                          <div className="flex items-center bg-red-500/90 backdrop-blur-sm rounded-full px-2 py-1">
+                            <ExclamationTriangleIcon className="h-3 w-3 text-white mr-1" />
+                            <span className="text-xs font-semibold text-white">
+                              24/7 Emergency
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Arrow overlay */}
+                      <div className="absolute top-3 right-3">
+                        <ChevronRightIcon className="h-5 w-5 text-white/70 group-hover:text-white group-hover:translate-x-1 transition-all duration-200 drop-shadow-lg" />
+                      </div>
                     </div>
 
                     {/* Title */}

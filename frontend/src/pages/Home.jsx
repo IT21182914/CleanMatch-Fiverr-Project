@@ -26,6 +26,7 @@ import {
 import Button from "../components/ui/Button";
 import { Card, CardContent } from "../components/ui/Card";
 import { LazySection } from "../components/ui/LazyComponents";
+import { getServiceImage } from "../utils/serviceImages";
 
 const Home = () => {
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -346,40 +347,50 @@ const Home = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredServices.map((service, index) => {
-              const Icon = service.icon;
               return (
                 <Link
                   key={index}
                   to="/services"
-                  className="group relative p-6 bg-gradient-to-br from-white to-slate-50/50 rounded-2xl border border-slate-200/60 hover:border-[#4EC6E5]/30 transition-all duration-300 hover:shadow-xl hover:scale-105"
+                  className="group relative bg-gradient-to-br from-white to-slate-50/50 rounded-2xl border border-slate-200/60 hover:border-[#4EC6E5]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 overflow-hidden"
                 >
                   {service.popular && (
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white px-3 py-1 rounded-full text-xs font-bold">
+                    <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white px-3 py-1 rounded-full text-xs font-bold">
                       Popular
                     </div>
                   )}
 
-                  <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
+                  {/* Service Image */}
+                  <div className="relative h-32 w-full">
+                    <img
+                      src={getServiceImage(service.name)}
+                      alt={service.name}
+                      className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
+                      onError={(e) => {
+                        e.target.src =
+                          "/services/1/House & Apartment Cleaning.png";
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
 
-                  <h3 className="font-bold text-slate-900 mb-2 group-hover:text-[#2BA8CD] transition-colors duration-200">
-                    {service.name}
-                  </h3>
+                  {/* Content */}
+                  <div className="p-6">
+                    <h3 className="font-bold text-slate-900 mb-2 group-hover:text-[#2BA8CD] transition-colors duration-200">
+                      {service.name}
+                    </h3>
 
-                  <p className="text-sm text-slate-600 mb-3">
-                    {service.description}
-                  </p>
+                    <p className="text-sm text-slate-600 mb-3 line-clamp-2">
+                      {service.description}
+                    </p>
 
-                  <div className="flex items-center">
-                    <span className="text-lg font-bold text-[#4EC6E5]">
-                      {service.price}
-                    </span>
-                    <span className="text-sm text-slate-400 line-through ml-2">
-                      {service.originalPrice}
-                    </span>
+                    <div className="flex items-center">
+                      <span className="text-lg font-bold text-[#4EC6E5]">
+                        {service.price}
+                      </span>
+                      <span className="text-sm text-slate-400 line-through ml-2">
+                        {service.originalPrice}
+                      </span>
+                    </div>
                   </div>
                 </Link>
               );
@@ -484,12 +495,25 @@ const Home = () => {
                   <div className="absolute inset-0 bg-gradient-to-br from-white to-slate-50/50"></div>
 
                   <CardContent className="relative p-8 lg:p-10 h-full flex flex-col">
-                    <div className="flex items-center mb-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
-                        <Icon className="h-6 w-6 text-white" />
+                    {/* Service Image Header */}
+                    <div className="relative mb-6">
+                      <div className="w-full h-32 rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
+                        <img
+                          src={getServiceImage(service.name)}
+                          alt={service.name}
+                          className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
+                          onError={(e) => {
+                            e.target.src =
+                              "/services/1/House & Apartment Cleaning.png";
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                       </div>
-                      <div className="text-xs bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white px-3 py-1 rounded-full font-bold">
-                        {service.membershipDiscount}
+
+                      <div className="absolute top-3 right-3">
+                        <div className="text-xs bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white px-3 py-1 rounded-full font-bold">
+                          {service.membershipDiscount}
+                        </div>
                       </div>
                     </div>
 

@@ -24,6 +24,7 @@ import {
 } from "../../components/ui/Card";
 import { LoadingCard, LoadingGrid } from "../../components/ui/Loading";
 import { formatCurrency, validateZipCode } from "../../lib/utils";
+import { getServiceImage } from "../../utils/serviceImages";
 
 const BookService = () => {
   const [services, setServices] = useState([]);
@@ -388,7 +389,7 @@ const BookService = () => {
                             {services.map((service) => (
                               <div
                                 key={service.id}
-                                className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                                className={`border-2 rounded-lg overflow-hidden cursor-pointer transition-all ${
                                   formData.serviceId === service.id.toString()
                                     ? "border-cyan-500 bg-cyan-50"
                                     : "border-gray-200 hover:border-gray-300"
@@ -400,35 +401,51 @@ const BookService = () => {
                                   }))
                                 }
                               >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex-1">
-                                    <h3 className="font-semibold text-gray-900">
-                                      {service.name}
-                                    </h3>
-                                    <p className="text-sm text-gray-600 mt-1">
-                                      {service.description}
-                                    </p>
-                                    <p className="text-lg font-bold text-cyan-600 mt-2">
-                                      Starting at{" "}
-                                      {formatCurrency(
-                                        service.base_price ||
-                                          service.basePrice ||
-                                          service.price
-                                      )}
-                                    </p>
+                                <div className="flex">
+                                  {/* Service Image */}
+                                  <div className="w-24 h-24 flex-shrink-0">
+                                    <img
+                                      src={getServiceImage(service.name)}
+                                      alt={service.name}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.target.src =
+                                          "/services/1/House & Apartment Cleaning.png";
+                                      }}
+                                    />
                                   </div>
-                                  <div
-                                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                                      formData.serviceId ===
-                                      service.id.toString()
-                                        ? "border-cyan-500 bg-cyan-500"
-                                        : "border-gray-300"
-                                    }`}
-                                  >
-                                    {formData.serviceId ===
-                                      service.id.toString() && (
-                                      <CheckCircleIcon className="h-4 w-4 text-white" />
-                                    )}
+
+                                  {/* Service Details */}
+                                  <div className="flex-1 p-4 flex items-center justify-between">
+                                    <div className="flex-1">
+                                      <h3 className="font-semibold text-gray-900">
+                                        {service.name}
+                                      </h3>
+                                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                        {service.description}
+                                      </p>
+                                      <p className="text-lg font-bold text-cyan-600 mt-2">
+                                        Starting at{" "}
+                                        {formatCurrency(
+                                          service.base_price ||
+                                            service.basePrice ||
+                                            service.price
+                                        )}
+                                      </p>
+                                    </div>
+                                    <div
+                                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ml-4 ${
+                                        formData.serviceId ===
+                                        service.id.toString()
+                                          ? "border-cyan-500 bg-cyan-500"
+                                          : "border-gray-300"
+                                      }`}
+                                    >
+                                      {formData.serviceId ===
+                                        service.id.toString() && (
+                                        <CheckCircleIcon className="h-4 w-4 text-white" />
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
