@@ -57,18 +57,11 @@ const Layout = ({ children }) => {
               <div className="lg:col-span-1">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="relative">
-                    <div className="w-12 h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl flex items-center justify-center shadow-xl shadow-[#4EC6E5]/25">
-                      <SparklesIcon className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-2xl blur-lg opacity-50 -z-10"></div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">
-                      SIMORGH SERVICE
-                    </div>
-                    <div className="text-sm font-semibold bg-gradient-to-r from-[#4EC6E5] to-[#6ED1EA] bg-clip-text text-transparent">
-                      SOLUTION FOR YOUR COMPANY
-                    </div>
+                    <img
+                      src="/Simorgh-Service-Logo.webp"
+                      alt="Simorgh Service Logo"
+                      className="h-12 w-auto object-contain filter brightness-0 invert hover:brightness-110 transition-all duration-300"
+                    />
                   </div>
                 </div>
                 <p className="text-slate-300 text-lg mb-6 leading-relaxed">

@@ -167,23 +167,14 @@ const Navbar = () => {
         <div className="flex justify-between items-center min-h-[64px] sm:min-h-[72px] md:min-h-[80px] lg:min-h-[88px] xl:min-h-[96px] w-full">
           {/* Logo Section */}
           <div className="flex items-center min-w-0 flex-shrink-0 mr-2 sm:mr-4">
-            <Link
-              to="/"
-              className="flex items-center space-x-2 sm:space-x-3 group"
-            >
+            <Link to="/" className="flex items-center group">
               <div className="relative">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-11 lg:h-11 xl:w-12 xl:h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg sm:shadow-xl shadow-[#4EC6E5]/25 group-hover:shadow-2xl group-hover:shadow-[#4EC6E5]/40 transition-all duration-300 group-hover:scale-110">
-                  <SparklesIcon className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-5 lg:w-5 xl:h-6 xl:w-6 text-white" />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-xl sm:rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
-              </div>
-              <div className="flex flex-col min-w-0 max-w-[140px] sm:max-w-[180px] md:max-w-none">
-                <span className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent tracking-tight truncate">
-                  SIMORGH SERVICE
-                </span>
-                <span className="text-xs sm:text-xs md:text-xs lg:text-xs xl:text-xs font-semibold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent leading-none tracking-wide truncate hidden sm:block">
-                  SOLUTION FOR YOUR COMPANY
-                </span>
+                <img
+                  src="/Simorgh-Service-Logo.webp"
+                  alt="Simorgh Service Logo"
+                  className="h-10 w-auto sm:h-12 md:h-14 lg:h-16 xl:h-18 object-contain group-hover:scale-105 transition-all duration-300 filter group-hover:brightness-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#4EC6E5]/10 to-[#2BA8CD]/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
             </Link>
           </div>

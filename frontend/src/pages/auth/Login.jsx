@@ -88,11 +88,12 @@ const Login = () => {
       <div className="mx-auto w-full max-w-lg">
         {/* Logo and Header */}
         <div className="text-center mb-6">
-          <div
-            className="mx-auto w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-lg mb-4"
-            style={{ backgroundColor: "#6ED1EA" }}
-          >
-            <SparklesIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+          <div className="mx-auto mb-4 flex justify-center">
+            <img
+              src="/Simorgh-Service-Logo.webp"
+              alt="Simorgh Service Logo"
+              className="h-16 w-auto sm:h-20 object-contain hover:scale-105 transition-all duration-300"
+            />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Welcome back to CleanMatch
