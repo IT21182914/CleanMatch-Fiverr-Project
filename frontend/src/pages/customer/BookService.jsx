@@ -25,6 +25,7 @@ import {
 import { LoadingCard, LoadingGrid } from "../../components/ui/Loading";
 import { formatCurrency, validateZipCode } from "../../lib/utils";
 import { getServiceImage } from "../../utils/serviceImages";
+import LazyImage from "../../components/ui/LazyImage";
 
 const BookService = () => {
   const [services, setServices] = useState([]);
@@ -403,15 +404,13 @@ const BookService = () => {
                               >
                                 <div className="flex">
                                   {/* Service Image */}
-                                  <div className="w-24 h-24 flex-shrink-0">
-                                    <img
+                                  <div className="w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg">
+                                    <LazyImage
                                       src={getServiceImage(service.name)}
                                       alt={service.name}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        e.target.src =
-                                          "/services/1/House & Apartment Cleaning.png";
-                                      }}
+                                      className=""
+                                      aspectRatio="w-full h-full"
+                                      fallbackSrc="/services/1/House & Apartment Cleaning.png"
                                     />
                                   </div>
 

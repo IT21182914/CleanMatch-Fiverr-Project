@@ -13,6 +13,7 @@ import {
 import { allServices, searchServices } from "../data/services";
 import { categories } from "../data/services/categories";
 import { getServiceImage } from "../utils/serviceImages";
+import ServiceImage from "../components/ui/ServiceImage";
 
 const Services = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -222,17 +223,13 @@ const Services = () => {
                   <div className="relative z-10 h-full flex flex-col">
                     {/* Service Image Header */}
                     <div className="relative mb-4">
-                      <div className="w-full h-48 rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
-                        <img
+                      <div className="w-full h-48 rounded-xl overflow-hidden">
+                        <ServiceImage
+                          serviceName={service.name}
                           src={getServiceImage(service.name)}
-                          alt={service.name}
-                          className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
-                          onError={(e) => {
-                            e.target.src =
-                              "/services/1/House & Apartment Cleaning.png";
-                          }}
+                          service={service}
+                          showBadges={false} // We'll render badges separately below
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       </div>
 
                       {/* Badges overlay */}

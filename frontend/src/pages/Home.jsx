@@ -27,6 +27,7 @@ import Button from "../components/ui/Button";
 import { Card, CardContent } from "../components/ui/Card";
 import { LazySection } from "../components/ui/LazyComponents";
 import { getServiceImage } from "../utils/serviceImages";
+import LazyImage from "../components/ui/LazyImage";
 
 const Home = () => {
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -360,15 +361,13 @@ const Home = () => {
                   )}
 
                   {/* Service Image */}
-                  <div className="relative h-32 w-full">
-                    <img
+                  <div className="relative h-32 w-full overflow-hidden">
+                    <LazyImage
                       src={getServiceImage(service.name)}
                       alt={service.name}
-                      className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
-                      onError={(e) => {
-                        e.target.src =
-                          "/services/1/House & Apartment Cleaning.png";
-                      }}
+                      className="transition-all duration-300 group-hover:scale-110"
+                      aspectRatio="w-full h-32"
+                      fallbackSrc="/services/1/House & Apartment Cleaning.png"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
@@ -497,15 +496,13 @@ const Home = () => {
                   <CardContent className="relative p-8 lg:p-10 h-full flex flex-col">
                     {/* Service Image Header */}
                     <div className="relative mb-6">
-                      <div className="w-full h-32 rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
-                        <img
+                      <div className="w-full h-32 rounded-xl overflow-hidden">
+                        <LazyImage
                           src={getServiceImage(service.name)}
                           alt={service.name}
-                          className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
-                          onError={(e) => {
-                            e.target.src =
-                              "/services/1/House & Apartment Cleaning.png";
-                          }}
+                          className="transition-all duration-300 group-hover:scale-110"
+                          aspectRatio="w-full h-32"
+                          fallbackSrc="/services/1/House & Apartment Cleaning.png"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                       </div>
