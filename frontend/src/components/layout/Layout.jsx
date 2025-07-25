@@ -27,57 +27,59 @@ const Layout = ({ children }) => {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      {/* Main Content Area */}
+      {/* Main Content Area - Enhanced Responsive */}
       <main
         className={
-          isFullWidth ? "w-full" : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+          isFullWidth
+            ? "w-full"
+            : "w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto"
         }
       >
         <div
           className={`w-full overflow-x-hidden ${
-            !isFullWidth ? "py-6 sm:py-8 lg:py-12" : ""
+            !isFullWidth ? "py-3 xs:py-4 sm:py-6 md:py-8 lg:py-10 xl:py-12" : ""
           }`}
         >
           {children}
         </div>
       </main>
 
-      {/* Modern Footer - Only show on certain pages */}
+      {/* Modern Footer - Enhanced Responsive (Original Design) */}
       {(isHomePage || location.pathname.includes("/book")) && (
-        <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white mt-20 relative overflow-hidden">
-          {/* Background Elements */}
+        <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white mt-12 xs:mt-16 sm:mt-20 relative overflow-hidden">
+          {/* Background Elements - Responsive */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#4EC6E5]/10 to-transparent rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-br from-[#2BA8CD]/10 to-transparent rounded-full blur-3xl"></div>
+            <div className="absolute top-0 right-0 w-48 h-48 xs:w-64 xs:h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-gradient-to-br from-[#4EC6E5]/10 to-transparent rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 xs:w-64 xs:h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-gradient-to-br from-[#2BA8CD]/10 to-transparent rounded-full blur-3xl"></div>
           </div>
 
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-              {/* Company Info */}
-              <div className="lg:col-span-1">
-                <div className="flex items-center space-x-3 mb-6">
+          <div className="relative w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto py-8 xs:py-12 sm:py-16 lg:py-20">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xs:gap-8 sm:gap-10">
+              {/* Company Info - Enhanced Responsive */}
+              <div className="sm:col-span-2 lg:col-span-1">
+                <div className="flex items-center space-x-2 xs:space-x-3 mb-4 xs:mb-6">
                   <div className="relative">
                     <img
                       src="/Simorgh-Service-Logo.webp"
                       alt="Simorgh Service Logo"
-                      className="h-12 w-auto object-contain filter brightness-0 invert hover:brightness-110 transition-all duration-300"
+                      className="h-8 xs:h-10 sm:h-12 w-auto object-contain filter brightness-0 invert hover:brightness-110 transition-all duration-300"
                     />
                   </div>
                 </div>
-                <p className="text-slate-300 text-lg mb-6 leading-relaxed">
+                <p className="text-slate-300 text-sm xs:text-base sm:text-lg mb-4 xs:mb-6 leading-relaxed">
                   Become your own boss, choose your own schedule, and work in
                   your preferred areas with our professional cleaning platform.
                 </p>
 
-                {/* Social Links */}
-                <div className="flex space-x-4">
+                {/* Social Links - Enhanced Responsive */}
+                <div className="grid grid-cols-4 xs:flex xs:flex-wrap gap-2 xs:gap-3 sm:gap-4">
                   {[
                     {
                       name: "Twitter",
                       href: "#",
                       icon: (
                         <svg
-                          className="h-5 w-5"
+                          className="h-3 w-3 xs:h-4 xs:w-4 sm:h-5 sm:w-5"
                           fill="currentColor"
                           viewBox="0 0 24 24"
                         >
@@ -90,7 +92,7 @@ const Layout = ({ children }) => {
                       href: "#",
                       icon: (
                         <svg
-                          className="h-5 w-5"
+                          className="h-3 w-3 xs:h-4 xs:w-4 sm:h-5 sm:w-5"
                           fill="currentColor"
                           viewBox="0 0 24 24"
                         >
@@ -103,7 +105,7 @@ const Layout = ({ children }) => {
                       href: "#",
                       icon: (
                         <svg
-                          className="h-5 w-5"
+                          className="h-3 w-3 xs:h-4 xs:w-4 sm:h-5 sm:w-5"
                           fill="currentColor"
                           viewBox="0 0 24 24"
                         >
@@ -116,7 +118,7 @@ const Layout = ({ children }) => {
                       href: "#",
                       icon: (
                         <svg
-                          className="h-5 w-5"
+                          className="h-3 w-3 xs:h-4 xs:w-4 sm:h-5 sm:w-5"
                           fill="currentColor"
                           viewBox="0 0 24 24"
                         >
@@ -128,7 +130,7 @@ const Layout = ({ children }) => {
                     <a
                       key={social.name}
                       href={social.href}
-                      className="p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 text-slate-400 hover:text-[#4EC6E5] hover:bg-[#4EC6E5]/10 hover:border-[#4EC6E5]/30 transition-all duration-300 hover:scale-110"
+                      className="p-2 xs:p-2.5 sm:p-3 rounded-lg xs:rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 text-slate-400 hover:text-[#4EC6E5] hover:bg-[#4EC6E5]/10 hover:border-[#4EC6E5]/30 transition-all duration-300 hover:scale-110 flex items-center justify-center min-h-[40px] xs:min-h-[44px] touch-manipulation"
                     >
                       {social.icon}
                     </a>
@@ -136,13 +138,13 @@ const Layout = ({ children }) => {
                 </div>
               </div>
 
-              {/* Services */}
-              <div>
-                <h3 className="text-xl font-bold text-white mb-6 relative">
+              {/* Services - Enhanced Responsive */}
+              <div className="sm:col-span-1 lg:col-span-1">
+                <h3 className="text-lg xs:text-xl font-bold text-white mb-4 xs:mb-6 relative">
                   <span className="relative z-10">Services</span>
                   <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD]"></div>
                 </h3>
-                <ul className="space-y-4">
+                <ul className="space-y-3 xs:space-y-4">
                   {[
                     "House Cleaning",
                     "Deep Cleaning",
@@ -154,23 +156,23 @@ const Layout = ({ children }) => {
                     <li key={service}>
                       <a
                         href="#"
-                        className="text-slate-300 hover:text-[#4EC6E5] transition-all duration-200 flex items-center group"
+                        className="text-slate-300 hover:text-[#4EC6E5] transition-all duration-200 flex items-center group text-sm xs:text-base min-h-[44px] py-1 touch-manipulation"
                       >
                         <div className="w-1.5 h-1.5 bg-[#4EC6E5] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        {service}
+                        <span className="truncate">{service}</span>
                       </a>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Company */}
-              <div>
-                <h3 className="text-xl font-bold text-white mb-6 relative">
+              {/* Company - Enhanced Responsive */}
+              <div className="sm:col-span-1 lg:col-span-1">
+                <h3 className="text-lg xs:text-xl font-bold text-white mb-4 xs:mb-6 relative">
                   <span className="relative z-10">Company</span>
                   <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD]"></div>
                 </h3>
-                <ul className="space-y-4">
+                <ul className="space-y-3 xs:space-y-4">
                   {[
                     "About Us",
                     "How It Works",
@@ -182,23 +184,23 @@ const Layout = ({ children }) => {
                     <li key={item}>
                       <a
                         href="#"
-                        className="text-slate-300 hover:text-[#4EC6E5] transition-all duration-200 flex items-center group"
+                        className="text-slate-300 hover:text-[#4EC6E5] transition-all duration-200 flex items-center group text-sm xs:text-base min-h-[44px] py-1 touch-manipulation"
                       >
                         <div className="w-1.5 h-1.5 bg-[#4EC6E5] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        {item}
+                        <span className="truncate">{item}</span>
                       </a>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Support & Contact */}
-              <div>
-                <h3 className="text-xl font-bold text-white mb-6 relative">
+              {/* Support & Contact - Enhanced Responsive */}
+              <div className="sm:col-span-2 lg:col-span-1">
+                <h3 className="text-lg xs:text-xl font-bold text-white mb-4 xs:mb-6 relative">
                   <span className="relative z-10">Support</span>
                   <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD]"></div>
                 </h3>
-                <ul className="space-y-4 mb-8">
+                <ul className="space-y-3 xs:space-y-4 mb-6 xs:mb-8">
                   {[
                     "Help Center",
                     "Contact Us",
@@ -210,42 +212,42 @@ const Layout = ({ children }) => {
                     <li key={item}>
                       <a
                         href="#"
-                        className="text-slate-300 hover:text-[#4EC6E5] transition-all duration-200 flex items-center group"
+                        className="text-slate-300 hover:text-[#4EC6E5] transition-all duration-200 flex items-center group text-sm xs:text-base min-h-[44px] py-1 touch-manipulation"
                       >
                         <div className="w-1.5 h-1.5 bg-[#4EC6E5] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        {item}
+                        <span className="truncate">{item}</span>
                       </a>
                     </li>
                   ))}
                 </ul>
 
-                {/* Contact Info */}
-                <div className="p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
-                  <h4 className="font-bold text-white mb-4 text-lg">
+                {/* Contact Info - Enhanced Responsive */}
+                <div className="p-3 xs:p-4 sm:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl xs:rounded-2xl">
+                  <h4 className="font-bold text-white mb-3 xs:mb-4 text-base xs:text-lg">
                     Get in Touch
                   </h4>
-                  <div className="space-y-4">
+                  <div className="space-y-3 xs:space-y-4">
                     <div className="flex items-center group">
-                      <div className="p-2 rounded-lg bg-[#4EC6E5]/20 mr-3 group-hover:bg-[#4EC6E5]/30 transition-colors duration-200">
-                        <EnvelopeIcon className="h-4 w-4 text-[#4EC6E5]" />
+                      <div className="p-1.5 xs:p-2 rounded-lg bg-[#4EC6E5]/20 mr-2 xs:mr-3 group-hover:bg-[#4EC6E5]/30 transition-colors duration-200 flex-shrink-0">
+                        <EnvelopeIcon className="h-3 w-3 xs:h-4 xs:w-4 text-[#4EC6E5]" />
                       </div>
-                      <span className="text-slate-300 text-sm">
+                      <span className="text-slate-300 text-xs xs:text-sm break-all">
                         support@simorghservice.com
                       </span>
                     </div>
                     <div className="flex items-center group">
-                      <div className="p-2 rounded-lg bg-[#4EC6E5]/20 mr-3 group-hover:bg-[#4EC6E5]/30 transition-colors duration-200">
-                        <PhoneIcon className="h-4 w-4 text-[#4EC6E5]" />
+                      <div className="p-1.5 xs:p-2 rounded-lg bg-[#4EC6E5]/20 mr-2 xs:mr-3 group-hover:bg-[#4EC6E5]/30 transition-colors duration-200 flex-shrink-0">
+                        <PhoneIcon className="h-3 w-3 xs:h-4 xs:w-4 text-[#4EC6E5]" />
                       </div>
-                      <span className="text-slate-300 text-sm">
+                      <span className="text-slate-300 text-xs xs:text-sm">
                         (555) 123-CLEAN
                       </span>
                     </div>
                     <div className="flex items-start group">
-                      <div className="p-2 rounded-lg bg-[#4EC6E5]/20 mr-3 mt-0.5 group-hover:bg-[#4EC6E5]/30 transition-colors duration-200">
-                        <MapPinIcon className="h-4 w-4 text-[#4EC6E5]" />
+                      <div className="p-1.5 xs:p-2 rounded-lg bg-[#4EC6E5]/20 mr-2 xs:mr-3 mt-0.5 group-hover:bg-[#4EC6E5]/30 transition-colors duration-200 flex-shrink-0">
+                        <MapPinIcon className="h-3 w-3 xs:h-4 xs:w-4 text-[#4EC6E5]" />
                       </div>
-                      <div className="text-slate-300 text-sm">
+                      <div className="text-slate-300 text-xs xs:text-sm">
                         123 Main Street
                         <br />
                         San Francisco, CA 94102
@@ -256,15 +258,15 @@ const Layout = ({ children }) => {
               </div>
             </div>
 
-            {/* Bottom Section */}
-            <div className="mt-16 pt-8 border-t border-white/10">
-              <div className="flex flex-col lg:flex-row justify-between items-center">
-                <div className="text-slate-400 text-lg mb-6 lg:mb-0">
+            {/* Bottom Section - Enhanced Responsive */}
+            <div className="mt-12 xs:mt-16 pt-6 xs:pt-8 border-t border-white/10">
+              <div className="flex flex-col lg:flex-row justify-between items-center gap-4 xs:gap-6">
+                <div className="text-slate-400 text-sm xs:text-base lg:text-lg mb-4 lg:mb-0 order-2 lg:order-1">
                   © 2025 SIMORGH SERVICE. All rights reserved.
                 </div>
 
-                {/* Trust Badges */}
-                <div className="flex flex-wrap items-center gap-6">
+                {/* Trust Badges - Enhanced Responsive */}
+                <div className="flex flex-col xs:flex-row flex-wrap items-center justify-center gap-3 xs:gap-4 lg:gap-6 order-1 lg:order-2 w-full lg:w-auto">
                   {[
                     {
                       icon: ShieldCheckIcon,
@@ -286,10 +288,12 @@ const Layout = ({ children }) => {
                     return (
                       <div
                         key={index}
-                        className="flex items-center px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300"
+                        className="flex items-center px-3 xs:px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg xs:rounded-xl hover:bg-white/10 transition-all duration-300 min-w-0 touch-manipulation min-h-[44px]"
                       >
-                        <Icon className={`h-5 w-5 mr-2 ${badge.color}`} />
-                        <span className="text-slate-300 text-sm font-medium">
+                        <Icon
+                          className={`h-4 w-4 xs:h-5 xs:w-5 mr-2 ${badge.color} flex-shrink-0`}
+                        />
+                        <span className="text-slate-300 text-xs xs:text-sm font-medium whitespace-nowrap">
                           {badge.text}
                         </span>
                       </div>
@@ -298,25 +302,137 @@ const Layout = ({ children }) => {
                 </div>
               </div>
 
-              {/* Additional Trust Elements */}
-              <div className="mt-8 pt-6 border-t border-white/5">
-                <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 text-center">
+              {/* Additional Trust Elements - Enhanced Responsive */}
+              <div className="mt-6 xs:mt-8 pt-4 xs:pt-6 border-t border-white/5">
+                <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4 lg:space-x-8 text-center">
                   <div className="flex items-center text-slate-400">
-                    <div className="w-2 h-2 bg-[#4EC6E5] rounded-full mr-3 animate-pulse"></div>
-                    <span className="text-sm">Available 24/7</span>
+                    <div className="w-2 h-2 bg-[#4EC6E5] rounded-full mr-2 xs:mr-3 animate-pulse flex-shrink-0"></div>
+                    <span className="text-xs xs:text-sm">Available 24/7</span>
                   </div>
                   <div className="flex items-center text-slate-400">
-                    <div className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></div>
-                    <span className="text-sm">99.9% Customer Satisfaction</span>
+                    <div className="w-2 h-2 bg-green-400 rounded-full mr-2 xs:mr-3 animate-pulse flex-shrink-0"></div>
+                    <span className="text-xs xs:text-sm">
+                      99.9% Customer Satisfaction
+                    </span>
                   </div>
                   <div className="flex items-center text-slate-400">
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full mr-3 animate-pulse"></div>
-                    <span className="text-sm">Eco-Friendly Products</span>
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 xs:mr-3 animate-pulse flex-shrink-0"></div>
+                    <span className="text-xs xs:text-sm">
+                      Eco-Friendly Products
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Enhanced Custom Styles for Full Responsiveness */}
+          <style jsx>{`
+            /* Touch-friendly design */
+            @media (max-width: 768px) {
+              a,
+              button {
+                min-height: 44px;
+                touch-action: manipulation;
+              }
+            }
+
+            /* Ultra-small screens */
+            @media (max-width: 319px) {
+              .text-xs {
+                font-size: 0.7rem;
+              }
+              .text-sm {
+                font-size: 0.8rem;
+              }
+              .text-base {
+                font-size: 0.85rem;
+              }
+              .text-lg {
+                font-size: 0.9rem;
+              }
+              .text-xl {
+                font-size: 1rem;
+              }
+            }
+
+            /* Small device grid optimization */
+            @media (min-width: 320px) and (max-width: 475px) {
+              .grid-cols-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+              }
+            }
+
+            /* Landscape orientation on mobile */
+            @media screen and (max-height: 500px) and (orientation: landscape) {
+              .py-8 {
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+              }
+              .py-12 {
+                padding-top: 1.5rem;
+                padding-bottom: 1.5rem;
+              }
+              .py-16 {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+              }
+              .py-20 {
+                padding-top: 2.5rem;
+                padding-bottom: 2.5rem;
+              }
+            }
+
+            /* Accessibility improvements */
+            @media (prefers-reduced-motion: reduce) {
+              * {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+              }
+              .animate-pulse {
+                animation: none;
+              }
+            }
+
+            a:focus,
+            button:focus {
+              outline: 2px solid #4ec6e5;
+              outline-offset: 2px;
+            }
+
+            /* High DPI displays */
+            @media (-webkit-min-device-pixel-ratio: 2) {
+              .blur-3xl {
+                backdrop-filter: blur(48px);
+              }
+              .backdrop-blur-sm {
+                backdrop-filter: blur(4px);
+              }
+            }
+
+            /* iOS scroll fix */
+            body {
+              -webkit-overflow-scrolling: touch;
+            }
+
+            /* Viewport units fix for mobile browsers */
+            .min-h-screen {
+              min-height: 100vh;
+              min-height: -webkit-fill-available;
+            }
+
+            /* Better word breaking */
+            .break-all {
+              word-break: break-all;
+              overflow-wrap: break-word;
+            }
+
+            .truncate {
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          `}</style>
         </footer>
       )}
     </div>
