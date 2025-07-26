@@ -121,6 +121,7 @@ const createTables = async () => {
         password VARCHAR(255) NOT NULL,
         first_name VARCHAR(100) NOT NULL,
         last_name VARCHAR(100) NOT NULL,
+        user_name VARCHAR(100) UNIQUE,
         phone VARCHAR(20),
         role VARCHAR(20) NOT NULL DEFAULT 'customer' CHECK (role IN ('customer', 'cleaner', 'admin')),
         profile_image TEXT,
@@ -154,6 +155,18 @@ const createTables = async () => {
         background_check_status VARCHAR(20) DEFAULT 'pending',
         certifications TEXT[],
         stripe_account_id VARCHAR(255),
+        cleaning_services TEXT[],
+        cleaning_frequency VARCHAR(50) DEFAULT 'part-time',
+        preferred_hours TEXT,
+        message TEXT,
+        id_front_url TEXT,
+        id_back_url TEXT,
+        ssn_front_url TEXT,
+        ssn_back_url TEXT,
+        agreement_accepted BOOLEAN DEFAULT FALSE,
+        terms_1099_accepted BOOLEAN DEFAULT FALSE,
+        brings_supplies BOOLEAN DEFAULT FALSE,
+        has_experience BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -391,6 +404,9 @@ const createTables = async () => {
     // Create indexes for better performance
     await pool.query(
       "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)"
+    );
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_users_user_name ON users(user_name)"
     );
     await pool.query(
       "CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)"

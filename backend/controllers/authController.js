@@ -39,12 +39,17 @@ const register = asyncHandler(async (req, res) => {
     password,
     firstName,
     lastName,
+    userName,
     phone,
     role,
     address,
     city,
     state,
     zipCode,
+    cleaningServices,
+    cleaningFrequency,
+    preferredHours,
+    message,
   } = req.body;
 
   // Validate required fields
@@ -52,6 +57,16 @@ const register = asyncHandler(async (req, res) => {
     ["email", "password", "firstName", "lastName", "role"],
     req.body
   );
+
+  // Validate role-specific required fields
+  if (role === "customer") {
+    validateRequired(["userName"], req.body);
+  } else if (role === "cleaner") {
+    validateRequired(
+      ["address", "city", "state", "zipCode", "cleaningServices"],
+      req.body
+    );
+  }
 
   // Validate email format
   if (!isValidEmail(email)) {
@@ -76,31 +91,63 @@ const register = asyncHandler(async (req, res) => {
     throw new ConflictError("User with this email already exists");
   }
 
+  // Check if username already exists (for customers)
+  if (role === "customer" && userName) {
+    const existingUserName = await dbOperation(
+      () =>
+        query("SELECT id FROM users WHERE user_name = $1", [
+          userName.toLowerCase(),
+        ]),
+      "Failed to check existing username"
+    );
+
+    if (existingUserName.rows.length > 0) {
+      throw new ConflictError("Username is already taken");
+    }
+  }
+
   // Hash password
   const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   // Create user
+  const userFields = [
+    "email",
+    "password",
+    "first_name",
+    "last_name",
+    "phone",
+    "role",
+  ];
+  const userValues = [
+    email.toLowerCase(),
+    hashedPassword,
+    firstName,
+    lastName,
+    phone,
+    role,
+  ];
+
+  // Add customer-specific fields
+  if (role === "customer") {
+    userFields.push("user_name");
+    userValues.push(userName.toLowerCase());
+  }
+
+  // Add cleaner-specific fields
+  if (role === "cleaner") {
+    userFields.push("address", "city", "state", "zip_code");
+    userValues.push(address, city, state, zipCode);
+  }
+
+  const placeholders = userValues.map((_, index) => `$${index + 1}`).join(", ");
   const userResult = await dbOperation(
     () =>
       query(
-        `INSERT INTO users (
-        email, password, first_name, last_name, phone, role, 
-        address, city, state, zip_code
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
-      RETURNING id, email, first_name, last_name, role, created_at`,
-        [
-          email.toLowerCase(),
-          hashedPassword,
-          firstName,
-          lastName,
-          phone,
-          role,
-          address,
-          city,
-          state,
-          zipCode,
-        ]
+        `INSERT INTO users (${userFields.join(", ")}) 
+         VALUES (${placeholders}) 
+         RETURNING id, email, first_name, last_name, role, user_name, created_at`,
+        userValues
       ),
     "Failed to create user account"
   );
@@ -118,11 +165,44 @@ const register = asyncHandler(async (req, res) => {
     // Continue with registration even if Stripe customer creation fails
   }
 
-  // If user is a cleaner, create cleaner profile
+  // If user is a cleaner, create cleaner profile with additional fields
   if (role === "cleaner") {
+    const cleanerFields = ["user_id"];
+    const cleanerValues = [user.id];
+
+    // Add freelancer-specific fields if provided
+    if (cleaningServices && cleaningServices.length > 0) {
+      cleanerFields.push("cleaning_services");
+      cleanerValues.push(cleaningServices);
+    }
+
+    if (cleaningFrequency) {
+      cleanerFields.push("cleaning_frequency");
+      cleanerValues.push(cleaningFrequency);
+    }
+
+    if (preferredHours) {
+      cleanerFields.push("preferred_hours");
+      cleanerValues.push(preferredHours);
+    }
+
+    if (message) {
+      cleanerFields.push("message");
+      cleanerValues.push(message);
+    }
+
+    const cleanerPlaceholders = cleanerValues
+      .map((_, index) => `$${index + 1}`)
+      .join(", ");
+
     await dbOperation(
       () =>
-        query("INSERT INTO cleaner_profiles (user_id) VALUES ($1)", [user.id]),
+        query(
+          `INSERT INTO cleaner_profiles (${cleanerFields.join(
+            ", "
+          )}) VALUES (${cleanerPlaceholders})`,
+          cleanerValues
+        ),
       "Failed to create cleaner profile"
     );
   }
@@ -139,6 +219,7 @@ const register = asyncHandler(async (req, res) => {
       email: user.email,
       firstName: user.first_name,
       lastName: user.last_name,
+      userName: user.user_name,
       role: user.role,
       createdAt: user.created_at,
     },
@@ -155,9 +236,9 @@ const register = asyncHandler(async (req, res) => {
 const login = asyncHandler(async (req, res) => {
   console.log("🔐 Login attempt received");
   console.log("Request body:", req.body);
-  console.log("Content-Type:", req.headers['content-type']);
+  console.log("Content-Type:", req.headers["content-type"]);
   console.log("Origin:", req.headers.origin);
-  
+
   const { email, password } = req.body;
 
   // Validate required fields

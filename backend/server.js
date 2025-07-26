@@ -172,6 +172,7 @@ app.get("/api", (req, res) => {
 
 // API routes
 app.use("/api/auth", authRoutes);
+app.use("/api/auth", require("./routes/freelancerAuth"));
 app.use("/api/users", userRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/bookings", bookingRoutes);
@@ -208,6 +209,7 @@ app.use("*", (req, res) => {
 // Serve static files in production
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("public"));
+  app.use("/uploads", express.static("uploads"));
 
   // Catch all handler for SPA
   app.get("*", (req, res) => {

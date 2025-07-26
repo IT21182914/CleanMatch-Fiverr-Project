@@ -53,17 +53,77 @@ const registerSchema = Joi.object({
     "any.only": "Role must be either customer or cleaner",
     "any.required": "Role is required",
   }),
-  address: Joi.string().required().messages({
-    "any.required": "Address is required",
+
+  // Customer-specific fields
+  userName: Joi.when("role", {
+    is: "customer",
+    then: Joi.string().min(3).max(30).required().messages({
+      "string.min": "Username must be at least 3 characters long",
+      "string.max": "Username cannot exceed 30 characters",
+      "any.required": "Username is required",
+    }),
+    otherwise: Joi.forbidden(),
   }),
-  city: Joi.string().required().messages({
-    "any.required": "City is required",
+
+  // Freelancer-specific fields
+  address: Joi.when("role", {
+    is: "cleaner",
+    then: Joi.string().required().messages({
+      "any.required": "Address is required",
+    }),
+    otherwise: Joi.forbidden(),
   }),
-  state: Joi.string().required().messages({
-    "any.required": "State is required",
+  city: Joi.when("role", {
+    is: "cleaner",
+    then: Joi.string().required().messages({
+      "any.required": "City is required",
+    }),
+    otherwise: Joi.forbidden(),
   }),
-  zipCode: Joi.string().required().messages({
-    "any.required": "ZIP code is required",
+  state: Joi.when("role", {
+    is: "cleaner",
+    then: Joi.string().required().messages({
+      "any.required": "State is required",
+    }),
+    otherwise: Joi.forbidden(),
+  }),
+  zipCode: Joi.when("role", {
+    is: "cleaner",
+    then: Joi.string().required().messages({
+      "any.required": "Postal code is required",
+    }),
+    otherwise: Joi.forbidden(),
+  }),
+  cleaningServices: Joi.when("role", {
+    is: "cleaner",
+    then: Joi.array().items(Joi.string()).min(1).required().messages({
+      "array.min": "Please select at least one cleaning service",
+      "any.required": "Cleaning services are required",
+    }),
+    otherwise: Joi.forbidden(),
+  }),
+  cleaningFrequency: Joi.when("role", {
+    is: "cleaner",
+    then: Joi.string()
+      .valid("part-time", "full-time", "preferred-hours")
+      .required()
+      .messages({
+        "any.only":
+          "Cleaning frequency must be part-time, full-time, or preferred-hours",
+        "any.required": "Cleaning frequency is required",
+      }),
+    otherwise: Joi.forbidden(),
+  }),
+  preferredHours: Joi.when("cleaningFrequency", {
+    is: "preferred-hours",
+    then: Joi.string().required().messages({
+      "any.required":
+        "Preferred hours are required when selecting preferred-hours frequency",
+    }),
+    otherwise: Joi.string().allow(""),
+  }),
+  message: Joi.string().max(1000).allow("").messages({
+    "string.max": "Message cannot exceed 1000 characters",
   }),
 });
 
