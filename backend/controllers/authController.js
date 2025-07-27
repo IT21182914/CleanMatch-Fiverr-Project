@@ -493,10 +493,42 @@ const resetPassword = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Check if email is available for registration
+ * @route   POST /api/auth/check-email
+ * @access  Public
+ */
+const checkEmailAvailability = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  // Validate email format
+  if (!email || !isValidEmail(email)) {
+    return res.status(400).json({
+      success: false,
+      error: "Please provide a valid email address",
+    });
+  }
+
+  // Check if user already exists
+  const existingUser = await dbOperation(
+    () => query("SELECT id FROM users WHERE email = $1", [email.toLowerCase()]),
+    "Failed to check email availability"
+  );
+
+  const isAvailable = existingUser.rows.length === 0;
+
+  res.json({
+    success: true,
+    available: isAvailable,
+    message: isAvailable ? "Email is available" : "Email is already registered",
+  });
+});
+
 module.exports = {
   register,
   login,
   refreshToken,
   forgotPassword,
   resetPassword,
+  checkEmailAvailability,
 };

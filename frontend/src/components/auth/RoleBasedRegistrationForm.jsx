@@ -34,7 +34,6 @@ const RoleBasedRegistrationForm = () => {
     userName: "",
 
     // Freelancer fields
-    fullName: "",
     address: "",
     city: "",
     state: "",
@@ -61,8 +60,50 @@ const RoleBasedRegistrationForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { register, setUser, setIsAuthenticated } = useAuth();
+  const { register, login } = useAuth();
   const navigate = useNavigate();
+
+  // Function to check if email is already registered
+  const checkEmailAvailability = async (email) => {
+    try {
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+      const response = await fetch(`${apiUrl}/auth/check-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: email.toLowerCase().trim() }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.available;
+      }
+    } catch (error) {
+      console.warn("Could not check email availability:", error);
+    }
+    return true; // Assume available if check fails
+  };
+
+  // Enhanced email validation with availability check
+  const validateEmailField = async (email) => {
+    if (!email) {
+      return "Email is required";
+    }
+
+    if (!validateEmail(email)) {
+      return "Please enter a valid email";
+    }
+
+    // Check if email is already registered
+    const isAvailable = await checkEmailAvailability(email);
+    if (!isAvailable) {
+      return "An account with this email already exists. Please use a different email or try logging in.";
+    }
+
+    return null;
+  };
 
   const cleaningServiceOptions = [
     "Residential Cleaning",
@@ -85,7 +126,6 @@ const RoleBasedRegistrationForm = () => {
       firstName: "",
       lastName: "",
       userName: "",
-      fullName: "",
       address: "",
       city: "",
       state: "",
@@ -145,19 +185,47 @@ const RoleBasedRegistrationForm = () => {
     }
   };
 
+  // Handle email blur for real-time validation
+  const handleEmailBlur = async (e) => {
+    const email = e.target.value.trim();
+    if (email && validateEmail(email)) {
+      const emailError = await validateEmailField(email);
+      if (emailError) {
+        setErrors((prev) => ({
+          ...prev,
+          email: emailError,
+        }));
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          email: "",
+        }));
+      }
+    }
+  };
+
   const validateCustomerForm = () => {
     const newErrors = {};
 
     if (!formData.firstName.trim()) {
       newErrors.firstName = "First name is required";
+    } else if (formData.firstName.trim().length < 2) {
+      newErrors.firstName = "First name must be at least 2 characters";
     }
 
     if (!formData.lastName.trim()) {
       newErrors.lastName = "Last name is required";
+    } else if (formData.lastName.trim().length < 2) {
+      newErrors.lastName = "Last name must be at least 2 characters";
     }
 
     if (!formData.userName.trim()) {
       newErrors.userName = "User name is required";
+    } else if (formData.userName.trim().length < 3) {
+      newErrors.userName = "Username must be at least 3 characters";
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.userName.trim())) {
+      newErrors.userName =
+        "Username can only contain letters, numbers, and underscores";
     }
 
     if (!formData.email) {
@@ -168,6 +236,10 @@ const RoleBasedRegistrationForm = () => {
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
+    } else if (
+      !/^[+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-()]/g, ""))
+    ) {
+      newErrors.phone = "Please enter a valid phone number";
     }
 
     if (!formData.password) {
@@ -191,12 +263,24 @@ const RoleBasedRegistrationForm = () => {
   const validateFreelancerForm = () => {
     const newErrors = {};
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    } else if (formData.firstName.trim().length < 2) {
+      newErrors.firstName = "First name must be at least 2 characters";
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    } else if (formData.lastName.trim().length < 2) {
+      newErrors.lastName = "Last name must be at least 2 characters";
     }
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
+    } else if (
+      !/^[+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-()]/g, ""))
+    ) {
+      newErrors.phone = "Please enter a valid phone number";
     }
 
     if (!formData.email) {
@@ -218,18 +302,27 @@ const RoleBasedRegistrationForm = () => {
 
     if (!formData.address.trim()) {
       newErrors.address = "Address is required";
+    } else if (formData.address.trim().length < 10) {
+      newErrors.address = "Please enter a complete address";
     }
 
     if (!formData.city.trim()) {
       newErrors.city = "City is required";
+    } else if (formData.city.trim().length < 2) {
+      newErrors.city = "Please enter a valid city name";
     }
 
     if (!formData.state.trim()) {
       newErrors.state = "State is required";
+    } else if (formData.state.trim().length < 2) {
+      newErrors.state = "Please enter a valid state";
     }
 
     if (!formData.postalCode.trim()) {
       newErrors.postalCode = "Postal code is required";
+    } else if (!/^\d{5}(-\d{4})?$/.test(formData.postalCode.trim())) {
+      newErrors.postalCode =
+        "Please enter a valid postal code (e.g., 12345 or 12345-6789)";
     }
 
     if (formData.cleaningServices.length === 0) {
@@ -269,6 +362,35 @@ const RoleBasedRegistrationForm = () => {
         newErrors.ssnBack = "SSN back image is required for verification";
       }
 
+      // Validate file types and sizes
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/webp",
+      ];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+
+      [
+        { file: formData.idFront, name: "ID Front" },
+        { file: formData.idBack, name: "ID Back" },
+        { file: formData.ssnFront, name: "SSN Front" },
+        { file: formData.ssnBack, name: "SSN Back" },
+      ].forEach(({ file, name }) => {
+        if (file) {
+          if (!allowedTypes.includes(file.type)) {
+            newErrors[
+              name.toLowerCase().replace(" ", "")
+            ] = `${name} must be an image file (JPEG, PNG, or WebP)`;
+          }
+          if (file.size > maxSize) {
+            newErrors[
+              name.toLowerCase().replace(" ", "")
+            ] = `${name} file size must be less than 5MB`;
+          }
+        }
+      });
+
       if (!formData.agreeAgreement) {
         newErrors.agreeAgreement = "You must read and accept the agreement";
       }
@@ -302,6 +424,23 @@ const RoleBasedRegistrationForm = () => {
         ? validateCustomerForm()
         : validateFreelancerForm();
 
+    console.log("🔍 Form validation results:", {
+      role: selectedRole,
+      errors: newErrors,
+      errorCount: Object.keys(newErrors).length,
+      formData: {
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        hasDocuments: !!(
+          formData.idFront &&
+          formData.idBack &&
+          formData.ssnFront &&
+          formData.ssnBack
+        ),
+      },
+    });
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -312,6 +451,8 @@ const RoleBasedRegistrationForm = () => {
     if (!validateForm()) return;
 
     setLoading(true);
+    setErrors({}); // Clear any previous errors
+
     try {
       if (selectedRole === "customer") {
         // Customer registration (regular form)
@@ -344,14 +485,15 @@ const RoleBasedRegistrationForm = () => {
           const formDataToSend = new FormData();
 
           // Add text fields
-          formDataToSend.append("email", formData.email);
+          formDataToSend.append("email", formData.email.trim().toLowerCase());
           formDataToSend.append("password", formData.password);
-          formDataToSend.append("fullName", formData.fullName);
-          formDataToSend.append("phone", formData.phone);
-          formDataToSend.append("address", formData.address);
-          formDataToSend.append("city", formData.city);
-          formDataToSend.append("state", formData.state);
-          formDataToSend.append("postalCode", formData.postalCode);
+          formDataToSend.append("firstName", formData.firstName.trim());
+          formDataToSend.append("lastName", formData.lastName.trim());
+          formDataToSend.append("phone", formData.phone.trim());
+          formDataToSend.append("address", formData.address.trim());
+          formDataToSend.append("city", formData.city.trim());
+          formDataToSend.append("state", formData.state.trim());
+          formDataToSend.append("postalCode", formData.postalCode.trim());
           formDataToSend.append(
             "cleaningServices",
             JSON.stringify(formData.cleaningServices)
@@ -360,8 +502,11 @@ const RoleBasedRegistrationForm = () => {
             "cleaningFrequency",
             formData.cleaningFrequency
           );
-          formDataToSend.append("preferredHours", formData.preferredHours);
-          formDataToSend.append("message", formData.message);
+          formDataToSend.append(
+            "preferredHours",
+            formData.preferredHours || ""
+          );
+          formDataToSend.append("message", formData.message || "");
 
           // Add file uploads
           formDataToSend.append("idFront", formData.idFront);
@@ -375,93 +520,206 @@ const RoleBasedRegistrationForm = () => {
 
           let response;
           try {
+            console.log("🚀 Sending freelancer registration request...");
             response = await fetch(`${apiUrl}/auth/register-freelancer`, {
               method: "POST",
               body: formDataToSend,
             });
+
+            console.log(
+              "📡 Response received:",
+              response.status,
+              response.statusText
+            );
           } catch (fetchError) {
-            console.error("Network error:", fetchError);
+            console.error("❌ Network error:", fetchError);
             setErrors({
               general:
-                "Cannot connect to server. Please make sure the backend server is running on port 5000.",
+                "Cannot connect to server. Please check your internet connection and ensure the backend server is running.",
+            });
+            return;
+          }
+
+          let errorData;
+          try {
+            errorData = await response.json();
+            console.log("📄 Response data:", errorData);
+          } catch (parseError) {
+            console.error("❌ Failed to parse response:", parseError);
+            setErrors({
+              general: `Server error (${response.status}). Please try again later.`,
             });
             return;
           }
 
           if (!response.ok) {
-            const errorData = await response
-              .json()
-              .catch(() => ({ error: "Registration failed" }));
-            throw new Error(
-              errorData.error || `HTTP error! status: ${response.status}`
-            );
-          }
+            // Handle specific error cases
+            let errorMessage = "Registration failed. Please try again.";
 
-          const result = await response.json();
-
-          if (result.success) {
-            // Store authentication data
-            localStorage.setItem("token", result.token);
-            localStorage.setItem("user", JSON.stringify(result.user));
-            if (result.refreshToken) {
-              localStorage.setItem("refreshToken", result.refreshToken);
+            if (response.status === 409) {
+              errorMessage =
+                "An account with this email already exists. Please use a different email address or try logging in.";
+            } else if (response.status === 400) {
+              if (errorData.error?.includes("email")) {
+                errorMessage = "Please provide a valid email address.";
+              } else if (errorData.error?.includes("password")) {
+                errorMessage =
+                  "Password must be at least 8 characters with uppercase, lowercase, number, and special character.";
+              } else if (errorData.error?.includes("documents")) {
+                errorMessage =
+                  "All verification documents (ID front, ID back, SSN front, SSN back) are required.";
+              } else {
+                errorMessage =
+                  errorData.error ||
+                  "Invalid registration data. Please check all fields.";
+              }
+            } else if (response.status === 422) {
+              errorMessage =
+                errorData.error ||
+                "Please check that all required fields are filled correctly.";
+            } else if (response.status >= 500) {
+              errorMessage =
+                "Server error. Please try again later or contact support.";
+            } else {
+              errorMessage =
+                errorData.error ||
+                `Error ${response.status}: ${response.statusText}`;
             }
 
-            // Update auth context
-            setUser(result.user);
-            setIsAuthenticated(true);
-            navigate("/dashboard");
+            setErrors({ general: errorMessage });
+            return;
+          }
+
+          if (errorData.success) {
+            console.log("✅ Freelancer registration successful");
+
+            // Automatically log in the user after successful registration
+            try {
+              const loginResult = await login({
+                email: formData.email,
+                password: formData.password,
+                rememberMe: true, // Keep them logged in
+              });
+
+              if (loginResult.success) {
+                navigate("/dashboard");
+              } else {
+                // Fallback: manual token storage if auto-login fails
+                localStorage.setItem("token", errorData.token);
+                localStorage.setItem("user", JSON.stringify(errorData.user));
+                if (errorData.refreshToken) {
+                  localStorage.setItem("refreshToken", errorData.refreshToken);
+                }
+                navigate("/dashboard");
+                setTimeout(() => window.location.reload(), 100);
+              }
+            } catch (authError) {
+              console.error("Error with auto-login:", authError);
+              setErrors({
+                general:
+                  "Registration successful! Please log in with your new account.",
+              });
+            }
           } else {
             setErrors({
-              general: result.error || "Registration failed. Please try again.",
+              general:
+                errorData.error ||
+                "Registration completed but login failed. Please try logging in manually.",
             });
           }
         } else {
           // Basic cleaner registration without documents
-          const [firstName, ...lastNameParts] = formData.fullName
-            .trim()
-            .split(" ");
-          const lastName = lastNameParts.join(" ") || "";
-
           const registrationData = {
-            email: formData.email,
+            email: formData.email.trim().toLowerCase(),
             password: formData.password,
-            firstName: firstName,
-            lastName: lastName,
-            phone: formData.phone,
+            firstName: formData.firstName.trim(),
+            lastName: formData.lastName.trim(),
+            phone: formData.phone.trim(),
             role: "cleaner",
-            address: formData.address,
-            city: formData.city,
-            state: formData.state,
-            zipCode: formData.postalCode,
+            address: formData.address.trim(),
+            city: formData.city.trim(),
+            state: formData.state.trim(),
+            zipCode: formData.postalCode.trim(), // Backend expects zipCode, not postalCode
             cleaningServices: formData.cleaningServices,
             cleaningFrequency: formData.cleaningFrequency,
-            preferredHours: formData.preferredHours,
-            message: formData.message,
+            preferredHours: formData.preferredHours || "",
+            message: formData.message || "",
           };
 
-          try {
-            const result = await register(registrationData);
-            if (result.success) {
-              navigate("/dashboard");
-            } else {
-              setErrors({
-                general:
-                  result.error || "Registration failed. Please try again.",
-              });
+          console.log("🚀 Sending basic cleaner registration...");
+          console.log("Registration data:", {
+            ...registrationData,
+            password: "[HIDDEN]",
+          });
+
+          const result = await register(registrationData);
+
+          if (result.success) {
+            console.log("✅ Basic cleaner registration successful");
+            navigate("/dashboard");
+          } else {
+            console.error("❌ Cleaner registration failed:", result.error);
+
+            // Handle specific error cases for basic cleaner registration
+            let errorMessage =
+              result.error || "Registration failed. Please try again.";
+
+            if (
+              errorMessage.includes("email already exists") ||
+              errorMessage.includes("409") ||
+              errorMessage.includes("already registered")
+            ) {
+              errorMessage =
+                "An account with this email already exists. Please use a different email address or try logging in.";
+            } else if (
+              errorMessage.includes("validation") ||
+              errorMessage.includes("required")
+            ) {
+              errorMessage = "Please fill in all required fields correctly.";
+            } else if (errorMessage.includes("password")) {
+              errorMessage =
+                "Password must be at least 8 characters with uppercase, lowercase, number, and special character.";
+            } else if (errorMessage.includes("email")) {
+              errorMessage = "Please provide a valid email address.";
+            } else if (
+              errorMessage.includes("network") ||
+              errorMessage.includes("connect") ||
+              errorMessage.includes("fetch")
+            ) {
+              errorMessage =
+                "Cannot connect to server. Please check your internet connection and ensure the backend is running.";
+            } else if (
+              errorMessage.includes("Role must be either customer or cleaner")
+            ) {
+              errorMessage =
+                "Invalid registration type. Please refresh the page and try again.";
+            } else if (
+              errorMessage.includes("User with this email already exists")
+            ) {
+              errorMessage =
+                "This email address is already registered. Please use a different email or sign in instead.";
             }
-          } catch (registerError) {
-            console.error("Cleaner registration error:", registerError);
-            setErrors({
-              general:
-                "Cannot connect to server. Please make sure the backend server is running.",
-            });
+
+            setErrors({ general: errorMessage });
           }
         }
       }
     } catch (error) {
-      console.error("Registration error:", error);
-      setErrors({ general: "Registration failed. Please try again." });
+      console.error("❌ Registration error:", error);
+
+      // Handle different types of errors
+      let errorMessage = "Registration failed. Please try again.";
+
+      if (error.message?.includes("fetch")) {
+        errorMessage =
+          "Network error. Please check your internet connection and try again.";
+      } else if (error.message?.includes("timeout")) {
+        errorMessage = "Request timed out. Please try again.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setErrors({ general: errorMessage });
     } finally {
       setLoading(false);
     }
@@ -524,6 +782,29 @@ const RoleBasedRegistrationForm = () => {
                 Freelancer (Cleaner/Agency)
               </button>
             </div>
+
+            {/* Role Selection Help Text */}
+            <div className="mt-3 text-sm text-gray-600">
+              {selectedRole === "customer" ? (
+                <p className="flex items-center">
+                  <UserIcon className="h-4 w-4 mr-1" />
+                  You'll be able to book cleaning services and manage your
+                  appointments
+                </p>
+              ) : (
+                <div className="space-y-1">
+                  <p className="flex items-center">
+                    <WrenchScrewdriverIcon className="h-4 w-4 mr-1" />
+                    You'll be able to offer cleaning services to customers
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    💡 Upload documents for verification to become a trusted
+                    freelancer, or register without documents to start as a
+                    basic cleaner
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -554,6 +835,42 @@ const RoleBasedRegistrationForm = () => {
                 </div>
               </div>
             )}
+
+            {/* Validation Summary for Development */}
+            {import.meta.env.MODE === "development" &&
+              Object.keys(errors).length > 1 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg
+                        className="h-5 w-5 text-yellow-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-yellow-800">
+                        Form Validation Issues:
+                      </h3>
+                      <ul className="mt-2 text-sm text-yellow-700 list-disc list-inside">
+                        {Object.entries(errors)
+                          .filter(([key]) => key !== "general")
+                          .map(([field, error]) => (
+                            <li key={field}>
+                              {field}: {error}
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
 
             {/* Customer Form */}
             {selectedRole === "customer" && (
@@ -667,6 +984,7 @@ const RoleBasedRegistrationForm = () => {
                       required
                       value={formData.email}
                       onChange={handleChange}
+                      onBlur={handleEmailBlur}
                       className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                         errors.email ? "border-red-300" : "border-gray-300"
                       } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
@@ -825,36 +1143,66 @@ const RoleBasedRegistrationForm = () => {
             {/* Freelancer Form */}
             {selectedRole === "freelancer" && (
               <>
-                {/* Full Name */}
-                <div>
-                  <label
-                    htmlFor="fullName"
-                    className="block text-sm font-semibold text-gray-700 mb-2"
-                  >
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <UserIcon className="h-5 w-5 text-gray-400" />
+                {/* Name Fields */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    <label
+                      htmlFor="firstName"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      First Name
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <UserIcon className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        required
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
+                          errors.firstName
+                            ? "border-red-300"
+                            : "border-gray-300"
+                        } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
+                        placeholder="First name"
+                      />
                     </div>
+                    {errors.firstName && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.firstName}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="lastName"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Last Name
+                    </label>
                     <input
-                      id="fullName"
-                      name="fullName"
+                      id="lastName"
+                      name="lastName"
                       type="text"
                       required
-                      value={formData.fullName}
+                      value={formData.lastName}
                       onChange={handleChange}
-                      className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
-                        errors.fullName ? "border-red-300" : "border-gray-300"
+                      className={`appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
+                        errors.lastName ? "border-red-300" : "border-gray-300"
                       } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
-                      placeholder="Enter your full name"
+                      placeholder="Last name"
                     />
+                    {errors.lastName && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.lastName}
+                      </p>
+                    )}
                   </div>
-                  {errors.fullName && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.fullName}
-                    </p>
-                  )}
                 </div>
 
                 {/* Phone Number */}
@@ -907,6 +1255,7 @@ const RoleBasedRegistrationForm = () => {
                       required
                       value={formData.email}
                       onChange={handleChange}
+                      onBlur={handleEmailBlur}
                       className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                         errors.email ? "border-red-300" : "border-gray-300"
                       } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}

@@ -120,7 +120,8 @@ const testFreelancerRegistration = async () => {
     // Add text fields
     formData.append("email", `freelancer_${Date.now()}@example.com`);
     formData.append("password", "Freelancer123!");
-    formData.append("fullName", "Alice Johnson");
+    formData.append("firstName", "Alice");
+    formData.append("lastName", "Johnson");
     formData.append("phone", "+1234567892");
     formData.append("address", "456 Oak Ave");
     formData.append("city", "Los Angeles");

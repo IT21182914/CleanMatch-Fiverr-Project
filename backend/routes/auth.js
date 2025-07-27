@@ -10,8 +10,14 @@ const {
   refreshToken,
   forgotPassword,
   resetPassword,
+  checkEmailAvailability,
 } = require("../controllers/authController");
 const router = express.Router();
+
+// @route   POST /api/auth/check-email
+// @desc    Check if email is available
+// @access  Public
+router.post("/check-email", checkEmailAvailability);
 
 // @route   POST /api/auth/register
 // @desc    Register a new user

@@ -45,7 +45,8 @@ router.post(
       const {
         email,
         password,
-        fullName,
+        firstName,
+        lastName,
         phone,
         address,
         city,
@@ -72,7 +73,8 @@ router.post(
         [
           "email",
           "password",
-          "fullName",
+          "firstName",
+          "lastName",
           "phone",
           "address",
           "city",
@@ -124,11 +126,6 @@ router.post(
         deleteUploadedFiles(uploadedFilePaths);
         throw new ConflictError("User with this email already exists");
       }
-
-      // Split full name into first and last name
-      const nameParts = fullName.trim().split(" ");
-      const firstName = nameParts[0];
-      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
 
       // Hash password
       const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;

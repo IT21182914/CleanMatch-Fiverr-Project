@@ -45,7 +45,7 @@ const registerSchema = Joi.object({
     "any.required": "Last name is required",
   }),
   phone: Joi.string()
-    .pattern(/^[\+]?[1-9][\d]{0,15}$/)
+    .pattern(/^[\+]?[0-9][\d]{0,15}$/)
     .messages({
       "string.pattern.base": "Please provide a valid phone number",
     }),
