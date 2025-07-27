@@ -1754,8 +1754,10 @@ const RoleBasedRegistrationForm = () => {
                           onClick={() => setShowAgreementModal(true)}
                           className="text-cyan-600 hover:text-cyan-500 font-medium underline"
                         >
-                          1099 freelancer agreement and all Terms
-                        </button>
+                          1099 freelancer agreement, Privacy and Terms of Use
+                        </button>{" "}
+                        of Simorgh Service Group LLC and I agree to all of their
+                        Terms.
                       </span>
                     </label>
                     {errors.agree1099Terms && (
