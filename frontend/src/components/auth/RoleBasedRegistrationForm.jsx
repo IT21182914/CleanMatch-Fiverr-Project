@@ -205,6 +205,17 @@ const RoleBasedRegistrationForm = () => {
       newErrors.email = "Please enter a valid email";
     }
 
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (!validatePassword(formData.password)) {
+      newErrors.password =
+        "Password must be at least 8 characters and contain uppercase, lowercase, number, and special character";
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
     if (!formData.address.trim()) {
       newErrors.address = "Address is required";
     }
@@ -905,6 +916,91 @@ const RoleBasedRegistrationForm = () => {
                   {errors.email && (
                     <p className="mt-2 text-sm text-red-600">{errors.email}</p>
                   )}
+                </div>
+
+                {/* Passwords */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    <label
+                      htmlFor="password"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        required
+                        value={formData.password}
+                        onChange={handleChange}
+                        className={`appearance-none relative block w-full pr-10 pl-3 py-2.5 sm:py-3 border ${
+                          errors.password ? "border-red-300" : "border-gray-300"
+                        } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
+                        placeholder="Enter your password"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={togglePasswordVisibility}
+                      >
+                        {showPassword ? (
+                          <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                        ) : (
+                          <EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                        )}
+                      </button>
+                    </div>
+                    {errors.password && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.password}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="confirmPassword"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        required
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        className={`appearance-none relative block w-full pr-10 pl-3 py-2.5 sm:py-3 border ${
+                          errors.confirmPassword
+                            ? "border-red-300"
+                            : "border-gray-300"
+                        } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
+                        placeholder="Confirm your password"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={toggleConfirmPasswordVisibility}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                        ) : (
+                          <EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                        )}
+                      </button>
+                    </div>
+                    {errors.confirmPassword && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.confirmPassword}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Address */}
