@@ -542,10 +542,10 @@ const RoleBasedRegistrationForm = () => {
             return;
           }
 
-          let errorData;
+          let responseData;
           try {
-            errorData = await response.json();
-            console.log("📄 Response data:", errorData);
+            responseData = await response.json();
+            console.log("📄 Response data:", responseData);
           } catch (parseError) {
             console.error("❌ Failed to parse response:", parseError);
             setErrors({
@@ -562,29 +562,29 @@ const RoleBasedRegistrationForm = () => {
               errorMessage =
                 "An account with this email already exists. Please use a different email address or try logging in.";
             } else if (response.status === 400) {
-              if (errorData.error?.includes("email")) {
+              if (responseData.error?.includes("email")) {
                 errorMessage = "Please provide a valid email address.";
-              } else if (errorData.error?.includes("password")) {
+              } else if (responseData.error?.includes("password")) {
                 errorMessage =
                   "Password must be at least 8 characters with uppercase, lowercase, number, and special character.";
-              } else if (errorData.error?.includes("documents")) {
+              } else if (responseData.error?.includes("documents")) {
                 errorMessage =
                   "All verification documents (ID front, ID back, SSN front, SSN back) are required.";
               } else {
                 errorMessage =
-                  errorData.error ||
+                  responseData.error ||
                   "Invalid registration data. Please check all fields.";
               }
             } else if (response.status === 422) {
               errorMessage =
-                errorData.error ||
+                responseData.error ||
                 "Please check that all required fields are filled correctly.";
             } else if (response.status >= 500) {
               errorMessage =
                 "Server error. Please try again later or contact support.";
             } else {
               errorMessage =
-                errorData.error ||
+                responseData.error ||
                 `Error ${response.status}: ${response.statusText}`;
             }
 
@@ -592,40 +592,47 @@ const RoleBasedRegistrationForm = () => {
             return;
           }
 
-          if (errorData.success) {
+          if (responseData.success) {
             console.log("✅ Freelancer registration successful");
 
-            // Automatically log in the user after successful registration
+            // Store tokens immediately
+            localStorage.setItem("token", responseData.token);
+            localStorage.setItem("user", JSON.stringify(responseData.user));
+            if (responseData.refreshToken) {
+              localStorage.setItem("refreshToken", responseData.refreshToken);
+            }
+
+            // Update auth context directly (similar to register function)
             try {
-              const loginResult = await login({
+              // Trigger auth context update by calling login with stored credentials
+              // This will update the context state properly
+              const loginResponse = await login({
                 email: formData.email,
                 password: formData.password,
-                rememberMe: true, // Keep them logged in
+                rememberMe: true,
               });
 
-              if (loginResult.success) {
+              if (loginResponse.success) {
+                console.log(
+                  "✅ Auto-login successful, redirecting to dashboard"
+                );
                 navigate("/dashboard");
               } else {
-                // Fallback: manual token storage if auto-login fails
-                localStorage.setItem("token", errorData.token);
-                localStorage.setItem("user", JSON.stringify(errorData.user));
-                if (errorData.refreshToken) {
-                  localStorage.setItem("refreshToken", errorData.refreshToken);
-                }
-                navigate("/dashboard");
-                setTimeout(() => window.location.reload(), 100);
+                console.log(
+                  "⚠️ Auto-login failed, manually updating auth state"
+                );
+                // Force a page refresh to trigger auth initialization
+                window.location.href = "/dashboard";
               }
             } catch (authError) {
               console.error("Error with auto-login:", authError);
-              setErrors({
-                general:
-                  "Registration successful! Please log in with your new account.",
-              });
+              // Force a page refresh to trigger auth initialization from localStorage
+              window.location.href = "/dashboard";
             }
           } else {
             setErrors({
               general:
-                errorData.error ||
+                responseData.error ||
                 "Registration completed but login failed. Please try logging in manually.",
             });
           }
