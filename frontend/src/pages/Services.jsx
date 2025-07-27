@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   SparklesIcon,
   MagnifyingGlassIcon,
@@ -14,12 +14,14 @@ import { allServices, searchServices } from "../data/services";
 import { categories } from "../data/services/categories";
 import { getServiceImage } from "../utils/serviceImages";
 import ServiceImage from "../components/ui/ServiceImage";
+import SearchInput from "../components/ui/SearchInput";
 
 const Services = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Services");
   const [sortBy, setSortBy] = useState("popular"); // popular, price-low, price-high, name
   const servicesGridRef = useRef(null);
+  const navigate = useNavigate();
 
   const filteredServices = searchServices(searchTerm, selectedCategory);
 
@@ -65,6 +67,11 @@ const Services = () => {
     }
   }, [searchTerm, sortedServices.length]);
 
+  const handleServiceSelect = (service) => {
+    // Navigate to the service details page or booking page
+    navigate(`/services/${service.id}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50">
       {/* Hero Section */}
@@ -104,23 +111,14 @@ const Services = () => {
       <div className="bg-white/80 backdrop-blur-sm sticky top-0 z-40 border-b border-slate-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row gap-4 items-center">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search services..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#4EC6E5] focus:border-transparent text-sm transition-all duration-200 ${
-                  searchTerm.trim() !== ""
-                    ? "border-[#4EC6E5] ring-1 ring-[#4EC6E5]/20"
-                    : "border-slate-200"
-                }`}
-              />
-            </div>
+            {/* Search with Dropdown */}
+            <SearchInput
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              services={allServices}
+              onServiceSelect={handleServiceSelect}
+              placeholder="Search services..."
+            />
 
             {/* Sort */}
             <div className="flex items-center gap-2">
