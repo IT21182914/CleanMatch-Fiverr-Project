@@ -108,38 +108,78 @@ const PendingFreelancers = () => {
   };
 
   const DocumentViewer = ({ url, title }) => {
-    if (!url) return null;
+    const [imageError, setImageError] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    if (!url) {
+      return (
+        <div className="border rounded-lg p-3">
+          <h4 className="text-sm font-medium text-gray-900 mb-2">{title}</h4>
+          <div className="w-full h-32 bg-gray-100 rounded border flex items-center justify-center">
+            <DocumentIcon className="h-8 w-8 text-gray-400" />
+            <span className="ml-2 text-sm text-gray-500">No document</span>
+          </div>
+        </div>
+      );
+    }
+
+    // Create full URL for document
+    const fullDocumentUrl = url.startsWith("http")
+      ? url
+      : `${import.meta.env.VITE_API_URL || "http://localhost:5000"}${url}`;
+
+    const handleImageError = () => {
+      setImageError(true);
+      setLoading(false);
+    };
+
+    const handleImageLoad = () => {
+      setLoading(false);
+      setImageError(false);
+    };
 
     return (
       <div className="border rounded-lg p-3">
         <h4 className="text-sm font-medium text-gray-900 mb-2">{title}</h4>
-        <div className="aspect-w-16 aspect-h-9">
-          <img
-            src={url}
-            alt={title}
-            className="w-full h-32 object-cover rounded border"
-            onError={(e) => {
-              e.target.style.display = "none";
-              e.target.nextElementSibling.style.display = "flex";
-            }}
-          />
-          <div
-            className="hidden w-full h-32 bg-gray-100 rounded border items-center justify-center"
-            style={{ display: "none" }}
-          >
-            <DocumentIcon className="h-8 w-8 text-gray-400" />
-            <span className="ml-2 text-sm text-gray-500">Document</span>
-          </div>
+        <div className="relative w-full h-32">
+          {loading && (
+            <div className="absolute inset-0 bg-gray-100 rounded border flex items-center justify-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <span className="ml-2 text-sm text-gray-500">Loading...</span>
+            </div>
+          )}
+
+          {!imageError ? (
+            <img
+              src={fullDocumentUrl}
+              alt={title}
+              className="w-full h-32 object-cover rounded border"
+              onError={handleImageError}
+              onLoad={handleImageLoad}
+              style={{ display: loading ? "none" : "block" }}
+            />
+          ) : (
+            <div className="w-full h-32 bg-gray-100 rounded border flex items-center justify-center">
+              <DocumentIcon className="h-8 w-8 text-gray-400" />
+              <span className="ml-2 text-sm text-gray-500">Document</span>
+            </div>
+          )}
         </div>
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center mt-2 text-sm text-blue-600 hover:text-blue-500"
-        >
-          <EyeIcon className="h-4 w-4 mr-1" />
-          View Full Size
-        </a>
+
+        <div className="mt-2 flex items-center justify-between">
+          <a
+            href={fullDocumentUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-500"
+          >
+            <EyeIcon className="h-4 w-4 mr-1" />
+            View Full Size
+          </a>
+          {imageError && (
+            <span className="text-xs text-red-500">Image not available</span>
+          )}
+        </div>
       </div>
     );
   };
