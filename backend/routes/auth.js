@@ -4,8 +4,15 @@ const {
   registerSchema,
   loginSchema,
 } = require("../middleware/validation");
+const { uploadDocuments } = require("../utils/supabaseStorage");
+const {
+  handleFileUploadError,
+  validateDocuments,
+  logFileUpload,
+} = require("../middleware/fileUpload");
 const {
   register,
+  registerWithDocuments,
   login,
   refreshToken,
   forgotPassword,
@@ -23,6 +30,18 @@ router.post("/check-email", checkEmailAvailability);
 // @desc    Register a new user
 // @access  Public
 router.post("/register", validate(registerSchema), register);
+
+// @route   POST /api/auth/register-with-documents
+// @desc    Register a new user with document uploads
+// @access  Public
+router.post(
+  "/register-with-documents", 
+  uploadDocuments, 
+  handleFileUploadError,
+  logFileUpload,
+  validateDocuments,
+  registerWithDocuments
+);
 
 // @route   POST /api/auth/login
 // @desc    Login user

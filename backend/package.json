@@ -11,6 +11,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:server": "node test-server.js",
+    "test:documents": "node test-document-upload.js",
+    "setup:storage": "node setup-supabase-storage.js",
     "build": "echo 'No build step required for Node.js backend'",
     "db:monitor": "node db-monitor.js",
     "db:health": "node -e \"require('./config/database').healthCheck().then(h => console.log(JSON.stringify(h, null, 2)))\""
