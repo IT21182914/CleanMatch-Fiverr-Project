@@ -233,43 +233,53 @@ const RoleBasedRegistrationForm = () => {
       newErrors.preferredHours = "Please specify your preferred hours";
     }
 
-    if (!formData.idFront) {
-      newErrors.idFront = "ID front image is required";
-    }
+    // Documents are required only if user wants to become a verified freelancer
+    const wantsToUploadDocs =
+      formData.idFront ||
+      formData.idBack ||
+      formData.ssnFront ||
+      formData.ssnBack;
 
-    if (!formData.idBack) {
-      newErrors.idBack = "ID back image is required";
-    }
+    if (wantsToUploadDocs) {
+      // If any document is uploaded, all must be uploaded
+      if (!formData.idFront) {
+        newErrors.idFront = "ID front image is required for verification";
+      }
 
-    if (!formData.ssnFront) {
-      newErrors.ssnFront = "SSN front image is required";
-    }
+      if (!formData.idBack) {
+        newErrors.idBack = "ID back image is required for verification";
+      }
 
-    if (!formData.ssnBack) {
-      newErrors.ssnBack = "SSN back image is required";
+      if (!formData.ssnFront) {
+        newErrors.ssnFront = "SSN front image is required for verification";
+      }
+
+      if (!formData.ssnBack) {
+        newErrors.ssnBack = "SSN back image is required for verification";
+      }
+
+      if (!formData.agreeAgreement) {
+        newErrors.agreeAgreement = "You must read and accept the agreement";
+      }
+
+      if (!formData.agree1099Terms) {
+        newErrors.agree1099Terms =
+          "You must read and understand the 1099 freelancer agreement";
+      }
+
+      if (!formData.bringSupplies) {
+        newErrors.bringSupplies =
+          "You must confirm that you will bring your own cleaning supplies";
+      }
+
+      if (!formData.hasExperience) {
+        newErrors.hasExperience =
+          "You must confirm that you have experience in cleaning";
+      }
     }
 
     if (!formData.agreeTerms) {
       newErrors.agreeTerms = "You must agree to the terms & conditions";
-    }
-
-    if (!formData.agreeAgreement) {
-      newErrors.agreeAgreement = "You must read and accept the agreement";
-    }
-
-    if (!formData.agree1099Terms) {
-      newErrors.agree1099Terms =
-        "You must read and understand the 1099 freelancer agreement";
-    }
-
-    if (!formData.bringSupplies) {
-      newErrors.bringSupplies =
-        "You must confirm that you will bring your own cleaning supplies";
-    }
-
-    if (!formData.hasExperience) {
-      newErrors.hasExperience =
-        "You must confirm that you have experience in cleaning";
     }
 
     return newErrors;
@@ -311,62 +321,131 @@ const RoleBasedRegistrationForm = () => {
           setErrors({ general: result.error });
         }
       } else {
-        // Freelancer registration (with file uploads)
-        const formDataToSend = new FormData();
+        // Check if user wants to upload documents (freelancer) or just register as cleaner
+        const hasDocuments =
+          formData.idFront &&
+          formData.idBack &&
+          formData.ssnFront &&
+          formData.ssnBack;
 
-        // Add text fields
-        formDataToSend.append("email", formData.email);
-        formDataToSend.append("password", formData.password);
-        formDataToSend.append("fullName", formData.fullName);
-        formDataToSend.append("phone", formData.phone);
-        formDataToSend.append("address", formData.address);
-        formDataToSend.append("city", formData.city);
-        formDataToSend.append("state", formData.state);
-        formDataToSend.append("postalCode", formData.postalCode);
-        formDataToSend.append(
-          "cleaningServices",
-          JSON.stringify(formData.cleaningServices)
-        );
-        formDataToSend.append("cleaningFrequency", formData.cleaningFrequency);
-        formDataToSend.append("preferredHours", formData.preferredHours);
-        formDataToSend.append("message", formData.message);
+        if (hasDocuments) {
+          // Full freelancer registration with documents
+          const formDataToSend = new FormData();
 
-        // Add file uploads
-        if (formData.idFront)
+          // Add text fields
+          formDataToSend.append("email", formData.email);
+          formDataToSend.append("password", formData.password);
+          formDataToSend.append("fullName", formData.fullName);
+          formDataToSend.append("phone", formData.phone);
+          formDataToSend.append("address", formData.address);
+          formDataToSend.append("city", formData.city);
+          formDataToSend.append("state", formData.state);
+          formDataToSend.append("postalCode", formData.postalCode);
+          formDataToSend.append(
+            "cleaningServices",
+            JSON.stringify(formData.cleaningServices)
+          );
+          formDataToSend.append(
+            "cleaningFrequency",
+            formData.cleaningFrequency
+          );
+          formDataToSend.append("preferredHours", formData.preferredHours);
+          formDataToSend.append("message", formData.message);
+
+          // Add file uploads
           formDataToSend.append("idFront", formData.idFront);
-        if (formData.idBack) formDataToSend.append("idBack", formData.idBack);
-        if (formData.ssnFront)
+          formDataToSend.append("idBack", formData.idBack);
           formDataToSend.append("ssnFront", formData.ssnFront);
-        if (formData.ssnBack)
           formDataToSend.append("ssnBack", formData.ssnBack);
 
-        // Call freelancer registration endpoint
-        const apiUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-        const response = await fetch(`${apiUrl}/auth/register-freelancer`, {
-          method: "POST",
-          body: formDataToSend,
-        });
+          // Call freelancer registration endpoint
+          const apiUrl =
+            import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-        const result = await response.json();
-
-        if (result.success) {
-          // Store authentication data
-          localStorage.setItem("token", result.token);
-          localStorage.setItem("user", JSON.stringify(result.user));
-          if (result.refreshToken) {
-            localStorage.setItem("refreshToken", result.refreshToken);
+          let response;
+          try {
+            response = await fetch(`${apiUrl}/auth/register-freelancer`, {
+              method: "POST",
+              body: formDataToSend,
+            });
+          } catch (fetchError) {
+            console.error("Network error:", fetchError);
+            setErrors({
+              general:
+                "Cannot connect to server. Please make sure the backend server is running on port 5000.",
+            });
+            return;
           }
 
-          // Update auth context
-          setUser(result.user);
-          setIsAuthenticated(true);
+          if (!response.ok) {
+            const errorData = await response
+              .json()
+              .catch(() => ({ error: "Registration failed" }));
+            throw new Error(
+              errorData.error || `HTTP error! status: ${response.status}`
+            );
+          }
 
-          navigate("/dashboard");
+          const result = await response.json();
+
+          if (result.success) {
+            // Store authentication data
+            localStorage.setItem("token", result.token);
+            localStorage.setItem("user", JSON.stringify(result.user));
+            if (result.refreshToken) {
+              localStorage.setItem("refreshToken", result.refreshToken);
+            }
+
+            // Update auth context
+            setUser(result.user);
+            setIsAuthenticated(true);
+            navigate("/dashboard");
+          } else {
+            setErrors({
+              general: result.error || "Registration failed. Please try again.",
+            });
+          }
         } else {
-          setErrors({
-            general: result.error || "Registration failed. Please try again.",
-          });
+          // Basic cleaner registration without documents
+          const [firstName, ...lastNameParts] = formData.fullName
+            .trim()
+            .split(" ");
+          const lastName = lastNameParts.join(" ") || "";
+
+          const registrationData = {
+            email: formData.email,
+            password: formData.password,
+            firstName: firstName,
+            lastName: lastName,
+            phone: formData.phone,
+            role: "cleaner",
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.postalCode,
+            cleaningServices: formData.cleaningServices,
+            cleaningFrequency: formData.cleaningFrequency,
+            preferredHours: formData.preferredHours,
+            message: formData.message,
+          };
+
+          try {
+            const result = await register(registrationData);
+            if (result.success) {
+              navigate("/dashboard");
+            } else {
+              setErrors({
+                general:
+                  result.error || "Registration failed. Please try again.",
+              });
+            }
+          } catch (registerError) {
+            console.error("Cleaner registration error:", registerError);
+            setErrors({
+              general:
+                "Cannot connect to server. Please make sure the backend server is running.",
+            });
+          }
         }
       }
     } catch (error) {
@@ -1066,9 +1145,17 @@ const RoleBasedRegistrationForm = () => {
 
                 {/* ID & SSN Upload */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-4">
-                    ID & SSN Upload (Front & Back)
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    ID & SSN Upload (Optional - for verified freelancer status)
                   </label>
+                  <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      <span className="font-medium">Optional:</span> Upload
+                      documents to become a verified freelancer. You can
+                      register as a cleaner without documents and upload them
+                      later.
+                    </p>
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-2">
