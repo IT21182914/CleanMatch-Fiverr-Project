@@ -35,7 +35,7 @@ const ResponsiveDemo = () => {
             Responsive Design Demo
           </ResponsiveText>
           <ResponsiveText size="lg" className="mt-4 text-gray-600">
-            CleanMatch frontend is fully responsive across all devices
+            SIMORGH SERVICE frontend is fully responsive across all devices
           </ResponsiveText>
         </div>
 

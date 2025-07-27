@@ -359,7 +359,7 @@ const BookingToast = ({ title = "Booking Update", ...props }) => (
   <Toast type="booking" title={title} variant="branded" {...props} />
 );
 
-const ServiceToast = ({ title = "CleanMatch", ...props }) => (
+const ServiceToast = ({ title = "SIMORGH SERVICE", ...props }) => (
   <Toast type="service" title={title} variant="branded" {...props} />
 );
 

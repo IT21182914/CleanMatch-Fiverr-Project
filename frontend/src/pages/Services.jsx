@@ -392,8 +392,8 @@ const Services = () => {
             Ready to Book Your Cleaning Service?
           </h2>
           <p className="text-xl text-white/80 mb-8">
-            Join thousands of satisfied customers and experience the CleanMatch
-            difference today.
+            Join thousands of satisfied customers and experience the SIMORGH
+            SERVICE difference today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

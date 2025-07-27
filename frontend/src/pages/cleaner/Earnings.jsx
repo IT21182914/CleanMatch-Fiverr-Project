@@ -318,7 +318,7 @@ const Earnings = () => {
                 No earnings yet
               </h3>
               <p className="text-gray-500 mb-6">
-                Complete jobs to start earning money through CleanMatch.
+                Complete jobs to start earning money through SIMORGH SERVICE.
               </p>
             </div>
           ) : (

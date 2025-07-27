@@ -96,7 +96,7 @@ const Login = () => {
             />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Welcome back to CleanMatch
+            Welcome back to SIMORGH SERVICE
           </h2>
           <p className="text-base sm:text-lg text-gray-600">
             Sign in to your account and get back to a spotless home
@@ -208,7 +208,7 @@ const Login = () => {
               >
                 {!loading && (
                   <>
-                    Sign in to CleanMatch
+                    Sign in to SIMORGH SERVICE
                     <ArrowRightIcon className="ml-2 h-5 w-5" />
                   </>
                 )}
@@ -223,7 +223,7 @@ const Login = () => {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2 bg-white text-gray-500">
-                    New to CleanMatch?
+                    New to SIMORGH SERVICE?
                   </span>
                 </div>
               </div>
@@ -284,7 +284,7 @@ const Login = () => {
         {/* Benefits Preview */}
         <div className="mt-6 sm:mt-8 bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-sm">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 text-center">
-            Why choose CleanMatch?
+            Why choose SIMORGH SERVICE?
           </h3>
           <div className="space-y-2 sm:space-y-3">
             {[

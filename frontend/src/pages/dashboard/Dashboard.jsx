@@ -21,7 +21,7 @@ const Dashboard = () => {
   return (
     <div className="text-center">
       <h1 className="text-2xl font-bold text-gray-900">
-        Welcome to CleanMatch
+        Welcome to SIMORGH SERVICE
       </h1>
       <p className="mt-2 text-gray-600">
         Please contact support if you're seeing this message.

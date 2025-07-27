@@ -746,7 +746,7 @@ const RoleBasedRegistrationForm = () => {
             />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Join CleanMatch Today
+            Join SIMORGH SERVICE Today
           </h2>
           <p className="text-base sm:text-lg text-gray-600">
             Choose your role and create your account
@@ -1584,7 +1584,7 @@ const RoleBasedRegistrationForm = () => {
                     value={formData.message}
                     onChange={handleChange}
                     className="appearance-none relative block w-full px-3 py-2.5 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm transition-colors duration-200"
-                    placeholder="Tell us about your cleaning experience and why you'd like to join CleanMatch..."
+                    placeholder="Tell us about your cleaning experience and why you'd like to join SIMORGH SERVICE..."
                   />
                 </div>
 
@@ -1891,7 +1891,7 @@ const RoleBasedRegistrationForm = () => {
         <div className="mt-6 sm:mt-8 bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-sm">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 text-center">
             {selectedRole === "customer"
-              ? "What you'll get with CleanMatch"
+              ? "What you'll get with SIMORGH SERVICE"
               : "Benefits of joining as a Freelancer"}
           </h3>
           <div className="space-y-2 sm:space-y-3">

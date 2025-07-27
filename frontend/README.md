@@ -1,6 +1,6 @@
-# CleanMatch Frontend
+# SIMORGH SERVICE Frontend
 
-A modern, responsive React.js frontend for the CleanMatch AI-powered cleaning marketplace. Built with Vite, Tailwind CSS, and designed for three distinct user roles: Customer, Cleaner, and Admin.
+A modern, responsive React.js frontend for the SIMORGH SERVICE AI-powered cleaning marketplace. Built with Vite, Tailwind CSS, and designed for three distinct user roles: Customer, Cleaner, and Admin.
 
 ## 🚀 Features
 
@@ -68,7 +68,7 @@ A modern, responsive React.js frontend for the CleanMatch AI-powered cleaning ma
    ```env
    VITE_API_URL=http://localhost:5000/api
    VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
-   VITE_APP_NAME=CleanMatch
+   VITE_APP_NAME=SIMORGH SERVICE
    VITE_APP_URL=http://localhost:5173
    ```
 
