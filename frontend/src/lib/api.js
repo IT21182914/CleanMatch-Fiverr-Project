@@ -15,7 +15,8 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Get token from localStorage first, then sessionStorage
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -25,7 +26,10 @@ api.interceptors.request.use(
 
     // Log request details in development
     if (import.meta.env.MODE === "development") {
-      console.log(`🚀 Making ${config.method?.toUpperCase()} request to:`, config.url);
+      console.log(
+        `🚀 Making ${config.method?.toUpperCase()} request to:`,
+        config.url
+      );
       console.log("Full URL:", `${config.baseURL}${config.url}`);
       if (token) {
         console.log("Using auth token:", token.substring(0, 20) + "...");
@@ -63,7 +67,9 @@ api.interceptors.response.use(
       method: error.config?.method,
       url: error.config?.url,
       baseURL: error.config?.baseURL,
-      fullURL: error.config ? `${error.config.baseURL}${error.config.url}` : 'unknown',
+      fullURL: error.config
+        ? `${error.config.baseURL}${error.config.url}`
+        : "unknown",
       duration: error.config?.metadata
         ? new Date() - error.config.metadata.startTime
         : null,
@@ -72,7 +78,7 @@ api.interceptors.response.use(
     console.error("API Error:", {
       ...parsedError,
       context,
-      originalError: error
+      originalError: error,
     });
 
     logError(parsedError, context);
@@ -265,6 +271,21 @@ export const adminAPI = {
   // Review management
   getReviews: (params) => enhancedApi.get("/admin/reviews", { params }),
   deleteReview: (id) => enhancedApi.delete(`/admin/reviews/${id}`),
+
+  // Freelancer management
+  getPendingFreelancers: (params) =>
+    enhancedApi.get("/admin/freelancers/pending", { params }),
+  getFreelancerDetails: (id) => enhancedApi.get(`/admin/freelancers/${id}`),
+  approveFreelancer: (id, notes) =>
+    enhancedApi.put(`/admin/cleaners/${id}/background-check`, {
+      status: "approved",
+      notes,
+    }),
+  rejectFreelancer: (id, notes) =>
+    enhancedApi.put(`/admin/cleaners/${id}/background-check`, {
+      status: "rejected",
+      notes,
+    }),
 };
 
 // ForeverClean Membership API endpoints

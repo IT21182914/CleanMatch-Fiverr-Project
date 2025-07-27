@@ -8,6 +8,7 @@ import {
   ExclamationTriangleIcon,
   ShieldCheckIcon,
   CreditCardIcon,
+  ClockIcon,
 } from "@heroicons/react/24/outline";
 import {
   Card,
@@ -72,6 +73,7 @@ const AdminDashboard = () => {
         totalBookings: 0,
         totalRevenue: 0,
         pendingBookings: 0,
+        pendingFreelancers: 0,
       });
       setRecentBookings([]);
     } finally {
@@ -118,7 +120,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardContent className="flex items-center">
             <div className="flex-shrink-0">
@@ -190,6 +192,24 @@ const AdminDashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardContent className="flex items-center">
+            <div className="flex-shrink-0">
+              <ClockIcon className="h-8 w-8 text-yellow-600" />
+            </div>
+            <div className="ml-5 w-0 flex-1">
+              <dl>
+                <dt className="text-sm font-medium text-gray-500 truncate">
+                  Pending Freelancers
+                </dt>
+                <dd className="text-lg font-medium text-gray-900">
+                  {stats.pendingFreelancers || 0}
+                </dd>
+              </dl>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick Actions */}
@@ -212,6 +232,24 @@ const AdminDashboard = () => {
                   </h3>
                   <p className="mt-2 text-sm text-gray-500">
                     View and manage customers and cleaners
+                  </p>
+                </div>
+              </div>
+            </Link>
+
+            <Link to="/admin/freelancers/pending">
+              <div className="relative rounded-lg border border-gray-300 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div>
+                  <span className="rounded-lg inline-flex p-3 bg-yellow-50 text-yellow-600">
+                    <ClockIcon className="h-6 w-6" />
+                  </span>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Pending Freelancers
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Review and approve freelancer applications
                   </p>
                 </div>
               </div>

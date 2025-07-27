@@ -145,6 +145,11 @@ const Navbar = () => {
       return [
         ...baseNav,
         { name: "Users", href: "/admin/users", icon: UserIcon },
+        {
+          name: "Pending Freelancers",
+          href: "/admin/freelancers/pending",
+          icon: UserIcon,
+        },
         { name: "Bookings", href: "/admin/bookings", icon: CalendarIcon },
         { name: "Services", href: "/admin/services", icon: CalendarIcon },
         { name: "Analytics", href: "/admin/analytics", icon: CreditCardIcon },

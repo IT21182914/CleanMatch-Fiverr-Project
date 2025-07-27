@@ -34,6 +34,23 @@ const getDashboardStats = async (req, res) => {
 
     stats.bookings = bookingStatsResult.rows[0];
 
+    // Pending freelancers count
+    const pendingFreelancersResult = await query(`
+      SELECT COUNT(*) as pending_count
+      FROM users u
+      JOIN cleaner_profiles cp ON u.id = cp.user_id
+      WHERE u.role = 'cleaner' 
+        AND cp.background_check_status = 'pending'
+        AND cp.id_front_url IS NOT NULL 
+        AND cp.id_back_url IS NOT NULL
+        AND cp.ssn_front_url IS NOT NULL
+        AND cp.ssn_back_url IS NOT NULL
+    `);
+
+    stats.pendingFreelancers = parseInt(
+      pendingFreelancersResult.rows[0].pending_count
+    );
+
     // Service statistics
     const serviceStatsResult = await query(`
       SELECT 
@@ -329,6 +346,119 @@ const getBookings = async (req, res) => {
 };
 
 /**
+ * @desc    Get pending freelancers awaiting approval
+ * @route   GET /api/admin/freelancers/pending
+ * @access  Private (Admin only)
+ */
+const getPendingFreelancers = async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+    const offset = (page - 1) * limit;
+
+    // Get freelancers with uploaded documents that are pending approval
+    const freelancersQuery = `
+      SELECT 
+        u.id, u.email, u.first_name, u.last_name, u.phone, u.address, u.city, u.state, u.zip_code,
+        u.created_at, u.is_active,
+        cp.cleaning_services, cp.cleaning_frequency, cp.preferred_hours, cp.message,
+        cp.id_front_url, cp.id_back_url, cp.ssn_front_url, cp.ssn_back_url,
+        cp.agreement_accepted, cp.terms_1099_accepted, cp.brings_supplies, cp.has_experience,
+        cp.background_check_status, cp.created_at as profile_created_at
+      FROM users u
+      JOIN cleaner_profiles cp ON u.id = cp.user_id
+      WHERE u.role = 'cleaner' 
+        AND cp.background_check_status = 'pending'
+        AND cp.id_front_url IS NOT NULL 
+        AND cp.id_back_url IS NOT NULL
+        AND cp.ssn_front_url IS NOT NULL
+        AND cp.ssn_back_url IS NOT NULL
+      ORDER BY u.created_at DESC
+      LIMIT $1 OFFSET $2
+    `;
+
+    const freelancersResult = await query(freelancersQuery, [limit, offset]);
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM users u
+      JOIN cleaner_profiles cp ON u.id = cp.user_id
+      WHERE u.role = 'cleaner' 
+        AND cp.background_check_status = 'pending'
+        AND cp.id_front_url IS NOT NULL 
+        AND cp.id_back_url IS NOT NULL
+        AND cp.ssn_front_url IS NOT NULL
+        AND cp.ssn_back_url IS NOT NULL
+    `;
+
+    const countResult = await query(countQuery);
+    const total = parseInt(countResult.rows[0].total);
+
+    res.json({
+      success: true,
+      freelancers: freelancersResult.rows,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error("Get pending freelancers error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving pending freelancers",
+    });
+  }
+};
+
+/**
+ * @desc    Get freelancer details by ID
+ * @route   GET /api/admin/freelancers/:id
+ * @access  Private (Admin only)
+ */
+const getFreelancerDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const freelancerQuery = `
+      SELECT 
+        u.id, u.email, u.first_name, u.last_name, u.phone, u.address, u.city, u.state, u.zip_code,
+        u.created_at, u.is_active, u.is_verified,
+        cp.cleaning_services, cp.cleaning_frequency, cp.preferred_hours, cp.message,
+        cp.id_front_url, cp.id_back_url, cp.ssn_front_url, cp.ssn_back_url,
+        cp.agreement_accepted, cp.terms_1099_accepted, cp.brings_supplies, cp.has_experience,
+        cp.background_check_status, cp.bio, cp.experience_years, cp.hourly_rate,
+        cp.rating, cp.total_jobs, cp.is_available, cp.created_at as profile_created_at
+      FROM users u
+      JOIN cleaner_profiles cp ON u.id = cp.user_id
+      WHERE u.id = $1 AND u.role = 'cleaner'
+    `;
+
+    const freelancerResult = await query(freelancerQuery, [id]);
+
+    if (freelancerResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Freelancer not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      freelancer: freelancerResult.rows[0],
+    });
+  } catch (error) {
+    console.error("Get freelancer details error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving freelancer details",
+    });
+  }
+};
+
+/**
  * @desc    Update cleaner background check status
  * @route   PUT /api/admin/cleaners/:id/background-check
  * @access  Private (Admin only)
@@ -336,7 +466,7 @@ const getBookings = async (req, res) => {
 const updateCleanerBackgroundCheck = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, notes } = req.body;
 
     const validStatuses = ["pending", "approved", "rejected"];
     if (!validStatuses.includes(status)) {
@@ -346,8 +476,9 @@ const updateCleanerBackgroundCheck = async (req, res) => {
       });
     }
 
+    // Update the background check status
     const updateResult = await query(
-      "UPDATE cleaner_profiles SET background_check_status = $1 WHERE user_id = $2",
+      "UPDATE cleaner_profiles SET background_check_status = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2",
       [status, id]
     );
 
@@ -358,9 +489,52 @@ const updateCleanerBackgroundCheck = async (req, res) => {
       });
     }
 
+    // If approved, also activate the user account
+    if (status === "approved") {
+      await query(
+        "UPDATE users SET is_active = true, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+        [id]
+      );
+    }
+
+    // Get user details for notification
+    const userResult = await query(
+      "SELECT email, first_name, last_name FROM users WHERE id = $1",
+      [id]
+    );
+
+    if (userResult.rows.length > 0) {
+      const user = userResult.rows[0];
+
+      // Create notification message based on status
+      let notificationTitle, notificationMessage;
+      if (status === "approved") {
+        notificationTitle = "🎉 Freelancer Application Approved!";
+        notificationMessage =
+          "Congratulations! Your freelancer application has been approved. You can now start receiving job assignments.";
+      } else if (status === "rejected") {
+        notificationTitle = "Application Update";
+        notificationMessage = `Your freelancer application requires attention. ${
+          notes || "Please contact support for more information."
+        }`;
+      }
+
+      // Insert notification for the user
+      if (notificationTitle) {
+        await query(
+          `INSERT INTO notifications (user_id, title, message, type, created_at)
+           VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)`,
+          [id, notificationTitle, notificationMessage, "freelancer_status"]
+        );
+      }
+    }
+
     res.json({
       success: true,
-      message: `Background check status updated to ${status}`,
+      message: `Freelancer application ${
+        status === "approved" ? "approved" : status
+      } successfully`,
+      status,
     });
   } catch (error) {
     console.error("Update background check error:", error);
@@ -623,6 +797,8 @@ module.exports = {
   updateUserStatus,
   getBookings,
   updateCleanerBackgroundCheck,
+  getPendingFreelancers,
+  getFreelancerDetails,
   getPayments,
   getRevenueAnalytics,
   getReviews,

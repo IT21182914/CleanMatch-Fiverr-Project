@@ -44,6 +44,9 @@ const CleanerAvailability = React.lazy(() =>
 
 // Admin pages
 const AdminUsers = React.lazy(() => import("./pages/admin/Users"));
+const AdminPendingFreelancers = React.lazy(() =>
+  import("./pages/admin/PendingFreelancers")
+);
 const AdminServices = React.lazy(() => import("./pages/admin/Services"));
 const AdminBookings = React.lazy(() => import("./pages/admin/Bookings"));
 const AdminAnalytics = React.lazy(() => import("./pages/admin/Analytics"));
@@ -187,6 +190,15 @@ function App() {
                     element={
                       <ProtectedRoute requiredRole="admin">
                         <AdminUsers />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/admin/freelancers/pending"
+                    element={
+                      <ProtectedRoute requiredRole="admin">
+                        <AdminPendingFreelancers />
                       </ProtectedRoute>
                     }
                   />

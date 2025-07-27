@@ -6,6 +6,8 @@ const {
   updateUserStatus,
   getBookings,
   updateCleanerBackgroundCheck,
+  getPendingFreelancers,
+  getFreelancerDetails,
   getPayments,
   getRevenueAnalytics,
   getReviews,
@@ -42,6 +44,21 @@ router.put(
   authorize("admin"),
   updateCleanerBackgroundCheck
 );
+
+// @route   GET /api/admin/freelancers/pending
+// @desc    Get pending freelancers awaiting approval
+// @access  Private (Admin only)
+router.get(
+  "/freelancers/pending",
+  auth,
+  authorize("admin"),
+  getPendingFreelancers
+);
+
+// @route   GET /api/admin/freelancers/:id
+// @desc    Get freelancer details by ID
+// @access  Private (Admin only)
+router.get("/freelancers/:id", auth, authorize("admin"), getFreelancerDetails);
 
 // @route   GET /api/admin/payments
 // @desc    Get payment analytics
