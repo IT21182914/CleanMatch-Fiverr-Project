@@ -285,7 +285,7 @@ const PendingFreelancers = () => {
               </p>
             </div>
           ) : (
-            <div className="overflow-hidden">
+            <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -304,7 +304,7 @@ const PendingFreelancers = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Applied
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
                       Actions
                     </th>
                   </tr>
@@ -414,26 +414,26 @@ const PendingFreelancers = () => {
                         {formatDateTime(freelancer.created_at)}
                       </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-48">
                         <div className="flex items-center space-x-2">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleViewDetails(freelancer.id)}
-                            className="flex items-center"
+                            className="flex items-center text-blue-600 hover:text-blue-800 hover:bg-blue-50"
                           >
                             <EyeIcon className="h-4 w-4 mr-1" />
                             View
                           </Button>
 
                           <Button
-                            variant="outline"
+                            variant="success"
                             size="sm"
                             loading={updating[freelancer.id]}
                             onClick={() =>
                               handleActionClick(freelancer, "approve")
                             }
-                            className="text-green-600 border-green-300 hover:bg-green-50"
+                            className="flex items-center"
                           >
                             <CheckCircleIcon className="h-4 w-4 mr-1" />
                             Approve
@@ -446,7 +446,7 @@ const PendingFreelancers = () => {
                             onClick={() =>
                               handleActionClick(freelancer, "reject")
                             }
-                            className="text-red-600 border-red-300 hover:bg-red-50"
+                            className="text-red-600 border-red-300 hover:bg-red-50 flex items-center"
                           >
                             <XCircleIcon className="h-4 w-4 mr-1" />
                             Reject
