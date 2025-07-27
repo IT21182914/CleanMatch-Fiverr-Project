@@ -17,6 +17,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
 import Button from "../ui/Button";
+import ContractorAgreementModal from "../ui/ContractorAgreementModal";
 import { validateEmail, validatePassword } from "../../lib/utils";
 
 const RoleBasedRegistrationForm = () => {
@@ -59,6 +60,7 @@ const RoleBasedRegistrationForm = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
 
   const { register, login } = useAuth();
   const navigate = useNavigate();
@@ -1746,8 +1748,14 @@ const RoleBasedRegistrationForm = () => {
                         className="mt-1 h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded"
                       />
                       <span className="ml-2 text-sm text-gray-700">
-                        I have read and understand the 1099 freelancer agreement
-                        and all Terms
+                        I have read and understand the{" "}
+                        <button
+                          type="button"
+                          onClick={() => setShowAgreementModal(true)}
+                          className="text-cyan-600 hover:text-cyan-500 font-medium underline"
+                        >
+                          1099 freelancer agreement and all Terms
+                        </button>
                       </span>
                     </label>
                     {errors.agree1099Terms && (
@@ -1943,6 +1951,12 @@ const RoleBasedRegistrationForm = () => {
           </div>
         </div>
       </div>
+
+      {/* Contractor Agreement Modal */}
+      <ContractorAgreementModal
+        isOpen={showAgreementModal}
+        onClose={() => setShowAgreementModal(false)}
+      />
     </div>
   );
 };
