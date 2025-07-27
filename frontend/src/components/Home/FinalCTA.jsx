@@ -15,9 +15,9 @@ const FinalCTA = ({ setShowTermsModal }) => {
           Ready for Professional Cleaning?
         </h2>
         <p className="text-lg xs:text-xl text-white/90 mb-8 xs:mb-10 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-2 xs:px-0">
-          Join 75,000+ satisfied customers who trust SIMORGH SERVICE for all
-          their cleaning needs. Get instant access to 50+ professional
-          services at member rates.
+          Join 900,000+ satisfied customers who trust SIMORGH SERVICE for all
+          their cleaning needs. Get instant access to 50+ professional services
+          at member rates.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 xs:gap-6 sm:gap-8">
           <Link to="/register" className="w-full sm:w-auto group">

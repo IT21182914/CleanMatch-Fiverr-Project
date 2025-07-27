@@ -9,9 +9,9 @@ import {
 const TrustStats = () => {
   const trustStats = [
     { label: "Average Rating", value: "4.9/5", icon: StarIcon },
-    { label: "Customers Served", value: "75,000+", icon: UsersIcon },
+    { label: "Customers Served", value: "900,000+", icon: UsersIcon },
     { label: "Services Available", value: "50+", icon: SparklesIcon },
-    { label: "Cities Covered", value: "35+", icon: TrophyIcon },
+    { label: "Cities Covered", value: "36+", icon: TrophyIcon },
   ];
 
   return (
@@ -26,8 +26,7 @@ const TrustStats = () => {
             Why Choose SIMORGH SERVICE
           </h2>
           <p className="text-lg xs:text-xl text-slate-600 px-2 xs:px-0">
-            Join our growing community of satisfied customers across 35+
-            cities
+            Join our growing community of satisfied customers across 35+ cities
           </p>
         </div>
 

@@ -53,9 +53,9 @@ const HeroSection = () => {
 
           {/* Description - Responsive */}
           <p className="text-lg xs:text-xl sm:text-2xl text-slate-600 max-w-4xl mx-auto mb-8 xs:mb-10 sm:mb-12 leading-relaxed px-2 xs:px-0">
-            From house cleaning to luxury yacht maintenance - 50+ professional
-            services with vetted, insured cleaners. Join 75,000+ satisfied
-            customers across 35+ cities.
+            From house cleaning to luxury yacht maintenance 50+ professional
+            services with vetted, insured cleaners. Join 900,000+ satisfied
+            customers across 36+ cities.
           </p>
 
           {/* CTA Buttons - Responsive */}
