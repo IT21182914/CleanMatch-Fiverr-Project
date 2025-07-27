@@ -1702,13 +1702,7 @@ const RoleBasedRegistrationForm = () => {
                         className="mt-1 h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded"
                       />
                       <span className="ml-2 text-sm text-gray-700">
-                        I agree to the{" "}
-                        <Link
-                          to="/terms"
-                          className="text-cyan-600 hover:text-cyan-500 font-medium"
-                        >
-                          terms & conditions
-                        </Link>
+                        I agree to the terms & conditions
                       </span>
                     </label>
                     {errors.agreeTerms && (
