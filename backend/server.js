@@ -206,12 +206,14 @@ app.use("*", (req, res) => {
   }
 });
 
-// Serve static files in production
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static("public"));
-  app.use("/uploads", express.static("uploads"));
+// Serve static files
+app.use(express.static("public"));
+// Note: Upload files are now served from Supabase Storage
+// app.use("/uploads", express.static("uploads"));
 
-  // Catch all handler for SPA
+// Additional static file serving for development
+if (process.env.NODE_ENV === "production") {
+  // Catch all handler for SPA in production
   app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
   });

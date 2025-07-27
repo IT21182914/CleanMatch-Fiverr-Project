@@ -3,7 +3,8 @@ const {
   uploadDocuments,
   processUploadedFiles,
   deleteUploadedFiles,
-} = require("../utils/fileUpload");
+  createBucketIfNotExists,
+} = require("../utils/supabaseStorage");
 const { query } = require("../config/database");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -119,11 +120,7 @@ router.post(
       );
 
       if (existingUser.rows.length > 0) {
-        // Clean up uploaded files
-        const uploadedFilePaths = Object.values(req.files)
-          .flat()
-          .map((file) => file.filename);
-        deleteUploadedFiles(uploadedFilePaths);
+        // For Supabase storage, files are not uploaded yet at this point
         throw new ConflictError("User with this email already exists");
       }
 
@@ -131,10 +128,7 @@ router.post(
       const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-      // Process uploaded files
-      const fileUrls = processUploadedFiles(req.files);
-
-      // Create user
+      // Create user first
       const userResult = await dbOperation(
         () =>
           query(
@@ -158,6 +152,9 @@ router.post(
       );
 
       const user = userResult.rows[0];
+
+      // Process uploaded files with userId
+      const fileUrls = await processUploadedFiles(req.files, user.id);
 
       // Create Stripe customer (non-blocking)
       try {
