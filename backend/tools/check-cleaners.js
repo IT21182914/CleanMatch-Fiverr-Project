@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { query, connectDB } = require("./config/database");
+const { query, connectDB } = require("../config/database");
 
 const checkCleaners = async () => {
   try {

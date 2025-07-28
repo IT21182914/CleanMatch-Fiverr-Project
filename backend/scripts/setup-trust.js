@@ -1,5 +1,6 @@
 const { Pool } = require("pg");
-const config = require("./config/database");
+require("dotenv").config();
+const config = require("../config/database");
 
 const trustBadges = [
   {

@@ -27,12 +27,11 @@ An AI-powered cleaning services marketplace backend built with Node.js, Express,
 backend/
 ├── config/
 │   └── database.js          # PostgreSQL connection and table creation
-├── controllers/             # Business logic (Future: can be extracted from routes)
+├── controllers/             # Business logic controllers
 ├── middleware/
 │   ├── auth.js             # Authentication and authorization
 │   ├── errorHandler.js     # Global error handling
 │   └── validation.js       # Request validation schemas
-├── models/                 # Database models (Future: ORM integration)
 ├── routes/
 │   ├── auth.js             # Authentication endpoints
 │   ├── users.js            # User management
@@ -45,8 +44,29 @@ backend/
 │   ├── stripe.js           # Stripe payment utilities
 │   ├── email.js            # Email sending utilities
 │   └── scheduler.js        # Cron job management
+├── scripts/                # Setup and utility scripts
+│   ├── setup.js            # Main project setup
+│   ├── seed.js             # Database seeding
+│   └── create-admin.js     # Admin user creation
+├── database/               # Database scripts and migrations
+│   ├── migrations/         # Database migration files
+│   ├── add-rating-columns.js # Add rating functionality
+│   └── migrate-membership.js # Membership migrations
+├── tools/                  # Development and monitoring tools
+│   ├── db-monitor.js       # Database monitoring
+│   ├── process-manager.js  # Production process management
+│   └── check-users.js      # Data validation tools
+├── tests/                  # Test files
+│   ├── test-server.js      # Server tests
+│   ├── test-api.js         # API endpoint tests
+│   └── test-comprehensive.js # Full system tests
+├── docs/                   # Documentation
+│   ├── api.md              # API documentation
+│   ├── DATABASE_GUIDE.md   # Database setup guide
+│   └── PROJECT_OVERVIEW.md # Project overview
+├── uploads/                # File uploads directory
 ├── server.js               # Express server setup
-├── seed.js                 # Database seeding script
+├── package.json            # Dependencies and scripts
 └── .env.example            # Environment variables template
 ```
 

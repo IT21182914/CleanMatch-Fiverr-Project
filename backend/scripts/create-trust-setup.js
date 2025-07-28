@@ -266,7 +266,7 @@ console.log(
 // Also create a Node.js version for programmatic setup
 const nodeSetupContent = `
 const { Pool } = require('pg');
-const config = require('./config/database');
+const config = require('../config/database');
 
 const trustBadges = ${JSON.stringify(trustBadges, null, 2)};
 const testimonials = ${JSON.stringify(testimonials, null, 2)};

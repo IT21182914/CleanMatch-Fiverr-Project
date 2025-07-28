@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { query, connectDB } = require("./config/database");
+const { query, connectDB } = require("../config/database");
 
 /**
  * Setup the $18 first clean offer for new users with active memberships

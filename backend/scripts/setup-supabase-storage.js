@@ -1,5 +1,5 @@
 const { createClient } = require("@supabase/supabase-js");
-const { createBucketIfNotExists } = require("./utils/supabaseStorage");
+const { createBucketIfNotExists } = require("../utils/supabaseStorage");
 require("dotenv").config();
 
 // Initialize Supabase client with service role key for admin operations

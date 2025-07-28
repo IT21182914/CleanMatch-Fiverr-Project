@@ -1,4 +1,4 @@
-const { query } = require("./config/database");
+const { query } = require("../config/database");
 
 const runMembershipMigration = async () => {
   try {
@@ -144,7 +144,7 @@ const runMembershipMigration = async () => {
 
 // Run migration if this file is executed directly
 if (require.main === module) {
-  const { connectDB } = require("./config/database");
+  const { connectDB } = require("../config/database");
 
   const runMigration = async () => {
     try {
