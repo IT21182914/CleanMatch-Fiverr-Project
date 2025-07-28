@@ -32,16 +32,6 @@ const Home = () => {
       <HeroSection />
       <FeaturedServices />
 
-      {/* Membership CTA after featured services */}
-      <div className="py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <MembershipCTA
-            variant="default"
-            customText="Transform Your Cleaning Experience - Save 50% Today!"
-          />
-        </div>
-      </div>
-
       <StepsSection />
 
       {/* Professional Trust Section - Strategic placement for psychological impact */}
