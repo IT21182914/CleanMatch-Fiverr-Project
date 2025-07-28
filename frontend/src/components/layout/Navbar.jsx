@@ -163,11 +163,11 @@ const Navbar = () => {
   const navigation = getNavigation();
 
   return (
-    <nav className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-slate-200/60 sticky top-0 z-50 w-full">
-      <div className="w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto">
-        <div className="flex justify-between items-center h-14 xs:h-16 sm:h-18 md:h-20 lg:h-22 xl:h-24">
+    <nav className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-slate-200/60 sticky top-0 z-50 w-full overflow-visible">
+      <div className="w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto overflow-visible">
+        <div className="flex justify-between items-center h-14 xs:h-16 sm:h-18 md:h-20 lg:h-22 xl:h-24 overflow-visible">
           {/* Logo Section - Fully Responsive */}
-          <div className="flex items-center flex-shrink-0 min-w-0">
+          <div className="flex items-center flex-shrink-0 min-w-0 relative z-50">
             <Link to="/" className="flex items-center group">
               <div className="relative">
                 <img
@@ -181,8 +181,8 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation - Hidden on mobile/tablet */}
-          <div className="hidden lg:flex lg:items-center lg:space-x-1 xl:space-x-2 2xl:space-x-4 flex-shrink-0">
-            {navigation.map((item, index) => {
+          <div className="hidden lg:flex lg:items-center lg:space-x-1 xl:space-x-2 2xl:space-x-4 flex-shrink-0 overflow-visible">
+            {navigation.map((item) => {
               const Icon = item.icon;
               const isActive =
                 location.pathname === item.href ||
@@ -193,8 +193,7 @@ const Navbar = () => {
               //   return (
               //     <div
               //       key={item.name}
-              //       className="flex items-center relative"
-              //       style={{ zIndex: 100 - index }}
+              //       className="flex items-center relative z-40"
               //       ref={servicesRef}
               //     >
               //       <div className="relative">
@@ -204,7 +203,7 @@ const Navbar = () => {
               //             "group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm xl:text-sm font-semibold transition-all duration-300 border backdrop-blur-sm isolate whitespace-nowrap",
               //             "before:absolute before:inset-0 before:rounded-lg xl:before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-500 hover:before:translate-x-[100%]",
               //             isServicesDropdownOpen
-              //               ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white border-2 border-[#2BA8CD] shadow-lg xl:shadow-2xl shadow-[#4EC6E5]/50 scale-105 transform relative before:absolute before:inset-0 before:bg-white/20 before:rounded-lg xl:before:rounded-xl before:animate-pulse"
+              //               ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white border-2 border-[#2BA8CD] shadow-lg xl:shadow-2xl shadow-[#4EC6E5]/50 scale-105 transform relative before:absolute before:inset-0 before:bg-white/20 before:rounded-lg xl:before:rounded-xl before:animate-pulse z-50"
               //               : "text-slate-700 hover:!text-white bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:scale-105 hover:z-50"
               //           )}
               //         >
@@ -235,20 +234,19 @@ const Navbar = () => {
               return (
                 <div
                   key={item.name}
-                  className="flex items-center relative"
-                  style={{ zIndex: 100 - index }}
+                  className="flex items-center relative z-40"
                 >
                   <div className="relative">
                     <Link
                       to={item.href}
                       className={cn(
-                        "group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm xl:text-sm font-semibold transition-all duration-300 border backdrop-blur-sm isolate whitespace-nowrap",
+                        "group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm xl:text-sm font-semibold transition-all duration-300 border backdrop-blur-sm isolate whitespace-nowrap overflow-hidden",
                         "before:absolute before:inset-0 before:rounded-lg xl:before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-500 hover:before:translate-x-[100%]",
                         isActive
-                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white border-2 border-[#2BA8CD] shadow-lg xl:shadow-2xl shadow-[#4EC6E5]/50 scale-105 transform relative before:absolute before:inset-0 before:bg-white/20 before:rounded-lg xl:before:rounded-xl before:animate-pulse"
+                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white border-2 border-[#2BA8CD] shadow-lg xl:shadow-2xl shadow-[#4EC6E5]/50 transform relative before:absolute before:inset-0 before:bg-white/20 before:rounded-lg xl:before:rounded-xl before:animate-pulse z-40"
                           : item.highlight
-                          ? "text-[#4EC6E5] border-[#4EC6E5]/30 bg-[#F0FBFE] hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:!text-white hover:border-[#4EC6E5] hover:shadow-xl hover:shadow-[#4EC6E5]/25 hover:scale-105 hover:z-50"
-                          : "text-slate-700 hover:!text-white bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:scale-105 hover:z-50"
+                          ? "text-[#4EC6E5] border-[#4EC6E5]/30 bg-[#F0FBFE] hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:!text-white hover:border-[#4EC6E5] hover:shadow-xl hover:shadow-[#4EC6E5]/25 hover:z-40"
+                          : "text-slate-700 hover:!text-white bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:z-40"
                       )}
                     >
                       <Icon className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-1.5 xl:mr-2" />
@@ -263,12 +261,12 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Auth Section - Hidden on mobile/tablet */}
-          <div className="hidden lg:flex lg:items-center lg:space-x-1 xl:space-x-2 2xl:space-x-3 flex-shrink-0">
+          <div className="hidden lg:flex lg:items-center lg:space-x-1 xl:space-x-2 2xl:space-x-3 flex-shrink-0 overflow-visible">
             {isAuthenticated ? (
               <>
                 {/* Notifications */}
-                <div className="relative" style={{ zIndex: 80 }}>
-                  <button className="relative p-1.5 lg:p-2 xl:p-2.5 rounded-lg xl:rounded-xl text-slate-600 hover:text-[#4EC6E5] hover:bg-[#F0FBFE] transition-all duration-200 group isolate hover:z-50">
+                <div className="relative z-30">
+                  <button className="relative p-1.5 lg:p-2 xl:p-2.5 rounded-lg xl:rounded-xl text-slate-600 hover:text-[#4EC6E5] hover:bg-[#F0FBFE] transition-all duration-200 group isolate hover:z-40">
                     <BellIcon className="h-4 w-4 lg:h-5 lg:w-5" />
                     <span className="absolute -top-0.5 -right-0.5 lg:-top-1 lg:-right-1 w-2.5 h-2.5 lg:w-3 lg:h-3 xl:w-4 xl:h-4 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full flex items-center justify-center font-semibold">
                       3
@@ -277,7 +275,7 @@ const Navbar = () => {
                 </div>
 
                 {/* User Info */}
-                <div className="relative" style={{ zIndex: 70 }}>
+                <div className="relative z-30">
                   <div className="flex items-center space-x-1 lg:space-x-2 xl:space-x-3 px-2 py-1 lg:px-3 lg:py-1.5 xl:px-4 xl:py-2 rounded-lg xl:rounded-xl bg-gradient-to-r from-[#F0FBFE] to-[#E0F6FD] border border-[#BAEDFB]/30 isolate">
                     <div className="text-right hidden xl:block">
                       <p className="text-xs lg:text-sm font-semibold text-slate-900 truncate max-w-[80px] xl:max-w-[120px]">
@@ -300,33 +298,28 @@ const Navbar = () => {
                   </div>
                 </div>
 
-                {/* Membership CTA for Non-Member Customers */}
-                <MembershipCTAForCustomers variant="navbar" />
-
                 {/* Logout Button */}
-                <div className="relative" style={{ zIndex: 60 }}>
+                <div className="relative z-30">
                   <button
                     onClick={handleLogout}
-                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold text-slate-600 hover:text-white bg-white/50 hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 border border-slate-200 hover:border-red-500 transition-all duration-300 hover:shadow-lg hover:scale-105 backdrop-blur-sm isolate hover:z-50 whitespace-nowrap"
+                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold text-slate-600 hover:text-white bg-white/50 hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 border border-slate-200 hover:border-red-500 transition-all duration-300 hover:shadow-lg backdrop-blur-sm isolate hover:z-40 whitespace-nowrap"
                   >
                     <ArrowRightOnRectangleIcon className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-1.5 xl:mr-2" />
-                    <span className="relative z-10 hidden xl:inline">
-                      Logout
-                    </span>
+                    <span className="relative z-10">Logout</span>
                   </button>
                 </div>
               </>
             ) : (
               <>
                 {/* Membership CTA - New */}
-                <div className="relative" style={{ zIndex: 90 }}>
+                <div className="relative z-30">
                   <Link
                     to="/register"
                     state={{
                       membershipIntent: true,
                       redirectTo: "/memberships/subscribe",
                     }}
-                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold border transition-all duration-300 hover:shadow-lg xl:hover:shadow-xl hover:scale-105 backdrop-blur-sm !text-white bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-[#4EC6E5] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 isolate hover:z-50 whitespace-nowrap"
+                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold border transition-all duration-300 hover:shadow-lg xl:hover:shadow-xl backdrop-blur-sm !text-white bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-[#4EC6E5] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 isolate hover:z-40 whitespace-nowrap"
                   >
                     <SparklesIcon className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-1.5 xl:mr-2" />
                     <span className="relative z-10 hidden xl:inline">
@@ -337,18 +330,18 @@ const Navbar = () => {
                 </div>
 
                 {/* Auth Buttons */}
-                <div className="relative" style={{ zIndex: 80 }}>
+                <div className="relative z-30">
                   <Link
                     to="/login"
-                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-5 xl:py-2.5 2xl:px-6 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold border transition-all duration-300 hover:shadow-lg xl:hover:shadow-xl hover:scale-105 backdrop-blur-sm text-[#4EC6E5] border-[#4EC6E5]/30 bg-white/70 hover:bg-[#4EC6E5] hover:!text-white hover:border-[#4EC6E5] isolate hover:z-50 whitespace-nowrap"
+                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-5 xl:py-2.5 2xl:px-6 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold border transition-all duration-300 hover:shadow-lg xl:hover:shadow-xl backdrop-blur-sm text-[#4EC6E5] border-[#4EC6E5]/30 bg-white/70 hover:bg-[#4EC6E5] hover:!text-white hover:border-[#4EC6E5] isolate hover:z-40 whitespace-nowrap"
                   >
                     <span className="relative z-10">Sign In</span>
                   </Link>
                 </div>
-                <div className="relative" style={{ zIndex: 70 }}>
+                <div className="relative z-30">
                   <Link
                     to="/register"
-                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-5 xl:py-2.5 2xl:px-6 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold border transition-all duration-300 hover:shadow-lg xl:hover:shadow-xl hover:scale-105 backdrop-blur-sm !text-white bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-[#4EC6E5] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 isolate hover:z-50 whitespace-nowrap"
+                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-5 xl:py-2.5 2xl:px-6 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold border transition-all duration-300 hover:shadow-lg xl:hover:shadow-xl backdrop-blur-sm !text-white bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-[#4EC6E5] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 isolate hover:z-40 whitespace-nowrap"
                   >
                     <span className="relative z-10">Register</span>
                   </Link>
