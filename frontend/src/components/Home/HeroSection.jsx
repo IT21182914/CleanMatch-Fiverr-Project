@@ -10,7 +10,18 @@ import Button from "../ui/Button";
 
 const HeroSection = () => {
   return (
-    <section className="relative bg-gradient-to-br from-slate-50 via-white to-[#F0FBFE] pt-12 xs:pt-16 sm:pt-20 lg:pt-24 pb-16 xs:pb-20 sm:pb-24 md:pb-28 lg:pb-32 xl:pb-40 overflow-hidden">
+    <section
+      className="relative pt-12 xs:pt-16 sm:pt-20 lg:pt-24 pb-16 xs:pb-20 sm:pb-24 md:pb-28 lg:pb-32 xl:pb-40 overflow-hidden"
+      style={{
+        backgroundImage: "url('/images/cleaner-hero.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* Background Overlay for better text readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/30 to-white/50"></div>
+
       {/* Background Elements - Responsive */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-20 xs:-top-30 sm:-top-40 -right-20 xs:-right-30 sm:-right-40 w-40 xs:w-60 sm:w-80 h-40 xs:h-60 sm:h-80 bg-gradient-to-br from-[#4EC6E5]/10 to-[#2BA8CD]/10 rounded-full blur-3xl"></div>
