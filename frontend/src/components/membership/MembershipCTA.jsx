@@ -139,14 +139,12 @@ const MembershipCTA = ({
           </div>
         </div>
         <div className="flex items-center space-x-4">
-          <Button
+          <button
             onClick={handleMembershipClick}
-            variant="white"
-            size="lg"
-            className="text-orange-600 hover:text-orange-700"
+            className="px-6 py-3 text-base font-bold text-white border-2 border-white/30 rounded-lg bg-transparent hover:bg-white hover:text-orange-600 transition-all duration-300 hover:scale-105 hover:shadow-lg"
           >
             Become a Member
-          </Button>
+          </button>
           {onClose && (
             <button
               onClick={onClose}

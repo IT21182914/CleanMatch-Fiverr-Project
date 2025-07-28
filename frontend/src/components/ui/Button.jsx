@@ -58,6 +58,10 @@ const Button = forwardRef(
 
       // Link style
       link: "bg-transparent text-cyan-600 hover:text-cyan-700 underline hover:no-underline border border-transparent focus:ring-cyan-500 p-0",
+
+      // White - White background with dark text
+      white:
+        "bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 focus:ring-gray-500 shadow-sm hover:shadow-md",
     };
 
     const sizes = {
