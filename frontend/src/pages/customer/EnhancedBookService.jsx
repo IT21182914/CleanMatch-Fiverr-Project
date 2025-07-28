@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { servicesAPI, bookingsAPI } from "../../lib/api";
+// import { useAuth } from "../../contexts/AuthContext";
 import { Input, Select, Textarea } from "../../components/ui/Form";
 import Button from "../../components/ui/Button";
 import {
@@ -11,6 +12,8 @@ import {
 } from "../../components/ui/Card";
 import { LoadingCard } from "../../components/ui/Loading";
 import AICleanerMatcher from "../../components/ai/AICleanerMatcher";
+import ServicePricingBanner from "../../components/membership/ServicePricingBanner";
+import PricingDisplay from "../../components/booking/PricingDisplay";
 import { formatCurrency, validateZipCode } from "../../lib/utils";
 import { Brain, MapPin, Calendar, Clock, CreditCard } from "lucide-react";
 
@@ -263,6 +266,28 @@ const EnhancedBookService = () => {
                 ))}
               </Select>
             </div>
+
+            {/* Membership Pricing Banner - Show when service and duration are selected */}
+            {formData.serviceId && formData.durationHours && (
+              <ServicePricingBanner
+                serviceName={getSelectedService()?.name || "this service"}
+                hourlyRate={getSelectedService()?.base_price || 36}
+                hours={formData.durationHours}
+                className="my-6"
+              />
+            )}
+
+            {/* Pricing Display - Enhanced with membership information */}
+            {formData.serviceId && formData.durationHours && (
+              <PricingDisplay
+                serviceId={formData.serviceId}
+                hours={formData.durationHours}
+                variant="detailed"
+                showMembershipInfo={true}
+                showUpgradePrompt={true}
+                className="my-6"
+              />
+            )}
 
             {/* Date and Time */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

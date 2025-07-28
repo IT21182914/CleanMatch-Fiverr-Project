@@ -78,6 +78,7 @@ const PricingDisplay = ({
     return {
       basic: amount * 0.15,
       premium: amount * 0.25,
+      supersaver: amount * 0.5, // 50% savings
       foreverclean: amount * 0.35,
     };
   };
@@ -280,17 +281,15 @@ const PricingDisplay = ({
                   <h4 className="font-semibold text-blue-900 mb-2">
                     💡 Save More with ForeverClean Membership
                   </h4>
-
                   <div className="space-y-2 mb-3">
                     <div className="text-sm text-blue-800">
                       <span className="font-semibold">
                         You could save{" "}
-                        {formatCurrency(potentialSavings.foreverclean)}
+                        {formatCurrency(potentialSavings.supersaver)}
                       </span>{" "}
-                      on this service with our ForeverClean plan!
+                      on this service with our SuperSaver plan (50% off)!
                     </div>
-                  </div>
-
+                  </div>{" "}
                   {showUpgradePrompt && (
                     <button
                       onClick={() =>
@@ -301,9 +300,14 @@ const PricingDisplay = ({
                       See all membership savings →
                     </button>
                   )}
-
                   {showSavingsBreakdown && (
                     <div className="mt-3 space-y-2 text-sm">
+                      <div className="flex justify-between text-orange-700 font-bold">
+                        <span>SuperSaver (50% off):</span>
+                        <span className="font-bold">
+                          Save {formatCurrency(potentialSavings.supersaver)}
+                        </span>
+                      </div>
                       <div className="flex justify-between text-blue-700">
                         <span>ForeverClean (35% off):</span>
                         <span className="font-semibold">
@@ -324,7 +328,6 @@ const PricingDisplay = ({
                       </div>
                     </div>
                   )}
-
                   {showUpgradePrompt && onMembershipClick && (
                     <div className="mt-4">
                       <Button

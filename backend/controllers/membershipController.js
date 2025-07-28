@@ -7,6 +7,23 @@ const {
 
 // ForeverClean membership plans configuration
 const MEMBERSHIP_PLANS = {
+  supersaver: {
+    name: "SuperSaver Monthly",
+    monthlyFee: 59.0,
+    discountPercentage: 50.0,
+    stripePriceId: process.env.STRIPE_SUPERSAVER_PRICE_ID,
+    features: [
+      "50% discount on all cleaning services",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "Money-back guarantee",
+    ],
+    popular: true,
+    tagline: "Save 50% on every service",
+    badge: "Most Popular",
+  },
   basic: {
     name: "ForeverClean Basic",
     monthlyFee: 49.0,

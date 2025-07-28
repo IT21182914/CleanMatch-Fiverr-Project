@@ -7,7 +7,7 @@ import {
   SparklesIcon,
   StarIcon,
 } from "@heroicons/react/24/outline";
-import { FaCrown } from "react-icons/fa";
+import { FaCrown, FaStar, FaCheckCircle } from "react-icons/fa";
 import {
   Card,
   CardHeader,
@@ -62,10 +62,7 @@ const MembershipSubscription = () => {
         setShowPayment(true);
       } else {
         // Subscription was successful without additional payment required
-        showToast(
-          "Successfully subscribed to ForeverClean membership!",
-          "success"
-        );
+        showToast("Successfully subscribed to your membership!", "success");
         navigate("/customer/profile");
       }
     } catch (error) {
@@ -95,17 +92,21 @@ const MembershipSubscription = () => {
 
   const getTierIcon = (tier) => {
     switch (tier) {
+      case "supersaver":
+        return <SparklesIcon className="h-8 w-8 text-orange-500" />;
       case "gold":
         return <FaCrown className="h-8 w-8 text-cyan-500" />;
       case "premium":
-        return <StarIcon className="h-8 w-8 text-purple-500" />;
+        return <FaStar className="h-8 w-8 text-purple-500" />;
       default:
-        return <SparklesIcon className="h-8 w-8 text-blue-500" />;
+        return <FaCheckCircle className="h-8 w-8 text-blue-500" />;
     }
   };
 
   const getTierGradient = (tier) => {
     switch (tier) {
+      case "supersaver":
+        return "from-orange-400 to-red-600";
       case "gold":
         return "from-cyan-400 to-cyan-600";
       case "premium":
@@ -185,12 +186,35 @@ const MembershipSubscription = () => {
       {/* Header */}
       <div className="text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Join ForeverClean Membership
+          Join Our Membership & Save 50%
         </h1>
         <p className="text-xl text-gray-600 mb-8">
-          Save money on every cleaning service with our exclusive membership
-          plans
+          Get unlimited access to all cleaning services at member rates
         </p>
+
+        {/* Highlight SuperSaver Plan */}
+        <div className="bg-gradient-to-r from-orange-100 to-red-100 border border-orange-200 rounded-xl p-6 mb-8 max-w-2xl mx-auto">
+          <div className="flex items-center justify-center mb-3">
+            <SparklesIcon className="h-8 w-8 text-orange-600 mr-3" />
+            <span className="text-2xl font-bold text-gray-900">
+              SuperSaver Special
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <div className="text-3xl font-bold text-orange-600">50%</div>
+              <div className="text-sm text-gray-600">Discount</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-orange-600">$59</div>
+              <div className="text-sm text-gray-600">Per Month</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-orange-600">$18</div>
+              <div className="text-sm text-gray-600">House Cleaning/hr</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Plans Grid */}

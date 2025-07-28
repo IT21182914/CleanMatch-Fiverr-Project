@@ -45,7 +45,9 @@ const MembershipSection = () => {
               <span className="text-4xl xs:text-5xl sm:text-6xl font-bold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent">
                 $18-45
               </span>
-              <span className="text-xl xs:text-2xl text-slate-500 ml-2 xs:ml-3">/hour</span>
+              <span className="text-xl xs:text-2xl text-slate-500 ml-2 xs:ml-3">
+                /hour
+              </span>
             </div>
             <p className="text-slate-600 text-base xs:text-lg">
               50+ services • Member rates • Professional cleaners
@@ -69,7 +71,9 @@ const MembershipSection = () => {
                 ].map((benefit, index) => (
                   <li key={index} className="flex items-start">
                     <CheckCircleIcon className="h-5 xs:h-6 w-5 xs:w-6 text-[#4EC6E5] mr-3 xs:mr-4 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700 text-base xs:text-lg">{benefit}</span>
+                    <span className="text-slate-700 text-base xs:text-lg">
+                      {benefit}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -118,27 +122,36 @@ const MembershipSection = () => {
                 </div>
                 <div className="border-t border-[#BAEDFB] pt-3 xs:pt-4 flex justify-between items-center font-bold text-lg xs:text-xl">
                   <span>You Save:</span>
-                  <span className="text-[#4EC6E5] text-xl xs:text-2xl">Up to 55%</span>
+                  <span className="text-[#4EC6E5] text-xl xs:text-2xl">
+                    50% OFF
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="text-center">
-            <Link to="/register" className="group">
+            <Link
+              to="/register"
+              state={{
+                membershipIntent: true,
+                redirectTo: "/memberships/subscribe",
+              }}
+              className="group"
+            >
               <div className="relative inline-block">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] rounded-xl xs:rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <Button
                   size="lg"
                   className="relative px-6 xs:px-8 sm:px-10 py-3 xs:py-4 sm:py-5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white font-bold text-lg xs:text-xl rounded-xl xs:rounded-2xl transition-all duration-300 group-hover:scale-105"
                 >
-                  Join SIMORGH SERVICE Today
+                  Start Saving 50% Today
                   <ArrowRightIcon className="ml-2 xs:ml-3 h-5 xs:h-6 w-5 xs:w-6 group-hover:translate-x-1 transition-transform duration-200" />
                 </Button>
               </div>
             </Link>
             <p className="text-slate-500 mt-3 xs:mt-4 text-base xs:text-lg">
-              Instant access • No setup fees • Cancel anytime
+              Instant access • $59/month • Cancel anytime
             </p>
           </div>
         </div>

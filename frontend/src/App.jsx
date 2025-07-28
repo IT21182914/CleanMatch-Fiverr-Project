@@ -82,6 +82,16 @@ function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
 
+                  {/* Public membership routes - no login required */}
+                  <Route
+                    path="/memberships/subscribe"
+                    element={<MembershipSubscription />}
+                  />
+                  <Route
+                    path="/memberships/plans"
+                    element={<MembershipSubscription />}
+                  />
+
                   {/* Protected routes */}
                   <Route
                     path="/dashboard"

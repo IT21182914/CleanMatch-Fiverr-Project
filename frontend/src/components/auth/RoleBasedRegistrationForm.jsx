@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   EyeIcon,
   EyeSlashIcon,
@@ -22,6 +22,14 @@ import { validateEmail, validatePassword } from "../../lib/utils";
 
 const RoleBasedRegistrationForm = () => {
   const [selectedRole, setSelectedRole] = useState("customer");
+  const location = useLocation();
+  const { register, login } = useAuth();
+  const navigate = useNavigate();
+
+  // Check if user came here with membership intent
+  const membershipIntent = location.state?.membershipIntent;
+  const redirectTo = location.state?.redirectTo || "/dashboard";
+
   const [formData, setFormData] = useState({
     // Common fields
     email: "",
@@ -61,9 +69,6 @@ const RoleBasedRegistrationForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showAgreementModal, setShowAgreementModal] = useState(false);
-
-  const { register, login } = useAuth();
-  const navigate = useNavigate();
 
   // Function to check if email is already registered
   const checkEmailAvailability = async (email) => {
@@ -470,7 +475,18 @@ const RoleBasedRegistrationForm = () => {
 
         const result = await register(registrationData);
         if (result.success) {
-          navigate("/dashboard");
+          // Check if user came here with membership intent
+          if (membershipIntent && redirectTo) {
+            navigate(redirectTo, {
+              state: {
+                selectedTier: "supersaver",
+                welcomeMessage:
+                  "Welcome! Complete your membership subscription below.",
+              },
+            });
+          } else {
+            navigate("/dashboard");
+          }
         } else {
           setErrors({ general: result.error });
         }
@@ -745,6 +761,24 @@ const RoleBasedRegistrationForm = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-cyan-50 flex flex-col justify-center py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-2xl">
+        {/* Membership Intent Banner */}
+        {membershipIntent && (
+          <div className="bg-gradient-to-r from-orange-100 to-red-100 border border-orange-200 rounded-xl p-4 mb-6">
+            <div className="flex items-center">
+              <SparklesIcon className="h-6 w-6 text-orange-600 mr-3" />
+              <div>
+                <h3 className="font-bold text-gray-900">
+                  🎉 Complete Your Registration to Unlock 50% Savings!
+                </h3>
+                <p className="text-sm text-gray-600">
+                  You're just one step away from joining our SuperSaver
+                  membership
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Logo and Header */}
         <div className="text-center mb-6">
           <div className="mx-auto mb-4 flex justify-center">
@@ -755,10 +789,14 @@ const RoleBasedRegistrationForm = () => {
             />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Join SIMORGH SERVICE Today
+            {membershipIntent
+              ? "Join & Start Saving 50%"
+              : "Join SIMORGH SERVICE Today"}
           </h2>
           <p className="text-base sm:text-lg text-gray-600">
-            Choose your role and create your account
+            {membershipIntent
+              ? "Create your account to access member pricing"
+              : "Choose your role and create your account"}
           </p>
         </div>
 

@@ -314,6 +314,24 @@ const Navbar = () => {
               </>
             ) : (
               <>
+                {/* Membership CTA - New */}
+                <div className="relative" style={{ zIndex: 90 }}>
+                  <Link
+                    to="/register"
+                    state={{
+                      membershipIntent: true,
+                      redirectTo: "/memberships/subscribe",
+                    }}
+                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold border transition-all duration-300 hover:shadow-lg xl:hover:shadow-xl hover:scale-105 backdrop-blur-sm !text-white bg-gradient-to-r from-orange-500 to-red-500 border-orange-500 hover:from-orange-600 hover:to-red-600 shadow-lg shadow-orange-500/25 isolate hover:z-50 whitespace-nowrap"
+                  >
+                    <SparklesIcon className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-1.5 xl:mr-2" />
+                    <span className="relative z-10 hidden xl:inline">
+                      Save 50%
+                    </span>
+                    <span className="relative z-10 xl:hidden">Member</span>
+                  </Link>
+                </div>
+
                 {/* Auth Buttons */}
                 <div className="relative" style={{ zIndex: 80 }}>
                   <Link
