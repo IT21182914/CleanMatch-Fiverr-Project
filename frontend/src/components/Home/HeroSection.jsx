@@ -62,12 +62,14 @@ const HeroSection = () => {
   };
   return (
     <section
-      className="relative pt-12 xs:pt-16 sm:pt-20 lg:pt-24 pb-16 xs:pb-20 sm:pb-24 md:pb-28 lg:pb-32 xl:pb-40 overflow-hidden"
+      className="hero-background relative pt-12 xs:pt-16 sm:pt-20 lg:pt-24 pb-16 xs:pb-20 sm:pb-24 md:pb-28 lg:pb-32 xl:pb-40 overflow-hidden"
       style={{
         backgroundImage: "url('/images/cleaner-hero.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
+        willChange: "transform", // Optimize for animations/transforms
+        backfaceVisibility: "hidden", // Improve rendering performance
       }}
     >
       {/* Background Overlay for better text readability */}

@@ -1,10 +1,24 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React</title>
+    <!-- Preload critical hero background image for faster loading -->
+    <link
+      rel="preload"
+      as="image"
+      href="/images/cleaner-hero.webp"
+      fetchpriority="high"
+    />
+    <!-- Preload logo for faster navbar and layout rendering -->
+    <link
+      rel="preload"
+      as="image"
+      href="/Simorgh-Service-Logo.webp"
+      fetchpriority="high"
+    />
   </head>
   <body>
     <div id="root"></div>

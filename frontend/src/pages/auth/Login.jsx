@@ -92,7 +92,7 @@ const Login = () => {
             <img
               src="/Simorgh-Service-Logo.webp"
               alt="Simorgh Service Logo"
-              className="h-16 w-auto sm:h-20 object-contain hover:scale-105 transition-all duration-300"
+              className="logo-image h-16 w-auto sm:h-20 object-contain hover:scale-105 transition-all duration-300"
             />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">

@@ -62,7 +62,7 @@ const Layout = ({ children }) => {
                     <img
                       src="/Simorgh-Service-Logo.webp"
                       alt="Simorgh Service Logo"
-                      className="h-8 xs:h-10 sm:h-12 w-auto object-contain filter brightness-0 invert hover:brightness-110 transition-all duration-300"
+                      className="logo-image h-8 xs:h-10 sm:h-12 w-auto object-contain filter brightness-0 invert hover:brightness-110 transition-all duration-300"
                     />
                   </div>
                 </div>

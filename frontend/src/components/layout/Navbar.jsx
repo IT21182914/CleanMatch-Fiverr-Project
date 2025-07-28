@@ -173,7 +173,7 @@ const Navbar = () => {
                 <img
                   src="/Simorgh-Service-Logo.webp"
                   alt="Simorgh Service Logo"
-                  className="h-8 xs:h-9 sm:h-10 md:h-12 lg:h-14 xl:h-16 w-auto object-contain group-hover:scale-105 transition-all duration-300 filter group-hover:brightness-110"
+                  className="logo-image h-8 xs:h-9 sm:h-10 md:h-12 lg:h-14 xl:h-16 w-auto object-contain group-hover:scale-105 transition-all duration-300 filter group-hover:brightness-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-[#4EC6E5]/10 to-[#2BA8CD]/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>

@@ -120,6 +120,24 @@ nav {
 
 /* Removed global button styles that were conflicting with Tailwind utilities */
 
+/* Performance optimizations for background images */
+.hero-background {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+  transform: translateZ(0); /* Force GPU acceleration */
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Performance optimizations for logo images */
+.logo-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+  transform: translateZ(0); /* Force GPU acceleration */
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
