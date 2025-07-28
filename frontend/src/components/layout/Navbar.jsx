@@ -17,6 +17,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
+import MembershipCTAForCustomers from "../membership/MembershipCTAForCustomers";
 // import ServicesDropdown from "./ServicesDropdown";
 
 const Navbar = () => {
@@ -299,6 +300,9 @@ const Navbar = () => {
                   </div>
                 </div>
 
+                {/* Membership CTA for Non-Member Customers */}
+                <MembershipCTAForCustomers variant="navbar" />
+
                 {/* Logout Button */}
                 <div className="relative" style={{ zIndex: 60 }}>
                   <button
@@ -322,7 +326,7 @@ const Navbar = () => {
                       membershipIntent: true,
                       redirectTo: "/memberships/subscribe",
                     }}
-                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold border transition-all duration-300 hover:shadow-lg xl:hover:shadow-xl hover:scale-105 backdrop-blur-sm !text-white bg-gradient-to-r from-orange-500 to-red-500 border-orange-500 hover:from-orange-600 hover:to-red-600 shadow-lg shadow-orange-500/25 isolate hover:z-50 whitespace-nowrap"
+                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold border transition-all duration-300 hover:shadow-lg xl:hover:shadow-xl hover:scale-105 backdrop-blur-sm !text-white bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-[#4EC6E5] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 isolate hover:z-50 whitespace-nowrap"
                   >
                     <SparklesIcon className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-1.5 xl:mr-2" />
                     <span className="relative z-10 hidden xl:inline">
