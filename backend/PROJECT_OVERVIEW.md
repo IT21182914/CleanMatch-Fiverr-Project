@@ -124,10 +124,14 @@ backend/
 │   └── scheduler.js         # Cron job management
 ├── docs/
 │   └── api.md               # API documentation
+├── tests/                   # Test files directory
+│   ├── test-server.js       # Basic server testing
+│   ├── test-api.js          # API endpoint tests
+│   ├── test-comprehensive.js # Comprehensive system tests
+│   └── ...                  # Other test files
 ├── server.js                # Express application
 ├── seed.js                  # Database seeding
 ├── setup.js                 # Project setup script
-├── test-server.js           # Basic server testing
 └── README.md                # Comprehensive documentation
 ```
 

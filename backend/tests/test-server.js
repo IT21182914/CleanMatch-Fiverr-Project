@@ -7,7 +7,7 @@ const testHealthCheck = async () => {
     console.log("🧪 Testing CleanMatch Backend...\n");
 
     // Import app after env is loaded
-    const app = require("./server");
+    const app = require("../server");
 
     console.log("Testing health endpoint...");
     const response = await request(app).get("/health");

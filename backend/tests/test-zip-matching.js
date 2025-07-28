@@ -7,7 +7,7 @@ const {
   calculateZipProximityScore,
   calculateDistanceWithZipFallback,
   calculateEnhancedMatchScore,
-} = require("./utils/matchCleaner");
+} = require("../utils/matchCleaner");
 
 console.log("=== ZIP Code Matching System Test ===\n");
 
