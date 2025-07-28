@@ -3,6 +3,7 @@ import {
   HeroSection,
   FeaturedServices,
   StepsSection,
+  ProfessionalTrustSection,
   ServicesShowcase,
   MembershipSection,
   TrustStats,
@@ -42,6 +43,10 @@ const Home = () => {
       </div>
 
       <StepsSection />
+
+      {/* Professional Trust Section - Strategic placement for psychological impact */}
+      <ProfessionalTrustSection />
+
       <ServicesShowcase />
       <MembershipSection />
       <TrustStats />
