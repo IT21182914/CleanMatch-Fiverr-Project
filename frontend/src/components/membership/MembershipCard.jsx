@@ -47,7 +47,7 @@ const MembershipCard = () => {
   const handleCancelMembership = async () => {
     if (
       !confirm(
-        "Are you sure you want to cancel your ForeverClean membership? You'll lose access to member pricing at the end of your current billing period."
+        "Are you sure you want to cancel your membership? You'll lose access to member pricing at the end of your current billing period."
       )
     ) {
       return;
@@ -148,7 +148,7 @@ const MembershipCard = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <CreditCardIcon className="h-5 w-5 mr-2" />
-            ForeverClean Membership
+            Membership
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -157,7 +157,7 @@ const MembershipCard = () => {
               <SparklesIcon className="h-8 w-8 text-blue-600" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Join ForeverClean Today!
+              Join Membership Today!
             </h3>
             <p className="text-gray-600 mb-6">
               Save up to 35% on all cleaning services with our membership plans
@@ -210,7 +210,7 @@ const MembershipCard = () => {
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center">
             <CreditCardIcon className="h-5 w-5 mr-2" />
-            ForeverClean Membership
+            Membership
           </div>
           <span
             className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipStatusColor(

@@ -79,7 +79,7 @@ const PricingDisplay = ({
       basic: amount * 0.15,
       premium: amount * 0.25,
       supersaver: amount * 0.5, // 50% savings
-      foreverclean: amount * 0.35,
+      gold: amount * 0.35,
     };
   };
 
@@ -143,7 +143,7 @@ const PricingDisplay = ({
       {hasMembershipDiscount && (
         <div className="mt-2 text-xs text-green-600 flex items-center">
           <TagIcon className="h-3 w-3 mr-1" />
-          Saved {formatCurrency(calculation.discountAmount)} with ForeverClean
+          Saved {formatCurrency(calculation.discountAmount)} with Membership
         </div>
       )}
     </div>
@@ -216,7 +216,13 @@ const PricingDisplay = ({
                 <div className="flex items-center">
                   <SparklesIcon className="h-5 w-5 text-green-600 mr-2" />
                   <span className="text-green-800 font-medium">
-                    ForeverClean {calculation.discountPercentage}% Discount
+                    {calculation.membershipTier === "supersaver"
+                      ? "SuperSaver"
+                      : calculation.membershipTier === "gold"
+                      ? "Gold"
+                      : calculation.membershipTier?.charAt(0).toUpperCase() +
+                        calculation.membershipTier?.slice(1)}{" "}
+                    {calculation.discountPercentage}% Discount
                   </span>
                 </div>
                 <span className="text-green-600 font-semibold">
@@ -255,7 +261,7 @@ const PricingDisplay = ({
               <CheckCircleIcon className="h-5 w-5 text-yellow-600 mr-2 mt-0.5" />
               <div>
                 <h4 className="font-semibold text-yellow-800 mb-2">
-                  ForeverClean Benefits Applied
+                  Membership Benefits Applied
                 </h4>
                 <ul className="text-sm text-yellow-700 space-y-1">
                   <li>
@@ -279,7 +285,7 @@ const PricingDisplay = ({
                 <GiftIcon className="h-6 w-6 text-blue-600 mr-3 mt-0.5" />
                 <div className="flex-1">
                   <h4 className="font-semibold text-blue-900 mb-2">
-                    💡 Save More with ForeverClean Membership
+                    💡 Save More with Membership
                   </h4>
                   <div className="space-y-2 mb-3">
                     <div className="text-sm text-blue-800">
@@ -309,9 +315,9 @@ const PricingDisplay = ({
                         </span>
                       </div>
                       <div className="flex justify-between text-blue-700">
-                        <span>ForeverClean (35% off):</span>
+                        <span>Gold (35% off):</span>
                         <span className="font-semibold">
-                          Save {formatCurrency(potentialSavings.foreverclean)}
+                          Save {formatCurrency(potentialSavings.gold)}
                         </span>
                       </div>
                       <div className="flex justify-between text-blue-600">
@@ -337,7 +343,7 @@ const PricingDisplay = ({
                         className="w-full"
                       >
                         <SparklesIcon className="h-4 w-4 mr-2" />
-                        Join ForeverClean - $49/month
+                        Join Membership - $49/month
                       </Button>
                     </div>
                   )}
@@ -353,7 +359,7 @@ const PricingDisplay = ({
               <ExclamationTriangleIcon className="h-5 w-5 text-orange-600 mr-2" />
               <div>
                 <span className="text-sm font-semibold text-orange-800">
-                  Your ForeverClean membership is ending soon!
+                  Your membership is ending soon!
                 </span>
                 <div className="text-sm text-orange-700 mt-1">
                   Reactivate to keep saving on all your cleaning services.

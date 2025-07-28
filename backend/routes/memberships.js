@@ -20,7 +20,7 @@ const router = express.Router();
 router.get("/plans", getMembershipPlans);
 
 // @route   POST /api/memberships/subscribe
-// @desc    Subscribe to ForeverClean membership
+// @desc    Subscribe to membership
 // @access  Private (Customers only)
 router.post("/subscribe", auth, authorize("customer"), subscribeToMembership);
 

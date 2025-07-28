@@ -78,7 +78,7 @@ const MembershipSubscription = () => {
 
   const handlePaymentSuccess = () => {
     showToast(
-      "Welcome to ForeverClean! Your membership is now active.",
+      "Welcome to CleanMatch! Your membership is now active.",
       "success"
     );
     navigate("/customer/profile");
@@ -150,7 +150,7 @@ const MembershipSubscription = () => {
       <div className="max-w-md mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>Complete Your ForeverClean Subscription</CardTitle>
+            <CardTitle>Complete Your Subscription</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="mb-6">
@@ -286,7 +286,7 @@ const MembershipSubscription = () => {
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
         <CardContent className="p-8">
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
-            Why Choose ForeverClean Membership?
+            Why Choose Membership?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">

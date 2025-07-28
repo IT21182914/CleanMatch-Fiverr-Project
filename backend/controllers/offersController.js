@@ -47,7 +47,7 @@ const checkFirstCleanEligibility = async (req, res) => {
       return res.json({
         success: true,
         eligible: false,
-        reason: "Active ForeverClean membership required",
+        reason: "Active membership required",
       });
     }
 
@@ -281,7 +281,7 @@ const checkFirstCleanEligibilityInternal = async (userId) => {
     if (membershipResult.rows.length === 0) {
       return {
         eligible: false,
-        reason: "Active ForeverClean membership required",
+        reason: "Active membership required",
       };
     }
 

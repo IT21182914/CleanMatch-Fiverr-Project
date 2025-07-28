@@ -414,7 +414,7 @@ const Profile = () => {
         </CardContent>
       </Card>
 
-      {/* ForeverClean Membership */}
+      {/* Membership */}
       <MembershipCard />
 
       {/* Account Information */}

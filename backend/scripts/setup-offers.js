@@ -35,7 +35,7 @@ async function setupFirstCleanOffer() {
          RETURNING *`,
         [
           "First Clean Special - $18",
-          "Get your first cleaning service for just $18! Available for new customers with active ForeverClean memberships. Valid for 2, 3, 4, or 6-hour cleaning sessions.",
+          "Get your first cleaning service for just $18! Available for new customers with active memberships. Valid for 2, 3, 4, or 6-hour cleaning sessions.",
           "fixed_price",
           18.0,
           JSON.stringify({
@@ -59,7 +59,7 @@ async function setupFirstCleanOffer() {
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
         [
           "First Clean Special - $18",
-          "Get your first cleaning service for just $18! Available for new customers with active ForeverClean memberships. Valid for 2, 3, 4, or 6-hour cleaning sessions.",
+          "Get your first cleaning service for just $18! Available for new customers with active memberships. Valid for 2, 3, 4, or 6-hour cleaning sessions.",
           "first_clean",
           "fixed_price",
           18.0,
@@ -84,9 +84,7 @@ async function setupFirstCleanOffer() {
     console.log("\nOffer Details:");
     console.log("- Name: First Clean Special - $18");
     console.log("- Price: Fixed $18 for eligible bookings");
-    console.log(
-      "- Eligibility: New customers with active ForeverClean memberships"
-    );
+    console.log("- Eligibility: New customers with active memberships");
     console.log("- Valid for: 2, 3, 4, or 6-hour cleaning sessions");
     console.log("- Usage limit: One time per customer");
     console.log("- Status: Active");

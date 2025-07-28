@@ -213,12 +213,12 @@ const createTables = async () => {
       )
     `);
 
-    // ForeverClean Memberships table
+    // Memberships table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS memberships (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        plan_name VARCHAR(100) NOT NULL DEFAULT 'ForeverClean',
+        plan_name VARCHAR(100) NOT NULL DEFAULT 'Basic Plan',
         tier VARCHAR(50) NOT NULL DEFAULT 'basic' CHECK (tier IN ('basic', 'premium', 'gold')),
         monthly_fee DECIMAL(10, 2) NOT NULL DEFAULT 49.00,
         discount_percentage DECIMAL(5, 2) NOT NULL DEFAULT 15.00,

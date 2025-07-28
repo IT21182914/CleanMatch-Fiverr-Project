@@ -590,7 +590,7 @@ const Navbar = () => {
                         >
                           <CreditCardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
                           <span className="text-sm font-medium truncate flex-1">
-                            ForeverClean Membership
+                            Membership
                           </span>
                         </Link>
                       </>

@@ -151,7 +151,7 @@ const Layout = ({ children }) => {
                     "Office Cleaning",
                     "Move-in/out Cleaning",
                     "Post-construction",
-                    "ForeverClean Membership",
+                    "Membership",
                   ].map((service) => (
                     <li key={service}>
                       <a

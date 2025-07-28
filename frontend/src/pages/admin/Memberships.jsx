@@ -129,7 +129,7 @@ const AdminMemberships = () => {
       basic: "bg-blue-100 text-blue-800 border border-blue-200",
       premium: "bg-purple-100 text-purple-800 border border-purple-200",
       gold: "bg-yellow-100 text-yellow-800 border border-yellow-200",
-      foreverclean: "bg-yellow-100 text-yellow-800 border border-yellow-200",
+      supersaver: "bg-green-100 text-green-800 border border-green-200",
     };
     return (
       colors[tier?.toLowerCase()] ||
@@ -161,10 +161,10 @@ const AdminMemberships = () => {
                 <SparklesIcon className="h-8 w-8 text-yellow-600 mr-3" />
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900">
-                    ForeverClean Memberships
+                    Memberships
                   </h1>
                   <p className="mt-2 text-lg text-gray-600">
-                    Manage and monitor ForeverClean membership subscriptions
+                    Manage and monitor membership subscriptions
                   </p>
                 </div>
               </div>
@@ -247,9 +247,12 @@ const AdminMemberships = () => {
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <h3 className="text-xl font-bold text-gray-900">
-                          {tier.tier === "foreverclean"
-                            ? "ForeverClean"
-                            : capitalizeFirst(tier.tier)}
+                          {tier.tier === "supersaver"
+                            ? "SuperSaver"
+                            : tier.tier === "gold"
+                            ? "Gold"
+                            : tier.tier?.charAt(0).toUpperCase() +
+                              tier.tier?.slice(1)}
                         </h3>
                         <p className="text-sm text-gray-600 mt-1">
                           {tier.active_count} active members
@@ -322,7 +325,7 @@ const AdminMemberships = () => {
                 className="form-input"
               >
                 <option value="">All Plans</option>
-                <option value="foreverclean">ForeverClean</option>
+                <option value="supersaver">SuperSaver</option>
                 <option value="basic">Basic</option>
                 <option value="premium">Premium</option>
                 <option value="gold">Gold</option>
@@ -492,9 +495,12 @@ const AdminMemberships = () => {
                               membership.tier
                             )}`}
                           >
-                            {membership.tier === "foreverclean"
-                              ? "ForeverClean"
-                              : capitalizeFirst(membership.tier)}
+                            {membership.tier === "supersaver"
+                              ? "SuperSaver"
+                              : membership.tier === "gold"
+                              ? "Gold"
+                              : membership.tier?.charAt(0).toUpperCase() +
+                                membership.tier?.slice(1)}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

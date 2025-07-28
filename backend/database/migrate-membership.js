@@ -2,7 +2,7 @@ const { query } = require("../config/database");
 
 const runMembershipMigration = async () => {
   try {
-    console.log("🚀 Starting ForeverClean Membership Migration...");
+    console.log("🚀 Starting Membership Migration...");
 
     // Create memberships table
     console.log("📝 Creating memberships table...");
@@ -10,7 +10,7 @@ const runMembershipMigration = async () => {
       CREATE TABLE IF NOT EXISTS memberships (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        plan_name VARCHAR(100) NOT NULL DEFAULT 'ForeverClean',
+        plan_name VARCHAR(100) NOT NULL DEFAULT 'Basic Plan',
         tier VARCHAR(50) NOT NULL DEFAULT 'basic' CHECK (tier IN ('basic', 'premium', 'gold')),
         monthly_fee DECIMAL(10, 2) NOT NULL DEFAULT 49.00,
         discount_percentage DECIMAL(5, 2) NOT NULL DEFAULT 15.00,
@@ -100,7 +100,7 @@ const runMembershipMigration = async () => {
         `,
           [
             subscription.user_id,
-            subscription.plan_name || "ForeverClean Basic",
+            subscription.plan_name || "Basic Plan",
             tier,
             monthlyFee,
             discountPercentage,
@@ -118,9 +118,9 @@ const runMembershipMigration = async () => {
       }
     }
 
-    console.log("✅ ForeverClean Membership Migration completed successfully!");
+    console.log("✅ Membership Migration completed successfully!");
     console.log(`
-    🎉 ForeverClean Membership System is now ready!
+    🎉 Membership System is now ready!
     
     Features implemented:
     ✅ Dynamic membership plans (Basic, Premium, Gold)

@@ -118,7 +118,7 @@ const FirstCleanOffer = ({ onOfferApplied, serviceId, hours, onClose }) => {
                 {offer?.name}
               </h3>
               <p className="text-sm text-green-600">
-                Special offer for ForeverClean members
+                Special offer for members
               </p>
             </div>
           </div>
@@ -221,16 +221,14 @@ const FirstCleanOffer = ({ onOfferApplied, serviceId, hours, onClose }) => {
           )}
 
           <div className="text-xs text-gray-500">
-            <p>✓ Active ForeverClean membership required</p>
+            <p>✓ Active membership required</p>
             <p>✓ One-time offer for new customers</p>
           </div>
         </div>
 
         {eligibility.membership && (
           <div className="mt-4 text-xs text-gray-600 bg-blue-50 rounded-lg p-3">
-            <p className="font-medium text-blue-800">
-              Your ForeverClean Membership
-            </p>
+            <p className="font-medium text-blue-800">Your Membership</p>
             <p>
               Plan:{" "}
               {eligibility.membership.plan_type.charAt(0).toUpperCase() +

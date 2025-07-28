@@ -5,7 +5,7 @@ const {
   stripe,
 } = require("../utils/stripe");
 
-// ForeverClean membership plans configuration
+// CleanMatch membership plans configuration
 const MEMBERSHIP_PLANS = {
   supersaver: {
     name: "SuperSaver Monthly",
@@ -25,10 +25,10 @@ const MEMBERSHIP_PLANS = {
     badge: "Most Popular",
   },
   basic: {
-    name: "ForeverClean Basic",
+    name: "Basic Plan",
     monthlyFee: 49.0,
     discountPercentage: 15.0,
-    stripePriceId: process.env.STRIPE_FOREVER_CLEAN_BASIC_PRICE_ID,
+    stripePriceId: process.env.STRIPE_BASIC_PRICE_ID,
     features: [
       "15% discount on all cleaning services",
       "Priority booking",
@@ -37,10 +37,10 @@ const MEMBERSHIP_PLANS = {
     ],
   },
   premium: {
-    name: "ForeverClean Premium",
+    name: "Premium Plan",
     monthlyFee: 79.0,
     discountPercentage: 25.0,
-    stripePriceId: process.env.STRIPE_FOREVER_CLEAN_PREMIUM_PRICE_ID,
+    stripePriceId: process.env.STRIPE_PREMIUM_PRICE_ID,
     features: [
       "25% discount on all cleaning services",
       "Priority booking",
@@ -51,10 +51,10 @@ const MEMBERSHIP_PLANS = {
     ],
   },
   gold: {
-    name: "ForeverClean Gold",
+    name: "Gold Plan",
     monthlyFee: 129.0,
     discountPercentage: 35.0,
-    stripePriceId: process.env.STRIPE_FOREVER_CLEAN_GOLD_PRICE_ID,
+    stripePriceId: process.env.STRIPE_GOLD_PRICE_ID,
     features: [
       "35% discount on all cleaning services",
       "VIP priority booking",
@@ -89,7 +89,7 @@ const getMembershipPlans = async (req, res) => {
 };
 
 /**
- * @desc    Subscribe to ForeverClean membership
+ * @desc    Subscribe to membership
  * @route   POST /api/memberships/subscribe
  * @access  Private (Customers only)
  */
@@ -113,7 +113,7 @@ const subscribeToMembership = async (req, res) => {
     if (existingMembership.rows.length > 0) {
       return res.status(400).json({
         success: false,
-        error: "User already has an active ForeverClean membership",
+        error: "User already has an active membership",
       });
     }
 
@@ -247,7 +247,7 @@ const cancelMembership = async (req, res) => {
     if (membershipResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: "No active ForeverClean membership found",
+        error: "No active membership found",
       });
     }
 
@@ -275,8 +275,8 @@ const cancelMembership = async (req, res) => {
     res.json({
       success: true,
       message: cancelAtPeriodEnd
-        ? "ForeverClean membership will cancel at the end of the current period"
-        : "ForeverClean membership cancellation removed",
+        ? "Membership will cancel at the end of the current period"
+        : "Membership cancellation removed",
       membership: {
         ...membership,
         cancel_at_period_end: cancelAtPeriodEnd,
@@ -328,7 +328,7 @@ const reactivateMembership = async (req, res) => {
 
     res.json({
       success: true,
-      message: "ForeverClean membership reactivated successfully",
+      message: "Membership reactivated successfully",
     });
   } catch (error) {
     console.error("Reactivate membership error:", error);
@@ -364,7 +364,7 @@ const updatePaymentMethod = async (req, res) => {
     if (membershipResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: "No active ForeverClean membership found",
+        error: "No active membership found",
       });
     }
 

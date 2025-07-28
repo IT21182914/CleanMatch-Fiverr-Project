@@ -288,7 +288,7 @@ export const adminAPI = {
     }),
 };
 
-// ForeverClean Membership API endpoints
+// Membership API endpoints
 export const membershipAPI = {
   // Public endpoints
   getPlans: () => enhancedApi.get("/memberships/plans"),
