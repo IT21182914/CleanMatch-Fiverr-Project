@@ -23,12 +23,6 @@ const Home = () => {
 
   return (
     <div className="bg-white overflow-hidden">
-      {/* Top Banner CTA */}
-      <MembershipCTA
-        variant="banner"
-        onClose={() => setShowFloatingCTA(false)}
-      />
-
       <HeroSection />
       <FeaturedServices />
 

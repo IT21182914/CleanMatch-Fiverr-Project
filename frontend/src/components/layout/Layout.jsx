@@ -220,41 +220,6 @@ const Layout = ({ children }) => {
                     </li>
                   ))}
                 </ul>
-
-                {/* Contact Info - Enhanced Responsive */}
-                <div className="p-3 xs:p-4 sm:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl xs:rounded-2xl">
-                  <h4 className="font-bold text-white mb-3 xs:mb-4 text-base xs:text-lg">
-                    Get in Touch
-                  </h4>
-                  <div className="space-y-3 xs:space-y-4">
-                    <div className="flex items-center group">
-                      <div className="p-1.5 xs:p-2 rounded-lg bg-[#4EC6E5]/20 mr-2 xs:mr-3 group-hover:bg-[#4EC6E5]/30 transition-colors duration-200 flex-shrink-0">
-                        <EnvelopeIcon className="h-3 w-3 xs:h-4 xs:w-4 text-[#4EC6E5]" />
-                      </div>
-                      <span className="text-slate-300 text-xs xs:text-sm break-all">
-                        support@simorghservice.com
-                      </span>
-                    </div>
-                    <div className="flex items-center group">
-                      <div className="p-1.5 xs:p-2 rounded-lg bg-[#4EC6E5]/20 mr-2 xs:mr-3 group-hover:bg-[#4EC6E5]/30 transition-colors duration-200 flex-shrink-0">
-                        <PhoneIcon className="h-3 w-3 xs:h-4 xs:w-4 text-[#4EC6E5]" />
-                      </div>
-                      <span className="text-slate-300 text-xs xs:text-sm">
-                        (555) 123-CLEAN
-                      </span>
-                    </div>
-                    <div className="flex items-start group">
-                      <div className="p-1.5 xs:p-2 rounded-lg bg-[#4EC6E5]/20 mr-2 xs:mr-3 mt-0.5 group-hover:bg-[#4EC6E5]/30 transition-colors duration-200 flex-shrink-0">
-                        <MapPinIcon className="h-3 w-3 xs:h-4 xs:w-4 text-[#4EC6E5]" />
-                      </div>
-                      <div className="text-slate-300 text-xs xs:text-sm">
-                        123 Main Street
-                        <br />
-                        San Francisco, CA 94102
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
