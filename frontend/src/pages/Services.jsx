@@ -74,42 +74,33 @@ const Services = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white py-16">
+      {/* Hero Section - Minimal height */}
+      <div className="bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                <SparklesIcon className="h-8 w-8 text-white" />
-              </div>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <h1 className="text-xl md:text-2xl font-bold mb-1">
               Our Cleaning Services
             </h1>
-            <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
-              Professional cleaning solutions for every need. From residential
-              to commercial, we've got you covered with {allServices.length}{" "}
-              specialized services.
+            <p className="text-xs text-white/90 mb-2 max-w-xl mx-auto">
+              {allServices.length} specialized services available.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-6 py-3 flex items-center">
-                <CheckBadgeIcon className="h-5 w-5 mr-2" />
-                <span className="font-medium">
-                  Vetted & Insured Professionals
-                </span>
+            <div className="flex items-center justify-center gap-2">
+              <div className="bg-white/20 backdrop-blur-sm rounded px-2 py-1 flex items-center">
+                <CheckBadgeIcon className="h-3 w-3 mr-1" />
+                <span className="text-xs font-medium">Vetted</span>
               </div>
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-6 py-3 flex items-center">
-                <ShieldCheckIcon className="h-5 w-5 mr-2" />
-                <span className="font-medium">100% Satisfaction Guarantee</span>
+              <div className="bg-white/20 backdrop-blur-sm rounded px-2 py-1 flex items-center">
+                <ShieldCheckIcon className="h-3 w-3 mr-1" />
+                <span className="text-xs font-medium">Guaranteed</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Filters Section */}
+      {/* Filters Section - Reduced padding */}
       <div className="bg-white/80 backdrop-blur-sm sticky top-0 z-40 border-b border-slate-200/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex flex-col lg:flex-row gap-4 items-center">
             {/* Search with Dropdown */}
             <SearchInput
@@ -136,8 +127,8 @@ const Services = () => {
             </div>
           </div>
 
-          {/* Category Tabs */}
-          <div className="mt-4 flex flex-wrap gap-2">
+          {/* Category Tabs - Reduced margin */}
+          <div className="mt-2 flex flex-wrap gap-2">
             {categories.map((category) => (
               <button
                 key={category}
@@ -155,13 +146,13 @@ const Services = () => {
         </div>
       </div>
 
-      {/* Services Grid */}
+      {/* Services Grid - Reduced padding */}
       <div
         ref={servicesGridRef}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
       >
-        {/* Results Info */}
-        <div className="mb-8">
+        {/* Results Info - Reduced margin */}
+        <div className="mb-4">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">
             {searchTerm.trim() !== "" ? (
               <>
