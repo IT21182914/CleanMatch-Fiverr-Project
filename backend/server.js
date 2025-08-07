@@ -170,6 +170,17 @@ app.get("/api", (req, res) => {
   });
 });
 
+// Home route for Render root access
+app.get("/", (req, res) => {
+  res.status(200).json({
+    name: "CleanMatch API",
+    status: "Online",
+    message: "Welcome to the CleanMatch API 🚀",
+    docs: "/api",
+    health: "/health",
+  });
+});
+
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", require("./routes/freelancerAuth"));
