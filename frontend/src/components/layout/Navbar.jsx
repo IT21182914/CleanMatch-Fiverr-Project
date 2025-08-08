@@ -153,6 +153,8 @@ const Navbar = () => {
         },
         { name: "Bookings", href: "/admin/bookings", icon: CalendarIcon },
         { name: "Services", href: "/admin/services", icon: CalendarIcon },
+        { name: "Memberships", href: "/admin/memberships", icon: SparklesIcon },
+        { name: "Payments", href: "/admin/payments", icon: CreditCardIcon },
         { name: "Analytics", href: "/admin/analytics", icon: CreditCardIcon },
       ];
     }
@@ -631,6 +633,26 @@ const Navbar = () => {
                           <UserIcon className="h-5 w-5 mr-3 flex-shrink-0" />
                           <span className="text-sm font-medium truncate flex-1">
                             Manage Users
+                          </span>
+                        </Link>
+                        <Link
+                          to="/admin/memberships"
+                          className="flex items-center px-3 xs:px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <SparklesIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-sm font-medium truncate flex-1">
+                            Memberships
+                          </span>
+                        </Link>
+                        <Link
+                          to="/admin/payments"
+                          className="flex items-center px-3 xs:px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <CreditCardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+                          <span className="text-sm font-medium truncate flex-1">
+                            Payments
                           </span>
                         </Link>
                         <Link
