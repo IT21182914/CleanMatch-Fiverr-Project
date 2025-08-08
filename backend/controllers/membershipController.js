@@ -5,7 +5,7 @@ const {
   stripe,
 } = require("../utils/stripe");
 
-// CleanMatch membership plans configuration
+// CleanMatch membership plans configuration - SuperSaver only
 const MEMBERSHIP_PLANS = {
   supersaver: {
     name: "SuperSaver Monthly",
@@ -23,48 +23,6 @@ const MEMBERSHIP_PLANS = {
     popular: true,
     tagline: "Save 50% on every service",
     badge: "Most Popular",
-  },
-  basic: {
-    name: "Basic Plan",
-    monthlyFee: 49.0,
-    discountPercentage: 15.0,
-    stripePriceId: process.env.STRIPE_BASIC_PRICE_ID,
-    features: [
-      "15% discount on all cleaning services",
-      "Priority booking",
-      "24/7 customer support",
-      "Service guarantee",
-    ],
-  },
-  premium: {
-    name: "Premium Plan",
-    monthlyFee: 79.0,
-    discountPercentage: 25.0,
-    stripePriceId: process.env.STRIPE_PREMIUM_PRICE_ID,
-    features: [
-      "25% discount on all cleaning services",
-      "Priority booking",
-      "24/7 customer support",
-      "Service guarantee",
-      "Free monthly deep clean upgrade",
-      "Flexible rescheduling",
-    ],
-  },
-  gold: {
-    name: "Gold Plan",
-    monthlyFee: 129.0,
-    discountPercentage: 35.0,
-    stripePriceId: process.env.STRIPE_GOLD_PRICE_ID,
-    features: [
-      "35% discount on all cleaning services",
-      "VIP priority booking",
-      "24/7 customer support",
-      "Service guarantee",
-      "2 free monthly deep clean upgrades",
-      "Flexible rescheduling",
-      "Dedicated account manager",
-      "Eco-friendly products included",
-    ],
   },
 };
 
@@ -95,7 +53,7 @@ const getMembershipPlans = async (req, res) => {
  */
 const subscribeToMembership = async (req, res) => {
   try {
-    const { tier = "basic", paymentMethodId } = req.body;
+    const { tier = "supersaver", paymentMethodId } = req.body;
 
     if (!MEMBERSHIP_PLANS[tier]) {
       return res.status(400).json({

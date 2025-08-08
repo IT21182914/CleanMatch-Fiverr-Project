@@ -286,6 +286,15 @@ export const adminAPI = {
       status: "rejected",
       notes,
     }),
+
+  // Membership management
+  getUsersWithMembership: (params) =>
+    enhancedApi.get("/admin/users-with-membership", { params }),
+  cancelUserMembership: (userId) =>
+    enhancedApi.put(`/admin/memberships/${userId}/cancel`),
+  grantUserMembership: (userId, membershipData) =>
+    enhancedApi.post(`/admin/memberships/${userId}/grant`, membershipData),
+  getMembershipAnalytics: () => enhancedApi.get("/admin/membership-analytics"),
 };
 
 // Membership API endpoints

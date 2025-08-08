@@ -218,12 +218,12 @@ const createTables = async () => {
       CREATE TABLE IF NOT EXISTS memberships (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        plan_name VARCHAR(100) NOT NULL DEFAULT 'Basic Plan',
-        tier VARCHAR(50) NOT NULL DEFAULT 'basic' CHECK (tier IN ('basic', 'premium', 'gold')),
-        monthly_fee DECIMAL(10, 2) NOT NULL DEFAULT 49.00,
-        discount_percentage DECIMAL(5, 2) NOT NULL DEFAULT 15.00,
+        plan_name VARCHAR(100) NOT NULL DEFAULT 'SuperSaver Monthly',
+        tier VARCHAR(50) NOT NULL DEFAULT 'supersaver' CHECK (tier IN ('supersaver')),
+        monthly_fee DECIMAL(10, 2) NOT NULL DEFAULT 59.00,
+        discount_percentage DECIMAL(5, 2) NOT NULL DEFAULT 50.00,
         stripe_subscription_id VARCHAR(255) UNIQUE,
-        status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'past_due', 'unpaid', 'trialing')),
+        status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'past_due', 'unpaid', 'trialing', 'expired')),
         start_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         end_date TIMESTAMP,
         current_period_start TIMESTAMP,
@@ -534,6 +534,60 @@ const createTables = async () => {
         reason TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `);
+
+    // Create membership status view for quick membership checks
+    await pool.query(`
+      CREATE OR REPLACE VIEW user_membership_status AS
+      SELECT 
+        u.id as user_id,
+        u.first_name,
+        u.last_name,
+        u.email,
+        u.role,
+        u.is_active as user_active,
+        m.id as membership_id,
+        m.tier,
+        m.plan_name,
+        m.monthly_fee,
+        m.discount_percentage,
+        m.status as membership_status,
+        m.start_date as membership_start,
+        m.current_period_end,
+        m.cancel_at_period_end,
+        CASE 
+          WHEN m.id IS NULL THEN false
+          WHEN m.status = 'active' AND m.current_period_end > NOW() THEN true
+          WHEN m.status = 'trialing' AND (m.trial_end IS NULL OR m.trial_end > NOW()) THEN true
+          ELSE false
+        END as is_member_active,
+        CASE 
+          WHEN m.id IS NULL THEN 'none'
+          WHEN m.status = 'active' AND m.current_period_end > NOW() THEN 'active'
+          WHEN m.status = 'trialing' AND (m.trial_end IS NULL OR m.trial_end > NOW()) THEN 'trialing'
+          WHEN m.status = 'active' AND m.current_period_end <= NOW() THEN 'expired'
+          ELSE m.status
+        END as effective_status,
+        (SELECT COUNT(*) FROM membership_usage mu WHERE mu.membership_id = m.id) as usage_count,
+        (SELECT COALESCE(SUM(discount_applied), 0) FROM membership_usage mu WHERE mu.membership_id = m.id) as total_savings
+      FROM users u
+      LEFT JOIN memberships m ON u.id = m.user_id AND u.role = 'customer'
+      WHERE u.role IN ('customer', 'admin', 'cleaner')
+    `);
+
+    // Create function to check if user is currently a member
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION is_user_member(user_id_param INTEGER)
+      RETURNS BOOLEAN AS $$
+      BEGIN
+        RETURN EXISTS (
+          SELECT 1 FROM memberships 
+          WHERE user_id = user_id_param 
+            AND status IN ('active', 'trialing') 
+            AND (current_period_end > NOW() OR (status = 'trialing' AND (trial_end IS NULL OR trial_end > NOW())))
+        );
+      END;
+      $$ LANGUAGE plpgsql;
     `);
 
     console.log("✅ Database tables created/verified successfully");

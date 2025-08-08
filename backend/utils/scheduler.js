@@ -1,6 +1,7 @@
 const cron = require("node-cron");
 const { query } = require("../config/database");
 const { sendBookingReminderEmail } = require("./email");
+const { initMembershipScheduler } = require("./membershipScheduler");
 
 /**
  * Initialize all cron jobs
@@ -36,6 +37,9 @@ const initializeCronJobs = () => {
     scheduled: true,
     timezone: "America/New_York",
   });
+
+  // Initialize membership scheduler
+  initMembershipScheduler();
 
   console.log("✅ Cron jobs initialized successfully");
 };

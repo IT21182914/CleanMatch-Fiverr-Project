@@ -12,6 +12,10 @@ const {
   getRevenueAnalytics,
   getReviews,
   deleteReview,
+  getUsersWithMembership,
+  cancelUserMembership,
+  grantUserMembership,
+  getMembershipAnalytics,
 } = require("../controllers/adminController");
 const router = express.Router();
 
@@ -79,5 +83,45 @@ router.get("/reviews", auth, authorize("admin"), getReviews);
 // @desc    Delete review
 // @access  Private (Admin only)
 router.delete("/reviews/:id", auth, authorize("admin"), deleteReview);
+
+// @route   GET /api/admin/users-with-membership
+// @desc    Get all users with membership status
+// @access  Private (Admin only)
+router.get(
+  "/users-with-membership",
+  auth,
+  authorize("admin"),
+  getUsersWithMembership
+);
+
+// @route   PUT /api/admin/memberships/:userId/cancel
+// @desc    Cancel user membership (Admin)
+// @access  Private (Admin only)
+router.put(
+  "/memberships/:userId/cancel",
+  auth,
+  authorize("admin"),
+  cancelUserMembership
+);
+
+// @route   POST /api/admin/memberships/:userId/grant
+// @desc    Grant membership to user (Admin)
+// @access  Private (Admin only)
+router.post(
+  "/memberships/:userId/grant",
+  auth,
+  authorize("admin"),
+  grantUserMembership
+);
+
+// @route   GET /api/admin/membership-analytics
+// @desc    Get membership analytics for admin
+// @access  Private (Admin only)
+router.get(
+  "/membership-analytics",
+  auth,
+  authorize("admin"),
+  getMembershipAnalytics
+);
 
 module.exports = router;

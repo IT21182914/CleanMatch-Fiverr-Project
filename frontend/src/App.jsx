@@ -50,7 +50,9 @@ const AdminPendingFreelancers = React.lazy(() =>
 const AdminServices = React.lazy(() => import("./pages/admin/Services"));
 const AdminBookings = React.lazy(() => import("./pages/admin/Bookings"));
 const AdminAnalytics = React.lazy(() => import("./pages/admin/Analytics"));
-const AdminMemberships = React.lazy(() => import("./pages/admin/Memberships"));
+const AdminMemberships = React.lazy(() =>
+  import("./pages/admin/AdminMemberships")
+);
 
 // Home page - Keep this eagerly loaded as it's the landing page
 import Home from "./pages/Home";

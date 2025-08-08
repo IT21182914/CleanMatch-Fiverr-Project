@@ -761,6 +761,336 @@ const getReviews = async (req, res) => {
 };
 
 /**
+ * @desc    Get all users with membership status
+ * @route   GET /api/admin/users-with-membership
+ * @access  Private (Admin only)
+ */
+const getUsersWithMembership = async (req, res) => {
+  try {
+    const {
+      role,
+      status,
+      page = 1,
+      limit = 20,
+      search,
+      membershipStatus,
+    } = req.query;
+    const offset = (page - 1) * limit;
+
+    let whereConditions = [];
+    let queryParams = [];
+    let paramCount = 1;
+
+    if (role) {
+      whereConditions.push(`ums.role = $${paramCount++}`);
+      queryParams.push(role);
+    }
+
+    if (status === "active") {
+      whereConditions.push(`ums.user_active = true`);
+    } else if (status === "inactive") {
+      whereConditions.push(`ums.user_active = false`);
+    }
+
+    if (membershipStatus) {
+      whereConditions.push(`ums.effective_status = $${paramCount++}`);
+      queryParams.push(membershipStatus);
+    }
+
+    if (search) {
+      whereConditions.push(
+        `(ums.first_name ILIKE $${paramCount} OR ums.last_name ILIKE $${paramCount} OR ums.email ILIKE $${paramCount})`
+      );
+      queryParams.push(`%${search}%`);
+      paramCount++;
+    }
+
+    const whereClause =
+      whereConditions.length > 0
+        ? `WHERE ${whereConditions.join(" AND ")}`
+        : "";
+
+    // Get users with membership status using the view
+    const usersQuery = `
+      SELECT * FROM user_membership_status ums
+      ${whereClause}
+      ORDER BY ums.user_id DESC
+      LIMIT $${paramCount} OFFSET $${paramCount + 1}
+    `;
+
+    queryParams.push(limit, offset);
+    const usersResult = await query(usersQuery, queryParams);
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM user_membership_status ums
+      ${whereClause}
+    `;
+
+    const countResult = await query(countQuery, queryParams.slice(0, -2));
+    const total = parseInt(countResult.rows[0].total);
+
+    res.json({
+      success: true,
+      users: usersResult.rows,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error("Get users with membership error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving users with membership data",
+    });
+  }
+};
+
+/**
+ * @desc    Cancel user membership (Admin)
+ * @route   PUT /api/admin/memberships/:userId/cancel
+ * @access  Private (Admin only)
+ */
+const cancelUserMembership = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { reason = "Admin cancellation", immediate = false } = req.body;
+
+    // Get user's active membership
+    const membershipResult = await query(
+      "SELECT * FROM memberships WHERE user_id = $1 AND status IN ('active', 'trialing')",
+      [userId]
+    );
+
+    if (membershipResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "No active membership found for this user",
+      });
+    }
+
+    const membership = membershipResult.rows[0];
+
+    if (immediate) {
+      // Cancel immediately
+      if (membership.stripe_subscription_id) {
+        const { stripe } = require("../utils/stripe");
+        await stripe.subscriptions.cancel(membership.stripe_subscription_id, {
+          prorate: true,
+        });
+      }
+
+      await query(
+        `UPDATE memberships 
+         SET status = 'cancelled', 
+             end_date = CURRENT_TIMESTAMP,
+             cancel_at_period_end = false,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1`,
+        [membership.id]
+      );
+    } else {
+      // Cancel at period end
+      if (membership.stripe_subscription_id) {
+        const { stripe } = require("../utils/stripe");
+        await stripe.subscriptions.update(membership.stripe_subscription_id, {
+          cancel_at_period_end: true,
+          metadata: { cancellation_reason: reason },
+        });
+      }
+
+      await query(
+        `UPDATE memberships 
+         SET cancel_at_period_end = true, 
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1`,
+        [membership.id]
+      );
+    }
+
+    res.json({
+      success: true,
+      message: immediate
+        ? "Membership cancelled immediately"
+        : "Membership will cancel at the end of the current period",
+    });
+  } catch (error) {
+    console.error("Cancel user membership error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error cancelling membership",
+    });
+  }
+};
+
+/**
+ * @desc    Grant membership to user (Admin)
+ * @route   POST /api/admin/memberships/:userId/grant
+ * @access  Private (Admin only)
+ */
+const grantUserMembership = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const {
+      durationMonths = 1,
+      reason = "Admin granted membership",
+      trialDays = 0,
+    } = req.body;
+
+    // Check if user exists and is a customer
+    const userResult = await query(
+      "SELECT * FROM users WHERE id = $1 AND role = 'customer' AND is_active = true",
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Customer not found or inactive",
+      });
+    }
+
+    // Check if user already has an active membership
+    const existingMembership = await query(
+      "SELECT * FROM memberships WHERE user_id = $1 AND status IN ('active', 'trialing')",
+      [userId]
+    );
+
+    if (existingMembership.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: "User already has an active membership",
+      });
+    }
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + durationMonths);
+
+    let status = "active";
+    let trialEnd = null;
+
+    if (trialDays > 0) {
+      status = "trialing";
+      trialEnd = new Date();
+      trialEnd.setDate(trialEnd.getDate() + trialDays);
+    }
+
+    // Create membership record
+    const membershipResult = await query(
+      `INSERT INTO memberships (
+        user_id, plan_name, tier, monthly_fee, discount_percentage,
+        status, start_date, current_period_start, current_period_end,
+        trial_end, auto_renewal
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+      [
+        userId,
+        "SuperSaver Monthly",
+        "supersaver",
+        59.0,
+        50.0,
+        status,
+        startDate,
+        startDate,
+        endDate,
+        trialEnd,
+        false, // Admin granted memberships don't auto-renew unless user sets up payment
+      ]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: `Membership granted successfully for ${durationMonths} months`,
+      membership: membershipResult.rows[0],
+    });
+  } catch (error) {
+    console.error("Grant user membership error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error granting membership",
+    });
+  }
+};
+
+/**
+ * @desc    Get membership analytics for admin
+ * @route   GET /api/admin/membership-analytics
+ * @access  Private (Admin only)
+ */
+const getMembershipAnalytics = async (req, res) => {
+  try {
+    // Overall membership statistics
+    const overallStats = await query(`
+      SELECT 
+        COUNT(*) as total_memberships,
+        COUNT(CASE WHEN effective_status = 'active' THEN 1 END) as active_memberships,
+        COUNT(CASE WHEN effective_status = 'trialing' THEN 1 END) as trial_memberships,
+        COUNT(CASE WHEN effective_status = 'expired' THEN 1 END) as expired_memberships,
+        COUNT(CASE WHEN effective_status = 'cancelled' THEN 1 END) as cancelled_memberships,
+        COUNT(CASE WHEN effective_status = 'past_due' THEN 1 END) as past_due_memberships,
+        SUM(CASE WHEN effective_status = 'active' THEN monthly_fee ELSE 0 END) as monthly_recurring_revenue,
+        AVG(CASE WHEN effective_status IN ('active', 'trialing') THEN total_savings ELSE 0 END) as avg_member_savings
+      FROM user_membership_status
+      WHERE membership_id IS NOT NULL
+    `);
+
+    // Member distribution by signup date (last 12 months)
+    const membershipGrowth = await query(`
+      SELECT 
+        DATE_TRUNC('month', membership_start) as month,
+        COUNT(*) as new_memberships,
+        COUNT(CASE WHEN effective_status = 'active' THEN 1 END) as active_members
+      FROM user_membership_status
+      WHERE membership_id IS NOT NULL 
+        AND membership_start >= NOW() - INTERVAL '12 months'
+      GROUP BY DATE_TRUNC('month', membership_start)
+      ORDER BY month
+    `);
+
+    // Usage statistics
+    const usageStats = await query(`
+      SELECT 
+        COUNT(CASE WHEN usage_count > 0 THEN 1 END) as members_with_usage,
+        COUNT(CASE WHEN usage_count = 0 THEN 1 END) as members_no_usage,
+        AVG(usage_count) as avg_bookings_per_member,
+        SUM(total_savings) as total_platform_savings
+      FROM user_membership_status
+      WHERE membership_id IS NOT NULL AND effective_status IN ('active', 'trialing')
+    `);
+
+    // Customer types breakdown
+    const customerBreakdown = await query(`
+      SELECT 
+        COUNT(CASE WHEN membership_id IS NULL THEN 1 END) as non_members,
+        COUNT(CASE WHEN membership_id IS NOT NULL THEN 1 END) as members,
+        COUNT(*) as total_customers
+      FROM user_membership_status
+      WHERE role = 'customer'
+    `);
+
+    res.json({
+      success: true,
+      analytics: {
+        overallStats: overallStats.rows[0],
+        membershipGrowth: membershipGrowth.rows,
+        usageStats: usageStats.rows[0],
+        customerBreakdown: customerBreakdown.rows[0],
+      },
+    });
+  } catch (error) {
+    console.error("Get membership analytics error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving membership analytics",
+    });
+  }
+};
+
+/**
  * @desc    Delete review
  * @route   DELETE /api/admin/reviews/:id
  * @access  Private (Admin only)
@@ -803,4 +1133,8 @@ module.exports = {
   getRevenueAnalytics,
   getReviews,
   deleteReview,
+  getUsersWithMembership,
+  cancelUserMembership,
+  grantUserMembership,
+  getMembershipAnalytics,
 };

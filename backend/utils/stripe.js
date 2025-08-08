@@ -248,6 +248,8 @@ const transferToConnectAccount = async (transferData) => {
  */
 const handleWebhookEvent = async (event) => {
   try {
+    console.log(`🔔 Processing webhook event: ${event.type}`);
+
     switch (event.type) {
       case "payment_intent.succeeded":
         await handleSuccessfulPayment(event.data.object.id);
@@ -259,6 +261,16 @@ const handleWebhookEvent = async (event) => {
         }
         break;
 
+      case "invoice.payment_failed":
+        if (event.data.object.subscription) {
+          await handleSubscriptionPaymentFailed(event.data.object);
+        }
+        break;
+
+      case "customer.subscription.created":
+        await handleSubscriptionCreated(event.data.object);
+        break;
+
       case "customer.subscription.updated":
         await handleSubscriptionUpdate(event.data.object);
         break;
@@ -267,13 +279,18 @@ const handleWebhookEvent = async (event) => {
         await handleSubscriptionCancellation(event.data.object);
         break;
 
+      case "customer.subscription.trial_will_end":
+        await handleTrialWillEnd(event.data.object);
+        break;
+
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.log(`ℹ️ Unhandled event type: ${event.type}`);
     }
 
+    console.log(`✅ Successfully processed webhook event: ${event.type}`);
     return true;
   } catch (error) {
-    console.error("Error handling webhook event:", error);
+    console.error("❌ Error handling webhook event:", error);
     throw error;
   }
 };
@@ -289,17 +306,8 @@ const handleSubscriptionPayment = async (invoice) => {
     );
     const userId = subscription.metadata.user_id;
 
-    // Update both legacy subscriptions and new memberships tables
-    await query(
-      `UPDATE subscriptions 
-       SET status = $1, current_period_start = $2, current_period_end = $3 
-       WHERE stripe_subscription_id = $4`,
-      [
-        subscription.status,
-        new Date(subscription.current_period_start * 1000),
-        new Date(subscription.current_period_end * 1000),
-        subscription.id,
-      ]
+    console.log(
+      `💳 Processing successful subscription payment for user ${userId}`
     );
 
     // Update memberships table
@@ -314,8 +322,81 @@ const handleSubscriptionPayment = async (invoice) => {
         subscription.id,
       ]
     );
+
+    // Create success notification
+    await query(
+      `INSERT INTO notifications (user_id, title, message, type)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        userId,
+        "Payment Successful",
+        "Your membership payment was processed successfully. Your benefits are now active!",
+        "payment_success",
+      ]
+    );
+
+    console.log(`✅ Subscription payment processed for user ${userId}`);
   } catch (error) {
-    console.error("Error handling subscription payment:", error);
+    console.error("❌ Error handling subscription payment:", error);
+    throw error;
+  }
+};
+
+/**
+ * Handle subscription payment failure
+ * @param {Object} invoice - Stripe invoice object
+ */
+const handleSubscriptionPaymentFailed = async (invoice) => {
+  try {
+    const subscription = await stripe.subscriptions.retrieve(
+      invoice.subscription
+    );
+    const userId = subscription.metadata.user_id;
+
+    console.log(`⚠️ Processing failed subscription payment for user ${userId}`);
+
+    // Update membership status to past_due
+    await query(
+      `UPDATE memberships 
+       SET status = 'past_due', updated_at = CURRENT_TIMESTAMP
+       WHERE stripe_subscription_id = $1`,
+      [subscription.id]
+    );
+
+    // Create failure notification
+    await query(
+      `INSERT INTO notifications (user_id, title, message, type)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        userId,
+        "Payment Failed",
+        "Your membership payment failed. Please update your payment method to keep your membership active.",
+        "payment_failed",
+      ]
+    );
+
+    console.log(`⚠️ Subscription payment failure processed for user ${userId}`);
+  } catch (error) {
+    console.error("❌ Error handling subscription payment failure:", error);
+    throw error;
+  }
+};
+
+/**
+ * Handle subscription creation
+ * @param {Object} subscription - Stripe subscription object
+ */
+const handleSubscriptionCreated = async (subscription) => {
+  try {
+    const userId = subscription.metadata.user_id;
+    console.log(`🆕 Processing subscription creation for user ${userId}`);
+
+    // This is handled in the membership controller when creating the subscription
+    // Just log for now, but could be used for analytics or additional processing
+
+    console.log(`✅ Subscription creation processed for user ${userId}`);
+  } catch (error) {
+    console.error("❌ Error handling subscription creation:", error);
     throw error;
   }
 };
@@ -326,22 +407,10 @@ const handleSubscriptionPayment = async (invoice) => {
  */
 const handleSubscriptionUpdate = async (subscription) => {
   try {
-    // Update legacy subscriptions table
-    await query(
-      `UPDATE subscriptions 
-       SET status = $1, current_period_start = $2, current_period_end = $3, 
-           cancel_at_period_end = $4
-       WHERE stripe_subscription_id = $5`,
-      [
-        subscription.status,
-        new Date(subscription.current_period_start * 1000),
-        new Date(subscription.current_period_end * 1000),
-        subscription.cancel_at_period_end,
-        subscription.id,
-      ]
-    );
+    const userId = subscription.metadata.user_id;
+    console.log(`🔄 Processing subscription update for user ${userId}`);
 
-    // Update memberships table
+    // Update memberships table with latest subscription data
     await query(
       `UPDATE memberships 
        SET status = $1, current_period_start = $2, current_period_end = $3, 
@@ -355,8 +424,24 @@ const handleSubscriptionUpdate = async (subscription) => {
         subscription.id,
       ]
     );
+
+    // If subscription was reactivated after being past_due
+    if (subscription.status === "active") {
+      await query(
+        `INSERT INTO notifications (user_id, title, message, type)
+         VALUES ($1, $2, $3, $4)`,
+        [
+          userId,
+          "Membership Reactivated",
+          "Your membership has been reactivated! You can now enjoy all member benefits again.",
+          "membership_reactivated",
+        ]
+      );
+    }
+
+    console.log(`✅ Subscription update processed for user ${userId}`);
   } catch (error) {
-    console.error("Error handling subscription update:", error);
+    console.error("❌ Error handling subscription update:", error);
     throw error;
   }
 };
@@ -367,19 +452,63 @@ const handleSubscriptionUpdate = async (subscription) => {
  */
 const handleSubscriptionCancellation = async (subscription) => {
   try {
-    // Update legacy subscriptions table
+    const userId = subscription.metadata.user_id;
+    console.log(`❌ Processing subscription cancellation for user ${userId}`);
+
+    // Update membership status and set end date
     await query(
-      "UPDATE subscriptions SET status = $1 WHERE stripe_subscription_id = $2",
-      ["cancelled", subscription.id]
+      `UPDATE memberships 
+       SET status = 'cancelled', end_date = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+       WHERE stripe_subscription_id = $1`,
+      [subscription.id]
     );
 
-    // Update memberships table
+    // Create cancellation notification
     await query(
-      "UPDATE memberships SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE stripe_subscription_id = $2",
-      ["cancelled", subscription.id]
+      `INSERT INTO notifications (user_id, title, message, type)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        userId,
+        "Membership Cancelled",
+        "Your membership has been cancelled. Thank you for being a member! You can reactivate anytime.",
+        "membership_cancelled",
+      ]
     );
+
+    console.log(`❌ Subscription cancellation processed for user ${userId}`);
   } catch (error) {
-    console.error("Error handling subscription cancellation:", error);
+    console.error("❌ Error handling subscription cancellation:", error);
+    throw error;
+  }
+};
+
+/**
+ * Handle trial will end notification
+ * @param {Object} subscription - Stripe subscription object
+ */
+const handleTrialWillEnd = async (subscription) => {
+  try {
+    const userId = subscription.metadata.user_id;
+    console.log(`⏰ Processing trial will end notification for user ${userId}`);
+
+    const trialEnd = new Date(subscription.trial_end * 1000);
+    const trialEndDate = trialEnd.toLocaleDateString();
+
+    // Create trial ending notification
+    await query(
+      `INSERT INTO notifications (user_id, title, message, type)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        userId,
+        "Trial Ending Soon",
+        `Your membership trial ends on ${trialEndDate}. Add a payment method to continue enjoying member benefits!`,
+        "trial_ending",
+      ]
+    );
+
+    console.log(`⏰ Trial will end notification processed for user ${userId}`);
+  } catch (error) {
+    console.error("❌ Error handling trial will end:", error);
     throw error;
   }
 };
