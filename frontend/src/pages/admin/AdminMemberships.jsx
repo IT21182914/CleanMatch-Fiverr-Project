@@ -38,19 +38,19 @@ const AdminMemberships = () => {
   const [loading, setLoading] = useState(true);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [updating, setUpdating] = useState({});
-  
+
   // Modal states
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showGrantModal, setShowGrantModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  
+
   // Form states
   const [grantForm, setGrantForm] = useState({
-    tier: 'supersaver',
-    duration: '30', // days
-    notes: '',
+    tier: "supersaver",
+    duration: "30", // days
+    notes: "",
   });
-  const [cancelReason, setCancelReason] = useState('');
+  const [cancelReason, setCancelReason] = useState("");
 
   const [filters, setFilters] = useState({
     role: "",
@@ -106,7 +106,7 @@ const AdminMemberships = () => {
   }, [fetchAnalytics, fetchUsers]);
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [key]: value,
       page: 1, // Reset to first page when filtering
@@ -114,7 +114,7 @@ const AdminMemberships = () => {
   };
 
   const handlePageChange = (newPage) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       page: newPage,
     }));
@@ -125,24 +125,27 @@ const AdminMemberships = () => {
     if (!selectedUser) return;
 
     try {
-      setUpdating(prev => ({ ...prev, [selectedUser.id]: true }));
-      
+      setUpdating((prev) => ({ ...prev, [selectedUser.id]: true }));
+
       await adminAPI.cancelUserMembership(selectedUser.id);
-      
-      addToast(`Membership cancelled for ${selectedUser.first_name} ${selectedUser.last_name}`, 'success');
-      
+
+      addToast(
+        `Membership cancelled for ${selectedUser.first_name} ${selectedUser.last_name}`,
+        "success"
+      );
+
       // Refresh data
       await fetchUsers();
       await fetchAnalytics();
-      
+
       setShowCancelModal(false);
       setSelectedUser(null);
-      setCancelReason('');
+      setCancelReason("");
     } catch (error) {
-      console.error('Error cancelling membership:', error);
-      addToast('Failed to cancel membership. Please try again.', 'error');
+      console.error("Error cancelling membership:", error);
+      addToast("Failed to cancel membership. Please try again.", "error");
     } finally {
-      setUpdating(prev => ({ ...prev, [selectedUser.id]: false }));
+      setUpdating((prev) => ({ ...prev, [selectedUser.id]: false }));
     }
   };
 
@@ -151,32 +154,35 @@ const AdminMemberships = () => {
     if (!selectedUser) return;
 
     try {
-      setUpdating(prev => ({ ...prev, [selectedUser.id]: true }));
-      
+      setUpdating((prev) => ({ ...prev, [selectedUser.id]: true }));
+
       await adminAPI.grantUserMembership(selectedUser.id, {
         tier: grantForm.tier,
         durationDays: parseInt(grantForm.duration),
         notes: grantForm.notes,
       });
-      
-      addToast(`Membership granted to ${selectedUser.first_name} ${selectedUser.last_name}`, 'success');
-      
+
+      addToast(
+        `Membership granted to ${selectedUser.first_name} ${selectedUser.last_name}`,
+        "success"
+      );
+
       // Refresh data
       await fetchUsers();
       await fetchAnalytics();
-      
+
       setShowGrantModal(false);
       setSelectedUser(null);
       setGrantForm({
-        tier: 'supersaver',
-        duration: '30',
-        notes: '',
+        tier: "supersaver",
+        duration: "30",
+        notes: "",
       });
     } catch (error) {
-      console.error('Error granting membership:', error);
-      addToast('Failed to grant membership. Please try again.', 'error');
+      console.error("Error granting membership:", error);
+      addToast("Failed to grant membership. Please try again.", "error");
     } finally {
-      setUpdating(prev => ({ ...prev, [selectedUser.id]: false }));
+      setUpdating((prev) => ({ ...prev, [selectedUser.id]: false }));
     }
   };
 
@@ -201,9 +207,11 @@ const AdminMemberships = () => {
 
     const status = user.effective_status;
     const colors = getStatusColor(status);
-    
+
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors}`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors}`}
+      >
         {capitalizeFirst(status)}
       </span>
     );
@@ -213,10 +221,12 @@ const AdminMemberships = () => {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Membership Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Membership Management
+          </h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map(i => (
+          {[1, 2, 3, 4].map((i) => (
             <LoadingCard key={i} />
           ))}
         </div>
@@ -230,7 +240,9 @@ const AdminMemberships = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Membership Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Membership Management
+          </h1>
           <p className="mt-2 text-gray-600">
             Manage user memberships and view comprehensive analytics
           </p>
@@ -244,7 +256,7 @@ const AdminMemberships = () => {
             title="Total Members"
             value={analytics.totalMembers}
             icon={UserGroupIcon}
-            trend={analytics.memberGrowth > 0 ? 'up' : 'down'}
+            trend={analytics.memberGrowth > 0 ? "up" : "down"}
             trendValue={`${Math.abs(analytics.memberGrowth)}%`}
             trendLabel="from last month"
           />
@@ -252,7 +264,7 @@ const AdminMemberships = () => {
             title="Active Members"
             value={analytics.activeMembers}
             icon={CheckCircleIcon}
-            trend={analytics.activeGrowth > 0 ? 'up' : 'down'}
+            trend={analytics.activeGrowth > 0 ? "up" : "down"}
             trendValue={`${Math.abs(analytics.activeGrowth)}%`}
             trendLabel="from last month"
           />
@@ -260,7 +272,7 @@ const AdminMemberships = () => {
             title="Monthly Revenue"
             value={formatCurrency(analytics.monthlyRevenue)}
             icon={CreditCardIcon}
-            trend={analytics.revenueGrowth > 0 ? 'up' : 'down'}
+            trend={analytics.revenueGrowth > 0 ? "up" : "down"}
             trendValue={`${Math.abs(analytics.revenueGrowth)}%`}
             trendLabel="from last month"
           />
@@ -268,7 +280,7 @@ const AdminMemberships = () => {
             title="Churn Rate"
             value={`${analytics.churnRate}%`}
             icon={ArrowTrendingDownIcon}
-            trend={analytics.churnTrend < 0 ? 'up' : 'down'}
+            trend={analytics.churnTrend < 0 ? "up" : "down"}
             trendValue={`${Math.abs(analytics.churnTrend)}%`}
             trendLabel="from last month"
           />
@@ -295,7 +307,7 @@ const AdminMemberships = () => {
                   type="text"
                   placeholder="Search by name or email..."
                   value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  onChange={(e) => handleFilterChange("search", e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -307,7 +319,7 @@ const AdminMemberships = () => {
               </label>
               <Select
                 value={filters.role}
-                onChange={(e) => handleFilterChange('role', e.target.value)}
+                onChange={(e) => handleFilterChange("role", e.target.value)}
               >
                 <option value="">All Roles</option>
                 <option value="customer">Customers</option>
@@ -322,7 +334,9 @@ const AdminMemberships = () => {
               </label>
               <Select
                 value={filters.membershipStatus}
-                onChange={(e) => handleFilterChange('membershipStatus', e.target.value)}
+                onChange={(e) =>
+                  handleFilterChange("membershipStatus", e.target.value)
+                }
               >
                 <option value="">All Statuses</option>
                 <option value="active">Active</option>
@@ -342,16 +356,18 @@ const AdminMemberships = () => {
               <Select
                 value={`${filters.sortBy}-${filters.sortOrder}`}
                 onChange={(e) => {
-                  const [sortBy, sortOrder] = e.target.value.split('-');
-                  handleFilterChange('sortBy', sortBy);
-                  handleFilterChange('sortOrder', sortOrder);
+                  const [sortBy, sortOrder] = e.target.value.split("-");
+                  handleFilterChange("sortBy", sortBy);
+                  handleFilterChange("sortOrder", sortOrder);
                 }}
               >
                 <option value="created_at-desc">Newest First</option>
                 <option value="created_at-asc">Oldest First</option>
                 <option value="last_name-asc">Name (A-Z)</option>
                 <option value="last_name-desc">Name (Z-A)</option>
-                <option value="membership_end_date-asc">Membership End Date</option>
+                <option value="membership_end_date-asc">
+                  Membership End Date
+                </option>
               </Select>
             </div>
           </div>
@@ -401,7 +417,10 @@ const AdminMemberships = () => {
                   ))
                 ) : users.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                    <td
+                      colSpan="6"
+                      className="px-6 py-12 text-center text-gray-500"
+                    >
                       No users found matching your criteria
                     </td>
                   </tr>
@@ -413,7 +432,8 @@ const AdminMemberships = () => {
                           <div className="flex-shrink-0 h-10 w-10">
                             <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
                               <span className="text-sm font-medium text-indigo-800">
-                                {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                                {user.first_name?.charAt(0)}
+                                {user.last_name?.charAt(0)}
                               </span>
                             </div>
                           </div>
@@ -421,18 +441,22 @@ const AdminMemberships = () => {
                             <div className="text-sm font-medium text-gray-900">
                               {user.first_name} {user.last_name}
                             </div>
-                            <div className="text-sm text-gray-500">{user.email}</div>
+                            <div className="text-sm text-gray-500">
+                              {user.email}
+                            </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          user.role === 'admin' 
-                            ? 'bg-purple-100 text-purple-800'
-                            : user.role === 'cleaner'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-green-100 text-green-800'
-                        }`}>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.role === "admin"
+                              ? "bg-purple-100 text-purple-800"
+                              : user.role === "cleaner"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-green-100 text-green-800"
+                          }`}
+                        >
                           {capitalizeFirst(user.role)}
                         </span>
                       </td>
@@ -445,16 +469,16 @@ const AdminMemberships = () => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {user.membership_end_date 
+                        {user.membership_end_date
                           ? formatDate(user.membership_end_date)
-                          : '-'
-                        }
+                          : "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {formatDate(user.created_at)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                        {user.membership_id && user.effective_status !== 'cancelled' ? (
+                        {user.membership_id &&
+                        user.effective_status !== "cancelled" ? (
                           <Button
                             variant="outline"
                             size="sm"
@@ -489,14 +513,20 @@ const AdminMemberships = () => {
               <div className="flex flex-1 justify-between sm:hidden">
                 <Button
                   variant="outline"
-                  onClick={() => handlePageChange(Math.max(1, pagination.page - 1))}
+                  onClick={() =>
+                    handlePageChange(Math.max(1, pagination.page - 1))
+                  }
                   disabled={pagination.page === 1}
                 >
                   Previous
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handlePageChange(Math.min(pagination.pages, pagination.page + 1))}
+                  onClick={() =>
+                    handlePageChange(
+                      Math.min(pagination.pages, pagination.page + 1)
+                    )
+                  }
                   disabled={pagination.page === pagination.pages}
                 >
                   Next
@@ -511,38 +541,56 @@ const AdminMemberships = () => {
                     </span>{" "}
                     to{" "}
                     <span className="font-medium">
-                      {Math.min(pagination.page * pagination.limit, pagination.total)}
+                      {Math.min(
+                        pagination.page * pagination.limit,
+                        pagination.total
+                      )}
                     </span>{" "}
-                    of <span className="font-medium">{pagination.total}</span> results
+                    of <span className="font-medium">{pagination.total}</span>{" "}
+                    results
                   </p>
                 </div>
                 <div>
                   <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm">
                     <Button
                       variant="outline"
-                      onClick={() => handlePageChange(Math.max(1, pagination.page - 1))}
+                      onClick={() =>
+                        handlePageChange(Math.max(1, pagination.page - 1))
+                      }
                       disabled={pagination.page === 1}
                       className="rounded-r-none"
                     >
                       Previous
                     </Button>
-                    {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                      const pageNum = pagination.page - 2 + i;
-                      if (pageNum < 1 || pageNum > pagination.pages) return null;
-                      return (
-                        <Button
-                          key={pageNum}
-                          variant={pageNum === pagination.page ? "primary" : "outline"}
-                          onClick={() => handlePageChange(pageNum)}
-                          className="rounded-none"
-                        >
-                          {pageNum}
-                        </Button>
-                      );
-                    })}
+                    {Array.from(
+                      { length: Math.min(5, pagination.pages) },
+                      (_, i) => {
+                        const pageNum = pagination.page - 2 + i;
+                        if (pageNum < 1 || pageNum > pagination.pages)
+                          return null;
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={
+                              pageNum === pagination.page
+                                ? "primary"
+                                : "outline"
+                            }
+                            onClick={() => handlePageChange(pageNum)}
+                            className="rounded-none"
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      }
+                    )}
                     <Button
                       variant="outline"
-                      onClick={() => handlePageChange(Math.min(pagination.pages, pagination.page + 1))}
+                      onClick={() =>
+                        handlePageChange(
+                          Math.min(pagination.pages, pagination.page + 1)
+                        )
+                      }
                       disabled={pagination.page === pagination.pages}
                       className="rounded-l-none"
                     >
@@ -570,7 +618,8 @@ const AdminMemberships = () => {
                 Are you sure you want to cancel the membership?
               </p>
               <p className="text-sm text-red-600 mt-1">
-                {selectedUser && `${selectedUser.first_name} ${selectedUser.last_name} will lose access to membership benefits immediately.`}
+                {selectedUser &&
+                  `${selectedUser.first_name} ${selectedUser.last_name} will lose access to membership benefits immediately.`}
               </p>
             </div>
           </div>
@@ -620,7 +669,8 @@ const AdminMemberships = () => {
                 Grant SuperSaver membership access
               </p>
               <p className="text-sm text-green-600 mt-1">
-                {selectedUser && `${selectedUser.first_name} ${selectedUser.last_name} will get immediate access to membership benefits.`}
+                {selectedUser &&
+                  `${selectedUser.first_name} ${selectedUser.last_name} will get immediate access to membership benefits.`}
               </p>
             </div>
           </div>
@@ -632,7 +682,9 @@ const AdminMemberships = () => {
               </label>
               <Select
                 value={grantForm.tier}
-                onChange={(e) => setGrantForm(prev => ({ ...prev, tier: e.target.value }))}
+                onChange={(e) =>
+                  setGrantForm((prev) => ({ ...prev, tier: e.target.value }))
+                }
               >
                 <option value="supersaver">SuperSaver</option>
               </Select>
@@ -644,7 +696,12 @@ const AdminMemberships = () => {
               </label>
               <Select
                 value={grantForm.duration}
-                onChange={(e) => setGrantForm(prev => ({ ...prev, duration: e.target.value }))}
+                onChange={(e) =>
+                  setGrantForm((prev) => ({
+                    ...prev,
+                    duration: e.target.value,
+                  }))
+                }
               >
                 <option value="7">7 Days</option>
                 <option value="14">14 Days</option>
@@ -661,7 +718,9 @@ const AdminMemberships = () => {
             </label>
             <Textarea
               value={grantForm.notes}
-              onChange={(e) => setGrantForm(prev => ({ ...prev, notes: e.target.value }))}
+              onChange={(e) =>
+                setGrantForm((prev) => ({ ...prev, notes: e.target.value }))
+              }
               placeholder="Enter notes about this membership grant..."
               rows={3}
             />
