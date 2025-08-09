@@ -12,6 +12,7 @@ export const useFormData = () => {
     firstName: "",
     lastName: "",
     userName: "",
+    zipCode: "",
 
     // Freelancer fields
     address: "",

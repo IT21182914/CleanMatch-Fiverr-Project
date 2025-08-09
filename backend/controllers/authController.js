@@ -137,6 +137,17 @@ const register = asyncHandler(async (req, res) => {
   if (role === "customer") {
     userFields.push("user_name");
     userValues.push(userName.toLowerCase());
+
+    // Add optional address and zipCode for customers
+    if (address && address.trim()) {
+      userFields.push("address");
+      userValues.push(address.trim());
+    }
+
+    if (zipCode && zipCode.trim()) {
+      userFields.push("zip_code");
+      userValues.push(zipCode.trim());
+    }
   }
 
   // Add cleaner-specific fields
@@ -582,15 +593,20 @@ const registerWithDocuments = asyncHandler(async (req, res) => {
     try {
       // Ensure the bucket exists before uploading
       await createBucketIfNotExists("id-proofs");
-      
+
       // Process the uploaded files temporarily with a temp user ID
       const tempUserId = `temp-${Date.now()}`;
       documentUrls = await processUploadedFiles(req.files, tempUserId);
-      
-      console.log("Documents uploaded successfully:", Object.keys(documentUrls));
+
+      console.log(
+        "Documents uploaded successfully:",
+        Object.keys(documentUrls)
+      );
     } catch (uploadError) {
       console.error("Document upload failed:", uploadError);
-      throw new ValidationError(`Document upload failed: ${uploadError.message}`);
+      throw new ValidationError(
+        `Document upload failed: ${uploadError.message}`
+      );
     }
   }
 
@@ -638,6 +654,17 @@ const registerWithDocuments = asyncHandler(async (req, res) => {
   if (role === "customer") {
     userFields.push("user_name");
     userValues.push(userName.toLowerCase());
+
+    // Add optional address and zipCode for customers
+    if (address && address.trim()) {
+      userFields.push("address");
+      userValues.push(address.trim());
+    }
+
+    if (zipCode && zipCode.trim()) {
+      userFields.push("zip_code");
+      userValues.push(zipCode.trim());
+    }
   }
 
   // Add cleaner-specific fields
@@ -648,7 +675,9 @@ const registerWithDocuments = asyncHandler(async (req, res) => {
 
   let user;
   try {
-    const placeholders = userValues.map((_, index) => `$${index + 1}`).join(", ");
+    const placeholders = userValues
+      .map((_, index) => `$${index + 1}`)
+      .join(", ");
     const userResult = await dbOperation(
       () =>
         query(
@@ -665,8 +694,11 @@ const registerWithDocuments = asyncHandler(async (req, res) => {
     // Update document URLs with the actual user ID (re-upload with correct folder structure)
     if (Object.keys(documentUrls).length > 0) {
       try {
-        const updatedDocumentUrls = await processUploadedFiles(req.files, user.id);
-        
+        const updatedDocumentUrls = await processUploadedFiles(
+          req.files,
+          user.id
+        );
+
         // Update the user record with the new URLs
         const updateFields = [];
         const updateValues = [];
@@ -692,15 +724,21 @@ const registerWithDocuments = asyncHandler(async (req, res) => {
         if (updateFields.length > 0) {
           updateValues.push(user.id);
           await query(
-            `UPDATE users SET ${updateFields.join(", ")} WHERE id = $${paramIndex}`,
+            `UPDATE users SET ${updateFields.join(
+              ", "
+            )} WHERE id = $${paramIndex}`,
             updateValues
           );
-          
+
           // Update user object with new URLs
-          user.id_front_url = updatedDocumentUrls.id_front_url || user.id_front_url;
-          user.id_back_url = updatedDocumentUrls.id_back_url || user.id_back_url;
-          user.ssn_front_url = updatedDocumentUrls.ssn_front_url || user.ssn_front_url;
-          user.ssn_back_url = updatedDocumentUrls.ssn_back_url || user.ssn_back_url;
+          user.id_front_url =
+            updatedDocumentUrls.id_front_url || user.id_front_url;
+          user.id_back_url =
+            updatedDocumentUrls.id_back_url || user.id_back_url;
+          user.ssn_front_url =
+            updatedDocumentUrls.ssn_front_url || user.ssn_front_url;
+          user.ssn_back_url =
+            updatedDocumentUrls.ssn_back_url || user.ssn_back_url;
         }
 
         // Clean up temporary files if they exist
@@ -709,11 +747,13 @@ const registerWithDocuments = asyncHandler(async (req, res) => {
           await deleteUploadedFiles(tempUrls);
         }
       } catch (reuploadError) {
-        console.error("Failed to re-upload with correct user ID:", reuploadError);
+        console.error(
+          "Failed to re-upload with correct user ID:",
+          reuploadError
+        );
         // Continue with registration, but log the issue
       }
     }
-
   } catch (error) {
     // If user creation fails, clean up uploaded documents
     if (Object.keys(documentUrls).length > 0) {

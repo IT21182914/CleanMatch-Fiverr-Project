@@ -65,34 +65,34 @@ const registerSchema = Joi.object({
     otherwise: Joi.forbidden(),
   }),
 
-  // Freelancer-specific fields
+  // Address fields - required for cleaners, optional for customers
   address: Joi.when("role", {
     is: "cleaner",
     then: Joi.string().required().messages({
       "any.required": "Address is required",
     }),
-    otherwise: Joi.forbidden(),
+    otherwise: Joi.string().optional(),
   }),
   city: Joi.when("role", {
     is: "cleaner",
     then: Joi.string().required().messages({
       "any.required": "City is required",
     }),
-    otherwise: Joi.forbidden(),
+    otherwise: Joi.string().optional(),
   }),
   state: Joi.when("role", {
     is: "cleaner",
     then: Joi.string().required().messages({
       "any.required": "State is required",
     }),
-    otherwise: Joi.forbidden(),
+    otherwise: Joi.string().optional(),
   }),
   zipCode: Joi.when("role", {
     is: "cleaner",
     then: Joi.string().required().messages({
       "any.required": "Postal code is required",
     }),
-    otherwise: Joi.forbidden(),
+    otherwise: Joi.string().optional(),
   }),
   cleaningServices: Joi.when("role", {
     is: "cleaner",

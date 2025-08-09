@@ -1,4 +1,8 @@
-import { validateEmail, validatePassword } from "../../../../lib/utils";
+import {
+  validateEmail,
+  validatePassword,
+  validateZipCode,
+} from "../../../../lib/utils";
 
 export const useFormValidation = () => {
   // Function to check if email is already registered
@@ -90,6 +94,14 @@ export const useFormValidation = () => {
 
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    // Validate zipCode if provided (optional for customers)
+    if (formData.zipCode && formData.zipCode.trim()) {
+      if (!validateZipCode(formData.zipCode.trim())) {
+        newErrors.zipCode =
+          "Please enter a valid ZIP code (e.g., 12345 or 12345-6789)";
+      }
     }
 
     if (!formData.agreeTerms) {

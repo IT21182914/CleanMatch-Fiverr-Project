@@ -37,6 +37,15 @@ export const useFormSubmission = (
           role: "customer",
         };
 
+        // Add optional fields if provided
+        if (formData.address && formData.address.trim()) {
+          registrationData.address = formData.address.trim();
+        }
+
+        if (formData.zipCode && formData.zipCode.trim()) {
+          registrationData.zipCode = formData.zipCode.trim();
+        }
+
         const result = await register(registrationData);
         if (result.success) {
           // Check if user came here with membership intent

@@ -1,5 +1,10 @@
 import { Link } from "react-router-dom";
-import { UserIcon, EnvelopeIcon, PhoneIcon } from "@heroicons/react/24/outline";
+import {
+  UserIcon,
+  EnvelopeIcon,
+  PhoneIcon,
+  MapPinIcon,
+} from "@heroicons/react/24/outline";
 import PasswordField from "./PasswordField";
 
 const CustomerForm = ({
@@ -155,6 +160,60 @@ const CustomerForm = ({
         {errors.phone && (
           <p className="mt-2 text-sm text-red-600">{errors.phone}</p>
         )}
+      </div>
+
+      {/* Address Information */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="sm:col-span-2">
+          <label
+            htmlFor="address"
+            className="block text-sm font-semibold text-gray-700 mb-2"
+          >
+            Address
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MapPinIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              id="address"
+              name="address"
+              type="text"
+              value={formData.address || ""}
+              onChange={onChange}
+              className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
+                errors.address ? "border-red-300" : "border-gray-300"
+              } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
+              placeholder="Enter your address"
+            />
+          </div>
+          {errors.address && (
+            <p className="mt-2 text-sm text-red-600">{errors.address}</p>
+          )}
+        </div>
+
+        <div>
+          <label
+            htmlFor="zipCode"
+            className="block text-sm font-semibold text-gray-700 mb-2"
+          >
+            ZIP Code
+          </label>
+          <input
+            id="zipCode"
+            name="zipCode"
+            type="text"
+            value={formData.zipCode || ""}
+            onChange={onChange}
+            className={`appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
+              errors.zipCode ? "border-red-300" : "border-gray-300"
+            } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
+            placeholder="12345"
+          />
+          {errors.zipCode && (
+            <p className="mt-2 text-sm text-red-600">{errors.zipCode}</p>
+          )}
+        </div>
       </div>
 
       {/* Passwords */}
