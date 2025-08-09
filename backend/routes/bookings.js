@@ -13,6 +13,8 @@ const {
   getCleanerRecommendationsForBooking,
   getZipBasedRecommendations,
   createBookingReview,
+  retryAutoAssignment,
+  getBookingAssignmentStatus,
 } = require("../controllers/bookingsController");
 const router = express.Router();
 
@@ -41,6 +43,21 @@ router.put("/:id/status", auth, updateBookingStatus);
 // @desc    Manually assign cleaner to booking
 // @access  Private (Admin or Customer)
 router.post("/:id/assign", auth, assignCleanerToBooking);
+
+// @route   POST /api/bookings/:id/retry-assignment
+// @desc    Retry auto-assignment for pending bookings
+// @access  Private (Admin only)
+router.post(
+  "/:id/retry-assignment",
+  auth,
+  authorize("admin"),
+  retryAutoAssignment
+);
+
+// @route   GET /api/bookings/:id/assignment-status
+// @desc    Get booking assignment status and metrics
+// @access  Private (Admin or Customer)
+router.get("/:id/assignment-status", auth, getBookingAssignmentStatus);
 
 // @route   GET /api/bookings/:id/recommendations
 // @desc    Get cleaner recommendations for booking

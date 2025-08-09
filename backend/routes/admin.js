@@ -16,6 +16,7 @@ const {
   cancelUserMembership,
   grantUserMembership,
   getMembershipAnalytics,
+  getAssignmentMetrics,
 } = require("../controllers/adminController");
 const router = express.Router();
 
@@ -122,6 +123,16 @@ router.get(
   auth,
   authorize("admin"),
   getMembershipAnalytics
+);
+
+// @route   GET /api/admin/assignment-metrics
+// @desc    Get assignment system metrics and pending bookings
+// @access  Private (Admin only)
+router.get(
+  "/assignment-metrics",
+  auth,
+  authorize("admin"),
+  getAssignmentMetrics
 );
 
 module.exports = router;

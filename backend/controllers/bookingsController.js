@@ -1,6 +1,7 @@
 const { query, getClient } = require("../config/database");
 const {
   autoAssignCleaner,
+  performAutoAssignment,
   getCleanerRecommendations,
 } = require("../utils/matchCleaner");
 const {
@@ -183,6 +184,7 @@ const createBooking = async (req, res) => {
       }
     }
     let assignedCleaner = null;
+    let assignmentResult = null;
 
     // Auto-assign cleaner if requested
     if (autoAssign) {
@@ -195,21 +197,37 @@ const createBooking = async (req, res) => {
           durationHours,
           serviceId,
           zipCode,
+          address,
+          city,
+          state,
         };
 
-        assignedCleaner = await autoAssignCleaner(bookingDetails);
+        const customerInfo = {
+          id: req.user.id,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          email: user.email,
+        };
 
-        if (assignedCleaner) {
-          await client.query(
-            "UPDATE bookings SET cleaner_id = $1, status = $2 WHERE id = $3",
-            [assignedCleaner.id, "confirmed", booking.id]
-          );
+        // Use enhanced auto-assignment with notifications
+        assignmentResult = await performAutoAssignment(
+          booking.id,
+          bookingDetails,
+          customerInfo
+        );
+
+        if (assignmentResult.success) {
+          assignedCleaner = assignmentResult.cleaner;
           booking.cleaner_id = assignedCleaner.id;
           booking.status = "confirmed";
+          booking.assignment_score = assignmentResult.assignmentScore;
+        } else {
+          booking.status = "pending_assignment";
         }
       } catch (error) {
         console.error("Auto-assignment error:", error);
         // Continue without assignment - booking remains pending
+        booking.status = "pending_assignment";
       }
     }
 
@@ -471,21 +489,27 @@ const updateBookingStatus = async (req, res) => {
 };
 
 /**
- * @desc    Manually assign cleaner to booking
+ * @desc    Manually assign cleaner to booking (Admin override)
  * @route   POST /api/bookings/:id/assign
  * @access  Private (Admin or Customer)
  */
 const assignCleanerToBooking = async (req, res) => {
+  const client = await getClient();
+
   try {
+    await client.query("BEGIN");
+
     const { id } = req.params;
-    const { cleanerId } = req.body;
+    const { cleanerId, overrideReason } = req.body;
 
     // Get booking details
-    const bookingResult = await query("SELECT * FROM bookings WHERE id = $1", [
-      id,
-    ]);
+    const bookingResult = await client.query(
+      "SELECT * FROM bookings WHERE id = $1 FOR UPDATE",
+      [id]
+    );
 
     if (bookingResult.rows.length === 0) {
+      await client.query("ROLLBACK");
       return res.status(404).json({
         success: false,
         error: "Booking not found",
@@ -496,6 +520,7 @@ const assignCleanerToBooking = async (req, res) => {
 
     // Check permissions
     if (req.user.role === "customer" && booking.customer_id !== req.user.id) {
+      await client.query("ROLLBACK");
       return res.status(403).json({
         success: false,
         error: "Access denied",
@@ -503,6 +528,7 @@ const assignCleanerToBooking = async (req, res) => {
     }
 
     if (req.user.role !== "admin" && req.user.role !== "customer") {
+      await client.query("ROLLBACK");
       return res.status(403).json({
         success: false,
         error: "Access denied",
@@ -510,14 +536,15 @@ const assignCleanerToBooking = async (req, res) => {
     }
 
     // Verify cleaner exists and is available
-    const cleanerResult = await query(
-      `SELECT u.*, cp.is_available FROM users u
+    const cleanerResult = await client.query(
+      `SELECT u.*, cp.is_available, cp.availability_schedule FROM users u
        JOIN cleaner_profiles cp ON u.id = cp.user_id
-       WHERE u.id = $1 AND u.role = 'cleaner' AND u.is_active = true`,
+       WHERE u.id = $1 AND u.role = 'cleaner' AND u.is_active = true FOR UPDATE`,
       [cleanerId]
     );
 
     if (cleanerResult.rows.length === 0) {
+      await client.query("ROLLBACK");
       return res.status(404).json({
         success: false,
         error: "Cleaner not found or not available",
@@ -526,18 +553,159 @@ const assignCleanerToBooking = async (req, res) => {
 
     const cleaner = cleanerResult.rows[0];
 
-    if (!cleaner.is_available) {
+    // For admin overrides, allow assignment even if cleaner appears unavailable
+    // but still check for hard conflicts
+    if (!cleaner.is_available && req.user.role !== "admin") {
+      await client.query("ROLLBACK");
       return res.status(400).json({
         success: false,
         error: "Cleaner is currently not available",
       });
     }
 
+    // Check for hard scheduling conflicts
+    const conflictQuery = `
+      SELECT id, customer_id FROM bookings 
+      WHERE cleaner_id = $1 
+        AND booking_date = $2 
+        AND status NOT IN ('cancelled', 'completed', 'no_show')
+        AND id != $3
+        AND (
+          ($4::time >= booking_time AND $4::time < (booking_time + INTERVAL '1 hour' * duration_hours))
+          OR
+          (($4::time + INTERVAL '1 hour' * $5) > booking_time AND ($4::time + INTERVAL '1 hour' * $5) <= (booking_time + INTERVAL '1 hour' * duration_hours))
+          OR
+          ($4::time <= booking_time AND ($4::time + INTERVAL '1 hour' * $5) >= (booking_time + INTERVAL '1 hour' * duration_hours))
+        )
+    `;
+
+    const conflictResult = await client.query(conflictQuery, [
+      cleanerId,
+      booking.booking_date,
+      id,
+      booking.booking_time,
+      booking.duration_hours,
+    ]);
+
+    if (conflictResult.rows.length > 0 && req.user.role !== "admin") {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        success: false,
+        error: "Cleaner has a conflicting booking at that time",
+        conflictingBookings: conflictResult.rows.length,
+      });
+    }
+
+    // Record the old cleaner for notification purposes
+    const oldCleanerId = booking.cleaner_id;
+
     // Update booking with assigned cleaner
-    await query(
-      "UPDATE bookings SET cleaner_id = $1, status = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3",
-      [cleanerId, "confirmed", id]
+    const updateQuery =
+      req.user.role === "admin"
+        ? `UPDATE bookings SET 
+         cleaner_id = $1, 
+         status = $2, 
+         assigned_at = CURRENT_TIMESTAMP,
+         assigned_by_admin = true,
+         admin_override_reason = $4,
+         updated_at = CURRENT_TIMESTAMP 
+         WHERE id = $3`
+        : `UPDATE bookings SET 
+         cleaner_id = $1, 
+         status = $2, 
+         assigned_at = CURRENT_TIMESTAMP,
+         updated_at = CURRENT_TIMESTAMP 
+         WHERE id = $3`;
+
+    const updateParams =
+      req.user.role === "admin"
+        ? [
+            cleanerId,
+            "confirmed",
+            id,
+            overrideReason || "Manual admin assignment",
+          ]
+        : [cleanerId, "confirmed", id];
+
+    await client.query(updateQuery, updateParams);
+
+    // Send notifications
+    const customerResult = await client.query(
+      "SELECT first_name, last_name, email FROM users WHERE id = $1",
+      [booking.customer_id]
     );
+    const customer = customerResult.rows[0];
+
+    // Notify new cleaner
+    await client.query(
+      `INSERT INTO notifications (user_id, title, message, type, metadata)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        cleanerId,
+        "New Booking Assignment",
+        `You have been ${
+          req.user.role === "admin"
+            ? "manually assigned by admin to"
+            : "assigned to"
+        } a cleaning job for ${booking.booking_date} at ${
+          booking.booking_time
+        }.`,
+        "new_assignment",
+        JSON.stringify({
+          bookingId: id,
+          customerName: `${customer.first_name} ${customer.last_name}`,
+          isAdminOverride: req.user.role === "admin",
+          assignedBy: `${req.user.first_name} ${req.user.last_name}`,
+          overrideReason: overrideReason || null,
+        }),
+      ]
+    );
+
+    // Notify customer about assignment change
+    if (oldCleanerId !== cleanerId) {
+      const notificationMessage = oldCleanerId
+        ? `Your cleaner has been updated to ${cleaner.first_name} ${cleaner.last_name} for your booking on ${booking.booking_date}.`
+        : `Great news! ${cleaner.first_name} ${cleaner.last_name} has been assigned to your booking on ${booking.booking_date}.`;
+
+      await client.query(
+        `INSERT INTO notifications (user_id, title, message, type, metadata)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [
+          booking.customer_id,
+          oldCleanerId ? "Cleaner Updated" : "Cleaner Assigned",
+          notificationMessage,
+          "booking_updated",
+          JSON.stringify({
+            bookingId: id,
+            cleanerId,
+            cleanerName: `${cleaner.first_name} ${cleaner.last_name}`,
+            isAdminOverride: req.user.role === "admin",
+            oldCleanerId,
+          }),
+        ]
+      );
+
+      // Notify old cleaner if reassignment
+      if (oldCleanerId && oldCleanerId !== cleanerId) {
+        await client.query(
+          `INSERT INTO notifications (user_id, title, message, type, metadata)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [
+            oldCleanerId,
+            "Booking Reassignment",
+            `Your booking for ${booking.booking_date} at ${booking.booking_time} has been reassigned to another cleaner.`,
+            "booking_reassigned",
+            JSON.stringify({
+              bookingId: id,
+              isAdminOverride: req.user.role === "admin",
+              reassignedBy: `${req.user.first_name} ${req.user.last_name}`,
+            }),
+          ]
+        );
+      }
+    }
+
+    await client.query("COMMIT");
 
     res.json({
       success: true,
@@ -546,14 +714,21 @@ const assignCleanerToBooking = async (req, res) => {
         id: cleaner.id,
         name: `${cleaner.first_name} ${cleaner.last_name}`,
         email: cleaner.email,
+        phone: cleaner.phone,
+        rating: cleaner.rating || 0,
       },
+      assignmentType: req.user.role === "admin" ? "admin_override" : "manual",
+      hadConflicts: conflictResult.rows.length > 0,
     });
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Assign cleaner error:", error);
     res.status(500).json({
       success: false,
       error: "Server error assigning cleaner",
     });
+  } finally {
+    client.release();
   }
 };
 
@@ -565,6 +740,7 @@ const assignCleanerToBooking = async (req, res) => {
 const getCleanerRecommendationsForBooking = async (req, res) => {
   try {
     const { id } = req.params;
+    const { limit = 10 } = req.query;
 
     // Get booking details
     const bookingResult = await query("SELECT * FROM bookings WHERE id = $1", [
@@ -603,30 +779,92 @@ const getCleanerRecommendationsForBooking = async (req, res) => {
       durationHours: booking.duration_hours,
       serviceId: booking.service_id,
       zipCode: booking.zip_code,
+      address: booking.address,
+      city: booking.city,
+      state: booking.state,
     };
 
-    const recommendations = await getCleanerRecommendations(bookingDetails, 10);
+    const recommendations = await getCleanerRecommendations(
+      bookingDetails,
+      parseInt(limit)
+    );
 
     res.json({
       success: true,
+      bookingId: id,
+      bookingDetails: {
+        date: booking.booking_date,
+        time: booking.booking_time,
+        duration: booking.duration_hours,
+        zipCode: booking.zip_code,
+        currentStatus: booking.status,
+        currentCleaner: booking.cleaner_id,
+      },
       recommendations: recommendations.map((cleaner) => ({
         id: cleaner.id,
         name: `${cleaner.first_name} ${cleaner.last_name}`,
-        rating: cleaner.rating,
-        totalJobs: cleaner.total_jobs,
+        rating: cleaner.rating || 0,
+        totalJobs: cleaner.total_jobs || 0,
+        activeJobs: cleaner.current_active_jobs || 0,
+        completedJobs: cleaner.completed_jobs || 0,
+        experienceYears: cleaner.experience_years || 0,
         hourlyRate: cleaner.hourly_rate,
         distance: cleaner.distance,
-        matchScore: cleaner.matchScore,
-        experienceYears: cleaner.experience_years,
+        zipMatch:
+          cleaner.zip_priority === 1
+            ? "exact"
+            : cleaner.zip_priority === 2
+            ? "area"
+            : cleaner.zip_priority === 3
+            ? "region"
+            : "distant",
+        priorityScore: cleaner.priorityScore,
+        availability: {
+          isAvailable: cleaner.is_available,
+          lastActive: cleaner.last_active,
+          hasServiceAreaMatch: cleaner.has_service_area_match,
+        },
+        contact: {
+          email: cleaner.email,
+          phone: cleaner.phone,
+        },
+        workload: {
+          current: cleaner.current_active_jobs || 0,
+          completed: cleaner.completed_jobs || 0,
+          completionRate: cleaner.completion_rate || 0,
+          lastAssignment: cleaner.last_assignment,
+        },
       })),
+      totalFound: recommendations.length,
+      assignmentTips: {
+        topReason:
+          recommendations.length > 0
+            ? getTopRecommendationReason(recommendations[0])
+            : null,
+        zipCodeMatches: recommendations.filter((c) => c.zip_priority <= 2)
+          .length,
+        availableNow: recommendations.filter((c) => c.is_available).length,
+      },
     });
   } catch (error) {
-    console.error("Get recommendations error:", error);
+    console.error("Get cleaner recommendations error:", error);
     res.status(500).json({
       success: false,
-      error: "Server error getting cleaner recommendations",
+      error: "Server error getting recommendations",
     });
   }
+};
+
+/**
+ * Helper function to get the top recommendation reason
+ */
+const getTopRecommendationReason = (cleaner) => {
+  if (cleaner.zip_priority === 1) return "Exact ZIP code match";
+  if (cleaner.zip_priority === 2) return "Same area (ZIP prefix match)";
+  if (cleaner.current_active_jobs === 0) return "No current bookings";
+  if (cleaner.rating >= 4.5) return "Excellent rating";
+  if (cleaner.experience_years >= 5) return "Very experienced";
+  return "Good overall match";
 };
 
 /**
@@ -810,6 +1048,279 @@ const getZipBasedRecommendations = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Retry auto-assignment for pending bookings
+ * @route   POST /api/bookings/:id/retry-assignment
+ * @access  Private (Admin)
+ */
+const retryAutoAssignment = async (req, res) => {
+  const client = await getClient();
+
+  try {
+    await client.query("BEGIN");
+
+    const { id } = req.params;
+
+    // Only admins can retry assignment
+    if (req.user.role !== "admin") {
+      await client.query("ROLLBACK");
+      return res.status(403).json({
+        success: false,
+        error: "Admin access required",
+      });
+    }
+
+    // Get booking details
+    const bookingResult = await client.query(
+      "SELECT * FROM bookings WHERE id = $1 FOR UPDATE",
+      [id]
+    );
+
+    if (bookingResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        success: false,
+        error: "Booking not found",
+      });
+    }
+
+    const booking = bookingResult.rows[0];
+
+    // Only retry for pending assignments
+    if (booking.status !== "pending_assignment" && booking.cleaner_id) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        success: false,
+        error: "Booking is not in pending assignment status",
+        currentStatus: booking.status,
+        hasAssignedCleaner: !!booking.cleaner_id,
+      });
+    }
+
+    // Get customer info
+    const customerResult = await client.query(
+      "SELECT first_name, last_name, email FROM users WHERE id = $1",
+      [booking.customer_id]
+    );
+
+    if (customerResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        success: false,
+        error: "Customer not found",
+      });
+    }
+
+    const customer = customerResult.rows[0];
+
+    const bookingDetails = {
+      latitude: booking.latitude,
+      longitude: booking.longitude,
+      bookingDate: booking.booking_date,
+      bookingTime: booking.booking_time,
+      durationHours: booking.duration_hours,
+      serviceId: booking.service_id,
+      zipCode: booking.zip_code,
+      address: booking.address,
+      city: booking.city,
+      state: booking.state,
+    };
+
+    const customerInfo = {
+      id: booking.customer_id,
+      firstName: customer.first_name,
+      lastName: customer.last_name,
+      email: customer.email,
+    };
+
+    // Attempt reassignment
+    const assignmentResult = await performAutoAssignment(
+      id,
+      bookingDetails,
+      customerInfo
+    );
+
+    await client.query("COMMIT");
+
+    if (assignmentResult.success) {
+      res.json({
+        success: true,
+        message: "Auto-assignment retry successful",
+        cleaner: {
+          id: assignmentResult.cleaner.id,
+          name: `${assignmentResult.cleaner.first_name} ${assignmentResult.cleaner.last_name}`,
+          rating: assignmentResult.cleaner.rating,
+          phone: assignmentResult.cleaner.phone,
+        },
+        assignmentScore: assignmentResult.assignmentScore,
+        retryAttempt: (booking.assignment_attempts || 0) + 1,
+      });
+    } else {
+      res.json({
+        success: false,
+        message: "Auto-assignment retry failed - no available cleaners",
+        reason: assignmentResult.reason,
+        retryAttempt: (booking.assignment_attempts || 0) + 1,
+        suggestions: [
+          "Check if cleaners are available in this ZIP code",
+          "Consider expanding service area",
+          "Manually assign a cleaner",
+          "Contact cleaners directly",
+        ],
+      });
+    }
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Retry auto-assignment error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrying assignment",
+    });
+  } finally {
+    client.release();
+  }
+};
+
+/**
+ * @desc    Get booking assignment status and metrics
+ * @route   GET /api/bookings/:id/assignment-status
+ * @access  Private (Admin or Customer)
+ */
+const getBookingAssignmentStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const bookingResult = await query(
+      `
+      SELECT 
+        b.*,
+        u.first_name as customer_first_name,
+        u.last_name as customer_last_name,
+        c.first_name as cleaner_first_name,
+        c.last_name as cleaner_last_name,
+        c.phone as cleaner_phone,
+        cp.rating as cleaner_rating,
+        cp.total_jobs as cleaner_total_jobs
+      FROM bookings b
+      JOIN users u ON b.customer_id = u.id
+      LEFT JOIN users c ON b.cleaner_id = c.id
+      LEFT JOIN cleaner_profiles cp ON b.cleaner_id = cp.user_id
+      WHERE b.id = $1
+    `,
+      [id]
+    );
+
+    if (bookingResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Booking not found",
+      });
+    }
+
+    const booking = bookingResult.rows[0];
+
+    // Check permissions
+    if (req.user.role === "customer" && booking.customer_id !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: "Access denied",
+      });
+    }
+
+    if (req.user.role !== "admin" && req.user.role !== "customer") {
+      return res.status(403).json({
+        success: false,
+        error: "Access denied",
+      });
+    }
+
+    // Get recommendations if no cleaner assigned
+    let recommendations = [];
+    if (!booking.cleaner_id && req.user.role === "admin") {
+      const bookingDetails = {
+        latitude: booking.latitude,
+        longitude: booking.longitude,
+        bookingDate: booking.booking_date,
+        bookingTime: booking.booking_time,
+        durationHours: booking.duration_hours,
+        serviceId: booking.service_id,
+        zipCode: booking.zip_code,
+        address: booking.address,
+        city: booking.city,
+        state: booking.state,
+      };
+
+      try {
+        const recs = await getCleanerRecommendations(bookingDetails, 5);
+        recommendations = recs.map((cleaner) => ({
+          id: cleaner.id,
+          name: `${cleaner.first_name} ${cleaner.last_name}`,
+          rating: cleaner.rating || 0,
+          priorityScore: cleaner.priorityScore || 0,
+          zipMatch:
+            cleaner.zip_priority === 1
+              ? "exact"
+              : cleaner.zip_priority === 2
+              ? "area"
+              : "distant",
+          currentJobs: cleaner.current_active_jobs || 0,
+        }));
+      } catch (error) {
+        console.error("Error getting recommendations:", error);
+        // Continue without recommendations
+      }
+    }
+
+    res.json({
+      success: true,
+      booking: {
+        id: booking.id,
+        status: booking.status,
+        assignmentAttempts: booking.assignment_attempts || 0,
+        assignedAt: booking.assigned_at,
+        assignedByAdmin: booking.assigned_by_admin || false,
+        adminOverrideReason: booking.admin_override_reason,
+        customer: {
+          name: `${booking.customer_first_name} ${booking.customer_last_name}`,
+        },
+        cleaner: booking.cleaner_id
+          ? {
+              id: booking.cleaner_id,
+              name: `${booking.cleaner_first_name} ${booking.cleaner_last_name}`,
+              phone: booking.cleaner_phone,
+              rating: booking.cleaner_rating || 0,
+              totalJobs: booking.cleaner_total_jobs || 0,
+            }
+          : null,
+        location: {
+          address: booking.address,
+          city: booking.city,
+          state: booking.state,
+          zipCode: booking.zip_code,
+        },
+        schedule: {
+          date: booking.booking_date,
+          time: booking.booking_time,
+          duration: booking.duration_hours,
+        },
+      },
+      availableActions: {
+        canRetryAssignment:
+          booking.status === "pending_assignment" && req.user.role === "admin",
+        canManualAssign: !booking.cleaner_id && req.user.role === "admin",
+        canReassign: booking.cleaner_id && req.user.role === "admin",
+      },
+      recommendations,
+    });
+  } catch (error) {
+    console.error("Get assignment status error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error getting assignment status",
+    });
+  }
+};
+
 module.exports = {
   createBooking,
   getBookingById,
@@ -818,4 +1329,6 @@ module.exports = {
   getCleanerRecommendationsForBooking,
   getZipBasedRecommendations,
   createBookingReview,
+  retryAutoAssignment,
+  getBookingAssignmentStatus,
 };

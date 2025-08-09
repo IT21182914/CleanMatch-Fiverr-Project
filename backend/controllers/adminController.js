@@ -1121,6 +1121,245 @@ const deleteReview = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get assignment system metrics and pending bookings
+ * @route   GET /api/admin/assignment-metrics
+ * @access  Private (Admin only)
+ */
+const getAssignmentMetrics = async (req, res) => {
+  try {
+    // Get overall assignment statistics
+    const assignmentStats = await query(`
+      SELECT 
+        COUNT(*) as total_bookings,
+        COUNT(CASE WHEN status = 'confirmed' AND cleaner_id IS NOT NULL THEN 1 END) as assigned_bookings,
+        COUNT(CASE WHEN status = 'pending_assignment' THEN 1 END) as pending_assignment,
+        COUNT(CASE WHEN assigned_by_admin = true THEN 1 END) as admin_assigned,
+        AVG(assignment_attempts) as avg_assignment_attempts,
+        COUNT(CASE WHEN assignment_attempts > 1 THEN 1 END) as required_retry
+      FROM bookings 
+      WHERE created_at >= NOW() - INTERVAL '30 days'
+    `);
+
+    // Get assignment success rate by ZIP code
+    const zipCodeStats = await query(`
+      SELECT 
+        zip_code,
+        COUNT(*) as total_bookings,
+        COUNT(CASE WHEN cleaner_id IS NOT NULL THEN 1 END) as assigned_bookings,
+        ROUND(
+          (COUNT(CASE WHEN cleaner_id IS NOT NULL THEN 1 END)::DECIMAL / COUNT(*)) * 100, 
+          2
+        ) as assignment_success_rate
+      FROM bookings 
+      WHERE created_at >= NOW() - INTERVAL '30 days'
+        AND zip_code IS NOT NULL
+      GROUP BY zip_code
+      HAVING COUNT(*) >= 3
+      ORDER BY assignment_success_rate ASC, total_bookings DESC
+      LIMIT 20
+    `);
+
+    // Get pending assignments that need admin attention
+    const pendingAssignments = await query(`
+      SELECT 
+        b.id,
+        b.created_at,
+        b.booking_date,
+        b.booking_time,
+        b.zip_code,
+        b.assignment_attempts,
+        b.total_amount,
+        u.first_name || ' ' || u.last_name as customer_name,
+        u.email as customer_email,
+        s.name as service_name
+      FROM bookings b
+      JOIN users u ON b.customer_id = u.id
+      JOIN services s ON b.service_id = s.id
+      WHERE b.status = 'pending_assignment'
+        AND b.created_at >= NOW() - INTERVAL '7 days'
+      ORDER BY b.created_at ASC
+      LIMIT 50
+    `);
+
+    // Get cleaner availability by ZIP code
+    const cleanerAvailability = await query(`
+      WITH zip_areas AS (
+        SELECT DISTINCT zip_code
+        FROM bookings 
+        WHERE zip_code IS NOT NULL 
+          AND created_at >= NOW() - INTERVAL '30 days'
+      ),
+      cleaner_coverage AS (
+        SELECT 
+          za.zip_code,
+          COUNT(DISTINCT u.id) as available_cleaners,
+          COUNT(DISTINCT csa.cleaner_id) as explicit_coverage
+        FROM zip_areas za
+        LEFT JOIN cleaner_service_areas csa ON za.zip_code = csa.zip_code
+        LEFT JOIN users u ON (
+          (u.zip_code = za.zip_code OR LEFT(u.zip_code, 3) = LEFT(za.zip_code, 3))
+          AND u.role = 'cleaner' 
+          AND u.is_active = true
+        )
+        LEFT JOIN cleaner_profiles cp ON u.id = cp.user_id AND cp.is_available = true
+        GROUP BY za.zip_code
+      )
+      SELECT * FROM cleaner_coverage
+      WHERE available_cleaners = 0 OR available_cleaners < 3
+      ORDER BY available_cleaners ASC, zip_code
+      LIMIT 20
+    `);
+
+    // Get top performing cleaners by assignment success and ratings
+    const topCleaners = await query(`
+      SELECT 
+        u.id,
+        u.first_name || ' ' || u.last_name as name,
+        u.zip_code,
+        cp.rating,
+        cp.total_jobs,
+        COUNT(b.id) as recent_bookings,
+        COUNT(CASE WHEN b.status = 'completed' THEN 1 END) as completed_recently,
+        cp.completion_rate,
+        cp.last_active
+      FROM users u
+      JOIN cleaner_profiles cp ON u.id = cp.user_id
+      LEFT JOIN bookings b ON u.id = b.cleaner_id AND b.created_at >= NOW() - INTERVAL '30 days'
+      WHERE u.role = 'cleaner' 
+        AND u.is_active = true
+        AND cp.is_available = true
+      GROUP BY u.id, u.first_name, u.last_name, u.zip_code, cp.rating, cp.total_jobs, cp.completion_rate, cp.last_active
+      ORDER BY cp.rating DESC, completed_recently DESC, cp.completion_rate DESC
+      LIMIT 10
+    `);
+
+    // Get assignment timeline (last 7 days)
+    const assignmentTimeline = await query(`
+      SELECT 
+        DATE(created_at) as date,
+        COUNT(*) as total_bookings,
+        COUNT(CASE WHEN cleaner_id IS NOT NULL THEN 1 END) as assigned_bookings,
+        COUNT(CASE WHEN status = 'pending_assignment' THEN 1 END) as pending_assignments,
+        COUNT(CASE WHEN assigned_by_admin = true THEN 1 END) as admin_assignments
+      FROM bookings
+      WHERE created_at >= NOW() - INTERVAL '7 days'
+      GROUP BY DATE(created_at)
+      ORDER BY date DESC
+    `);
+
+    res.json({
+      success: true,
+      data: {
+        overview: assignmentStats.rows[0],
+        zipCodePerformance: zipCodeStats.rows,
+        pendingAssignments: pendingAssignments.rows,
+        underservedAreas: cleanerAvailability.rows,
+        topPerformers: topCleaners.rows,
+        timeline: assignmentTimeline.rows,
+        insights: {
+          assignmentSuccessRate:
+            (assignmentStats.rows[0].assigned_bookings /
+              assignmentStats.rows[0].total_bookings) *
+            100,
+          areasNeedingAttention: cleanerAvailability.rows.length,
+          adminInterventionRate:
+            (assignmentStats.rows[0].admin_assigned /
+              assignmentStats.rows[0].total_bookings) *
+            100,
+          avgRetryAttempts: assignmentStats.rows[0].avg_assignment_attempts,
+        },
+        recommendations: generateAssignmentRecommendations(
+          assignmentStats.rows[0],
+          zipCodeStats.rows,
+          cleanerAvailability.rows
+        ),
+      },
+    });
+  } catch (error) {
+    console.error("Get assignment metrics error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error getting assignment metrics",
+    });
+  }
+};
+
+/**
+ * Generate actionable recommendations based on assignment metrics
+ */
+const generateAssignmentRecommendations = (overall, zipStats, availability) => {
+  const recommendations = [];
+
+  // Low assignment success rate
+  if (overall.assigned_bookings / overall.total_bookings < 0.8) {
+    recommendations.push({
+      priority: "high",
+      category: "coverage",
+      message:
+        "Overall assignment success rate is below 80%. Consider recruiting cleaners in underserved areas.",
+      action:
+        "Review ZIP codes with low assignment rates and targeted cleaner recruitment.",
+    });
+  }
+
+  // High admin intervention
+  if (overall.admin_assigned / overall.total_bookings > 0.2) {
+    recommendations.push({
+      priority: "medium",
+      category: "automation",
+      message:
+        "High manual assignment rate indicates automatic matching needs improvement.",
+      action:
+        "Review matching algorithm parameters and cleaner availability settings.",
+    });
+  }
+
+  // Areas with no coverage
+  const noCoverageAreas = availability.filter(
+    (area) => area.available_cleaners === 0
+  );
+  if (noCoverageAreas.length > 0) {
+    recommendations.push({
+      priority: "high",
+      category: "coverage",
+      message: `${noCoverageAreas.length} ZIP codes have no available cleaners.`,
+      action: `Recruit cleaners in: ${noCoverageAreas
+        .slice(0, 5)
+        .map((a) => a.zip_code)
+        .join(", ")}`,
+    });
+  }
+
+  // Low coverage areas
+  const lowCoverageAreas = availability.filter(
+    (area) => area.available_cleaners > 0 && area.available_cleaners < 3
+  );
+  if (lowCoverageAreas.length > 0) {
+    recommendations.push({
+      priority: "medium",
+      category: "coverage",
+      message: `${lowCoverageAreas.length} ZIP codes have limited cleaner coverage.`,
+      action:
+        "Consider expanding service areas for existing cleaners or recruit additional cleaners.",
+    });
+  }
+
+  // High retry rate
+  if (overall.avg_assignment_attempts > 1.5) {
+    recommendations.push({
+      priority: "medium",
+      category: "efficiency",
+      message:
+        "High average assignment attempts suggest availability checking issues.",
+      action:
+        "Review cleaner availability schedules and real-time status updates.",
+    });
+  }
+
+  return recommendations;
+};
+
 module.exports = {
   getDashboardStats,
   getUsers,
@@ -1137,4 +1376,5 @@ module.exports = {
   cancelUserMembership,
   grantUserMembership,
   getMembershipAnalytics,
+  getAssignmentMetrics,
 };
