@@ -120,11 +120,6 @@ const findAvailableCleaners = async (bookingDetails) => {
         FROM bookings 
         WHERE cleaner_id IS NOT NULL 
         GROUP BY cleaner_id
-      ),
-      service_area_match AS (
-        SELECT DISTINCT cleaner_id
-        FROM cleaner_service_areas csa
-        WHERE csa.zip_code = $1 OR csa.zip_prefix = LEFT($1, 3) OR csa.zip_prefix = LEFT($1, 2)
       )
       SELECT 
         u.id,
@@ -154,11 +149,17 @@ const findAvailableCleaners = async (bookingDetails) => {
           WHEN LEFT(u.zip_code, 2) = LEFT($1, 2) THEN 3
           ELSE 4
         END as zip_priority,
-        CASE WHEN sam.cleaner_id IS NOT NULL THEN true ELSE false END as has_service_area_match
+        CASE 
+          WHEN EXISTS (
+            SELECT 1 FROM cleaner_service_areas csa 
+            WHERE csa.cleaner_id = u.id 
+            AND (csa.zip_code = $1 OR csa.zip_prefix = LEFT($1, 3) OR csa.zip_prefix = LEFT($1, 2))
+          ) THEN true 
+          ELSE false 
+        END as has_service_area_match
       FROM users u
       JOIN cleaner_profiles cp ON u.id = cp.user_id
       LEFT JOIN cleaner_stats cs ON u.id = cs.cleaner_id
-      LEFT JOIN service_area_match sam ON u.id = sam.cleaner_id
       WHERE u.role = 'cleaner' 
         AND u.is_active = true 
         AND cp.is_available = true
