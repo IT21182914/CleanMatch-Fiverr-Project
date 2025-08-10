@@ -84,7 +84,11 @@ const Layout = ({ children }) => {
         <div
           className={`w-full overflow-x-hidden ${
             showSidebar
-              ? "p-3 xs:p-4 sm:p-5 md:p-6 lg:p-8 xl:p-10 2xl:p-12" // Optimized responsive padding for sidebar layout
+              ? isSidebarCollapsed
+                ? // Collapsed sidebar: reduce padding to maximize content space
+                  "p-3 xs:p-4 sm:p-5 md:p-6 lg:p-6 xl:p-8 2xl:p-10"
+                : // Expanded sidebar: standard padding
+                  "p-3 xs:p-4 sm:p-5 md:p-6 lg:p-8 xl:p-10 2xl:p-12"
               : !isFullWidth
               ? "py-3 xs:py-4 sm:py-6 md:py-8 lg:py-10 xl:py-12"
               : ""
@@ -92,7 +96,15 @@ const Layout = ({ children }) => {
         >
           {/* Container for centering content on larger screens */}
           {showSidebar ? (
-            <div className="w-full max-w-none lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto">
+            <div
+              className={`w-full transition-all duration-300 ${
+                isSidebarCollapsed
+                  ? // Collapsed sidebar: use more width, less centering
+                    "max-w-none lg:max-w-6xl xl:max-w-7xl 2xl:max-w-none mx-auto"
+                  : // Expanded sidebar: standard max width
+                    "max-w-none lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto"
+              }`}
+            >
               {children}
             </div>
           ) : (
