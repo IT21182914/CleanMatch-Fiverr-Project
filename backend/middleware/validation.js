@@ -209,8 +209,8 @@ const ticketCreateSchema = Joi.object({
   priority: Joi.string()
     .valid("low", "normal", "high", "urgent")
     .default("normal"),
-  summary: Joi.string().min(10).max(255).required(),
-  description: Joi.string().min(20).max(2000).required(),
+  summary: Joi.string().min(5).max(255).required(),
+  description: Joi.string().min(10).max(2000).required(),
   attachments: Joi.array().items(Joi.string()).default([]),
 });
 

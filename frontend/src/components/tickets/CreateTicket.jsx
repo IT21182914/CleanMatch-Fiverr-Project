@@ -58,8 +58,19 @@ const CreateTicket = ({ onTicketCreated, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validation
     if (!formData.summary.trim() || !formData.description.trim()) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (formData.summary.trim().length < 5) {
+      toast.error("Summary must be at least 5 characters long");
+      return;
+    }
+
+    if (formData.description.trim().length < 10) {
+      toast.error("Description must be at least 10 characters long");
       return;
     }
 
@@ -207,7 +218,7 @@ const CreateTicket = ({ onTicketCreated, onClose }) => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <p className="text-xs text-gray-500 mt-1">
-            {formData.summary.length}/255 characters
+            {formData.summary.length}/255 characters (minimum 5)
           </p>
         </div>
 
@@ -227,7 +238,7 @@ const CreateTicket = ({ onTicketCreated, onClose }) => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <p className="text-xs text-gray-500 mt-1">
-            {formData.description.length}/2000 characters
+            {formData.description.length}/2000 characters (minimum 10)
           </p>
         </div>
 
