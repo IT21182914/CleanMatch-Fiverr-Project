@@ -139,6 +139,14 @@ input:-ms-input-placeholder {
   color: #111827 !important;
 }
 
+/* Register button text color override - ensure white text */
+a[href="/register"], 
+a[href="/register"] span,
+.register-button,
+.register-button span {
+  color: white !important;
+}
+
 /* Ensure placeholder text remains visible */
 .autofill-override::placeholder,
 input[type="text"]::placeholder,

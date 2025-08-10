@@ -359,9 +359,9 @@ const Navbar = () => {
                 <div className="relative z-30">
                   <Link
                     to="/register"
-                    className="group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-5 xl:py-2.5 2xl:px-6 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold border transition-all duration-300 hover:shadow-lg xl:hover:shadow-xl backdrop-blur-sm !text-white bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-[#4EC6E5] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 isolate hover:z-40 whitespace-nowrap"
+                    className="register-button group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-5 xl:py-2.5 2xl:px-6 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm font-semibold border transition-all duration-300 hover:shadow-lg xl:hover:shadow-xl backdrop-blur-sm !text-white bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-[#4EC6E5] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 isolate hover:z-40 whitespace-nowrap"
                   >
-                    <span className="relative z-10">Register</span>
+                    <span className="relative z-10 !text-white">Register</span>
                   </Link>
                 </div>
               </>
@@ -721,10 +721,10 @@ const Navbar = () => {
                     </Link>
                     <Link
                       to="/register"
-                      className="w-full text-center py-3 xs:py-4 px-4 rounded-xl !text-white font-semibold transition-all duration-300 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 touch-manipulation min-h-[52px] flex items-center justify-center"
+                      className="register-button w-full text-center py-3 xs:py-4 px-4 rounded-xl !text-white font-semibold transition-all duration-300 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] shadow-lg shadow-[#4EC6E5]/25 touch-manipulation min-h-[52px] flex items-center justify-center"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      Register
+                      <span className="!text-white">Register</span>
                     </Link>
                   </div>
 
