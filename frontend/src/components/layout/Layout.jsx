@@ -32,7 +32,7 @@ const Layout = ({ children }) => {
   const showSidebar = isAuthenticated && !isFullWidth;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <TopNavbar
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
@@ -50,22 +50,29 @@ const Layout = ({ children }) => {
       <main
         className={
           showSidebar
-            ? "lg:pl-64" // Add left padding for sidebar on desktop
+            ? "lg:pl-64 bg-gray-50 min-h-screen" // Add left padding for sidebar on desktop with background
             : isFullWidth
-            ? "w-full"
-            : "w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto"
+            ? "w-full bg-white"
+            : "w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto bg-white"
         }
       >
         <div
           className={`w-full overflow-x-hidden ${
             showSidebar
-              ? "p-3 xs:p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12" // Padding for sidebar layout
+              ? "p-3 xs:p-4 sm:p-5 md:p-6 lg:p-8 xl:p-10 2xl:p-12" // Optimized responsive padding for sidebar layout
               : !isFullWidth
               ? "py-3 xs:py-4 sm:py-6 md:py-8 lg:py-10 xl:py-12"
               : ""
           }`}
         >
-          {children}
+          {/* Container for centering content on larger screens */}
+          {showSidebar ? (
+            <div className="w-full max-w-none lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto">
+              {children}
+            </div>
+          ) : (
+            children
+          )}
         </div>
       </main>
 
