@@ -41,7 +41,7 @@ const CustomerForm = ({
               onChange={onChange}
               className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                 errors.firstName ? "border-red-300" : "border-gray-300"
-              } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
+              } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200 auth-input autofill-override`}
               placeholder="First name"
             />
           </div>
@@ -66,7 +66,7 @@ const CustomerForm = ({
             onChange={onChange}
             className={`appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
               errors.lastName ? "border-red-300" : "border-gray-300"
-            } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
+            } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200 auth-input autofill-override`}
             placeholder="Last name"
           />
           {errors.lastName && (
@@ -92,7 +92,7 @@ const CustomerForm = ({
           onChange={onChange}
           className={`appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
             errors.userName ? "border-red-300" : "border-gray-300"
-          } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
+          } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200 auth-input autofill-override`}
           placeholder="Choose a username"
         />
         {errors.userName && (
@@ -123,7 +123,7 @@ const CustomerForm = ({
             onBlur={onEmailBlur}
             className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
               errors.email ? "border-red-300" : "border-gray-300"
-            } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
+            } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200 auth-input autofill-override`}
             placeholder="Enter your email address"
           />
         </div>
@@ -151,7 +151,7 @@ const CustomerForm = ({
             required
             value={formData.phone}
             onChange={onChange}
-            className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
+            className={`auth-input autofill-override appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
               errors.phone ? "border-red-300" : "border-gray-300"
             } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
             placeholder="+1 (555) 123-4567"
@@ -181,7 +181,7 @@ const CustomerForm = ({
               type="text"
               value={formData.address || ""}
               onChange={onChange}
-              className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
+              className={`auth-input autofill-override appearance-none relative block w-full pl-10 pr-3 py-2.5 sm:py-3 border ${
                 errors.address ? "border-red-300" : "border-gray-300"
               } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
               placeholder="Enter your address"
@@ -205,7 +205,7 @@ const CustomerForm = ({
             type="text"
             value={formData.zipCode || ""}
             onChange={onChange}
-            className={`appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
+            className={`auth-input autofill-override appearance-none relative block w-full px-3 py-2.5 sm:py-3 border ${
               errors.zipCode ? "border-red-300" : "border-gray-300"
             } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
             placeholder="12345"

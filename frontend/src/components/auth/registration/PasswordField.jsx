@@ -29,7 +29,7 @@ const PasswordField = ({
           required={required}
           value={value}
           onChange={onChange}
-          className={`appearance-none relative block w-full pr-10 pl-3 py-2.5 sm:py-3 border ${
+          className={`auth-input autofill-override appearance-none relative block w-full pr-10 pl-3 py-2.5 sm:py-3 border ${
             error ? "border-red-300" : "border-gray-300"
           } placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 text-sm transition-colors duration-200`}
           placeholder={placeholder}

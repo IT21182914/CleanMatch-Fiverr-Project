@@ -1,0 +1,158 @@
+/* Autofill Override Styles */
+/* This CSS ensures consistent styling for input fields even when browsers apply autofill */
+
+/* Base autofill override class */
+.autofill-override,
+input[type="text"],
+input[type="email"], 
+input[type="password"] {
+  /* Override autofill background and text color */
+  -webkit-autofill-background: transparent !important;
+  background-color: white !important;
+  color: #111827 !important; /* text-gray-900 equivalent */
+}
+
+/* Webkit autofill pseudo selector for comprehensive override */
+.autofill-override:-webkit-autofill,
+.autofill-override:-webkit-autofill:hover,
+.autofill-override:-webkit-autofill:focus,
+.autofill-override:-webkit-autofill:active,
+input[type="text"]:-webkit-autofill,
+input[type="text"]:-webkit-autofill:hover,
+input[type="text"]:-webkit-autofill:focus,
+input[type="text"]:-webkit-autofill:active,
+input[type="email"]:-webkit-autofill,
+input[type="email"]:-webkit-autofill:hover,
+input[type="email"]:-webkit-autofill:focus,
+input[type="email"]:-webkit-autofill:active,
+input[type="password"]:-webkit-autofill,
+input[type="password"]:-webkit-autofill:hover,
+input[type="password"]:-webkit-autofill:focus,
+input[type="password"]:-webkit-autofill:active {
+  /* Force white background using box-shadow trick (most reliable method) */
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #111827 !important; /* text-gray-900 equivalent */
+  background-color: white !important;
+  background-image: none !important;
+  color: #111827 !important;
+  
+  /* Maintain focus ring styles */
+  border-color: #06b6d4 !important; /* cyan-500 equivalent for consistency */
+  outline: 2px solid transparent !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 30px white inset, 0 0 0 2px #06b6d4 !important; /* cyan-500 ring */
+  
+  /* Smooth transitions */
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+/* For Chrome/Safari - Force remove autofill styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s !important;
+  -webkit-text-fill-color: #111827 !important;
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  background-color: white !important;
+  color: #111827 !important;
+}
+
+/* Enhanced focus styles for autofilled inputs */
+.autofill-override:focus:-webkit-autofill,
+input[type="text"]:focus:-webkit-autofill,
+input[type="email"]:focus:-webkit-autofill,
+input[type="password"]:focus:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px white inset, 0 0 0 2px #06b6d4 !important;
+  border-color: #06b6d4 !important;
+  outline: none !important;
+}
+
+/* Registration form specific overrides */
+.auth-input,
+.registration-input {
+  background-color: white !important;
+  color: #111827 !important;
+}
+
+/* Ensure consistent cyan focus colors for all auth inputs */
+.auth-input:focus,
+.registration-input:focus {
+  border-color: #06b6d4 !important; /* cyan-500 */
+  box-shadow: 0 0 0 2px #06b6d4 !important; /* cyan-500 ring */
+}
+
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover,
+.auth-input:-webkit-autofill:focus,
+.auth-input:-webkit-autofill:active,
+.registration-input:-webkit-autofill,
+.registration-input:-webkit-autofill:hover,
+.registration-input:-webkit-autofill:focus,
+.registration-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  background-color: white !important;
+  color: #111827 !important;
+}
+
+.auth-input:focus:-webkit-autofill,
+.registration-input:focus:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px white inset, 0 0 0 2px #06b6d4 !important; /* cyan-500 */
+  border-color: #06b6d4 !important;
+}
+
+/* Custom focus styles for cyan theme used in forms */
+.focus\:ring-cyan-500:focus:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px white inset, 0 0 0 2px #06b6d4 !important; /* cyan-500 */
+  border-color: #06b6d4 !important;
+}
+
+.focus\:border-cyan-500:focus:-webkit-autofill {
+  border-color: #06b6d4 !important;
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+}
+
+/* Error state autofill overrides */
+.border-red-300:-webkit-autofill,
+.border-red-300:-webkit-autofill:hover,
+.border-red-300:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  border-color: #fca5a5 !important; /* red-300 */
+}
+
+.focus\:border-red-500:focus:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px white inset, 0 0 0 2px #ef4444 !important; /* red-500 */
+  border-color: #ef4444 !important;
+}
+
+/* Firefox autofill overrides */
+input:-moz-autofill,
+input:-moz-autofill-preview {
+  background-color: white !important;
+  color: #111827 !important;
+}
+
+/* Edge/IE autofill overrides */
+input:-ms-input-placeholder {
+  background-color: white !important;
+  color: #111827 !important;
+}
+
+/* Ensure placeholder text remains visible */
+.autofill-override::placeholder,
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+  color: #9ca3af !important; /* gray-400 equivalent */
+  opacity: 1 !important;
+}
+
+/* Autofill hover states */
+.autofill-override:hover:-webkit-autofill,
+input[type="text"]:hover:-webkit-autofill,
+input[type="email"]:hover:-webkit-autofill,
+input[type="password"]:hover:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #111827 !important;
+}
