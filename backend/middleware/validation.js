@@ -199,6 +199,35 @@ const reviewSchema = Joi.object({
   comment: Joi.string().max(500),
 });
 
+// Ticket validation schemas
+const ticketCreateSchema = Joi.object({
+  bookingId: Joi.number().integer().positive().optional().allow(null),
+  freelancerId: Joi.number().integer().positive().optional().allow(null),
+  category: Joi.string()
+    .valid("service_quality", "lateness", "damage", "payment", "other")
+    .required(),
+  priority: Joi.string()
+    .valid("low", "normal", "high", "urgent")
+    .default("normal"),
+  summary: Joi.string().min(10).max(255).required(),
+  description: Joi.string().min(20).max(2000).required(),
+  attachments: Joi.array().items(Joi.string()).default([]),
+});
+
+const ticketMessageSchema = Joi.object({
+  content: Joi.string().min(1).max(1000).required(),
+  attachments: Joi.array().items(Joi.string()).default([]),
+});
+
+const ticketUpdateSchema = Joi.object({
+  status: Joi.string()
+    .valid("open", "in_progress", "waiting_customer", "resolved", "closed")
+    .optional(),
+  priority: Joi.string().valid("low", "normal", "high", "urgent").optional(),
+  assignedTo: Joi.number().integer().positive().optional().allow(null),
+  resolution: Joi.string().max(1000).optional().allow(""),
+});
+
 module.exports = {
   validate,
   registerSchema,
@@ -208,4 +237,7 @@ module.exports = {
   bookingSchema,
   serviceSchema,
   reviewSchema,
+  ticketCreateSchema,
+  ticketMessageSchema,
+  ticketUpdateSchema,
 };
