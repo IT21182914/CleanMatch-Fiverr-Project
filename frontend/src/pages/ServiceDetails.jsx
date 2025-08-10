@@ -109,21 +109,21 @@ const ServiceDetails = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50">
       {/* Header Navigation */}
-      <div className="sticky top-0 z-[60] bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
+      <div className="sticky top-0 z-[60] bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
+          <div className="flex items-center justify-between py-3 sm:py-4 min-h-[60px] sm:min-h-[64px]">
             <button
               onClick={() => navigate("/services")}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors font-medium"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors font-medium p-2 -ml-2 rounded-lg touch-manipulation"
             >
               <ChevronLeftIcon className="h-5 w-5" />
-              <span>Back to Services</span>
+              <span className="text-sm sm:text-base">Back to Services</span>
             </button>
 
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsLiked(!isLiked)}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors touch-manipulation"
               >
                 {isLiked ? (
                   <HeartIconSolid className="h-6 w-6 text-red-500" />
@@ -133,7 +133,7 @@ const ServiceDetails = () => {
               </button>
               <button
                 onClick={handleShare}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors touch-manipulation"
               >
                 <ShareIcon className="h-6 w-6 text-gray-400" />
               </button>
@@ -142,39 +142,32 @@ const ServiceDetails = () => {
         </div>
       </div>
 
-      {/* Hero Section */}
-      <div className="relative z-10">
-        <div className="h-32 md:h-40 lg:h-48 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD]">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-        </div>
-
-        {/* Service Title Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center gap-2 mb-2">
-              {service.popular && (
-                <div className="flex items-center gap-1 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold">
-                  <StarIconSolid className="h-3 w-3" />
-                  <span>Popular</span>
-                </div>
-              )}
-              <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium">
-                {service.category}
-              </span>
+      {/* Service Title Section */}
+      <div className="relative z-20 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
+          <div className="flex items-center gap-2 mb-2">
+            {service.popular && (
+              <div className="flex items-center gap-1 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold">
+                <StarIconSolid className="h-3 w-3" />
+                <span>Popular</span>
+              </div>
+            )}
+            <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium">
+              {service.category}
+            </span>
+          </div>
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
+            {service.name}
+          </h1>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <StarIconSolid className="h-5 w-5 text-yellow-400" />
+              <span className="font-semibold">4.8</span>
+              <span className="text-white/80">(324 reviews)</span>
             </div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
-              {service.name}
-            </h1>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <StarIconSolid className="h-5 w-5 text-yellow-400" />
-                <span className="font-semibold">4.8</span>
-                <span className="text-white/80">(324 reviews)</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <CheckBadgeIcon className="h-5 w-5 text-green-400" />
-                <span className="text-white/90">Verified Service</span>
-              </div>
+            <div className="flex items-center gap-1">
+              <CheckBadgeIcon className="h-5 w-5 text-green-400" />
+              <span className="text-white/90">Verified Service</span>
             </div>
           </div>
         </div>
