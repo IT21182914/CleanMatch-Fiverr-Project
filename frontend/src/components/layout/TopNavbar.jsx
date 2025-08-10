@@ -128,7 +128,7 @@ const TopNavbar = ({
                 />
                 {/* Show full text only on public pages or larger screens */}
                 {showPublicNav ? (
-                  <div className="flex flex-col">
+                  <div className="flex flex-col mt-2">
                     <span className="text-base xs:text-lg sm:text-xl font-black font-serif tracking-[0.2em] uppercase bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent drop-shadow-lg transform hover:scale-105 transition-transform duration-300 relative">
                       SIMORGH SERVICE
                       <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] opacity-80"></span>
@@ -139,7 +139,7 @@ const TopNavbar = ({
                   </div>
                 ) : (
                   /* Dashboard logo showing full service name */
-                  <div className="flex flex-col">
+                  <div className="flex flex-col mt-2">
                     <span
                       className={cn(
                         "text-base sm:text-lg lg:text-xl font-black font-serif tracking-[0.2em] uppercase bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent drop-shadow-lg transform hover:scale-105 transition-transform duration-300 relative",
