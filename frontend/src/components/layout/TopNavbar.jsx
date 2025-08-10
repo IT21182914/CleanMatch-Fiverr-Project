@@ -85,7 +85,7 @@ const TopNavbar = ({
             {/* Left section: Mobile menu + Logo */}
             <div className={cn(
               "flex items-center",
-              sidebarActive ? "space-x-0" : "space-x-3"
+              sidebarActive ? "-ml-4 lg:-ml-8 space-x-0" : "space-x-3"
             )}>
               {/* Mobile menu button (only for authenticated users with sidebar) */}
               {isAuthenticated && !showPublicNav && (
@@ -104,7 +104,10 @@ const TopNavbar = ({
               {/* Logo - Responsive design */}
               <Link
                 to={isAuthenticated && !showPublicNav ? "/dashboard" : "/"}
-                className="flex items-center space-x-2 hover:opacity-80 transition-all duration-500 ease-in-out transform"
+                className={cn(
+                  "flex items-center hover:opacity-80 transition-all duration-500 ease-in-out transform",
+                  sidebarActive ? "space-x-8" : "space-x-2"
+                )}
               >
                 <div className="w-8 h-8 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-lg flex items-center justify-center shadow-lg">
                   <SparklesIcon className="h-4 w-4 text-white" />
@@ -112,7 +115,7 @@ const TopNavbar = ({
                 {/* Show full text only on public pages or larger screens */}
                 {showPublicNav ? (
                   <div className="flex flex-col">
-                    <span className="text-base xs:text-lg sm:text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    <span className="text-base xs:text-lg sm:text-xl font-bold font-mono tracking-wide bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                       SIMORGH SERVICE
                     </span>
                     <span className="text-xs font-semibold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent hidden xs:block">
@@ -122,7 +125,10 @@ const TopNavbar = ({
                 ) : (
                   /* Dashboard logo showing full service name */
                   <div className="flex flex-col">
-                    <span className="text-base sm:text-lg lg:text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    <span className={cn(
+                      "text-base sm:text-lg lg:text-xl font-bold font-mono tracking-wide bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent",
+                      sidebarActive ? "-ml-3 lg:-ml-6" : ""
+                    )}>
                       SIMORGH SERVICE
                     </span>
                   </div>
