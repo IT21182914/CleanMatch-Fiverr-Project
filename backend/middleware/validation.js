@@ -215,7 +215,8 @@ const ticketCreateSchema = Joi.object({
 });
 
 const ticketMessageSchema = Joi.object({
-  content: Joi.string().min(1).max(1000).required(),
+  message: Joi.string().min(1).max(1000).required(),
+  isInternal: Joi.boolean().default(false),
   attachments: Joi.array().items(Joi.string()).default([]),
 });
 
@@ -224,8 +225,25 @@ const ticketUpdateSchema = Joi.object({
     .valid("open", "in_progress", "waiting_customer", "resolved", "closed")
     .optional(),
   priority: Joi.string().valid("low", "normal", "high", "urgent").optional(),
-  assignedTo: Joi.number().integer().positive().optional().allow(null),
+  assignedAdminId: Joi.number().integer().positive().optional().allow(null),
+  internalNotes: Joi.string().max(2000).optional().allow(""),
   resolution: Joi.string().max(1000).optional().allow(""),
+});
+
+const ticketBulkUpdateSchema = Joi.object({
+  ticketIds: Joi.array()
+    .items(Joi.number().integer().positive())
+    .min(1)
+    .required(),
+  updates: Joi.object({
+    status: Joi.string()
+      .valid("open", "in_progress", "waiting_customer", "resolved", "closed")
+      .optional(),
+    priority: Joi.string().valid("low", "normal", "high", "urgent").optional(),
+    assignedAdminId: Joi.number().integer().positive().optional().allow(null),
+  })
+    .min(1)
+    .required(),
 });
 
 module.exports = {
@@ -240,4 +258,5 @@ module.exports = {
   ticketCreateSchema,
   ticketMessageSchema,
   ticketUpdateSchema,
+  ticketBulkUpdateSchema,
 };

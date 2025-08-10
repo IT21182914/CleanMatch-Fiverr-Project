@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { getTickets } from "../../lib/api";
 import LoadingSpinner from "../shared/LoadingSpinner";
+import BulkUpdateModal from "./BulkUpdateModal";
 
 const TicketList = ({ userRole = "customer" }) => {
   const [tickets, setTickets] = useState([]);
@@ -14,6 +15,11 @@ const TicketList = ({ userRole = "customer" }) => {
     limit: 20,
   });
   const [pagination, setPagination] = useState({});
+
+  // Bulk selection states (admin only)
+  const [selectedTickets, setSelectedTickets] = useState([]);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
 
   const statusColors = {
     open: "bg-red-100 text-red-800",
@@ -59,6 +65,10 @@ const TicketList = ({ userRole = "customer" }) => {
       const response = await getTickets(params.toString());
       setTickets(response.data.data || []);
       setPagination(response.data.pagination || {});
+
+      // Reset bulk selection when tickets change
+      setSelectedTickets([]);
+      setSelectAll(false);
     } catch (error) {
       console.error("Error fetching tickets:", error);
       toast.error("Failed to load tickets");
@@ -87,6 +97,40 @@ const TicketList = ({ userRole = "customer" }) => {
     }));
   };
 
+  // Bulk selection handlers (admin only)
+  const handleSelectAll = (e) => {
+    const checked = e.target.checked;
+    setSelectAll(checked);
+    if (checked) {
+      setSelectedTickets(tickets.map((ticket) => ticket.id));
+    } else {
+      setSelectedTickets([]);
+    }
+  };
+
+  const handleTicketSelect = (ticketId, checked) => {
+    if (checked) {
+      setSelectedTickets((prev) => [...prev, ticketId]);
+    } else {
+      setSelectedTickets((prev) => prev.filter((id) => id !== ticketId));
+      setSelectAll(false);
+    }
+  };
+
+  const handleBulkUpdate = () => {
+    if (selectedTickets.length === 0) {
+      toast.error("Please select at least one ticket");
+      return;
+    }
+    setShowBulkModal(true);
+  };
+
+  const handleBulkSuccess = () => {
+    fetchTickets(); // Refresh tickets
+    setSelectedTickets([]);
+    setSelectAll(false);
+  };
+
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-6">
@@ -101,7 +145,7 @@ const TicketList = ({ userRole = "customer" }) => {
     <div className="bg-white rounded-lg shadow-sm">
       {/* Filters */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-4 items-end">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Status
@@ -139,6 +183,20 @@ const TicketList = ({ userRole = "customer" }) => {
               <option value="other">Other</option>
             </select>
           </div>
+
+          {/* Bulk Actions for Admin */}
+          {userRole === "admin" && (
+            <div className="ml-auto">
+              {selectedTickets.length > 0 && (
+                <button
+                  onClick={handleBulkUpdate}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  Bulk Update ({selectedTickets.length})
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -170,12 +228,48 @@ const TicketList = ({ userRole = "customer" }) => {
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Bulk Selection Header (Admin Only) */}
+            {userRole === "admin" && tickets.length > 0 && (
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-200">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">
+                    Select all {tickets.length} tickets
+                  </span>
+                </label>
+                {selectedTickets.length > 0 && (
+                  <span className="text-sm text-gray-600">
+                    {selectedTickets.length} tickets selected
+                  </span>
+                )}
+              </div>
+            )}
+
             {tickets.map((ticket) => (
               <div
                 key={ticket.id}
                 className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
               >
                 <div className="flex items-start justify-between">
+                  {/* Checkbox for admin */}
+                  {userRole === "admin" && (
+                    <div className="flex items-start pt-1 mr-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedTickets.includes(ticket.id)}
+                        onChange={(e) =>
+                          handleTicketSelect(ticket.id, e.target.checked)
+                        }
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                    </div>
+                  )}
+
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Link
@@ -299,6 +393,16 @@ const TicketList = ({ userRole = "customer" }) => {
           </div>
         )}
       </div>
+
+      {/* Bulk Update Modal */}
+      {userRole === "admin" && (
+        <BulkUpdateModal
+          isOpen={showBulkModal}
+          onClose={() => setShowBulkModal(false)}
+          selectedTickets={selectedTickets}
+          onSuccess={handleBulkSuccess}
+        />
+      )}
     </div>
   );
 };

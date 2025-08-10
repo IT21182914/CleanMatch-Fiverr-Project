@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { getTicketById, addTicketMessage, updateTicket } from "../../lib/api";
+import {
+  getTicketById,
+  addTicketMessage,
+  updateTicket,
+  getAdminUsers,
+} from "../../lib/api";
 import LoadingSpinner from "../shared/LoadingSpinner";
 
 const TicketDetails = ({ userRole = "customer" }) => {
@@ -12,6 +17,10 @@ const TicketDetails = ({ userRole = "customer" }) => {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [isInternal, setIsInternal] = useState(false);
+
+  // Admin-specific states
+  const [adminUsers, setAdminUsers] = useState([]);
+  const [loadingAdmins, setLoadingAdmins] = useState(false);
 
   // Admin update states
   const [showUpdateForm, setShowUpdateForm] = useState(false);
@@ -67,9 +76,25 @@ const TicketDetails = ({ userRole = "customer" }) => {
     }
   }, [id]);
 
+  const fetchAdminUsers = useCallback(async () => {
+    if (userRole !== "admin") return;
+
+    try {
+      setLoadingAdmins(true);
+      const response = await getAdminUsers();
+      setAdminUsers(response.data.data);
+    } catch (error) {
+      console.error("Error fetching admin users:", error);
+      toast.error("Failed to load admin users");
+    } finally {
+      setLoadingAdmins(false);
+    }
+  }, [userRole]);
+
   useEffect(() => {
     fetchTicket();
-  }, [fetchTicket]);
+    fetchAdminUsers();
+  }, [fetchTicket, fetchAdminUsers]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -440,6 +465,35 @@ const TicketDetails = ({ userRole = "customer" }) => {
                       <option value="high">High</option>
                       <option value="urgent">Urgent</option>
                     </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Assign to Admin
+                    </label>
+                    <select
+                      value={updateData.assignedAdminId}
+                      onChange={(e) =>
+                        setUpdateData((prev) => ({
+                          ...prev,
+                          assignedAdminId: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={loadingAdmins}
+                    >
+                      <option value="">Unassigned</option>
+                      {adminUsers.map((admin) => (
+                        <option key={admin.id} value={admin.id}>
+                          {admin.name}
+                        </option>
+                      ))}
+                    </select>
+                    {loadingAdmins && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Loading admins...
+                      </p>
+                    )}
                   </div>
 
                   <div>

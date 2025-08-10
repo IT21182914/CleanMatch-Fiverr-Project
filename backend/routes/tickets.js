@@ -5,6 +5,7 @@ const {
   ticketCreateSchema,
   ticketMessageSchema,
   ticketUpdateSchema,
+  ticketBulkUpdateSchema,
 } = require("../middleware/validation");
 const {
   createTicket,
@@ -12,6 +13,7 @@ const {
   getTicketById,
   addTicketMessage,
   updateTicket,
+  bulkUpdateTickets,
   getTicketStats,
 } = require("../controllers/ticketsController");
 
@@ -32,6 +34,17 @@ router.post(
 // @desc    Get ticket statistics
 // @access  Private (Admin only)
 router.get("/stats", auth, authorize("admin"), getTicketStats);
+
+// @route   PUT /api/tickets/bulk
+// @desc    Bulk update tickets
+// @access  Private (Admin only)
+router.put(
+  "/bulk",
+  auth,
+  authorize("admin"),
+  validate(ticketBulkUpdateSchema),
+  bulkUpdateTickets
+);
 
 // @route   GET /api/tickets
 // @desc    Get tickets (customer sees their own, admin sees all)

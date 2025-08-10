@@ -870,6 +870,169 @@ const getTicketStats = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Bulk update tickets (Admin only)
+ * @route   PUT /api/tickets/bulk
+ * @access  Private (Admin only)
+ */
+const bulkUpdateTickets = async (req, res) => {
+  const client = await getClient();
+
+  try {
+    await client.query("BEGIN");
+
+    const { ticketIds, updates } = req.body;
+
+    if (!ticketIds || !Array.isArray(ticketIds) || ticketIds.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        success: false,
+        error: "Ticket IDs are required",
+      });
+    }
+
+    const { status, priority, assignedAdminId } = updates;
+
+    if (!status && !priority && assignedAdminId === undefined) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        success: false,
+        error: "At least one update field is required",
+      });
+    }
+
+    // Get current tickets for comparison
+    const placeholders = ticketIds.map((_, i) => `$${i + 1}`).join(",");
+    const currentTicketsResult = await client.query(
+      `SELECT id, status, priority, assigned_admin_id, customer_id FROM tickets WHERE id IN (${placeholders})`,
+      ticketIds
+    );
+
+    const currentTickets = new Map(
+      currentTicketsResult.rows.map((t) => [t.id, t])
+    );
+
+    // Build update query
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    if (status) {
+      updateFields.push(`status = $${paramCount++}`);
+      values.push(status);
+    }
+
+    if (priority) {
+      updateFields.push(`priority = $${paramCount++}`);
+      values.push(priority);
+    }
+
+    if (assignedAdminId !== undefined) {
+      updateFields.push(`assigned_admin_id = $${paramCount++}`);
+      values.push(assignedAdminId);
+    }
+
+    // Add updated_at
+    updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+
+    // Add ticket IDs to values
+    const ticketPlaceholders = ticketIds
+      .map((_, i) => `$${paramCount + i}`)
+      .join(",");
+    values.push(...ticketIds);
+
+    const updateQuery = `
+      UPDATE tickets 
+      SET ${updateFields.join(", ")} 
+      WHERE id IN (${ticketPlaceholders})
+      RETURNING *
+    `;
+
+    const updatedTicketsResult = await client.query(updateQuery, values);
+    const updatedTickets = updatedTicketsResult.rows;
+
+    // Add timeline entries for each ticket
+    for (const ticket of updatedTickets) {
+      const currentTicket = currentTickets.get(ticket.id);
+
+      if (status && status !== currentTicket.status) {
+        await client.query(
+          `INSERT INTO ticket_timeline (ticket_id, user_id, action_type, old_value, new_value, description)
+           VALUES ($1, $2, 'status_changed', $3, $4, 'Status bulk updated')`,
+          [ticket.id, req.user.id, currentTicket.status, status]
+        );
+
+        // Send notification to customer about status change
+        await client.query(
+          `INSERT INTO notifications (user_id, title, message, type, metadata)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [
+            currentTicket.customer_id,
+            `Support Ticket #${ticket.id} - Status Updated`,
+            `Your ticket status has been updated to: ${status.replace(
+              "_",
+              " "
+            )}`,
+            "ticket_status_updated",
+            JSON.stringify({ ticketId: ticket.id, newStatus: status }),
+          ]
+        );
+      }
+
+      if (priority && priority !== currentTicket.priority) {
+        await client.query(
+          `INSERT INTO ticket_timeline (ticket_id, user_id, action_type, old_value, new_value, description)
+           VALUES ($1, $2, 'priority_changed', $3, $4, 'Priority bulk updated')`,
+          [ticket.id, req.user.id, currentTicket.priority, priority]
+        );
+      }
+
+      if (
+        assignedAdminId !== undefined &&
+        assignedAdminId !== currentTicket.assigned_admin_id
+      ) {
+        const oldAdminName = currentTicket.assigned_admin_id
+          ? await getAdminName(currentTicket.assigned_admin_id)
+          : "Unassigned";
+        const newAdminName = assignedAdminId
+          ? await getAdminName(assignedAdminId)
+          : "Unassigned";
+
+        await client.query(
+          `INSERT INTO ticket_timeline (ticket_id, user_id, action_type, old_value, new_value, description)
+           VALUES ($1, $2, 'assigned', $3, $4, 'Assignment bulk updated')`,
+          [ticket.id, req.user.id, oldAdminName, newAdminName]
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+
+    res.json({
+      success: true,
+      data: {
+        updatedCount: updatedTickets.length,
+        tickets: updatedTickets.map((t) => ({
+          id: t.id,
+          status: t.status,
+          priority: t.priority,
+          assignedAdminId: t.assigned_admin_id,
+        })),
+      },
+      message: `Successfully updated ${updatedTickets.length} tickets`,
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Bulk update tickets error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error updating tickets",
+    });
+  } finally {
+    client.release();
+  }
+};
+
 // Helper function to get admin name
 const getAdminName = async (adminId) => {
   const result = await query(
@@ -889,5 +1052,6 @@ module.exports = {
   getTicketById,
   addTicketMessage,
   updateTicket,
+  bulkUpdateTickets,
   getTicketStats,
 };

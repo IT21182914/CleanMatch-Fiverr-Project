@@ -2,6 +2,7 @@ const express = require("express");
 const { auth, authorize } = require("../middleware/auth");
 const {
   getDashboardStats,
+  getAdminUsers,
   getUsers,
   updateUserStatus,
   getBookings,
@@ -24,6 +25,11 @@ const router = express.Router();
 // @desc    Get admin dashboard stats
 // @access  Private (Admin only)
 router.get("/dashboard", auth, authorize("admin"), getDashboardStats);
+
+// @route   GET /api/admin/users/admins
+// @desc    Get admin users for assignment
+// @access  Private (Admin only)
+router.get("/users/admins", auth, authorize("admin"), getAdminUsers);
 
 // @route   GET /api/admin/users
 // @desc    Get all users with pagination and filters

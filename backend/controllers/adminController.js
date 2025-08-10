@@ -1,6 +1,37 @@
 const { query } = require("../config/database");
 
 /**
+ * @desc    Get admin users for assignment
+ * @route   GET /api/admin/users/admins
+ * @access  Private (Admin only)
+ */
+const getAdminUsers = async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT id, first_name, last_name, email 
+       FROM users 
+       WHERE role = 'admin' AND is_active = true 
+       ORDER BY first_name, last_name`
+    );
+
+    res.json({
+      success: true,
+      data: result.rows.map((admin) => ({
+        id: admin.id,
+        name: `${admin.first_name} ${admin.last_name}`,
+        email: admin.email,
+      })),
+    });
+  } catch (error) {
+    console.error("Get admin users error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving admin users",
+    });
+  }
+};
+
+/**
  * @desc    Get admin dashboard stats
  * @route   GET /api/admin/dashboard
  * @access  Private (Admin only)
@@ -1362,6 +1393,7 @@ const generateAssignmentRecommendations = (overall, zipStats, availability) => {
 
 module.exports = {
   getDashboardStats,
+  getAdminUsers,
   getUsers,
   updateUserStatus,
   getBookings,

@@ -242,6 +242,7 @@ export const adminAPI = {
 
   // User management
   getUsers: (params) => enhancedApi.get("/admin/users", { params }),
+  getAdmins: () => enhancedApi.get("/admin/users/admins"),
   updateUserStatus: (userId, data) =>
     enhancedApi.put(`/admin/users/${userId}/status`, data),
 
@@ -328,6 +329,7 @@ export const ticketsAPI = {
 
   // Admin endpoints
   update: (id, data) => enhancedApi.put(`/tickets/${id}`, data),
+  bulkUpdate: (data) => enhancedApi.put("/tickets/bulk", data),
   getStats: () => enhancedApi.get("/tickets/stats"),
 };
 
@@ -337,7 +339,11 @@ export const getTickets = (params) => ticketsAPI.getAll({ params });
 export const getTicketById = (id) => ticketsAPI.getById(id);
 export const addTicketMessage = (id, data) => ticketsAPI.addMessage(id, data);
 export const updateTicket = (id, data) => ticketsAPI.update(id, data);
+export const bulkUpdateTickets = (data) => ticketsAPI.bulkUpdate(data);
 export const getTicketStats = () => ticketsAPI.getStats();
+
+// Admin convenience functions
+export const getAdminUsers = () => adminAPI.getAdmins();
 
 // Get user bookings function (if it doesn't exist)
 export const getUserBookings = (params) => userAPI.getUserBookings(params);
