@@ -58,7 +58,9 @@ const AdminPayments = React.lazy(() => import("./pages/admin/Payments"));
 const AdminMemberships = React.lazy(() =>
   import("./pages/admin/AdminMemberships")
 );
-const AdminTickets = React.lazy(() => import("./pages/admin/Tickets"));
+const AdminTickets = React.lazy(() =>
+  import("./components/admin/AdminTicketManagement")
+);
 const AdminTicketDetails = React.lazy(() =>
   import("./pages/admin/TicketDetails")
 );

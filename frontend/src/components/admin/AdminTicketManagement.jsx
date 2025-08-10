@@ -41,56 +41,65 @@ const AdminTicketManagement = () => {
   const [selectedTickets, setSelectedTickets] = useState([]);
 
   useEffect(() => {
-    fetchTickets();
-    fetchStats();
-    fetchAdminUsers();
-  }, [filters]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        console.log("🔍 Fetching tickets with filters:", filters);
 
-  const fetchTickets = async () => {
-    try {
-      setLoading(true);
-      const response = await getAdminTickets(filters);
-      setTickets(response.data.data);
-      setPagination(response.data.pagination);
-    } catch (error) {
-      console.error("Error fetching tickets:", error);
-      toast.error("Failed to load tickets");
-    } finally {
-      setLoading(false);
-    }
-  };
+        // Send all filters to backend - backend will handle "all" values properly
+        console.log("🧹 Sending filters to backend:", filters);
 
-  const fetchStats = async () => {
-    try {
-      const response = await getAdminTicketStats();
-      setStats(response.data.data);
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-      toast.error("Failed to load ticket statistics");
-    } finally {
-      setLoadingStats(false);
-    }
-  };
+        // Fetch tickets and stats in parallel
+        const [ticketsResponse, statsResponse, adminResponse] =
+          await Promise.all([
+            getAdminTickets(filters),
+            getAdminTicketStats(),
+            adminUsers.length === 0
+              ? getAdminUsers()
+              : Promise.resolve({ data: { data: adminUsers } }),
+          ]);
 
-  const fetchAdminUsers = async () => {
-    try {
-      const response = await getAdminUsers();
-      setAdminUsers(response.data.data);
-    } catch (error) {
-      console.error("Error fetching admin users:", error);
-    }
-  };
+        console.log("✅ Tickets response:", ticketsResponse.data);
+        setTickets(ticketsResponse.data.data);
+        setPagination(ticketsResponse.data.pagination);
+        setStats(statsResponse.data.data);
+
+        if (adminUsers.length === 0) {
+          setAdminUsers(adminResponse.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to load tickets");
+      } finally {
+        setLoading(false);
+        setLoadingStats(false);
+      }
+    };
+
+    fetchData();
+  }, [filters, adminUsers]);
 
   const handleFilterChange = (newFilters) => {
-    setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
+    console.log("🎛️ Filter change:", newFilters);
+    const updatedFilters = { ...filters, ...newFilters, page: 1 };
+    console.log("📝 Updated filters:", updatedFilters);
+    setFilters(updatedFilters);
   };
 
   const handleStatusUpdate = async (ticketId, status, reason) => {
     try {
       await updateTicketStatus(ticketId, { status, reason });
       toast.success(`Ticket status updated to ${status}`);
-      fetchTickets();
-      fetchStats();
+
+      // Refresh tickets data
+      const ticketsResponse = await getAdminTickets(filters);
+      setTickets(ticketsResponse.data.data);
+      setPagination(ticketsResponse.data.pagination);
+
+      // Refresh stats
+      const statsResponse = await getAdminTicketStats();
+      setStats(statsResponse.data.data);
+
       setStatusModal({ show: false, ticket: null });
     } catch (error) {
       console.error("Error updating ticket status:", error);
@@ -106,8 +115,16 @@ const AdminTicketManagement = () => {
           ? "Ticket unassigned"
           : "Ticket assigned successfully"
       );
-      fetchTickets();
-      fetchStats();
+
+      // Refresh tickets data
+      const ticketsResponse = await getAdminTickets(filters);
+      setTickets(ticketsResponse.data.data);
+      setPagination(ticketsResponse.data.pagination);
+
+      // Refresh stats
+      const statsResponse = await getAdminTicketStats();
+      setStats(statsResponse.data.data);
+
       setAssignModal({ show: false, ticket: null });
     } catch (error) {
       console.error("Error assigning ticket:", error);
@@ -193,7 +210,12 @@ const AdminTicketManagement = () => {
           {/* Quick Actions */}
           <div className="flex gap-3">
             <button
-              onClick={fetchTickets}
+              onClick={async () => {
+                const ticketsResponse = await getAdminTickets(filters);
+                setTickets(ticketsResponse.data.data);
+                setPagination(ticketsResponse.data.pagination);
+                toast.success("Tickets refreshed");
+              }}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               🔄 Refresh

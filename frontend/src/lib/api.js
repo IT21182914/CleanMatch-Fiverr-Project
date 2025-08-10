@@ -345,10 +345,16 @@ export const getTicketStats = () => ticketsAPI.getStats();
 // Admin Ticket Management API endpoints
 export const adminTicketsAPI = {
   // Get all tickets for admin management
-  getAdminTickets: (params) => enhancedApi.get("/admin/tickets", { params }),
+  getAdminTickets: (params) => {
+    console.log("🚨 ADMIN API: getAdminTickets called with params:", params);
+    return enhancedApi.get("/admin/tickets", { params });
+  },
 
   // Get comprehensive ticket statistics
-  getTicketStats: () => enhancedApi.get("/admin/tickets/stats"),
+  getTicketStats: () => {
+    console.log("🚨 ADMIN API: getTicketStats called");
+    return enhancedApi.get("/admin/tickets/stats");
+  },
 
   // Get detailed ticket information for investigation
   getTicketDetails: (id) => enhancedApi.get(`/admin/tickets/${id}`),
@@ -379,8 +385,11 @@ export const adminTicketsAPI = {
 };
 
 // Admin ticket management convenience functions
-export const getAdminTickets = (params) =>
-  adminTicketsAPI.getAdminTickets(params);
+export const getAdminTickets = (params) => {
+  console.log("🎯 getAdminTickets called with params:", params);
+  console.log("🔗 Making request to /admin/tickets");
+  return adminTicketsAPI.getAdminTickets(params);
+};
 export const getAdminTicketStats = () => adminTicketsAPI.getTicketStats();
 export const getAdminTicketDetails = (id) =>
   adminTicketsAPI.getTicketDetails(id);

@@ -1,6 +1,7 @@
 import React from "react";
 
 const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
+  console.log("🔍 AdminTicketFilters rendered with filters:", filters);
   const statusOptions = [
     { value: "all", label: "All Status", count: stats?.general?.total_tickets },
     { value: "open", label: "Open", count: stats?.general?.open_tickets },
@@ -62,6 +63,7 @@ const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
   ];
 
   const handleFilterChange = (key, value) => {
+    console.log(`🎛️ Filter change: ${key} = ${value}`);
     onFilterChange({ [key]: value });
   };
 

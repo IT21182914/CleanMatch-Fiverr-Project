@@ -1417,6 +1417,8 @@ const generateAssignmentRecommendations = (overall, zipStats, availability) => {
  */
 const getAdminTickets = async (req, res) => {
   try {
+    console.log("🎫 getAdminTickets called with query:", req.query);
+
     const {
       status = "all",
       priority = "all",
@@ -1427,6 +1429,17 @@ const getAdminTickets = async (req, res) => {
       sortBy = "created_at",
       sortOrder = "DESC",
     } = req.query;
+
+    console.log("📊 Parsed filter parameters:", {
+      status,
+      priority,
+      category,
+      assigned,
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+    });
 
     const offset = (page - 1) * limit;
     let whereConditions = [];
@@ -1462,6 +1475,12 @@ const getAdminTickets = async (req, res) => {
       whereConditions.length > 0
         ? `WHERE ${whereConditions.join(" AND ")}`
         : "";
+
+    console.log("🔍 Built query conditions:", {
+      whereConditions,
+      queryParams,
+      whereClause,
+    });
 
     // Validate sort columns
     const validSortColumns = [
