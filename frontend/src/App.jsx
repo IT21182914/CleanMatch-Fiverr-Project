@@ -34,7 +34,7 @@ const MembershipSubscription = React.lazy(() =>
   import("./pages/customer/MembershipSubscription")
 );
 const CustomerTickets = React.lazy(() => import("./pages/customer/Tickets"));
-const CustomerTicketDetails = React.lazy(() => 
+const CustomerTicketDetails = React.lazy(() =>
   import("./pages/customer/TicketDetails")
 );
 
@@ -59,7 +59,7 @@ const AdminMemberships = React.lazy(() =>
   import("./pages/admin/AdminMemberships")
 );
 const AdminTickets = React.lazy(() => import("./pages/admin/Tickets"));
-const AdminTicketDetails = React.lazy(() => 
+const AdminTicketDetails = React.lazy(() =>
   import("./pages/admin/TicketDetails")
 );
 
