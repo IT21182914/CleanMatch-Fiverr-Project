@@ -161,9 +161,11 @@ const Sidebar = ({
           <div className="flex h-16 shrink-0 items-center justify-between">
             {!isCollapsed && (
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-lg flex items-center justify-center shadow-lg">
-                  <SparklesIcon className="h-4 w-4 text-white" />
-                </div>
+                <img
+                  src="/Simorgh-Service-Logo.webp"
+                  alt="Simorgh Service Logo"
+                  className="h-20 w-20 object-contain"
+                />
                 <div className="flex flex-col">
                   <span className="text-sm font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                     SIMORGH

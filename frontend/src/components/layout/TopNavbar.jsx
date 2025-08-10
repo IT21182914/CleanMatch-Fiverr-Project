@@ -67,8 +67,11 @@ const TopNavbar = ({
           className={cn(
             "w-full transition-all duration-300",
             sidebarActive
-              ? // When sidebar is active, remove almost all left padding to bring content extremely close to sidebar
-                "px-0 xs:px-1 sm:px-1 md:px-1 lg:px-0"
+              ? isSidebarCollapsed
+                ? // Collapsed sidebar: adequate padding to ensure logo visibility
+                  "px-3 xs:px-4 sm:px-5 md:px-6 lg:px-4"
+                : // Expanded sidebar: minimal padding to get close to sidebar
+                  "px-1 xs:px-2 sm:px-2 md:px-2 lg:px-1"
               : // When no sidebar, use normal padding
                 "px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8",
             sidebarActive
@@ -83,10 +86,19 @@ const TopNavbar = ({
         >
           <div className="flex h-14 xs:h-16 items-center justify-between">
             {/* Left section: Mobile menu + Logo */}
-            <div className={cn(
-              "flex items-center",
-              sidebarActive ? "-ml-4 lg:-ml-8 space-x-0" : "space-x-3"
-            )}>
+            <div
+              className={cn(
+                "flex items-center",
+                sidebarActive
+                  ? isSidebarCollapsed
+                    ? // Collapsed sidebar: safe positioning with proper spacing
+                      "ml-0 space-x-6"
+                    : // Expanded sidebar: closer positioning
+                      "-ml-2 lg:-ml-4 space-x-2"
+                  : // No sidebar: normal spacing
+                    "space-x-3"
+              )}
+            >
               {/* Mobile menu button (only for authenticated users with sidebar) */}
               {isAuthenticated && !showPublicNav && (
                 <div className="lg:hidden">
@@ -109,9 +121,11 @@ const TopNavbar = ({
                   sidebarActive ? "space-x-8" : "space-x-2"
                 )}
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-lg flex items-center justify-center shadow-lg">
-                  <SparklesIcon className="h-4 w-4 text-white" />
-                </div>
+                <img
+                  src="/Simorgh-Service-Logo.webp"
+                  alt="Simorgh Service Logo"
+                  className="h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 object-contain"
+                />
                 {/* Show full text only on public pages or larger screens */}
                 {showPublicNav ? (
                   <div className="flex flex-col">
@@ -125,10 +139,12 @@ const TopNavbar = ({
                 ) : (
                   /* Dashboard logo showing full service name */
                   <div className="flex flex-col">
-                    <span className={cn(
-                      "text-base sm:text-lg lg:text-xl font-bold font-mono tracking-wide bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent",
-                      sidebarActive ? "-ml-3 lg:-ml-6" : ""
-                    )}>
+                    <span
+                      className={cn(
+                        "text-base sm:text-lg lg:text-xl font-bold font-mono tracking-wide bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent",
+                        sidebarActive ? "-ml-3 lg:-ml-6" : ""
+                      )}
+                    >
                       SIMORGH SERVICE
                     </span>
                   </div>
@@ -183,8 +199,8 @@ const TopNavbar = ({
                   {/* User Menu - Desktop */}
                   <div className="hidden lg:flex items-center space-x-3">
                     <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200">
-                      <div className="w-8 h-8 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-full flex items-center justify-center">
-                        <UserIcon className="h-4 w-4 text-white" />
+                      <div className="w-9 h-9 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-full flex items-center justify-center">
+                        <UserIcon className="h-5 w-5 text-white" />
                       </div>
                       <div className="text-sm">
                         <p className="font-medium text-slate-900">
