@@ -13,7 +13,11 @@ import {
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
 
-const TopNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
+const TopNavbar = ({
+  isMobileMenuOpen,
+  setIsMobileMenuOpen,
+  isSidebarCollapsed = false,
+}) => {
   const { user, isAuthenticated, logout } = useAuth();
   const [notifications] = useState([]);
   const location = useLocation();
@@ -55,8 +59,8 @@ const TopNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     <nav className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-slate-200/60 sticky top-0 z-40 w-full">
       <div
         className={cn(
-          "w-full transition-all duration-500 ease-in-out transform",
-          sidebarActive ? "lg:pl-64" : ""
+          "w-full transition-all duration-300 ease-in-out transform",
+          sidebarActive ? (isSidebarCollapsed ? "lg:pl-16" : "lg:pl-64") : ""
         )}
       >
         <div className="w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto">

@@ -51,6 +51,20 @@ export default {
           "sans-serif",
         ],
       },
+      spacing: {
+        64: "16rem", // 256px - sidebar expanded width
+        16: "4rem", // 64px - sidebar collapsed width
+      },
+      margin: {
+        "sidebar-expanded": "16rem",
+        "sidebar-collapsed": "4rem",
+      },
+      transitionProperty: {
+        sidebar: "margin-left, width",
+      },
+      transitionTimingFunction: {
+        sidebar: "cubic-bezier(0.4, 0, 0.2, 1)",
+      },
       colors: {
         primary: {
           DEFAULT: "#4EC6E5",

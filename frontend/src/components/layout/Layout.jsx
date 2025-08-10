@@ -17,6 +17,7 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Determine if this is the home page
   const isHomePage = location.pathname === "/";
@@ -47,6 +48,7 @@ const Layout = ({ children }) => {
       <TopNavbar
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
+        isSidebarCollapsed={isSidebarCollapsed}
       />
 
       {/* Sidebar for authenticated users on dashboard pages */}
@@ -54,18 +56,30 @@ const Layout = ({ children }) => {
         <Sidebar
           isMobileMenuOpen={isMobileMenuOpen}
           setIsMobileMenuOpen={setIsMobileMenuOpen}
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
         />
       )}
 
-      {/* Main Content Area - Enhanced Responsive */}
+      {/* Main Content Area - Enhanced Responsive with Sidebar Awareness */}
       <main
-        className={
+        className={`transition-all duration-300 ease-in-out bg-gray-50 min-h-screen ${
           showSidebar
-            ? "lg:pl-64 bg-gray-50 min-h-screen" // Add left padding for sidebar on desktop with background
+            ? // Responsive sidebar adjustments
+              isSidebarCollapsed
+              ? // Collapsed sidebar: smaller left margin
+                "lg:ml-16 xl:ml-16 2xl:ml-16"
+              : // Expanded sidebar: full width left margin
+                "lg:ml-64 xl:ml-64 2xl:ml-64"
             : isFullWidth
             ? "w-full bg-white"
             : "w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto bg-white"
-        }
+        }`}
+        style={{
+          // Ensure smooth transitions and prevent horizontal scroll
+          maxWidth: "100vw",
+          overflowX: "hidden",
+        }}
       >
         <div
           className={`w-full overflow-x-hidden ${

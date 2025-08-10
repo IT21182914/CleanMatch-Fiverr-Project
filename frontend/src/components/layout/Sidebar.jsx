@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   HomeIcon,
@@ -21,10 +20,14 @@ import {
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
 
-const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
+const Sidebar = ({
+  isMobileMenuOpen,
+  setIsMobileMenuOpen,
+  isCollapsed,
+  setIsCollapsed,
+}) => {
   const { user, isAuthenticated } = useAuth();
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Don't render sidebar for non-authenticated users or on auth pages
   if (
