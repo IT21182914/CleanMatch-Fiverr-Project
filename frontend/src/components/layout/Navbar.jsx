@@ -252,14 +252,23 @@ const Navbar = () => {
                         "group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm xl:text-sm font-semibold transition-all duration-300 border backdrop-blur-sm isolate whitespace-nowrap overflow-hidden",
                         "before:absolute before:inset-0 before:rounded-lg xl:before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-500 hover:before:translate-x-[100%]",
                         isActive
-                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white border-2 border-[#2BA8CD] shadow-lg xl:shadow-2xl shadow-[#4EC6E5]/50 transform relative before:absolute before:inset-0 before:bg-white/20 before:rounded-lg xl:before:rounded-xl before:animate-pulse z-40"
+                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-2 border-[#2BA8CD] shadow-lg xl:shadow-2xl shadow-[#4EC6E5]/50 transform relative before:absolute before:inset-0 before:bg-white/20 before:rounded-lg xl:before:rounded-xl before:animate-pulse z-40"
                           : item.highlight
-                          ? "text-[#4EC6E5] border-[#4EC6E5]/30 bg-[#F0FBFE] hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:!text-white hover:border-[#4EC6E5] hover:shadow-xl hover:shadow-[#4EC6E5]/25 hover:z-40"
-                          : "text-slate-700 hover:!text-white bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:z-40"
+                          ? "border-[#4EC6E5]/30 bg-[#F0FBFE] hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:border-[#4EC6E5] hover:shadow-xl hover:shadow-[#4EC6E5]/25 hover:z-40"
+                          : "bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:z-40"
                       )}
                     >
                       <Icon className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-1.5 xl:mr-2" />
-                      <span className="relative z-10 truncate">
+                      <span
+                        className={cn(
+                          "relative z-10 truncate",
+                          isActive
+                            ? "text-white"
+                            : item.highlight
+                            ? "text-[#4EC6E5] group-hover:text-white"
+                            : "bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent group-hover:text-white"
+                        )}
+                      >
                         {item.name}
                       </span>
                     </Link>
@@ -516,15 +525,24 @@ const Navbar = () => {
                         "group flex items-center px-3 xs:px-4 py-3 xs:py-4 sm:py-5 rounded-lg sm:rounded-xl font-medium transition-all duration-300 w-full touch-manipulation min-h-[48px] xs:min-h-[52px] sm:min-h-[56px]",
                         "text-sm xs:text-base",
                         isActive
-                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] !text-white shadow-lg shadow-[#4EC6E5]/30 scale-[1.02] transform"
+                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] shadow-lg shadow-[#4EC6E5]/30 scale-[1.02] transform"
                           : item.highlight
-                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-md"
-                          : "text-slate-700 hover:!text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md border border-slate-200 hover:border-[#4EC6E5] bg-white hover:scale-[1.02] active:scale-100"
+                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] shadow-md"
+                          : "hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md border border-slate-200 hover:border-[#4EC6E5] bg-white hover:scale-[1.02] active:scale-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Icon className="h-4 w-4 xs:h-5 xs:w-5 mr-3 flex-shrink-0" />
-                      <span className="truncate flex-1">{item.name}</span>
+                      <span
+                        className={cn(
+                          "truncate flex-1",
+                          isActive || item.highlight
+                            ? "text-white"
+                            : "bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent group-hover:text-white"
+                        )}
+                      >
+                        {item.name}
+                      </span>
                       {item.highlight && (
                         <div className="ml-2 flex-shrink-0">
                           <div className="w-1.5 h-1.5 xs:w-2 xs:h-2 bg-white/80 rounded-full animate-pulse"></div>
@@ -539,11 +557,11 @@ const Navbar = () => {
                   <div className="border-t border-slate-200/60 pt-4 mt-4">
                     <Link
                       to="/services"
-                      className="w-full flex items-center px-4 py-4 sm:py-5 rounded-xl font-medium text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-[#4EC6E5] bg-white touch-manipulation min-h-[52px] sm:min-h-[56px]"
+                      className="w-full flex items-center px-4 py-4 sm:py-5 rounded-xl font-medium hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-[#4EC6E5] bg-white touch-manipulation min-h-[52px] sm:min-h-[56px] group"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <SparklesIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                      <span className="text-base xs:text-sm">
+                      <span className="text-base xs:text-sm bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent group-hover:text-white">
                         View All Services
                       </span>
                     </Link>
@@ -584,21 +602,21 @@ const Navbar = () => {
                       <>
                         <Link
                           to="/customer/profile"
-                          className="flex items-center px-3 xs:px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          className="flex items-center px-3 xs:px-4 py-3 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px] group"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <UserIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-medium truncate flex-1">
+                          <span className="text-sm font-medium truncate flex-1 bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent group-hover:text-[#4EC6E5]">
                             Profile Settings
                           </span>
                         </Link>
                         <Link
                           to="/customer/membership"
-                          className="flex items-center px-3 xs:px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          className="flex items-center px-3 xs:px-4 py-3 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px] group"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <CreditCardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-medium truncate flex-1">
+                          <span className="text-sm font-medium truncate flex-1 bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent group-hover:text-[#4EC6E5]">
                             Membership
                           </span>
                         </Link>
@@ -609,21 +627,21 @@ const Navbar = () => {
                       <>
                         <Link
                           to="/cleaner/profile"
-                          className="flex items-center px-3 xs:px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          className="flex items-center px-3 xs:px-4 py-3 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px] group"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <UserIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-medium truncate flex-1">
+                          <span className="text-sm font-medium truncate flex-1 bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent group-hover:text-[#4EC6E5]">
                             Profile Settings
                           </span>
                         </Link>
                         <Link
                           to="/cleaner/earnings"
-                          className="flex items-center px-3 xs:px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          className="flex items-center px-3 xs:px-4 py-3 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px] group"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <CreditCardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-medium truncate flex-1">
+                          <span className="text-sm font-medium truncate flex-1 bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent group-hover:text-[#4EC6E5]">
                             My Earnings
                           </span>
                         </Link>
@@ -634,41 +652,41 @@ const Navbar = () => {
                       <>
                         <Link
                           to="/admin/users"
-                          className="flex items-center px-3 xs:px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          className="flex items-center px-3 xs:px-4 py-3 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px] group"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <UserIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-medium truncate flex-1">
+                          <span className="text-sm font-medium truncate flex-1 text-[#02111c] group-hover:text-[#4EC6E5]">
                             Manage Users
                           </span>
                         </Link>
                         <Link
                           to="/admin/memberships"
-                          className="flex items-center px-3 xs:px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          className="flex items-center px-3 xs:px-4 py-3 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px] group"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <SparklesIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-medium truncate flex-1">
+                          <span className="text-sm font-medium truncate flex-1 text-[#02111c] group-hover:text-[#4EC6E5]">
                             Memberships
                           </span>
                         </Link>
                         <Link
                           to="/admin/payments"
-                          className="flex items-center px-3 xs:px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          className="flex items-center px-3 xs:px-4 py-3 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px] group"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <CreditCardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-medium truncate flex-1">
+                          <span className="text-sm font-medium truncate flex-1 text-[#02111c] group-hover:text-[#4EC6E5]">
                             Payments
                           </span>
                         </Link>
                         <Link
                           to="/admin/analytics"
-                          className="flex items-center px-3 xs:px-4 py-3 text-slate-700 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px]"
+                          className="flex items-center px-3 xs:px-4 py-3 hover:text-[#4EC6E5] hover:bg-white/60 rounded-xl transition-all duration-200 touch-manipulation min-h-[48px] group"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <CreditCardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-medium truncate flex-1">
+                          <span className="text-sm font-medium truncate flex-1 text-[#02111c] group-hover:text-[#4EC6E5]">
                             Analytics
                           </span>
                         </Link>

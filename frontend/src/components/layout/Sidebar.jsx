@@ -227,8 +227,8 @@ const Sidebar = ({
                           className={cn(
                             "group flex gap-x-3 rounded-lg p-2 text-sm font-semibold leading-6 transition-all duration-200",
                             isActive
-                              ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-md"
-                              : "text-gray-700 hover:bg-[#F0FBFE] hover:text-[#2BA8CD]",
+                              ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] shadow-md"
+                              : "hover:bg-[#F0FBFE]",
                             item.highlight &&
                               !isActive &&
                               "ring-1 ring-[#4EC6E5]/20 bg-[#F0FBFE]/50"
@@ -244,7 +244,16 @@ const Sidebar = ({
                             )}
                           />
                           {!isCollapsed && (
-                            <span className="truncate">{item.name}</span>
+                            <span
+                              className={cn(
+                                "truncate",
+                                isActive
+                                  ? "text-white"
+                                  : "bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent group-hover:text-[#2BA8CD]"
+                              )}
+                            >
+                              {item.name}
+                            </span>
                           )}
                           {!isCollapsed && item.highlight && !isActive && (
                             <div className="ml-auto flex-shrink-0">
@@ -331,8 +340,8 @@ const Sidebar = ({
                           className={cn(
                             "group flex gap-x-3 rounded-lg p-3 text-sm font-semibold leading-6 transition-all duration-200 touch-manipulation min-h-[48px] items-center",
                             isActive
-                              ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white shadow-md"
-                              : "text-gray-700 hover:bg-[#F0FBFE] hover:text-[#2BA8CD]",
+                              ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] shadow-md"
+                              : "hover:bg-[#F0FBFE]",
                             item.highlight &&
                               !isActive &&
                               "ring-1 ring-[#4EC6E5]/20 bg-[#F0FBFE]/50"
@@ -346,7 +355,16 @@ const Sidebar = ({
                                 : "text-gray-400 group-hover:text-[#2BA8CD]"
                             )}
                           />
-                          <span className="truncate">{item.name}</span>
+                          <span
+                            className={cn(
+                              "truncate",
+                              isActive
+                                ? "text-white"
+                                : "bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent group-hover:text-[#2BA8CD]"
+                            )}
+                          >
+                            {item.name}
+                          </span>
                           {item.highlight && !isActive && (
                             <div className="ml-auto flex-shrink-0">
                               <div className="w-2 h-2 bg-[#4EC6E5] rounded-full animate-pulse"></div>

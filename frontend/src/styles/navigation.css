@@ -1,0 +1,45 @@
+/* Navigation-specific styles for gradient text color effect */
+
+/* Custom class for navigation text gradient effect - same as SIMORGH SERVICE logo */
+.nav-text-gradient {
+  background: linear-gradient(to right, #1e293b, #1e3a8a, #1e293b);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-text-gradient:hover {
+  color: inherit; /* Allow hover states to override this */
+}
+
+/* Specific selectors to ensure gradient text-only color changes */
+.navbar-link > span,
+.sidebar-link > span,
+.mobile-nav-link > span {
+  background: linear-gradient(to right, #1e293b, #1e3a8a, #1e293b);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-link:hover > span,
+.sidebar-link:hover > span,
+.mobile-nav-link:hover > span {
+  color: inherit; /* Allow components to handle hover colors */
+}
+
+/* Ensure icons maintain their own colors */
+.navbar-link > svg,
+.sidebar-link > svg,
+.mobile-nav-link > svg {
+  color: inherit; /* Icons use their own color classes */
+}
+
+/* Active state overrides */
+.navbar-link.active > span,
+.sidebar-link.active > span,
+.mobile-nav-link.active > span {
+  color: white !important; /* Keep active state as white */
+  background: none;
+  -webkit-text-fill-color: white;
+}
