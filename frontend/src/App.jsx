@@ -68,6 +68,7 @@ const AdminTicketDetails = React.lazy(() =>
 // Home page - Keep this eagerly loaded as it's the landing page
 import Home from "./pages/Home";
 const Services = React.lazy(() => import("./pages/Services"));
+const ServiceDetails = React.lazy(() => import("./pages/ServiceDetails"));
 const AIMatchingDemo = React.lazy(() => import("./pages/AIMatchingDemo"));
 const LoadingDemo = React.lazy(() => import("./pages/LoadingDemo"));
 const ImageGalleryDemo = React.lazy(() => import("./pages/ImageGalleryDemo"));
@@ -86,6 +87,7 @@ function App() {
                   {/* Public routes */}
                   <Route path="/" element={<Home />} />
                   <Route path="/services" element={<Services />} />
+                  <Route path="/services/:id" element={<ServiceDetails />} />
                   <Route path="/ai-demo" element={<AIMatchingDemo />} />
                   <Route path="/loading-demo" element={<LoadingDemo />} />
                   <Route
