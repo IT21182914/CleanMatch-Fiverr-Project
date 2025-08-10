@@ -175,8 +175,8 @@ export const ResponsiveText = forwardRef(
         base: "text-base sm:text-lg",
         lg: "text-lg sm:text-xl",
         xl: "text-xl sm:text-2xl",
-        "2xl": "text-2xl sm:text-3xl lg:text-4xl",
-        "3xl": "text-3xl sm:text-4xl lg:text-5xl xl:text-6xl",
+        "2xl": "text-xl sm:text-2xl lg:text-3xl",
+        "3xl": "text-2xl sm:text-3xl lg:text-4xl xl:text-5xl",
       };
       return sizeMap[size] || "text-base sm:text-lg";
     };

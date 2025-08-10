@@ -227,49 +227,61 @@ article {
 }
 
 h1 {
-  font-size: 3rem;
-  font-weight: var(--font-extrabold);
+  font-size: 2rem;        /* Reduced from 3rem (48px) to 2rem (32px) */
+  font-weight: var(--font-bold);
   letter-spacing: -0.025em;
 }
 
 h2 {
-  font-size: 2.25rem;
+  font-size: 1.75rem;     /* Reduced from 2.25rem (36px) to 1.75rem (28px) */
   font-weight: var(--font-bold);
   letter-spacing: -0.025em;
 }
 
 h3 {
-  font-size: 1.875rem;
+  font-size: 1.5rem;      /* Reduced from 1.875rem (30px) to 1.5rem (24px) */
   font-weight: var(--font-semibold);
 }
 
 h4 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;     /* Reduced from 1.5rem (24px) to 1.25rem (20px) */
   font-weight: var(--font-semibold);
 }
 
 h5 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;    /* Reduced from 1.25rem (20px) to 1.125rem (18px) */
   font-weight: var(--font-medium);
 }
 
 h6 {
-  font-size: 1.125rem;
+  font-size: 1rem;        /* Reduced from 1.125rem (18px) to 1rem (16px) */
   font-weight: var(--font-medium);
 }
 
 /* Responsive typography */
 @media (max-width: 768px) {
   h1 {
-    font-size: 2.5rem;
+    font-size: 1.75rem;    /* Reduced from 2.5rem to 1.75rem (28px) */
   }
   
   h2 {
-    font-size: 2rem;
+    font-size: 1.5rem;     /* Reduced from 2rem to 1.5rem (24px) */
   }
   
   h3 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;    /* Reduced from 1.5rem to 1.25rem (20px) */
+  }
+
+  h4 {
+    font-size: 1.125rem;   /* Reduced from default to 1.125rem (18px) */
+  }
+
+  h5 {
+    font-size: 1rem;       /* Reduced from default to 1rem (16px) */
+  }
+
+  h6 {
+    font-size: 0.875rem;   /* Reduced from default to 0.875rem (14px) */
   }
 }
 

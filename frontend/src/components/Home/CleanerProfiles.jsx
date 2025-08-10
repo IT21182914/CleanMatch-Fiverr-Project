@@ -43,12 +43,12 @@ const CleanerProfiles = () => {
             <UsersIcon className="h-3 xs:h-4 w-3 xs:w-4 mr-1.5 xs:mr-2" />
             Professional Team
           </div>
-          <h2 className="text-3xl xs:text-4xl sm:text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4 xs:mb-6">
+          <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4 xs:mb-6">
             Meet Our Expert Cleaners
           </h2>
           <p className="text-lg xs:text-xl text-slate-600 max-w-3xl mx-auto px-2 xs:px-0">
-            All SIMORGH SERVICE professionals are thoroughly vetted,
-            certified, insured, and rated by real customers
+            All SIMORGH SERVICE professionals are thoroughly vetted, certified,
+            insured, and rated by real customers
           </p>
         </div>
 
@@ -74,7 +74,10 @@ const CleanerProfiles = () => {
                 </h3>
 
                 <div className="flex items-center justify-center mb-3 xs:mb-4">
-                  <svg className="h-4 xs:h-5 w-4 xs:w-5 text-[#4EC6E5] fill-[#4EC6E5]" viewBox="0 0 20 20">
+                  <svg
+                    className="h-4 xs:h-5 w-4 xs:w-5 text-[#4EC6E5] fill-[#4EC6E5]"
+                    viewBox="0 0 20 20"
+                  >
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                   <span className="font-bold ml-2 text-base xs:text-lg">

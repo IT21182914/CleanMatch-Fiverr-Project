@@ -36,7 +36,7 @@ const TestimonialsSection = () => {
     <section className="py-16 xs:py-20 sm:py-24 md:py-28 bg-gradient-to-br from-slate-50 to-white relative">
       <div className="w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto">
         <div className="text-center mb-12 xs:mb-16">
-          <h2 className="text-3xl xs:text-4xl sm:text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4 xs:mb-6">
+          <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4 xs:mb-6">
             What Our Customers Say
           </h2>
           <p className="text-lg xs:text-xl text-slate-600 px-2 xs:px-0">

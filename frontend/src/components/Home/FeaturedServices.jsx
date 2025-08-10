@@ -1,5 +1,10 @@
 import { Link } from "react-router-dom";
-import { ClockIcon, WindowIcon, BugAntIcon, TruckIcon } from "@heroicons/react/24/outline";
+import {
+  ClockIcon,
+  WindowIcon,
+  BugAntIcon,
+  TruckIcon,
+} from "@heroicons/react/24/outline";
 import { getServiceImage } from "../../utils/serviceImages";
 import LazyImage from "../ui/LazyImage";
 
@@ -40,7 +45,7 @@ const FeaturedServices = () => {
     <section className="py-12 xs:py-16 sm:py-20 lg:py-24 bg-white relative">
       <div className="w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto">
         <div className="text-center mb-8 xs:mb-10 sm:mb-12">
-          <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-3 xs:mb-4">
+          <h2 className="text-2xl xs:text-3xl sm:text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-3 xs:mb-4">
             Popular Services
           </h2>
           <p className="text-base xs:text-lg text-slate-600">

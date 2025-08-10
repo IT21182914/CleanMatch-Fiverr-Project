@@ -185,7 +185,7 @@ const MembershipSubscription = () => {
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">
           Join Our Membership & Save 50%
         </h1>
         <p className="text-xl text-gray-600 mb-8">
@@ -242,7 +242,7 @@ const MembershipSubscription = () => {
               </div>
               <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
               <div className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-2">
+                <div className="text-3xl font-bold text-gray-900 mb-2">
                   {formatCurrency(plan.monthlyFee)}
                   <span className="text-lg font-normal text-gray-600">
                     /month

@@ -22,7 +22,7 @@ const TrustStats = () => {
             <ShieldCheckIcon className="h-3 xs:h-4 w-3 xs:w-4 mr-1.5 xs:mr-2" />
             Trusted Excellence
           </div>
-          <h2 className="text-3xl xs:text-4xl sm:text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4 xs:mb-6">
+          <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4 xs:mb-6">
             Why Choose SIMORGH SERVICE
           </h2>
           <p className="text-lg xs:text-xl text-slate-600 px-2 xs:px-0">
@@ -41,7 +41,7 @@ const TrustStats = () => {
                     <Icon className="h-8 xs:h-9 sm:h-10 w-8 xs:w-9 sm:w-10 text-white" />
                   </div>
                 </div>
-                <div className="text-2xl xs:text-3xl md:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-2 xs:mb-3">
+                <div className="text-xl xs:text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-2 xs:mb-3">
                   {stat.value}
                 </div>
                 <div className="text-xs xs:text-sm md:text-base lg:text-lg text-slate-600 font-medium px-1 xs:px-0">

@@ -11,7 +11,7 @@ const FinalCTA = ({ setShowTermsModal }) => {
       </div>
 
       <div className="relative w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-5xl xl:mx-auto">
-        <h2 className="text-3xl xs:text-4xl sm:text-5xl font-bold text-white mb-6 xs:mb-8">
+        <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-white mb-6 xs:mb-8">
           Ready for Professional Cleaning?
         </h2>
         <p className="text-lg xs:text-xl text-white/90 mb-8 xs:mb-10 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-2 xs:px-0">

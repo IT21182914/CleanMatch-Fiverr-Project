@@ -93,7 +93,7 @@ const HeroSection = () => {
           </div>
 
           {/* Main Headline - Responsive */}
-          <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 xs:mb-8 leading-tight">
+          <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 xs:mb-8 leading-tight">
             <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent">
               Professional Cleaning Solutions
             </span>
@@ -106,7 +106,7 @@ const HeroSection = () => {
           <div className="relative group mb-8 xs:mb-10">
             <div className="absolute inset-0 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] rounded-2xl xs:rounded-3xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white py-4 xs:py-6 px-6 xs:px-10 rounded-2xl xs:rounded-3xl inline-block transform hover:scale-105 transition-all duration-300 shadow-2xl shadow-[#4EC6E5]/25">
-              <p className="text-2xl xs:text-3xl sm:text-4xl font-bold mb-1">
+              <p className="text-xl xs:text-2xl sm:text-3xl font-bold mb-1">
                 $18/hour with Membership
               </p>
               <p className="text-xs xs:text-sm opacity-90 font-medium">

@@ -1,4 +1,8 @@
-import { PhoneIcon, ChatBubbleLeftRightIcon, ClipboardDocumentListIcon } from "@heroicons/react/24/outline";
+import {
+  PhoneIcon,
+  ChatBubbleLeftRightIcon,
+  ClipboardDocumentListIcon,
+} from "@heroicons/react/24/outline";
 import Button from "../ui/Button";
 import { Card, CardContent } from "../ui/Card";
 
@@ -11,7 +15,7 @@ const ContactSection = () => {
             <PhoneIcon className="h-3 xs:h-4 w-3 xs:w-4 mr-1.5 xs:mr-2" />
             Get In Touch
           </div>
-          <h2 className="text-3xl xs:text-4xl sm:text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4 xs:mb-6">
+          <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4 xs:mb-6">
             Need Help or Have Questions?
           </h2>
           <p className="text-lg xs:text-xl text-slate-600 max-w-3xl mx-auto px-2 xs:px-0">
@@ -28,11 +32,15 @@ const ContactSection = () => {
               <h3 className="text-lg xs:text-xl font-bold text-slate-900 mb-3 xs:mb-4">
                 Call Us
               </h3>
-              <p className="text-slate-600 mb-3 xs:mb-4 text-sm xs:text-base">Speak with our experts</p>
+              <p className="text-slate-600 mb-3 xs:mb-4 text-sm xs:text-base">
+                Speak with our experts
+              </p>
               <p className="text-xl xs:text-2xl font-bold text-[#4EC6E5]">
                 1-800-SIMORGH
               </p>
-              <p className="text-xs xs:text-sm text-slate-500 mt-2">Available 24/7</p>
+              <p className="text-xs xs:text-sm text-slate-500 mt-2">
+                Available 24/7
+              </p>
             </CardContent>
           </Card>
 
@@ -44,7 +52,9 @@ const ContactSection = () => {
               <h3 className="text-lg xs:text-xl font-bold text-slate-900 mb-3 xs:mb-4">
                 Live Chat
               </h3>
-              <p className="text-slate-600 mb-3 xs:mb-4 text-sm xs:text-base">Instant support online</p>
+              <p className="text-slate-600 mb-3 xs:mb-4 text-sm xs:text-base">
+                Instant support online
+              </p>
               <Button className="bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white px-4 xs:px-6 py-1.5 xs:py-2 rounded-lg xs:rounded-xl text-sm xs:text-base">
                 Start Chat
               </Button>
@@ -59,7 +69,9 @@ const ContactSection = () => {
               <h3 className="text-lg xs:text-xl font-bold text-slate-900 mb-3 xs:mb-4">
                 Help Center
               </h3>
-              <p className="text-slate-600 mb-3 xs:mb-4 text-sm xs:text-base">Find answers quickly</p>
+              <p className="text-slate-600 mb-3 xs:mb-4 text-sm xs:text-base">
+                Find answers quickly
+              </p>
               <Button
                 variant="outline"
                 className="border-2 border-[#4EC6E5] text-[#4EC6E5] hover:bg-[#4EC6E5] hover:text-white px-4 xs:px-6 py-1.5 xs:py-2 rounded-lg xs:rounded-xl text-sm xs:text-base"

@@ -66,7 +66,7 @@ const CardTitle = forwardRef(
       default:
         "text-lg sm:text-xl lg:text-2xl font-semibold leading-tight tracking-tight",
       lg: "text-xl sm:text-2xl lg:text-3xl font-bold leading-tight tracking-tight",
-      xl: "text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight tracking-tight",
+      xl: "text-xl sm:text-2xl lg:text-3xl font-bold leading-tight tracking-tight",
     };
 
     return (
@@ -321,7 +321,7 @@ const PricingCard = forwardRef(
       >
         <CardTitle size="lg">{planName}</CardTitle>
         <div className="flex items-baseline justify-center">
-          <span className="text-4xl font-bold text-gray-900">{price}</span>
+          <span className="text-3xl font-bold text-gray-900">{price}</span>
           <span className="text-lg text-gray-500 ml-2">/{period}</span>
         </div>
         <CardDescription className="text-center">{description}</CardDescription>

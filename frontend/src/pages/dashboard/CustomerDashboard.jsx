@@ -84,7 +84,7 @@ const CustomerDashboard = () => {
       {/* Header */}
       <div className="md:flex md:items-center md:justify-between">
         <div className="min-w-0 flex-1">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-7 text-gray-900 sm:truncate sm:tracking-tight">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:tracking-tight">
             Welcome back, {user?.firstName}!
           </h2>
           <p className="mt-1 text-xs sm:text-sm text-gray-500">
