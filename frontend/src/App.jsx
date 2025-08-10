@@ -33,6 +33,10 @@ const CustomerProfile = React.lazy(() => import("./pages/customer/Profile"));
 const MembershipSubscription = React.lazy(() =>
   import("./pages/customer/MembershipSubscription")
 );
+const CustomerTickets = React.lazy(() => import("./pages/customer/Tickets"));
+const CustomerTicketDetails = React.lazy(() => 
+  import("./pages/customer/TicketDetails")
+);
 
 // Cleaner pages
 const CleanerJobs = React.lazy(() => import("./pages/cleaner/Jobs"));
