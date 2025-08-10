@@ -31,6 +31,17 @@ const Layout = ({ children }) => {
   // Determine if sidebar should be shown
   const showSidebar = isAuthenticated && !isFullWidth;
 
+  // Determine if footer should be shown - only on public pages and booking pages
+  const showFooter =
+    isHomePage ||
+    (location.pathname.includes("/book") &&
+      !location.pathname.includes("/admin")) ||
+    location.pathname === "/services" ||
+    location.pathname === "/about" ||
+    location.pathname === "/contact" ||
+    location.pathname === "/login" ||
+    location.pathname === "/register";
+
   return (
     <div className="min-h-screen bg-gray-50">
       <TopNavbar
@@ -77,7 +88,7 @@ const Layout = ({ children }) => {
       </main>
 
       {/* Modern Footer - Enhanced Responsive (Original Design) */}
-      {(isHomePage || location.pathname.includes("/book")) && (
+      {showFooter && (
         <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white mt-12 xs:mt-16 sm:mt-20 relative overflow-hidden">
           {/* Background Elements - Responsive */}
           <div className="absolute inset-0 overflow-hidden">
