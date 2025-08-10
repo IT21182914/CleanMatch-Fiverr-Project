@@ -347,7 +347,23 @@ export const adminTicketsAPI = {
   // Get all tickets for admin management
   getAdminTickets: (params) => {
     console.log("🚨 ADMIN API: getAdminTickets called with params:", params);
-    return enhancedApi.get("/admin/tickets", { params });
+
+    // Build query string manually to ensure parameters are sent
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value);
+        }
+      });
+    }
+    const queryString = queryParams.toString();
+    const url = `/admin/tickets${queryString ? `?${queryString}` : ""}`;
+
+    console.log("� Final URL:", url);
+    console.log("🔍 Query string:", queryString);
+
+    return enhancedApi.get(url);
   },
 
   // Get comprehensive ticket statistics

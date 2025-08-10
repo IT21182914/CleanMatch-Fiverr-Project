@@ -41,6 +41,8 @@ const AdminTicketManagement = () => {
   const [selectedTickets, setSelectedTickets] = useState([]);
 
   useEffect(() => {
+    console.log("🔄 useEffect triggered with filters:", filters);
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -80,10 +82,12 @@ const AdminTicketManagement = () => {
   }, [filters, adminUsers]);
 
   const handleFilterChange = (newFilters) => {
-    console.log("🎛️ Filter change:", newFilters);
+    console.log("🎛️ Filter change received:", newFilters);
+    console.log("🔍 Current filters before change:", filters);
     const updatedFilters = { ...filters, ...newFilters, page: 1 };
-    console.log("📝 Updated filters:", updatedFilters);
+    console.log("📝 Updated filters to be set:", updatedFilters);
     setFilters(updatedFilters);
+    console.log("✅ setFilters called with:", updatedFilters);
   };
 
   const handleStatusUpdate = async (ticketId, status, reason) => {
