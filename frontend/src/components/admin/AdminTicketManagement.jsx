@@ -13,6 +13,7 @@ import AdminTicketFilters from "./AdminTicketFilters";
 import AdminTicketItem from "./AdminTicketItem";
 import TicketAssignModal from "./TicketAssignModal";
 import StatusUpdateModal from "./StatusUpdateModal";
+import { RefreshCcw, BarChart3, AlertTriangle, Ticket } from "lucide-react";
 
 const AdminTicketManagement = () => {
   const [tickets, setTickets] = useState([]);
@@ -220,15 +221,17 @@ const AdminTicketManagement = () => {
                 setPagination(ticketsResponse.data.pagination);
                 toast.success("Tickets refreshed");
               }}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
             >
-              🔄 Refresh
+              <RefreshCcw className="w-4 h-4" />
+              Refresh
             </button>
             <Link
               to="/admin/tickets/stats"
-              className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-2"
             >
-              📊 Analytics
+              <BarChart3 className="w-4 h-4" />
+              Analytics
             </Link>
           </div>
         </div>
@@ -283,7 +286,7 @@ const AdminTicketManagement = () => {
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <span className="text-red-400 text-xl">⚠️</span>
+                <AlertTriangle className="w-5 h-5 text-red-500" />
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-red-800">SLA Alerts</h3>
@@ -362,7 +365,9 @@ const AdminTicketManagement = () => {
           </div>
         ) : tickets.length === 0 ? (
           <div className="py-12 text-center">
-            <div className="text-gray-400 text-6xl mb-4">🎫</div>
+            <div className="flex justify-center mb-4">
+              <Ticket className="w-16 h-16 text-gray-400" />
+            </div>
             <p className="text-gray-500 text-lg mb-2">No tickets found</p>
             <p className="text-gray-400">
               Try adjusting your filters or check back later.

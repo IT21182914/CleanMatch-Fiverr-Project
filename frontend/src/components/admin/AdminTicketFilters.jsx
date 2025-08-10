@@ -1,4 +1,5 @@
 import React from "react";
+import { AlertCircle, Clock } from "lucide-react";
 
 const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
   console.log("🔍 AdminTicketFilters rendered with filters:", filters);
@@ -220,13 +221,14 @@ const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => handleFilterChange("status", "open")}
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
                 filters.status === "open"
                   ? "bg-red-100 text-red-800 border border-red-200"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              🚨 Open Tickets ({stats?.general?.open_tickets || 0})
+              <AlertCircle className="w-3 h-3" />
+              Open Tickets ({stats?.general?.open_tickets || 0})
             </button>
 
             <button
@@ -253,13 +255,14 @@ const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
 
             <button
               onClick={() => handleFilterChange("status", "in_progress")}
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
                 filters.status === "in_progress"
                   ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              🔄 In Progress ({stats?.general?.in_progress_tickets || 0})
+              <Clock className="w-3 h-3" />
+              In Progress ({stats?.general?.in_progress_tickets || 0})
             </button>
 
             {/* SLA Alert Buttons */}

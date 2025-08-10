@@ -5,6 +5,7 @@ import {
   ResponsiveContainer,
   ResponsiveText,
 } from "../components/ui/ResponsiveGrid";
+import { Check } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -314,41 +315,101 @@ const ResponsiveDemo = () => {
                   Layout & Structure
                 </h4>
                 <ul className="space-y-2 text-sm">
-                  <li>✅ Mobile-first responsive design</li>
-                  <li>✅ Flexible grid systems</li>
-                  <li>✅ Adaptive navigation</li>
-                  <li>✅ Touch-friendly interface</li>
-                  <li>✅ Responsive containers</li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Mobile-first responsive design
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Flexible grid systems
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Adaptive navigation
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Touch-friendly interface
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Responsive containers
+                  </li>
                 </ul>
               </div>
               <div>
                 <h4 className="font-semibold text-lg mb-3">Components & UI</h4>
                 <ul className="space-y-2 text-sm">
-                  <li>✅ Responsive typography</li>
-                  <li>✅ Adaptive form elements</li>
-                  <li>✅ Flexible card layouts</li>
-                  <li>✅ Responsive buttons</li>
-                  <li>✅ Mobile-optimized toasts</li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Responsive typography
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Adaptive form elements
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Flexible card layouts
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Responsive buttons
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Mobile-optimized toasts
+                  </li>
                 </ul>
               </div>
               <div>
                 <h4 className="font-semibold text-lg mb-3">User Experience</h4>
                 <ul className="space-y-2 text-sm">
-                  <li>✅ Touch target optimization</li>
-                  <li>✅ Readable text sizes</li>
-                  <li>✅ Optimal spacing</li>
-                  <li>✅ Consistent interactions</li>
-                  <li>✅ Accessibility support</li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Touch target optimization
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Readable text sizes
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Optimal spacing
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Consistent interactions
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Accessibility support
+                  </li>
                 </ul>
               </div>
               <div>
                 <h4 className="font-semibold text-lg mb-3">Performance</h4>
                 <ul className="space-y-2 text-sm">
-                  <li>✅ CSS-only responsiveness</li>
-                  <li>✅ No JavaScript media queries</li>
-                  <li>✅ Efficient CSS classes</li>
-                  <li>✅ Optimized image loading</li>
-                  <li>✅ Fast rendering</li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    CSS-only responsiveness
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    No JavaScript media queries
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Efficient CSS classes
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Optimized image loading
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Fast rendering
+                  </li>
                 </ul>
               </div>
             </ResponsiveGrid>

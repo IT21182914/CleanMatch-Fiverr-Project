@@ -4,6 +4,7 @@ import { useToast } from "../../hooks/useToast";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import Loading from "../../components/ui/Loading";
+import { Star, StarOff } from "lucide-react";
 
 const TrustManagement = () => {
   const [badges, setBadges] = useState([]);
@@ -304,7 +305,7 @@ const TrustManagement = () => {
                                 : "text-gray-300"
                             }`}
                           >
-                            ⭐
+                            <Star className="w-3 h-3 inline fill-current" />
                           </span>
                         ))}
                       </div>
@@ -341,7 +342,11 @@ const TrustManagement = () => {
                           : "text-yellow-600 hover:bg-yellow-50"
                       }`}
                     >
-                      {testimonial.is_featured ? "⭐" : "☆"}
+                      {testimonial.is_featured ? (
+                        <Star className="w-4 h-4 fill-current" />
+                      ) : (
+                        <StarOff className="w-4 h-4" />
+                      )}
                     </button>
                     <button
                       onClick={() => handleDeleteTestimonial(testimonial.id)}

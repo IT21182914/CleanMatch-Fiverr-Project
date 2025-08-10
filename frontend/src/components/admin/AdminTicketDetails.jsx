@@ -16,6 +16,22 @@ import LoadingSpinner from "../shared/LoadingSpinner";
 import InvestigationModal from "./InvestigationModal";
 import ResolutionModal from "./ResolutionModal";
 import TicketReplyForm from "./TicketReplyForm";
+import {
+  AlertCircle,
+  MessageSquare,
+  Clock,
+  Search,
+  CheckCircle,
+  Lock,
+  Ticket,
+  Paperclip,
+  Plus,
+  Settings,
+  User,
+  RotateCcw,
+  Eye,
+  Star,
+} from "lucide-react";
 
 const AdminTicketDetails = () => {
   const { id } = useParams();
@@ -174,6 +190,27 @@ const AdminTicketDetails = () => {
     }
   };
 
+  const getTimelineIcon = (actionType) => {
+    switch (actionType) {
+      case "created":
+        return <Plus className="w-4 h-4 text-white" />;
+      case "status_changed":
+        return <RotateCcw className="w-4 h-4 text-white" />;
+      case "assigned":
+        return <User className="w-4 h-4 text-white" />;
+      case "message_added":
+        return <MessageSquare className="w-4 h-4 text-white" />;
+      case "investigated":
+        return <Search className="w-4 h-4 text-white" />;
+      case "resolved":
+        return <CheckCircle className="w-4 h-4 text-white" />;
+      case "closed":
+        return <Lock className="w-4 h-4 text-white" />;
+      default:
+        return <Settings className="w-4 h-4 text-white" />;
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -189,7 +226,9 @@ const AdminTicketDetails = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="text-gray-400 text-6xl mb-4">🎫</div>
+          <div className="flex justify-center mb-4">
+            <Ticket className="w-16 h-16 text-gray-400" />
+          </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Ticket Not Found
           </h2>
@@ -241,12 +280,14 @@ const AdminTicketDetails = () => {
 
               {/* Priority Badge */}
               <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium gap-1 ${getPriorityColor(
                   ticket.priority
                 )}`}
               >
+                {ticket.priority === "urgent" && (
+                  <AlertCircle className="w-4 h-4" />
+                )}
                 {ticket.priority} priority
-                {ticket.priority === "urgent" && " 🚨"}
               </span>
             </div>
 
@@ -269,9 +310,10 @@ const AdminTicketDetails = () => {
           <div className="flex gap-3">
             <button
               onClick={() => setShowReplyForm(true)}
-              className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100"
+              className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 flex items-center gap-2"
             >
-              💬 Reply
+              <MessageSquare className="w-4 h-4" />
+              Reply
             </button>
 
             {ticket.status === "open" && (
@@ -279,9 +321,10 @@ const AdminTicketDetails = () => {
                 onClick={() =>
                   handleStatusUpdate("in_progress", "Started investigation")
                 }
-                className="px-4 py-2 text-sm font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100"
+                className="px-4 py-2 text-sm font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 flex items-center gap-2"
               >
-                🔄 Start Progress
+                <Clock className="w-4 h-4" />
+                Start Progress
               </button>
             )}
 
@@ -289,16 +332,18 @@ const AdminTicketDetails = () => {
               <>
                 <button
                   onClick={() => setShowInvestigationModal(true)}
-                  className="px-4 py-2 text-sm font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100"
+                  className="px-4 py-2 text-sm font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 flex items-center gap-2"
                 >
-                  🔍 Record Investigation
+                  <Search className="w-4 h-4" />
+                  Record Investigation
                 </button>
 
                 <button
                   onClick={() => setShowResolutionModal(true)}
-                  className="px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100"
+                  className="px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 flex items-center gap-2"
                 >
-                  ✅ Resolve Ticket
+                  <CheckCircle className="w-4 h-4" />
+                  Resolve Ticket
                 </button>
               </>
             )}
@@ -306,9 +351,10 @@ const AdminTicketDetails = () => {
             {ticket.status === "resolved" && (
               <button
                 onClick={() => handleClose("Customer confirmed resolution")}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 flex items-center gap-2"
               >
-                🔒 Close Ticket
+                <Lock className="w-4 h-4" />
+                Close Ticket
               </button>
             )}
           </div>
@@ -395,9 +441,10 @@ const AdminTicketDetails = () => {
                                   href={attachment.fileUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center px-3 py-1 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs"
+                                  className="inline-flex items-center px-3 py-1 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs gap-1"
                                 >
-                                  📎 {attachment.filename}
+                                  <Paperclip className="w-3 h-3" />
+                                  {attachment.filename}
                                 </a>
                               ))}
                             </div>
@@ -429,15 +476,7 @@ const AdminTicketDetails = () => {
                         <div className="relative flex space-x-3">
                           <div>
                             <span className="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white">
-                              <span className="text-xs">
-                                {event.actionType === "created" && "🆕"}
-                                {event.actionType === "status_changed" && "🔄"}
-                                {event.actionType === "assigned" && "👤"}
-                                {event.actionType === "message_added" && "💬"}
-                                {event.actionType === "investigated" && "🔍"}
-                                {event.actionType === "resolved" && "✅"}
-                                {event.actionType === "closed" && "🔒"}
-                              </span>
+                              {getTimelineIcon(event.actionType)}
                             </span>
                           </div>
                           <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
@@ -684,8 +723,9 @@ const AdminTicketDetails = () => {
                 {ticket.freelancer.rating && (
                   <div>
                     <p className="text-xs text-gray-500">Rating</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      ⭐ {parseFloat(ticket.freelancer.rating).toFixed(1)}
+                    <p className="text-sm font-medium text-gray-900 flex items-center gap-1">
+                      <Star className="w-4 h-4 fill-current text-yellow-400" />
+                      {parseFloat(ticket.freelancer.rating).toFixed(1)}
                     </p>
                   </div>
                 )}
@@ -718,12 +758,12 @@ const AdminTicketDetails = () => {
                       </div>
                       <div className="col-span-2">
                         <span className="text-gray-500">Avg Rating:</span>
-                        <span className="ml-1 font-medium">
+                        <span className="ml-1 font-medium flex items-center gap-1">
                           {parseFloat(
                             ticket.freelancer.history.performance.avg_rating ||
                               0
-                          ).toFixed(1)}{" "}
-                          ⭐
+                          ).toFixed(1)}
+                          <Star className="w-3 h-3 fill-current text-yellow-400" />
                         </span>
                       </div>
                     </div>

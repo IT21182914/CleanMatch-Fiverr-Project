@@ -7,6 +7,7 @@ import {
   CheckCircleIcon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
+import { Star } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -277,8 +278,9 @@ const Users = () => {
                           {capitalizeFirst(user.role)}
                         </span>
                         {user.role === "cleaner" && user.rating && (
-                          <div className="text-sm text-gray-500 mt-1">
-                            ⭐ {user.rating}/5.0 ({user.total_jobs} jobs)
+                          <div className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-current text-yellow-400" />
+                            {user.rating}/5.0 ({user.total_jobs} jobs)
                           </div>
                         )}
                       </td>
