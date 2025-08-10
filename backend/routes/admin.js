@@ -1,6 +1,15 @@
 const express = require("express");
 const { auth, authorize } = require("../middleware/auth");
 const {
+  validate,
+  adminTicketStatusSchema,
+  adminTicketAssignSchema,
+  adminTicketReplySchema,
+  adminTicketInvestigateSchema,
+  adminTicketResolveSchema,
+  adminTicketCloseSchema,
+} = require("../middleware/validation");
+const {
   getDashboardStats,
   getAdminUsers,
   getUsers,
@@ -18,6 +27,16 @@ const {
   grantUserMembership,
   getMembershipAnalytics,
   getAssignmentMetrics,
+  // Ticket management functions
+  getAdminTickets,
+  getTicketDetails,
+  updateTicketStatus,
+  assignTicket,
+  addTicketReply,
+  getTicketStats,
+  investigateTicket,
+  resolveTicket,
+  closeTicket,
 } = require("../controllers/adminController");
 const router = express.Router();
 
@@ -139,6 +158,89 @@ router.get(
   auth,
   authorize("admin"),
   getAssignmentMetrics
+);
+
+// ============= ADMIN TICKET MANAGEMENT ROUTES =============
+
+// @route   GET /api/admin/tickets
+// @desc    Get all tickets for admin management
+// @access  Private (Admin only)
+router.get("/tickets", auth, authorize("admin"), getAdminTickets);
+
+// @route   GET /api/admin/tickets/stats
+// @desc    Get ticket statistics
+// @access  Private (Admin only)
+router.get("/tickets/stats", auth, authorize("admin"), getTicketStats);
+
+// @route   GET /api/admin/tickets/:id
+// @desc    Get detailed ticket information for investigation
+// @access  Private (Admin only)
+router.get("/tickets/:id", auth, authorize("admin"), getTicketDetails);
+
+// @route   PUT /api/admin/tickets/:id/status
+// @desc    Update ticket status (Open -> In Progress -> Resolved -> Closed)
+// @access  Private (Admin only)
+router.put(
+  "/tickets/:id/status",
+  auth,
+  authorize("admin"),
+  validate(adminTicketStatusSchema),
+  updateTicketStatus
+);
+
+// @route   PUT /api/admin/tickets/:id/assign
+// @desc    Assign/unassign ticket to admin
+// @access  Private (Admin only)
+router.put(
+  "/tickets/:id/assign",
+  auth,
+  authorize("admin"),
+  validate(adminTicketAssignSchema),
+  assignTicket
+);
+
+// @route   POST /api/admin/tickets/:id/reply
+// @desc    Add admin reply to ticket
+// @access  Private (Admin only)
+router.post(
+  "/tickets/:id/reply",
+  auth,
+  authorize("admin"),
+  validate(adminTicketReplySchema),
+  addTicketReply
+);
+
+// @route   POST /api/admin/tickets/:id/investigate
+// @desc    Record investigation findings and actions taken
+// @access  Private (Admin only)
+router.post(
+  "/tickets/:id/investigate",
+  auth,
+  authorize("admin"),
+  validate(adminTicketInvestigateSchema),
+  investigateTicket
+);
+
+// @route   POST /api/admin/tickets/:id/resolve
+// @desc    Resolve ticket with resolution details
+// @access  Private (Admin only)
+router.post(
+  "/tickets/:id/resolve",
+  auth,
+  authorize("admin"),
+  validate(adminTicketResolveSchema),
+  resolveTicket
+);
+
+// @route   POST /api/admin/tickets/:id/close
+// @desc    Close ticket (final step)
+// @access  Private (Admin only)
+router.post(
+  "/tickets/:id/close",
+  auth,
+  authorize("admin"),
+  validate(adminTicketCloseSchema),
+  closeTicket
 );
 
 module.exports = router;

@@ -246,6 +246,48 @@ const ticketBulkUpdateSchema = Joi.object({
     .required(),
 });
 
+// Admin ticket management validation schemas
+const adminTicketStatusSchema = Joi.object({
+  status: Joi.string()
+    .valid("open", "in_progress", "waiting_customer", "resolved", "closed")
+    .required(),
+  reason: Joi.string().max(500).optional(),
+});
+
+const adminTicketAssignSchema = Joi.object({
+  adminId: Joi.alternatives()
+    .try(
+      Joi.number().integer().positive(),
+      Joi.string().valid("unassign"),
+      Joi.allow(null)
+    )
+    .required(),
+});
+
+const adminTicketReplySchema = Joi.object({
+  message: Joi.string().min(1).max(2000).required(),
+  isInternal: Joi.boolean().default(false),
+  updateStatus: Joi.string()
+    .valid("in_progress", "waiting_customer", "resolved")
+    .optional(),
+});
+
+const adminTicketInvestigateSchema = Joi.object({
+  findings: Joi.string().min(10).max(2000).required(),
+  actionsTaken: Joi.string().min(5).max(1000).required(),
+  internalNotes: Joi.string().max(1000).optional(),
+});
+
+const adminTicketResolveSchema = Joi.object({
+  resolution: Joi.string().min(10).max(1000).required(),
+  customerMessage: Joi.string().min(10).max(1000).optional(),
+  actionsTaken: Joi.string().max(1000).optional(),
+});
+
+const adminTicketCloseSchema = Joi.object({
+  reason: Joi.string().max(500).optional(),
+});
+
 module.exports = {
   validate,
   registerSchema,
@@ -259,4 +301,11 @@ module.exports = {
   ticketMessageSchema,
   ticketUpdateSchema,
   ticketBulkUpdateSchema,
+  // Admin ticket management schemas
+  adminTicketStatusSchema,
+  adminTicketAssignSchema,
+  adminTicketReplySchema,
+  adminTicketInvestigateSchema,
+  adminTicketResolveSchema,
+  adminTicketCloseSchema,
 };

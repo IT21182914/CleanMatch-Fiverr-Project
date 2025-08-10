@@ -342,6 +342,60 @@ export const updateTicket = (id, data) => ticketsAPI.update(id, data);
 export const bulkUpdateTickets = (data) => ticketsAPI.bulkUpdate(data);
 export const getTicketStats = () => ticketsAPI.getStats();
 
+// Admin Ticket Management API endpoints
+export const adminTicketsAPI = {
+  // Get all tickets for admin management
+  getAdminTickets: (params) => enhancedApi.get("/admin/tickets", { params }),
+
+  // Get comprehensive ticket statistics
+  getTicketStats: () => enhancedApi.get("/admin/tickets/stats"),
+
+  // Get detailed ticket information for investigation
+  getTicketDetails: (id) => enhancedApi.get(`/admin/tickets/${id}`),
+
+  // Update ticket status (Open -> In Progress -> Resolved -> Closed)
+  updateTicketStatus: (id, data) =>
+    enhancedApi.put(`/admin/tickets/${id}/status`, data),
+
+  // Assign/unassign ticket to admin
+  assignTicket: (id, data) =>
+    enhancedApi.put(`/admin/tickets/${id}/assign`, data),
+
+  // Add admin reply to ticket
+  addTicketReply: (id, data) =>
+    enhancedApi.post(`/admin/tickets/${id}/reply`, data),
+
+  // Record investigation findings and actions taken
+  investigateTicket: (id, data) =>
+    enhancedApi.post(`/admin/tickets/${id}/investigate`, data),
+
+  // Resolve ticket with resolution details
+  resolveTicket: (id, data) =>
+    enhancedApi.post(`/admin/tickets/${id}/resolve`, data),
+
+  // Close ticket (final step)
+  closeTicket: (id, data) =>
+    enhancedApi.post(`/admin/tickets/${id}/close`, data),
+};
+
+// Admin ticket management convenience functions
+export const getAdminTickets = (params) =>
+  adminTicketsAPI.getAdminTickets(params);
+export const getAdminTicketStats = () => adminTicketsAPI.getTicketStats();
+export const getAdminTicketDetails = (id) =>
+  adminTicketsAPI.getTicketDetails(id);
+export const updateTicketStatus = (id, data) =>
+  adminTicketsAPI.updateTicketStatus(id, data);
+export const assignTicket = (id, data) =>
+  adminTicketsAPI.assignTicket(id, data);
+export const addTicketReply = (id, data) =>
+  adminTicketsAPI.addTicketReply(id, data);
+export const investigateTicket = (id, data) =>
+  adminTicketsAPI.investigateTicket(id, data);
+export const resolveTicket = (id, data) =>
+  adminTicketsAPI.resolveTicket(id, data);
+export const closeTicket = (id, data) => adminTicketsAPI.closeTicket(id, data);
+
 // Admin convenience functions
 export const getAdminUsers = () => adminAPI.getAdmins();
 

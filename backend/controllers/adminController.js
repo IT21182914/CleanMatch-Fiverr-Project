@@ -116,6 +116,23 @@ const getDashboardStats = async (req, res) => {
 
     stats.topCleaners = topCleanersResult.rows;
 
+    // Ticket statistics for dashboard
+    const ticketStatsResult = await query(`
+      SELECT 
+        COUNT(*) as total_tickets,
+        COUNT(CASE WHEN status = 'open' THEN 1 END) as open_tickets,
+        COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as in_progress_tickets,
+        COUNT(CASE WHEN status = 'waiting_customer' THEN 1 END) as waiting_customer_tickets,
+        COUNT(CASE WHEN status = 'resolved' THEN 1 END) as resolved_tickets,
+        COUNT(CASE WHEN status = 'closed' THEN 1 END) as closed_tickets,
+        COUNT(CASE WHEN assigned_admin_id IS NULL THEN 1 END) as unassigned_tickets,
+        COUNT(CASE WHEN priority = 'urgent' AND status NOT IN ('resolved', 'closed') THEN 1 END) as urgent_tickets,
+        COUNT(CASE WHEN created_at >= NOW() - INTERVAL '7 days' THEN 1 END) as tickets_this_week
+      FROM tickets
+    `);
+
+    stats.tickets = ticketStatsResult.rows[0];
+
     // Monthly revenue chart data (last 12 months)
     const monthlyRevenueResult = await query(`
       SELECT 
@@ -1391,6 +1408,1148 @@ const generateAssignmentRecommendations = (overall, zipStats, availability) => {
   return recommendations;
 };
 
+// ============= ADMIN TICKET MANAGEMENT FUNCTIONS =============
+
+/**
+ * @desc    Get tickets for admin dashboard
+ * @route   GET /api/admin/tickets
+ * @access  Private (Admin only)
+ */
+const getAdminTickets = async (req, res) => {
+  try {
+    const {
+      status = "all",
+      priority = "all",
+      category = "all",
+      assigned = "all",
+      page = 1,
+      limit = 20,
+      sortBy = "created_at",
+      sortOrder = "DESC",
+    } = req.query;
+
+    const offset = (page - 1) * limit;
+    let whereConditions = [];
+    let queryParams = [];
+    let paramCount = 1;
+
+    // Build WHERE clause
+    if (status !== "all") {
+      whereConditions.push(`t.status = $${paramCount++}`);
+      queryParams.push(status);
+    }
+
+    if (priority !== "all") {
+      whereConditions.push(`t.priority = $${paramCount++}`);
+      queryParams.push(priority);
+    }
+
+    if (category !== "all") {
+      whereConditions.push(`t.category = $${paramCount++}`);
+      queryParams.push(category);
+    }
+
+    if (assigned === "assigned") {
+      whereConditions.push(`t.assigned_admin_id IS NOT NULL`);
+    } else if (assigned === "unassigned") {
+      whereConditions.push(`t.assigned_admin_id IS NULL`);
+    } else if (assigned !== "all") {
+      whereConditions.push(`t.assigned_admin_id = $${paramCount++}`);
+      queryParams.push(assigned);
+    }
+
+    const whereClause =
+      whereConditions.length > 0
+        ? `WHERE ${whereConditions.join(" AND ")}`
+        : "";
+
+    // Validate sort columns
+    const validSortColumns = [
+      "created_at",
+      "opened_at",
+      "priority",
+      "status",
+      "summary",
+    ];
+    const sortColumn = validSortColumns.includes(sortBy)
+      ? sortBy
+      : "created_at";
+    const sortDirection = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
+    const ticketsQuery = `
+      SELECT 
+        t.*,
+        c.first_name as customer_first_name, 
+        c.last_name as customer_last_name, 
+        c.email as customer_email,
+        f.first_name as freelancer_first_name, 
+        f.last_name as freelancer_last_name,
+        a.first_name as admin_first_name, 
+        a.last_name as admin_last_name,
+        b.booking_date, 
+        b.booking_time,
+        s.name as service_name,
+        (SELECT COUNT(*) FROM ticket_messages tm WHERE tm.ticket_id = t.id AND tm.is_internal = false) as message_count,
+        (SELECT created_at FROM ticket_messages tm WHERE tm.ticket_id = t.id ORDER BY created_at DESC LIMIT 1) as last_message_at
+      FROM tickets t
+      JOIN users c ON t.customer_id = c.id
+      LEFT JOIN users f ON t.freelancer_id = f.id
+      LEFT JOIN users a ON t.assigned_admin_id = a.id
+      LEFT JOIN bookings b ON t.booking_id = b.id
+      LEFT JOIN services s ON b.service_id = s.id
+      ${whereClause}
+      ORDER BY 
+        CASE WHEN t.status = 'open' THEN 0 ELSE 1 END,
+        CASE WHEN t.priority = 'urgent' THEN 0 
+             WHEN t.priority = 'high' THEN 1 
+             WHEN t.priority = 'normal' THEN 2 
+             ELSE 3 END,
+        t.${sortColumn} ${sortDirection}
+      LIMIT $${paramCount++} OFFSET $${paramCount++}
+    `;
+
+    queryParams.push(limit, offset);
+
+    const ticketsResult = await query(ticketsQuery, queryParams);
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM tickets t
+      ${whereClause}
+    `;
+
+    const countResult = await query(countQuery, queryParams.slice(0, -2));
+    const total = parseInt(countResult.rows[0].total);
+
+    const tickets = ticketsResult.rows.map((ticket) => ({
+      id: ticket.id,
+      category: ticket.category,
+      priority: ticket.priority,
+      status: ticket.status,
+      summary: ticket.summary,
+      description:
+        ticket.description.substring(0, 200) +
+        (ticket.description.length > 200 ? "..." : ""),
+      openedAt: ticket.opened_at,
+      firstResponseAt: ticket.first_response_at,
+      resolvedAt: ticket.resolved_at,
+      closedAt: ticket.closed_at,
+      createdAt: ticket.created_at,
+      messageCount: parseInt(ticket.message_count),
+      lastMessageAt: ticket.last_message_at,
+      customer: {
+        id: ticket.customer_id,
+        firstName: ticket.customer_first_name,
+        lastName: ticket.customer_last_name,
+        email: ticket.customer_email,
+      },
+      freelancer: ticket.freelancer_id
+        ? {
+            id: ticket.freelancer_id,
+            firstName: ticket.freelancer_first_name,
+            lastName: ticket.freelancer_last_name,
+          }
+        : null,
+      assignedAdmin: ticket.assigned_admin_id
+        ? {
+            id: ticket.assigned_admin_id,
+            firstName: ticket.admin_first_name,
+            lastName: ticket.admin_last_name,
+          }
+        : null,
+      booking: ticket.booking_id
+        ? {
+            id: ticket.booking_id,
+            date: ticket.booking_date,
+            time: ticket.booking_time,
+            serviceName: ticket.service_name,
+          }
+        : null,
+    }));
+
+    res.json({
+      success: true,
+      data: tickets,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error("Get admin tickets error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving tickets",
+    });
+  }
+};
+
+/**
+ * @desc    Get detailed ticket information for admin investigation
+ * @route   GET /api/admin/tickets/:id
+ * @access  Private (Admin only)
+ */
+const getTicketDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Get comprehensive ticket details
+    const ticketResult = await query(
+      `
+      SELECT 
+        t.*,
+        c.first_name as customer_first_name, 
+        c.last_name as customer_last_name, 
+        c.email as customer_email, 
+        c.phone as customer_phone,
+        c.created_at as customer_since,
+        f.first_name as freelancer_first_name, 
+        f.last_name as freelancer_last_name,
+        f.email as freelancer_email,
+        f.phone as freelancer_phone,
+        a.first_name as admin_first_name, 
+        a.last_name as admin_last_name,
+        b.booking_date, 
+        b.booking_time, 
+        b.address, 
+        b.city, 
+        b.state, 
+        b.zip_code,
+        b.total_amount,
+        b.payment_status,
+        b.status as booking_status,
+        s.name as service_name,
+        cp.background_check_status,
+        cp.rating as freelancer_rating
+      FROM tickets t
+      JOIN users c ON t.customer_id = c.id
+      LEFT JOIN users f ON t.freelancer_id = f.id
+      LEFT JOIN users a ON t.assigned_admin_id = a.id
+      LEFT JOIN bookings b ON t.booking_id = b.id
+      LEFT JOIN services s ON b.service_id = s.id
+      LEFT JOIN cleaner_profiles cp ON t.freelancer_id = cp.user_id
+      WHERE t.id = $1
+    `,
+      [id]
+    );
+
+    if (ticketResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Ticket not found",
+      });
+    }
+
+    const ticket = ticketResult.rows[0];
+
+    // Get customer's booking history
+    const customerHistoryResult = await query(
+      `
+      SELECT 
+        COUNT(*) as total_bookings,
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_bookings,
+        COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_bookings,
+        AVG(CASE WHEN payment_status = 'paid' THEN total_amount END) as avg_booking_value
+      FROM bookings 
+      WHERE customer_id = $1
+    `,
+      [ticket.customer_id]
+    );
+
+    // Get customer's previous tickets
+    const customerTicketsResult = await query(
+      `
+      SELECT id, category, status, summary, created_at
+      FROM tickets 
+      WHERE customer_id = $1 AND id != $2
+      ORDER BY created_at DESC 
+      LIMIT 5
+    `,
+      [ticket.customer_id, id]
+    );
+
+    // Get freelancer's performance if applicable
+    let freelancerHistory = null;
+    if (ticket.freelancer_id) {
+      const freelancerHistoryResult = await query(
+        `
+        SELECT 
+          COUNT(*) as total_jobs,
+          COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_jobs,
+          AVG(rating) as avg_rating
+        FROM bookings 
+        WHERE assigned_cleaner_id = $1 AND rating IS NOT NULL
+      `,
+        [ticket.freelancer_id]
+      );
+
+      const freelancerTicketsResult = await query(
+        `
+        SELECT id, category, status, summary, created_at
+        FROM tickets 
+        WHERE freelancer_id = $1 AND id != $2
+        ORDER BY created_at DESC 
+        LIMIT 5
+      `,
+        [ticket.freelancer_id, id]
+      );
+
+      freelancerHistory = {
+        performance: freelancerHistoryResult.rows[0],
+        tickets: freelancerTicketsResult.rows,
+      };
+    }
+
+    // Get ticket messages (including internal notes)
+    const messagesResult = await query(
+      `
+      SELECT 
+        tm.*,
+        u.first_name, 
+        u.last_name, 
+        u.role,
+        json_agg(
+          CASE WHEN ta.id IS NOT NULL THEN
+            json_build_object(
+              'id', ta.id,
+              'filename', ta.original_filename,
+              'fileSize', ta.file_size,
+              'mimeType', ta.mime_type,
+              'fileUrl', ta.file_url
+            )
+          END
+        ) FILTER (WHERE ta.id IS NOT NULL) as attachments
+      FROM ticket_messages tm
+      JOIN users u ON tm.user_id = u.id
+      LEFT JOIN ticket_attachments ta ON tm.id = ta.message_id
+      WHERE tm.ticket_id = $1
+      GROUP BY tm.id, u.id
+      ORDER BY tm.created_at ASC
+    `,
+      [id]
+    );
+
+    // Get ticket timeline
+    const timelineResult = await query(
+      `
+      SELECT 
+        tl.*,
+        u.first_name, 
+        u.last_name, 
+        u.role
+      FROM ticket_timeline tl
+      LEFT JOIN users u ON tl.user_id = u.id
+      WHERE tl.ticket_id = $1
+      ORDER BY tl.created_at ASC
+    `,
+      [id]
+    );
+
+    const ticketData = {
+      id: ticket.id,
+      category: ticket.category,
+      priority: ticket.priority,
+      status: ticket.status,
+      summary: ticket.summary,
+      description: ticket.description,
+      internalNotes: ticket.internal_notes,
+      openedAt: ticket.opened_at,
+      firstResponseAt: ticket.first_response_at,
+      resolvedAt: ticket.resolved_at,
+      closedAt: ticket.closed_at,
+      createdAt: ticket.created_at,
+      updatedAt: ticket.updated_at,
+      customer: {
+        id: ticket.customer_id,
+        firstName: ticket.customer_first_name,
+        lastName: ticket.customer_last_name,
+        email: ticket.customer_email,
+        phone: ticket.customer_phone,
+        memberSince: ticket.customer_since,
+        bookingHistory: customerHistoryResult.rows[0],
+        previousTickets: customerTicketsResult.rows,
+      },
+      freelancer: ticket.freelancer_id
+        ? {
+            id: ticket.freelancer_id,
+            firstName: ticket.freelancer_first_name,
+            lastName: ticket.freelancer_last_name,
+            email: ticket.freelancer_email,
+            phone: ticket.freelancer_phone,
+            backgroundCheckStatus: ticket.background_check_status,
+            rating: ticket.freelancer_rating,
+            history: freelancerHistory,
+          }
+        : null,
+      assignedAdmin: ticket.assigned_admin_id
+        ? {
+            id: ticket.assigned_admin_id,
+            firstName: ticket.admin_first_name,
+            lastName: ticket.admin_last_name,
+          }
+        : null,
+      booking: ticket.booking_id
+        ? {
+            id: ticket.booking_id,
+            date: ticket.booking_date,
+            time: ticket.booking_time,
+            address: ticket.address,
+            city: ticket.city,
+            state: ticket.state,
+            zipCode: ticket.zip_code,
+            totalAmount: ticket.total_amount,
+            paymentStatus: ticket.payment_status,
+            status: ticket.booking_status,
+            serviceName: ticket.service_name,
+          }
+        : null,
+      messages: messagesResult.rows.map((msg) => ({
+        id: msg.id,
+        message: msg.message,
+        isInternal: msg.is_internal,
+        attachments: msg.attachments || [],
+        createdAt: msg.created_at,
+        user: {
+          firstName: msg.first_name,
+          lastName: msg.last_name,
+          role: msg.role,
+        },
+      })),
+      timeline: timelineResult.rows.map((tl) => ({
+        id: tl.id,
+        actionType: tl.action_type,
+        oldValue: tl.old_value,
+        newValue: tl.new_value,
+        description: tl.description,
+        createdAt: tl.created_at,
+        user: tl.user_id
+          ? {
+              firstName: tl.first_name,
+              lastName: tl.last_name,
+              role: tl.role,
+            }
+          : null,
+      })),
+    };
+
+    res.json({
+      success: true,
+      data: ticketData,
+    });
+  } catch (error) {
+    console.error("Get ticket details error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving ticket details",
+    });
+  }
+};
+
+/**
+ * @desc    Update ticket status (Open -> In Progress -> Resolved -> Closed)
+ * @route   PUT /api/admin/tickets/:id/status
+ * @access  Private (Admin only)
+ */
+const updateTicketStatus = async (req, res) => {
+  const { getClient } = require("../config/database");
+  const client = await getClient();
+
+  try {
+    await client.query("BEGIN");
+
+    const { id } = req.params;
+    const { status, reason } = req.body;
+
+    // Validate status transition
+    const validStatuses = [
+      "open",
+      "in_progress",
+      "waiting_customer",
+      "resolved",
+      "closed",
+    ];
+    if (!validStatuses.includes(status)) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        success: false,
+        error: "Invalid status",
+      });
+    }
+
+    // Get current ticket
+    const currentTicketResult = await client.query(
+      "SELECT * FROM tickets WHERE id = $1",
+      [id]
+    );
+
+    if (currentTicketResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        success: false,
+        error: "Ticket not found",
+      });
+    }
+
+    const currentTicket = currentTicketResult.rows[0];
+
+    // Update ticket status
+    let updateQuery = `UPDATE tickets SET status = $1`;
+    let queryParams = [status, id];
+    let paramCount = 2;
+
+    // Set timestamps based on status
+    if (status === "in_progress" && !currentTicket.first_response_at) {
+      updateQuery += `, first_response_at = CURRENT_TIMESTAMP`;
+    }
+    if (status === "resolved" && !currentTicket.resolved_at) {
+      updateQuery += `, resolved_at = CURRENT_TIMESTAMP`;
+    }
+    if (status === "closed" && !currentTicket.closed_at) {
+      updateQuery += `, closed_at = CURRENT_TIMESTAMP`;
+    }
+
+    updateQuery += ` WHERE id = $${paramCount} RETURNING *`;
+
+    const updatedTicket = await client.query(updateQuery, queryParams);
+
+    // Add timeline entry
+    await client.query(
+      `
+      INSERT INTO ticket_timeline (ticket_id, user_id, action_type, old_value, new_value, description)
+      VALUES ($1, $2, 'status_changed', $3, $4, $5)
+    `,
+      [
+        id,
+        req.user.id,
+        currentTicket.status,
+        status,
+        reason || `Status updated to ${status}`,
+      ]
+    );
+
+    // Notify customer about status change (except for internal status changes)
+    if (!["waiting_customer"].includes(status)) {
+      let notificationMessage = "";
+      switch (status) {
+        case "in_progress":
+          notificationMessage =
+            "Your support ticket is now being reviewed by our team.";
+          break;
+        case "resolved":
+          notificationMessage =
+            "Your support ticket has been resolved. Please review the solution.";
+          break;
+        case "closed":
+          notificationMessage = "Your support ticket has been closed.";
+          break;
+      }
+
+      if (notificationMessage) {
+        await client.query(
+          `
+          INSERT INTO notifications (user_id, title, message, type, metadata)
+          VALUES ($1, $2, $3, 'ticket_updated', $4)
+        `,
+          [
+            currentTicket.customer_id,
+            `Ticket #${id} Updated`,
+            notificationMessage,
+            JSON.stringify({ ticketId: id, newStatus: status }),
+          ]
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+
+    res.json({
+      success: true,
+      data: updatedTicket.rows[0],
+      message: `Ticket status updated to ${status}`,
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Update ticket status error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error updating ticket status",
+    });
+  }
+};
+
+/**
+ * @desc    Assign ticket to admin
+ * @route   PUT /api/admin/tickets/:id/assign
+ * @access  Private (Admin only)
+ */
+const assignTicket = async (req, res) => {
+  const { getClient } = require("../config/database");
+  const client = await getClient();
+
+  try {
+    await client.query("BEGIN");
+
+    const { id } = req.params;
+    const { adminId } = req.body;
+
+    // If adminId is null or 'unassign', unassign the ticket
+    const assignToId = adminId === "unassign" ? null : adminId;
+
+    // Validate admin exists if assigning
+    if (assignToId) {
+      const adminResult = await client.query(
+        "SELECT id, first_name, last_name FROM users WHERE id = $1 AND role = 'admin' AND is_active = true",
+        [assignToId]
+      );
+
+      if (adminResult.rows.length === 0) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({
+          success: false,
+          error: "Admin not found or inactive",
+        });
+      }
+    }
+
+    // Get current assignment
+    const currentTicketResult = await client.query(
+      "SELECT assigned_admin_id FROM tickets WHERE id = $1",
+      [id]
+    );
+
+    if (currentTicketResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        success: false,
+        error: "Ticket not found",
+      });
+    }
+
+    const currentAssignment = currentTicketResult.rows[0].assigned_admin_id;
+
+    // Update assignment
+    const updatedTicket = await client.query(
+      "UPDATE tickets SET assigned_admin_id = $1 WHERE id = $2 RETURNING *",
+      [assignToId, id]
+    );
+
+    // Get admin names for timeline
+    const getAdminName = async (adminId) => {
+      if (!adminId) return "Unassigned";
+      const result = await client.query(
+        "SELECT first_name, last_name FROM users WHERE id = $1",
+        [adminId]
+      );
+      if (result.rows.length > 0) {
+        return `${result.rows[0].first_name} ${result.rows[0].last_name}`;
+      }
+      return "Unknown Admin";
+    };
+
+    const oldAdminName = await getAdminName(currentAssignment);
+    const newAdminName = await getAdminName(assignToId);
+
+    // Add timeline entry
+    await client.query(
+      `
+      INSERT INTO ticket_timeline (ticket_id, user_id, action_type, old_value, new_value, description)
+      VALUES ($1, $2, 'assigned', $3, $4, 'Ticket assignment updated')
+    `,
+      [id, req.user.id, oldAdminName, newAdminName]
+    );
+
+    await client.query("COMMIT");
+
+    res.json({
+      success: true,
+      data: updatedTicket.rows[0],
+      message: `Ticket ${
+        assignToId ? "assigned to" : "unassigned from"
+      } ${newAdminName}`,
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Assign ticket error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error assigning ticket",
+    });
+  }
+};
+
+/**
+ * @desc    Add admin reply to ticket
+ * @route   POST /api/admin/tickets/:id/reply
+ * @access  Private (Admin only)
+ */
+const addTicketReply = async (req, res) => {
+  const { getClient } = require("../config/database");
+  const client = await getClient();
+
+  try {
+    await client.query("BEGIN");
+
+    const { id } = req.params;
+    const { message, isInternal = false, updateStatus = null } = req.body;
+
+    // Validate ticket exists
+    const ticketResult = await client.query(
+      "SELECT customer_id, status FROM tickets WHERE id = $1",
+      [id]
+    );
+
+    if (ticketResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        success: false,
+        error: "Ticket not found",
+      });
+    }
+
+    const ticket = ticketResult.rows[0];
+
+    // Add message
+    const messageResult = await client.query(
+      `
+      INSERT INTO ticket_messages (ticket_id, user_id, message, is_internal)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *
+    `,
+      [id, req.user.id, message, isInternal]
+    );
+
+    // Update first response time if this is the first admin response
+    const firstResponseResult = await client.query(
+      "SELECT first_response_at FROM tickets WHERE id = $1",
+      [id]
+    );
+
+    if (!firstResponseResult.rows[0].first_response_at && !isInternal) {
+      await client.query(
+        "UPDATE tickets SET first_response_at = CURRENT_TIMESTAMP WHERE id = $1",
+        [id]
+      );
+    }
+
+    // Update status if requested
+    if (updateStatus && updateStatus !== ticket.status) {
+      await client.query("UPDATE tickets SET status = $1 WHERE id = $2", [
+        updateStatus,
+        id,
+      ]);
+
+      // Add timeline entry for status change
+      await client.query(
+        `
+        INSERT INTO ticket_timeline (ticket_id, user_id, action_type, old_value, new_value, description)
+        VALUES ($1, $2, 'status_changed', $3, $4, 'Status updated with reply')
+      `,
+        [id, req.user.id, ticket.status, updateStatus]
+      );
+    }
+
+    // Add timeline entry for message
+    await client.query(
+      `
+      INSERT INTO ticket_timeline (ticket_id, user_id, action_type, description)
+      VALUES ($1, $2, 'message_added', $3)
+    `,
+      [
+        id,
+        req.user.id,
+        isInternal ? "Internal note added" : "Admin reply added",
+      ]
+    );
+
+    // Notify customer if it's not an internal message
+    if (!isInternal) {
+      await client.query(
+        `
+        INSERT INTO notifications (user_id, title, message, type, metadata)
+        VALUES ($1, $2, $3, 'ticket_reply', $4)
+      `,
+        [
+          ticket.customer_id,
+          `New reply on Ticket #${id}`,
+          "An admin has replied to your support ticket.",
+          JSON.stringify({ ticketId: id }),
+        ]
+      );
+    }
+
+    await client.query("COMMIT");
+
+    res.json({
+      success: true,
+      data: messageResult.rows[0],
+      message: isInternal
+        ? "Internal note added successfully"
+        : "Reply sent successfully",
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Add ticket reply error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error adding ticket reply",
+    });
+  }
+};
+
+/**
+ * @desc    Get ticket statistics for admin dashboard
+ * @route   GET /api/admin/tickets/stats
+ * @access  Private (Admin only)
+ */
+const getTicketStats = async (req, res) => {
+  try {
+    // General ticket statistics
+    const generalStatsResult = await query(`
+      SELECT 
+        COUNT(*) as total_tickets,
+        COUNT(CASE WHEN status = 'open' THEN 1 END) as open_tickets,
+        COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as in_progress_tickets,
+        COUNT(CASE WHEN status = 'waiting_customer' THEN 1 END) as waiting_customer_tickets,
+        COUNT(CASE WHEN status = 'resolved' THEN 1 END) as resolved_tickets,
+        COUNT(CASE WHEN status = 'closed' THEN 1 END) as closed_tickets,
+        COUNT(CASE WHEN assigned_admin_id IS NULL THEN 1 END) as unassigned_tickets,
+        COUNT(CASE WHEN priority = 'urgent' AND status NOT IN ('resolved', 'closed') THEN 1 END) as urgent_tickets
+      FROM tickets
+    `);
+
+    // Category breakdown
+    const categoryStatsResult = await query(`
+      SELECT 
+        category,
+        COUNT(*) as count,
+        COUNT(CASE WHEN status NOT IN ('resolved', 'closed') THEN 1 END) as active_count
+      FROM tickets 
+      GROUP BY category
+      ORDER BY count DESC
+    `);
+
+    // SLA performance
+    const slaStatsResult = await query(`
+      SELECT 
+        AVG(EXTRACT(EPOCH FROM (first_response_at - opened_at))/3600) as avg_first_response_hours,
+        AVG(EXTRACT(EPOCH FROM (resolved_at - opened_at))/3600) as avg_resolution_hours,
+        COUNT(CASE WHEN first_response_at IS NULL AND opened_at < NOW() - INTERVAL '4 hours' THEN 1 END) as overdue_first_response,
+        COUNT(CASE WHEN resolved_at IS NULL AND opened_at < NOW() - INTERVAL '24 hours' AND status != 'waiting_customer' THEN 1 END) as overdue_resolution
+      FROM tickets 
+      WHERE opened_at >= NOW() - INTERVAL '30 days'
+    `);
+
+    // Recent activity (last 7 days)
+    const recentActivityResult = await query(`
+      SELECT 
+        DATE(created_at) as date,
+        COUNT(*) as tickets_created
+      FROM tickets 
+      WHERE created_at >= NOW() - INTERVAL '7 days'
+      GROUP BY DATE(created_at)
+      ORDER BY date
+    `);
+
+    // Admin workload
+    const adminWorkloadResult = await query(`
+      SELECT 
+        u.id,
+        u.first_name,
+        u.last_name,
+        COUNT(t.id) as assigned_tickets,
+        COUNT(CASE WHEN t.status NOT IN ('resolved', 'closed') THEN 1 END) as active_tickets
+      FROM users u
+      LEFT JOIN tickets t ON u.id = t.assigned_admin_id
+      WHERE u.role = 'admin' AND u.is_active = true
+      GROUP BY u.id, u.first_name, u.last_name
+      ORDER BY assigned_tickets DESC
+    `);
+
+    res.json({
+      success: true,
+      data: {
+        general: generalStatsResult.rows[0],
+        categories: categoryStatsResult.rows,
+        sla: slaStatsResult.rows[0],
+        recentActivity: recentActivityResult.rows,
+        adminWorkload: adminWorkloadResult.rows,
+      },
+    });
+  } catch (error) {
+    console.error("Get ticket stats error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving ticket statistics",
+    });
+  }
+};
+
+/**
+ * @desc    Investigate ticket - comprehensive review process
+ * @route   POST /api/admin/tickets/:id/investigate
+ * @access  Private (Admin only)
+ */
+const investigateTicket = async (req, res) => {
+  const { getClient } = require("../config/database");
+  const client = await getClient();
+
+  try {
+    await client.query("BEGIN");
+
+    const { id } = req.params;
+    const { findings, actionsTaken, internalNotes } = req.body;
+
+    // Update ticket with investigation findings
+    await client.query(
+      `
+      UPDATE tickets 
+      SET 
+        internal_notes = CASE 
+          WHEN internal_notes IS NULL OR internal_notes = '' THEN $1 
+          ELSE internal_notes || E'\n\n--- Investigation Update ---\n' || $1 
+        END,
+        status = CASE WHEN status = 'open' THEN 'in_progress' ELSE status END
+      WHERE id = $2
+    `,
+      [findings, id]
+    );
+
+    // Add timeline entry
+    await client.query(
+      `
+      INSERT INTO ticket_timeline (ticket_id, user_id, action_type, description)
+      VALUES ($1, $2, 'investigated', $3)
+    `,
+      [id, req.user.id, "Ticket investigation completed"]
+    );
+
+    // Add internal message with investigation details
+    await client.query(
+      `
+      INSERT INTO ticket_messages (ticket_id, user_id, message, is_internal)
+      VALUES ($1, $2, $3, true)
+    `,
+      [
+        id,
+        req.user.id,
+        `Investigation Findings:\n${findings}\n\nActions Taken:\n${actionsTaken}\n\nInternal Notes:\n${
+          internalNotes || "None"
+        }`,
+      ]
+    );
+
+    await client.query("COMMIT");
+
+    res.json({
+      success: true,
+      message: "Ticket investigation completed and recorded",
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Investigate ticket error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error processing ticket investigation",
+    });
+  }
+};
+
+/**
+ * @desc    Resolve ticket with resolution details
+ * @route   POST /api/admin/tickets/:id/resolve
+ * @access  Private (Admin only)
+ */
+const resolveTicket = async (req, res) => {
+  const { getClient } = require("../config/database");
+  const client = await getClient();
+
+  try {
+    await client.query("BEGIN");
+
+    const { id } = req.params;
+    const { resolution, customerMessage, actionsTaken } = req.body;
+
+    // Update ticket status to resolved
+    const updatedTicket = await client.query(
+      `
+      UPDATE tickets 
+      SET 
+        status = 'resolved',
+        resolved_at = CURRENT_TIMESTAMP,
+        internal_notes = CASE 
+          WHEN internal_notes IS NULL OR internal_notes = '' THEN $1 
+          ELSE internal_notes || E'\n\n--- Resolution ---\n' || $1 
+        END
+      WHERE id = $2
+      RETURNING customer_id
+    `,
+      [resolution, id]
+    );
+
+    if (updatedTicket.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        success: false,
+        error: "Ticket not found",
+      });
+    }
+
+    const customerId = updatedTicket.rows[0].customer_id;
+
+    // Add timeline entry
+    await client.query(
+      `
+      INSERT INTO ticket_timeline (ticket_id, user_id, action_type, description)
+      VALUES ($1, $2, 'resolved', 'Ticket marked as resolved')
+    `,
+      [id, req.user.id]
+    );
+
+    // Send resolution message to customer
+    if (customerMessage) {
+      await client.query(
+        `
+        INSERT INTO ticket_messages (ticket_id, user_id, message, is_internal)
+        VALUES ($1, $2, $3, false)
+      `,
+        [id, req.user.id, customerMessage]
+      );
+
+      // Add timeline for customer message
+      await client.query(
+        `
+        INSERT INTO ticket_timeline (ticket_id, user_id, action_type, description)
+        VALUES ($1, $2, 'message_added', 'Resolution message sent to customer')
+      `,
+        [id, req.user.id]
+      );
+    }
+
+    // Add internal resolution notes
+    await client.query(
+      `
+      INSERT INTO ticket_messages (ticket_id, user_id, message, is_internal)
+      VALUES ($1, $2, $3, true)
+    `,
+      [
+        id,
+        req.user.id,
+        `Resolution Details:\n${resolution}\n\nActions Taken:\n${
+          actionsTaken || "Not specified"
+        }`,
+      ]
+    );
+
+    // Notify customer
+    await client.query(
+      `
+      INSERT INTO notifications (user_id, title, message, type, metadata)
+      VALUES ($1, $2, $3, 'ticket_resolved', $4)
+    `,
+      [
+        customerId,
+        `Ticket #${id} Resolved`,
+        "Your support ticket has been resolved. Please check the ticket for details.",
+        JSON.stringify({ ticketId: id }),
+      ]
+    );
+
+    await client.query("COMMIT");
+
+    res.json({
+      success: true,
+      message: "Ticket resolved successfully",
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Resolve ticket error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error resolving ticket",
+    });
+  }
+};
+
+/**
+ * @desc    Close ticket (final step)
+ * @route   POST /api/admin/tickets/:id/close
+ * @access  Private (Admin only)
+ */
+const closeTicket = async (req, res) => {
+  const { getClient } = require("../config/database");
+  const client = await getClient();
+
+  try {
+    await client.query("BEGIN");
+
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    // Update ticket status to closed
+    const updatedTicket = await client.query(
+      `
+      UPDATE tickets 
+      SET 
+        status = 'closed',
+        closed_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING customer_id
+    `,
+      [id]
+    );
+
+    if (updatedTicket.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        success: false,
+        error: "Ticket not found",
+      });
+    }
+
+    const customerId = updatedTicket.rows[0].customer_id;
+
+    // Add timeline entry
+    await client.query(
+      `
+      INSERT INTO ticket_timeline (ticket_id, user_id, action_type, description)
+      VALUES ($1, $2, 'closed', $3)
+    `,
+      [id, req.user.id, reason || "Ticket closed"]
+    );
+
+    // Notify customer
+    await client.query(
+      `
+      INSERT INTO notifications (user_id, title, message, type, metadata)
+      VALUES ($1, $2, $3, 'ticket_closed', $4)
+    `,
+      [
+        customerId,
+        `Ticket #${id} Closed`,
+        "Your support ticket has been closed.",
+        JSON.stringify({ ticketId: id }),
+      ]
+    );
+
+    await client.query("COMMIT");
+
+    res.json({
+      success: true,
+      message: "Ticket closed successfully",
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Close ticket error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error closing ticket",
+    });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getAdminUsers,
@@ -1409,4 +2568,14 @@ module.exports = {
   grantUserMembership,
   getMembershipAnalytics,
   getAssignmentMetrics,
+  // Ticket management functions
+  getAdminTickets,
+  getTicketDetails,
+  updateTicketStatus,
+  assignTicket,
+  addTicketReply,
+  getTicketStats,
+  investigateTicket,
+  resolveTicket,
+  closeTicket,
 };
