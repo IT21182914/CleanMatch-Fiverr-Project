@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import Navbar from "./Navbar";
+import { useAuth } from "../../hooks/useAuth";
+import TopNavbar from "./TopNavbar";
+import Sidebar from "./Sidebar";
 import {
   SparklesIcon,
   EnvelopeIcon,
@@ -12,6 +15,8 @@ import {
 
 const Layout = ({ children }) => {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Determine if this is the home page
   const isHomePage = location.pathname === "/";
@@ -23,21 +28,41 @@ const Layout = ({ children }) => {
     location.pathname === "/login" ||
     location.pathname === "/register";
 
+  // Determine if sidebar should be shown
+  const showSidebar = isAuthenticated && !isFullWidth;
+
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
+      <TopNavbar
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+      />
+
+      {/* Sidebar for authenticated users on dashboard pages */}
+      {showSidebar && (
+        <Sidebar
+          isMobileMenuOpen={isMobileMenuOpen}
+          setIsMobileMenuOpen={setIsMobileMenuOpen}
+        />
+      )}
 
       {/* Main Content Area - Enhanced Responsive */}
       <main
         className={
-          isFullWidth
+          showSidebar
+            ? "lg:pl-64" // Add left padding for sidebar on desktop
+            : isFullWidth
             ? "w-full"
             : "w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto"
         }
       >
         <div
           className={`w-full overflow-x-hidden ${
-            !isFullWidth ? "py-3 xs:py-4 sm:py-6 md:py-8 lg:py-10 xl:py-12" : ""
+            showSidebar
+              ? "p-3 xs:p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12" // Padding for sidebar layout
+              : !isFullWidth
+              ? "py-3 xs:py-4 sm:py-6 md:py-8 lg:py-10 xl:py-12"
+              : ""
           }`}
         >
           {children}
