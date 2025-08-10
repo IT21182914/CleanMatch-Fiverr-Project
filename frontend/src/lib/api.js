@@ -318,4 +318,28 @@ export const membershipAPI = {
     enhancedApi.get("/memberships/all", { params }),
 };
 
+// Tickets API endpoints
+export const ticketsAPI = {
+  // Customer endpoints
+  create: (data) => enhancedApi.post("/tickets", data),
+  getAll: (params) => enhancedApi.get("/tickets", { params }),
+  getById: (id) => enhancedApi.get(`/tickets/${id}`),
+  addMessage: (id, data) => enhancedApi.post(`/tickets/${id}/messages`, data),
+
+  // Admin endpoints
+  update: (id, data) => enhancedApi.put(`/tickets/${id}`, data),
+  getStats: () => enhancedApi.get("/tickets/stats"),
+};
+
+// Convenience functions for ticket operations
+export const createTicket = (data) => ticketsAPI.create(data);
+export const getTickets = (params) => ticketsAPI.getAll({ params });
+export const getTicketById = (id) => ticketsAPI.getById(id);
+export const addTicketMessage = (id, data) => ticketsAPI.addMessage(id, data);
+export const updateTicket = (id, data) => ticketsAPI.update(id, data);
+export const getTicketStats = () => ticketsAPI.getStats();
+
+// Get user bookings function (if it doesn't exist)
+export const getUserBookings = (params) => userAPI.getUserBookings(params);
+
 export default enhancedApi;
