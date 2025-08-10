@@ -42,12 +42,21 @@ const TopNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     location.pathname.startsWith("/about") ||
     location.pathname.startsWith("/contact");
 
+  // Determine if sidebar is active (same logic as Layout component)
+  const isFullWidth =
+    location.pathname === "/" ||
+    location.pathname.includes("/auth/") ||
+    location.pathname === "/login" ||
+    location.pathname === "/register";
+
+  const sidebarActive = isAuthenticated && !isFullWidth;
+
   return (
     <nav className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-slate-200/60 sticky top-0 z-40 w-full">
       <div
         className={cn(
-          "w-full transition-all duration-300 ease-in-out",
-          isAuthenticated && !showPublicNav ? "lg:pl-64" : ""
+          "w-full transition-all duration-500 ease-in-out transform",
+          sidebarActive ? "lg:pl-64" : ""
         )}
       >
         <div className="w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto">
@@ -71,7 +80,7 @@ const TopNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
               {/* Logo - Responsive design */}
               <Link
                 to={isAuthenticated && !showPublicNav ? "/dashboard" : "/"}
-                className="flex items-center space-x-2 hover:opacity-80 transition-opacity duration-200"
+                className="flex items-center space-x-2 hover:opacity-80 transition-all duration-500 ease-in-out transform"
               >
                 <div className="w-8 h-8 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-lg flex items-center justify-center shadow-lg">
                   <SparklesIcon className="h-4 w-4 text-white" />
@@ -87,10 +96,10 @@ const TopNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
                     </span>
                   </div>
                 ) : (
-                  /* Compact logo for dashboard pages */
+                  /* Dashboard logo showing full service name */
                   <div className="flex flex-col">
-                    <span className="text-base font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                      SIMORGH
+                    <span className="text-sm sm:text-base font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                      SIMORGH SERVICE
                     </span>
                   </div>
                 )}
