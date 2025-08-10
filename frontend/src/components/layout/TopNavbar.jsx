@@ -66,7 +66,11 @@ const TopNavbar = ({
         <div
           className={cn(
             "w-full transition-all duration-300",
-            "px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8",
+            sidebarActive
+              ? // When sidebar is active, remove almost all left padding to bring content extremely close to sidebar
+                "px-0 xs:px-1 sm:px-1 md:px-1 lg:px-0"
+              : // When no sidebar, use normal padding
+                "px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8",
             sidebarActive
               ? isSidebarCollapsed
                 ? // Collapsed sidebar: use more width, less centering constraints
@@ -79,7 +83,10 @@ const TopNavbar = ({
         >
           <div className="flex h-14 xs:h-16 items-center justify-between">
             {/* Left section: Mobile menu + Logo */}
-            <div className="flex items-center space-x-3">
+            <div className={cn(
+              "flex items-center",
+              sidebarActive ? "space-x-0" : "space-x-3"
+            )}>
               {/* Mobile menu button (only for authenticated users with sidebar) */}
               {isAuthenticated && !showPublicNav && (
                 <div className="lg:hidden">
@@ -105,7 +112,7 @@ const TopNavbar = ({
                 {/* Show full text only on public pages or larger screens */}
                 {showPublicNav ? (
                   <div className="flex flex-col">
-                    <span className="text-sm xs:text-base sm:text-lg font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    <span className="text-base xs:text-lg sm:text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                       SIMORGH SERVICE
                     </span>
                     <span className="text-xs font-semibold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent hidden xs:block">
@@ -115,7 +122,7 @@ const TopNavbar = ({
                 ) : (
                   /* Dashboard logo showing full service name */
                   <div className="flex flex-col">
-                    <span className="text-sm sm:text-base font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    <span className="text-base sm:text-lg lg:text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                       SIMORGH SERVICE
                     </span>
                   </div>
