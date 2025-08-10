@@ -124,13 +124,14 @@ const TopNavbar = ({
                 <img
                   src="/Simorgh-Service-Logo.webp"
                   alt="Simorgh Service Logo"
-                  className="h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 object-contain"
+                  className="h-20 w-20 sm:h-24 sm:w-24 lg:h-28 lg:w-28 object-contain"
                 />
                 {/* Show full text only on public pages or larger screens */}
                 {showPublicNav ? (
                   <div className="flex flex-col">
-                    <span className="text-base xs:text-lg sm:text-xl font-bold font-mono tracking-wide bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    <span className="text-base xs:text-lg sm:text-xl font-black font-serif tracking-[0.2em] uppercase bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent drop-shadow-lg transform hover:scale-105 transition-transform duration-300 relative">
                       SIMORGH SERVICE
+                      <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] opacity-80"></span>
                     </span>
                     <span className="text-xs font-semibold bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] bg-clip-text text-transparent hidden xs:block">
                       SOLUTION FOR YOUR COMPANY
@@ -141,11 +142,12 @@ const TopNavbar = ({
                   <div className="flex flex-col">
                     <span
                       className={cn(
-                        "text-base sm:text-lg lg:text-xl font-bold font-mono tracking-wide bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent",
+                        "text-base sm:text-lg lg:text-xl font-black font-serif tracking-[0.2em] uppercase bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent drop-shadow-lg transform hover:scale-105 transition-transform duration-300 relative",
                         sidebarActive ? "-ml-3 lg:-ml-6" : ""
                       )}
                     >
                       SIMORGH SERVICE
+                      <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] opacity-80"></span>
                     </span>
                   </div>
                 )}
