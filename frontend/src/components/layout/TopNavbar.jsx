@@ -63,7 +63,20 @@ const TopNavbar = ({
           sidebarActive ? (isSidebarCollapsed ? "lg:pl-16" : "lg:pl-64") : ""
         )}
       >
-        <div className="w-full max-w-none px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto">
+        <div
+          className={cn(
+            "w-full transition-all duration-300",
+            "px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8",
+            sidebarActive
+              ? isSidebarCollapsed
+                ? // Collapsed sidebar: use more width, less centering constraints
+                  "max-w-none lg:max-w-6xl xl:max-w-7xl 2xl:max-w-none mx-auto"
+                : // Expanded sidebar: standard max width
+                  "max-w-none lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto"
+              : // No sidebar: original full width behavior
+                "max-w-none xl:max-w-7xl xl:mx-auto"
+          )}
+        >
           <div className="flex h-14 xs:h-16 items-center justify-between">
             {/* Left section: Mobile menu + Logo */}
             <div className="flex items-center space-x-3">
