@@ -58,6 +58,10 @@ const AdminPayments = React.lazy(() => import("./pages/admin/Payments"));
 const AdminMemberships = React.lazy(() =>
   import("./pages/admin/AdminMemberships")
 );
+const AdminTickets = React.lazy(() => import("./pages/admin/Tickets"));
+const AdminTicketDetails = React.lazy(() => 
+  import("./pages/admin/TicketDetails")
+);
 
 // Home page - Keep this eagerly loaded as it's the landing page
 import Home from "./pages/Home";
@@ -142,6 +146,24 @@ function App() {
                     element={
                       <ProtectedRoute requiredRole="customer">
                         <CustomerProfile />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/customer/tickets"
+                    element={
+                      <ProtectedRoute requiredRole="customer">
+                        <CustomerTickets />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/customer/tickets/:id"
+                    element={
+                      <ProtectedRoute requiredRole="customer">
+                        <CustomerTicketDetails />
                       </ProtectedRoute>
                     }
                   />
@@ -265,6 +287,24 @@ function App() {
                     }
                   />
 
+                  <Route
+                    path="/admin/tickets"
+                    element={
+                      <ProtectedRoute requiredRole="admin">
+                        <AdminTickets />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/admin/tickets/:id"
+                    element={
+                      <ProtectedRoute requiredRole="admin">
+                        <AdminTicketDetails />
+                      </ProtectedRoute>
+                    }
+                  />
+
                   {/* Legacy routes for backward compatibility */}
                   <Route
                     path="/bookings"
@@ -274,6 +314,11 @@ function App() {
                   <Route
                     path="/profile"
                     element={<Navigate to="/customer/profile" replace />}
+                  />
+
+                  <Route
+                    path="/tickets"
+                    element={<Navigate to="/customer/tickets" replace />}
                   />
 
                   {/* Catch all route */}

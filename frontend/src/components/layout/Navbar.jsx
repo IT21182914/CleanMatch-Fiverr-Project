@@ -14,6 +14,7 @@ import {
   ClipboardDocumentListIcon,
   // ChevronDownIcon,
   BellIcon,
+  LifebuoyIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
@@ -120,6 +121,11 @@ const Navbar = () => {
           icon: ClipboardDocumentListIcon,
         },
         {
+          name: "Support Tickets",
+          href: "/customer/tickets",
+          icon: LifebuoyIcon,
+        },
+        {
           name: "Membership",
           href: "/customer/membership",
           icon: CreditCardIcon,
@@ -153,6 +159,7 @@ const Navbar = () => {
         },
         { name: "Bookings", href: "/admin/bookings", icon: CalendarIcon },
         { name: "Services", href: "/admin/services", icon: CalendarIcon },
+        { name: "Support Tickets", href: "/admin/tickets", icon: LifebuoyIcon },
         { name: "Memberships", href: "/admin/memberships", icon: SparklesIcon },
         { name: "Payments", href: "/admin/payments", icon: CreditCardIcon },
         { name: "Analytics", href: "/admin/analytics", icon: CreditCardIcon },
