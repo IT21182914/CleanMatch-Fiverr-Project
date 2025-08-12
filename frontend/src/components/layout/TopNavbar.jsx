@@ -84,7 +84,7 @@ const TopNavbar = ({
                 "max-w-none xl:max-w-7xl xl:mx-auto"
           )}
         >
-          <div className="flex h-14 xs:h-16 items-center justify-between">
+          <div className="flex h-12 xs:h-14 sm:h-16 lg:h-18 xl:h-20 items-center justify-between">
             {/* Left section: Mobile menu + Logo */}
             <div
               className={cn(
