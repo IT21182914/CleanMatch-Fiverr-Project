@@ -27,6 +27,7 @@ const {
 const router = express.Router();
 
 // Public routes
+router.get("/", getAllReviews); // Public endpoint to get all reviews
 router.get("/cleaner/:cleanerId", getCleanerReviews);
 
 // Customer routes (protected)

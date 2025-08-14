@@ -40,7 +40,7 @@ const TestimonialsSection = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://localhost:3001/api/reviews?limit=6&featured=true",
+        "http://localhost:5000/api/reviews?limit=3&featured=true",
         {
           method: "GET",
           headers: {
@@ -68,20 +68,13 @@ const TestimonialsSection = () => {
             isAdminReview: review.is_admin_review || false,
           })) || [];
 
-        // If we have reviews from API, use them; otherwise use fallback
-        if (transformedReviews.length > 0) {
-          // Mix API reviews with some fallback testimonials for variety
-          const mixedTestimonials = [
-            ...transformedReviews.slice(0, 3),
-            ...fallbackData.slice(
-              0,
-              Math.max(0, 3 - transformedReviews.length)
-            ),
-          ].slice(0, 3);
-          setTestimonials(mixedTestimonials);
-        } else {
-          setTestimonials(fallbackData);
-        }
+        // Always combine API reviews with fallback testimonials
+        const combinedTestimonials = [
+          ...transformedReviews,
+          ...fallbackData,
+        ].slice(0, 6); // Show up to 6 total testimonials
+
+        setTestimonials(combinedTestimonials);
       } else {
         console.warn("Failed to fetch reviews, using fallback testimonials");
         setTestimonials(fallbackData);

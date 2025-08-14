@@ -16,6 +16,7 @@ import {
   XMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  StarIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
@@ -96,6 +97,7 @@ const Sidebar = ({
         },
         { name: "Bookings", href: "/admin/bookings", icon: CalendarIcon },
         { name: "Services", href: "/admin/services", icon: SparklesIcon },
+        { name: "Reviews", href: "/admin/reviews", icon: StarIcon },
         { name: "Support Tickets", href: "/admin/tickets", icon: LifebuoyIcon },
         {
           name: "Memberships",
