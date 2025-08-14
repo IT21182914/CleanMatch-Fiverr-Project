@@ -49,46 +49,46 @@ router.put("/:id", auth, authorize(["customer"]), updateReview);
 router.delete("/:id", auth, authorize(["customer"]), deleteReview);
 
 // Admin routes (protected)
-router.get("/admin/all", auth, authorize(["admin"]), getAllReviews);
+router.get("/admin/all", auth, authorize("admin"), getAllReviews);
 router.get(
   "/admin/dashboard",
   auth,
-  authorize(["admin"]),
+  authorize("admin"),
   getAdminReviewDashboard
 );
 router.get(
   "/admin/admin-reviews",
   auth,
-  authorize(["admin"]),
+  authorize("admin"),
   getAdminCreatedReviews
 );
 router.post(
   "/admin/create",
   auth,
-  authorize(["admin"]),
+  authorize("admin"),
   validate(adminReviewSchema),
   createAdminReview
 );
 router.post(
   "/admin/bulk-create",
   auth,
-  authorize(["admin"]),
+  authorize("admin"),
   validate(bulkAdminReviewSchema),
   bulkCreateAdminReviews
 );
 router.put(
   "/admin/:id",
   auth,
-  authorize(["admin"]),
+  authorize("admin"),
   validate(updateAdminReviewSchema),
   updateAdminReview
 );
 router.put(
   "/admin/:id/toggle-visibility",
   auth,
-  authorize(["admin"]),
+  authorize("admin"),
   toggleReviewVisibility
 );
-router.delete("/admin/:id", auth, authorize(["admin"]), adminDeleteReview);
+router.delete("/admin/:id", auth, authorize("admin"), adminDeleteReview);
 
 module.exports = router;
