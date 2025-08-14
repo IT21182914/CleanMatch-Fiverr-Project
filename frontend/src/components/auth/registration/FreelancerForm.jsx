@@ -4,9 +4,11 @@ import {
   PhoneIcon,
   HomeIcon,
   MapPinIcon,
+  MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import PasswordField from "./PasswordField";
 import DocumentUploadSection from "./DocumentUploadSection";
+import { useState } from "react";
 
 const FreelancerForm = ({
   formData,
@@ -20,6 +22,57 @@ const FreelancerForm = ({
   onShowAgreementModal,
   cleaningServiceOptions,
 }) => {
+  const [serviceSearchTerm, setServiceSearchTerm] = useState("");
+  const [showAllServices, setShowAllServices] = useState(false);
+
+  // Popular/Common services for quick selection
+  const popularServices = [
+    "Cleaning of the house and apartment",
+    "Deep Cleaning",
+    "Office Cleaning",
+    "Window Cleaning",
+    "Move in & out Cleaning",
+    "Maid service",
+  ];
+
+  // Filter services based on search term
+  const filteredServices = cleaningServiceOptions.filter((service) =>
+    service.toLowerCase().includes(serviceSearchTerm.toLowerCase())
+  );
+
+  // Show only first 12 services initially, or all if showAllServices is true
+  const displayedServices = showAllServices
+    ? filteredServices
+    : filteredServices.slice(0, 12);
+
+  const handleServiceSearch = (e) => {
+    setServiceSearchTerm(e.target.value);
+    if (e.target.value) {
+      setShowAllServices(true);
+    }
+  };
+
+  const selectPopularServices = () => {
+    const currentServices = formData.cleaningServices;
+    const newServices = [...new Set([...currentServices, ...popularServices])];
+    onChange({
+      target: {
+        name: "cleaningServices",
+        value: newServices,
+        type: "checkbox-group",
+      },
+    });
+  };
+
+  const clearAllServices = () => {
+    onChange({
+      target: {
+        name: "cleaningServices",
+        value: [],
+        type: "checkbox-group",
+      },
+    });
+  };
   return (
     <>
       {/* Name Fields */}
@@ -281,22 +334,96 @@ const FreelancerForm = ({
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Cleaning Services Offered
+          <span className="text-xs font-normal text-gray-500 ml-2">
+            (Select all services you can provide)
+          </span>
         </label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {cleaningServiceOptions.map((service) => (
-            <label key={service} className="flex items-center">
-              <input
-                type="checkbox"
-                name="cleaningServices"
-                value={service}
-                checked={formData.cleaningServices.includes(service)}
-                onChange={onChange}
-                className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded"
-              />
-              <span className="ml-2 text-sm text-gray-700">{service}</span>
-            </label>
-          ))}
+
+        {/* Search Services */}
+        <div className="mb-4 relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search services..."
+            value={serviceSearchTerm}
+            onChange={handleServiceSearch}
+            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+          />
         </div>
+
+        {/* Quick Selection Buttons */}
+        <div className="mb-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={selectPopularServices}
+            className="px-3 py-1 text-xs bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded-full transition-colors"
+          >
+            Select Popular Services
+          </button>
+          {formData.cleaningServices.length > 0 && (
+            <button
+              type="button"
+              onClick={clearAllServices}
+              className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors"
+            >
+              Clear All
+            </button>
+          )}
+        </div>
+
+        {/* Services Grid */}
+        <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {displayedServices.map((service) => (
+              <label
+                key={service}
+                className="flex items-start space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  name="cleaningServices"
+                  value={service}
+                  checked={formData.cleaningServices.includes(service)}
+                  onChange={onChange}
+                  className="mt-1 h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded flex-shrink-0"
+                />
+                <span className="text-sm text-gray-700 leading-tight">
+                  {service}
+                </span>
+              </label>
+            ))}
+          </div>
+
+          {/* Show More/Less Button */}
+          {!serviceSearchTerm && filteredServices.length > 12 && (
+            <div className="text-center mt-4 pt-4 border-t border-gray-200">
+              <button
+                type="button"
+                onClick={() => setShowAllServices(!showAllServices)}
+                className="text-cyan-600 hover:text-cyan-700 font-medium text-sm underline"
+              >
+                {showAllServices
+                  ? `Show Less Services`
+                  : `Show All ${
+                      cleaningServiceOptions.length - 12
+                    } More Services`}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Selected Services Count */}
+        <div className="mt-2 text-xs text-gray-500">
+          {formData.cleaningServices.length > 0 && (
+            <span>
+              {formData.cleaningServices.length} service
+              {formData.cleaningServices.length !== 1 ? "s" : ""} selected
+            </span>
+          )}
+        </div>
+
         {errors.cleaningServices && (
           <p className="mt-2 text-sm text-red-600">{errors.cleaningServices}</p>
         )}
