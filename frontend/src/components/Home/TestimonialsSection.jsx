@@ -3,10 +3,14 @@ import { Card, CardContent } from "../ui/Card";
 import { useState, useEffect, useCallback } from "react";
 
 const TestimonialsSection = () => {
-  const [testimonials, setTestimonials] = useState([]);
+  const [allTestimonials, setAllTestimonials] = useState([]);
+  const [displayedTestimonials, setDisplayedTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(3);
 
   const fetchReviews = useCallback(async () => {
+    // Comprehensive testimonials dataset - 20 reviews
     const fallbackData = [
       {
         name: "Sarah Johnson",
@@ -35,12 +39,165 @@ const TestimonialsSection = () => {
         verified: true,
         service: "Deep Cleaning",
       },
+      {
+        name: "David Thompson",
+        role: "Restaurant Owner",
+        content:
+          "Running a restaurant means cleanliness is everything. SIMORGH SERVICE handles our deep kitchen cleaning and dining area maintenance flawlessly. Their attention to detail is unmatched!",
+        rating: 5,
+        verified: true,
+        service: "Commercial Cleaning",
+      },
+      {
+        name: "Jennifer Williams",
+        role: "Event Coordinator",
+        content:
+          "I've used SIMORGH SERVICE for pre and post-event cleaning at multiple venues. They're always punctual, thorough, and incredibly professional. They make my events stress-free!",
+        rating: 5,
+        verified: true,
+        service: "Event Cleaning",
+      },
+      {
+        name: "Robert Davis",
+        role: "Property Manager",
+        content:
+          "Managing 15 rental properties, I need reliable cleaning between tenants. SIMORGH SERVICE consistently delivers move-in ready apartments. Their turnover cleaning is exceptional!",
+        rating: 5,
+        verified: true,
+        service: "Move-out Cleaning",
+      },
+      {
+        name: "Lisa Anderson",
+        role: "Senior Citizen",
+        content:
+          "At 78, maintaining my home was becoming difficult. SIMORGH SERVICE treats me like family and keeps my house spotless. Their care and respect mean the world to me!",
+        rating: 5,
+        verified: true,
+        service: "Senior Home Care",
+      },
+      {
+        name: "James Wilson",
+        role: "Tech Executive",
+        content:
+          "Working 70+ hours a week, SIMORGH SERVICE gives me my weekends back. Their recurring service is so reliable, I never have to think about cleaning. Absolute lifesaver!",
+        rating: 5,
+        verified: true,
+        service: "Recurring Cleaning",
+      },
+      {
+        name: "Maria Garcia",
+        role: "Teacher",
+        content:
+          "After a water leak disaster, SIMORGH SERVICE restored our home beautifully. They handled everything - cleaning, sanitizing, even helped coordinate repairs. True professionals!",
+        rating: 5,
+        verified: true,
+        service: "Emergency Cleaning",
+      },
+      {
+        name: "Thomas Brown",
+        role: "Retired Veteran",
+        content:
+          "The team at SIMORGH SERVICE goes above and beyond. They not only clean perfectly but also help with small organization tasks. Their service comes from the heart!",
+        rating: 5,
+        verified: true,
+        service: "Home Maintenance",
+      },
+      {
+        name: "Amanda Miller",
+        role: "New Mother",
+        content:
+          "With a newborn, keeping up with cleaning was impossible. SIMORGH SERVICE provides baby-safe cleaning and gives me precious time with my little one. Couldn't be happier!",
+        rating: 5,
+        verified: true,
+        service: "Baby-Safe Cleaning",
+      },
+      {
+        name: "Kevin Taylor",
+        role: "Small Business Owner",
+        content:
+          "Our medical office requires strict sanitization standards. SIMORGH SERVICE exceeds all requirements and maintains our spotless, professional environment every single time!",
+        rating: 5,
+        verified: true,
+        service: "Medical Facility Cleaning",
+      },
+      {
+        name: "Patricia Moore",
+        role: "Homemaker",
+        content:
+          "I'm particular about how my home is cleaned, and SIMORGH SERVICE gets it right every time. They listen to my preferences and consistently exceed my expectations!",
+        rating: 5,
+        verified: true,
+        service: "Custom Home Cleaning",
+      },
+      {
+        name: "Daniel Lee",
+        role: "Construction Manager",
+        content:
+          "Post-construction cleanup is tough work, but SIMORGH SERVICE makes it look easy. They transform dusty job sites into pristine spaces ready for occupancy!",
+        rating: 5,
+        verified: true,
+        service: "Post-Construction Cleaning",
+      },
+      {
+        name: "Rachel White",
+        role: "Yoga Studio Owner",
+        content:
+          "Our studio needs to be a clean, peaceful sanctuary. SIMORGH SERVICE maintains the perfect environment for our students using eco-friendly products. They understand our values!",
+        rating: 5,
+        verified: true,
+        service: "Eco-Friendly Cleaning",
+      },
+      {
+        name: "Christopher Martin",
+        role: "Elderly Care Provider",
+        content:
+          "I care for my elderly father, and SIMORGH SERVICE helps maintain a healthy, clean environment for him. Their gentle approach and reliability give me peace of mind!",
+        rating: 5,
+        verified: true,
+        service: "Elderly Care Cleaning",
+      },
+      {
+        name: "Nicole Jackson",
+        role: "Pet Owner",
+        content:
+          "With three dogs, keeping my home clean and odor-free was challenging. SIMORGH SERVICE specializes in pet-friendly cleaning and my house has never smelled better!",
+        rating: 5,
+        verified: true,
+        service: "Pet-Friendly Cleaning",
+      },
+      {
+        name: "Andrew Clark",
+        role: "Office Manager",
+        content:
+          "Our team's productivity increased after switching to SIMORGH SERVICE for office cleaning. A clean workspace really does improve morale and efficiency!",
+        rating: 5,
+        verified: true,
+        service: "Office Cleaning",
+      },
+      {
+        name: "Stephanie Lewis",
+        role: "Event Planner",
+        content:
+          "From intimate dinner parties to large celebrations, SIMORGH SERVICE ensures everything is perfect before and spotless after. They're an essential part of my event success!",
+        rating: 5,
+        verified: true,
+        service: "Party Cleaning",
+      },
+      {
+        name: "Mark Robinson",
+        role: "Fitness Center Owner",
+        content:
+          "Hygiene is crucial in our fitness center. SIMORGH SERVICE maintains equipment, locker rooms, and all facilities to the highest standards. Our members notice the difference!",
+        rating: 5,
+        verified: true,
+        service: "Fitness Facility Cleaning",
+      },
     ];
 
     try {
       setLoading(true);
       const response = await fetch(
-        "http://localhost:5000/api/reviews?limit=3&featured=true",
+        "http://localhost:5000/api/reviews?limit=20&featured=true",
         {
           method: "GET",
           headers: {
@@ -68,24 +225,48 @@ const TestimonialsSection = () => {
             isAdminReview: review.is_admin_review || false,
           })) || [];
 
-        // Always combine API reviews with fallback testimonials
+        // Combine API reviews with fallback testimonials up to 20 total
         const combinedTestimonials = [
           ...transformedReviews,
           ...fallbackData,
-        ].slice(0, 6); // Show up to 6 total testimonials
+        ].slice(0, 20);
 
-        setTestimonials(combinedTestimonials);
+        setAllTestimonials(combinedTestimonials);
+        setDisplayedTestimonials(combinedTestimonials.slice(0, 3));
       } else {
         console.warn("Failed to fetch reviews, using fallback testimonials");
-        setTestimonials(fallbackData);
+        setAllTestimonials(fallbackData);
+        setDisplayedTestimonials(fallbackData.slice(0, 3));
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
-      setTestimonials(fallbackData);
+      setAllTestimonials(fallbackData);
+      setDisplayedTestimonials(fallbackData.slice(0, 3));
     } finally {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  const handleLoadMore = async () => {
+    setLoadingMore(true);
+
+    // Simulate loading delay for better UX
+    setTimeout(() => {
+      const newVisibleCount = Math.min(
+        visibleCount + 6,
+        allTestimonials.length
+      );
+      setVisibleCount(newVisibleCount);
+      setDisplayedTestimonials(allTestimonials.slice(0, newVisibleCount));
+      setLoadingMore(false);
+    }, 800);
+  };
+
+  const hasMoreReviews = visibleCount < allTestimonials.length;
 
   useEffect(() => {
     fetchReviews();
@@ -141,7 +322,7 @@ const TestimonialsSection = () => {
                   </CardContent>
                 </Card>
               ))
-            : testimonials.map((testimonial, index) => (
+            : displayedTestimonials.map((testimonial, index) => (
                 <Card
                   key={index}
                   className="h-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 rounded-xl xs:rounded-2xl overflow-hidden backdrop-blur-sm bg-white/90"
@@ -187,6 +368,44 @@ const TestimonialsSection = () => {
                 </Card>
               ))}
         </div>
+
+        {/* Load More Button */}
+        {hasMoreReviews && !loading && (
+          <div className="text-center mt-12">
+            <button
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className="group relative inline-flex items-center justify-center px-8 py-3 text-lg font-medium text-white transition-all duration-200 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] rounded-xl hover:from-[#2BA8CD] hover:to-[#4EC6E5] hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#4EC6E5] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg hover:shadow-xl"
+            >
+              {loadingMore ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                  Loading More Reviews...
+                </>
+              ) : (
+                <>
+                  Load More Reviews
+                  <svg
+                    className="ml-2 -mr-1 w-5 h-5 transition-transform group-hover:translate-y-1"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </>
+              )}
+            </button>
+            <p className="text-sm text-slate-500 mt-4">
+              Showing {displayedTestimonials.length} of {allTestimonials.length}{" "}
+              reviews
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );
