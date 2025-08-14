@@ -16,12 +16,12 @@ const {
   bulkCreateAdminReviews,
 } = require("../controllers/reviewsController");
 const { auth, authorize } = require("../middleware/auth");
-const { 
-  validate, 
-  reviewSchema, 
-  adminReviewSchema, 
+const {
+  validate,
+  reviewSchema,
+  adminReviewSchema,
   bulkAdminReviewSchema,
-  updateAdminReviewSchema 
+  updateAdminReviewSchema,
 } = require("../middleware/validation");
 
 const router = express.Router();
@@ -30,7 +30,13 @@ const router = express.Router();
 router.get("/cleaner/:cleanerId", getCleanerReviews);
 
 // Customer routes (protected)
-router.post("/", auth, authorize(["customer"]), validate(reviewSchema), createReview);
+router.post(
+  "/",
+  auth,
+  authorize(["customer"]),
+  validate(reviewSchema),
+  createReview
+);
 router.get("/my-reviews", auth, authorize(["customer"]), getMyReviews);
 router.get(
   "/can-review/:bookingId",
@@ -43,11 +49,39 @@ router.delete("/:id", auth, authorize(["customer"]), deleteReview);
 
 // Admin routes (protected)
 router.get("/admin/all", auth, authorize(["admin"]), getAllReviews);
-router.get("/admin/dashboard", auth, authorize(["admin"]), getAdminReviewDashboard);
-router.get("/admin/admin-reviews", auth, authorize(["admin"]), getAdminCreatedReviews);
-router.post("/admin/create", auth, authorize(["admin"]), validate(adminReviewSchema), createAdminReview);
-router.post("/admin/bulk-create", auth, authorize(["admin"]), validate(bulkAdminReviewSchema), bulkCreateAdminReviews);
-router.put("/admin/:id", auth, authorize(["admin"]), validate(updateAdminReviewSchema), updateAdminReview);
+router.get(
+  "/admin/dashboard",
+  auth,
+  authorize(["admin"]),
+  getAdminReviewDashboard
+);
+router.get(
+  "/admin/admin-reviews",
+  auth,
+  authorize(["admin"]),
+  getAdminCreatedReviews
+);
+router.post(
+  "/admin/create",
+  auth,
+  authorize(["admin"]),
+  validate(adminReviewSchema),
+  createAdminReview
+);
+router.post(
+  "/admin/bulk-create",
+  auth,
+  authorize(["admin"]),
+  validate(bulkAdminReviewSchema),
+  bulkCreateAdminReviews
+);
+router.put(
+  "/admin/:id",
+  auth,
+  authorize(["admin"]),
+  validate(updateAdminReviewSchema),
+  updateAdminReview
+);
 router.put(
   "/admin/:id/toggle-visibility",
   auth,

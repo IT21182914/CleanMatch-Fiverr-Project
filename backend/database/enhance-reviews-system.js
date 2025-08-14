@@ -145,7 +145,9 @@ async function enhanceReviewsSystem() {
     `);
     console.log("✅ Created admin review audit table");
 
-    console.log("🎉 Enhanced reviews system with admin functionality completed successfully!");
+    console.log(
+      "🎉 Enhanced reviews system with admin functionality completed successfully!"
+    );
 
     return existingReviews.rows; // Return existing reviews for potential restoration
   } catch (error) {

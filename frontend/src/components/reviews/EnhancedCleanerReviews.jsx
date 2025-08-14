@@ -4,7 +4,12 @@ import { Button } from "../ui/Button";
 import { useToast } from "../../hooks/useToast";
 import { api } from "../../lib/api";
 
-const CleanerReviews = ({ cleanerId, showAddReview = false, onAddReview, showTitle = true }) => {
+const CleanerReviews = ({
+  cleanerId,
+  showAddReview = false,
+  onAddReview,
+  showTitle = true,
+}) => {
   const [reviews, setReviews] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -48,7 +53,7 @@ const CleanerReviews = ({ cleanerId, showAddReview = false, onAddReview, showTit
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
-      month: "long", 
+      month: "long",
       day: "numeric",
     });
   };
@@ -136,11 +141,14 @@ const CleanerReviews = ({ cleanerId, showAddReview = false, onAddReview, showTit
                 {renderStars(Math.round(stats.averageRating || 0))}
               </div>
               <div className="text-sm text-gray-600">
-                Based on {stats.totalReviews} review{stats.totalReviews !== 1 ? "s" : ""}
+                Based on {stats.totalReviews} review
+                {stats.totalReviews !== 1 ? "s" : ""}
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-3">Rating Distribution</h3>
+              <h3 className="text-lg font-semibold mb-3">
+                Rating Distribution
+              </h3>
               {renderRatingDistribution()}
             </div>
           </div>
@@ -151,15 +159,13 @@ const CleanerReviews = ({ cleanerId, showAddReview = false, onAddReview, showTit
       <Card className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-semibold">
-            {showTitle ? `Customer Reviews (${stats?.totalReviews || 0})` : "Reviews"}
+            {showTitle
+              ? `Customer Reviews (${stats?.totalReviews || 0})`
+              : "Reviews"}
           </h3>
           <div className="flex items-center space-x-4">
             {showAddReview && (
-              <Button
-                onClick={onAddReview}
-                variant="outline"
-                size="sm"
-              >
+              <Button onClick={onAddReview} variant="outline" size="sm">
                 Write Review
               </Button>
             )}
@@ -196,20 +202,24 @@ const CleanerReviews = ({ cleanerId, showAddReview = false, onAddReview, showTit
                 <div className="flex items-start space-x-4">
                   <div className="flex-shrink-0">
                     <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                      {review.customer_first_name?.charAt(0) || 
-                       review.customer_name?.charAt(0) || 
-                       "A"}
+                      {review.customer_first_name?.charAt(0) ||
+                        review.customer_name?.charAt(0) ||
+                        "A"}
                     </div>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <h4 className="font-semibold text-gray-900">
-                          {review.customer_name || 
-                           `${review.customer_first_name || 'Anonymous'} Customer`}
+                          {review.customer_name ||
+                            `${
+                              review.customer_first_name || "Anonymous"
+                            } Customer`}
                         </h4>
                         <div className="flex items-center space-x-2">
-                          <div className="flex">{renderStars(review.rating)}</div>
+                          <div className="flex">
+                            {renderStars(review.rating)}
+                          </div>
                           <span className="text-sm text-gray-500">
                             • {formatDate(review.created_at)}
                           </span>
@@ -228,7 +238,11 @@ const CleanerReviews = ({ cleanerId, showAddReview = false, onAddReview, showTit
                     )}
                     {review.is_verified && (
                       <div className="flex items-center mt-2 text-sm text-green-600">
-                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <svg
+                          className="w-4 h-4 mr-1"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
                           <path
                             fillRule="evenodd"
                             d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"

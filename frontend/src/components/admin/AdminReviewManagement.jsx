@@ -26,35 +26,45 @@ const AdminReviewManagement = () => {
     }
   }, [showToast]);
 
-  const fetchAllReviews = useCallback(async (page = 1) => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/reviews/admin/all?page=${page}&limit=20`);
-      if (response.data.success) {
-        setAllReviews(response.data.reviews);
+  const fetchAllReviews = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true);
+        const response = await api.get(
+          `/reviews/admin/all?page=${page}&limit=20`
+        );
+        if (response.data.success) {
+          setAllReviews(response.data.reviews);
+        }
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+        showToast("Error loading reviews", "error");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching reviews:", error);
-      showToast("Error loading reviews", "error");
-    } finally {
-      setLoading(false);
-    }
-  }, [showToast]);
+    },
+    [showToast]
+  );
 
-  const fetchAdminReviews = useCallback(async (page = 1) => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/reviews/admin/admin-reviews?page=${page}&limit=20`);
-      if (response.data.success) {
-        setAdminReviews(response.data.reviews);
+  const fetchAdminReviews = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true);
+        const response = await api.get(
+          `/reviews/admin/admin-reviews?page=${page}&limit=20`
+        );
+        if (response.data.success) {
+          setAdminReviews(response.data.reviews);
+        }
+      } catch (error) {
+        console.error("Error fetching admin reviews:", error);
+        showToast("Error loading admin reviews", "error");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching admin reviews:", error);
-      showToast("Error loading admin reviews", "error");
-    } finally {
-      setLoading(false);
-    }
-  }, [showToast]);
+    },
+    [showToast]
+  );
 
   useEffect(() => {
     fetchDashboard();
@@ -75,9 +85,14 @@ const AdminReviewManagement = () => {
 
   const toggleReviewVisibility = async (reviewId, currentVisibility) => {
     try {
-      const response = await api.put(`/reviews/admin/${reviewId}/toggle-visibility`);
+      const response = await api.put(
+        `/reviews/admin/${reviewId}/toggle-visibility`
+      );
       if (response.data.success) {
-        showToast(`Review ${currentVisibility ? 'hidden' : 'shown'}`, "success");
+        showToast(
+          `Review ${currentVisibility ? "hidden" : "shown"}`,
+          "success"
+        );
         if (activeTab === "allReviews") {
           fetchAllReviews();
         } else if (activeTab === "adminReviews") {
@@ -117,7 +132,9 @@ const AdminReviewManagement = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <span
         key={i}
-        className={`text-sm ${i < rating ? "text-yellow-400" : "text-gray-300"}`}
+        className={`text-sm ${
+          i < rating ? "text-yellow-400" : "text-gray-300"
+        }`}
       >
         ★
       </span>
@@ -144,10 +161,7 @@ const AdminReviewManagement = () => {
           >
             Create Admin Review
           </Button>
-          <Button
-            onClick={() => setShowBulkForm(true)}
-            variant="outline"
-          >
+          <Button onClick={() => setShowBulkForm(true)} variant="outline">
             Bulk Create Reviews
           </Button>
         </div>
@@ -158,8 +172,16 @@ const AdminReviewManagement = () => {
         <nav className="-mb-px flex space-x-8">
           {[
             { id: "dashboard", name: "Dashboard", count: null },
-            { id: "allReviews", name: "All Reviews", count: dashboard?.statistics?.total_reviews },
-            { id: "adminReviews", name: "Admin Reviews", count: dashboard?.statistics?.admin_reviews },
+            {
+              id: "allReviews",
+              name: "All Reviews",
+              count: dashboard?.statistics?.total_reviews,
+            },
+            {
+              id: "adminReviews",
+              name: "Admin Reviews",
+              count: dashboard?.statistics?.admin_reviews,
+            },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -194,7 +216,9 @@ const AdminReviewManagement = () => {
                   </div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Reviews</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    Total Reviews
+                  </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {dashboard.statistics.total_reviews}
                   </p>
@@ -210,7 +234,9 @@ const AdminReviewManagement = () => {
                   </div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Customer Reviews</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    Customer Reviews
+                  </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {dashboard.statistics.customer_reviews}
                   </p>
@@ -226,7 +252,9 @@ const AdminReviewManagement = () => {
                   </div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Admin Reviews</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    Admin Reviews
+                  </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {dashboard.statistics.admin_reviews}
                   </p>
@@ -242,7 +270,9 @@ const AdminReviewManagement = () => {
                   </div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Average Rating</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    Average Rating
+                  </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {dashboard.statistics.average_rating || "0.0"}
                   </p>
@@ -256,7 +286,10 @@ const AdminReviewManagement = () => {
             <h3 className="text-lg font-semibold mb-4">Recent Admin Actions</h3>
             <div className="space-y-3">
               {dashboard.recentActions?.slice(0, 10).map((action) => (
-                <div key={action.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                <div
+                  key={action.id}
+                  className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
+                >
                   <div className="flex items-center space-x-3">
                     <span className="text-sm font-medium text-gray-600">
                       {action.admin_name}
@@ -280,10 +313,15 @@ const AdminReviewManagement = () => {
 
           {/* Top Admin-Reviewed Cleaners */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Top Admin-Reviewed Cleaners</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Top Admin-Reviewed Cleaners
+            </h3>
             <div className="space-y-3">
               {dashboard.topAdminReviewedCleaners?.map((cleaner) => (
-                <div key={cleaner.id} className="flex items-center justify-between py-2">
+                <div
+                  key={cleaner.id}
+                  className="flex items-center justify-between py-2"
+                >
                   <div className="flex items-center space-x-3">
                     <span className="font-medium text-gray-900">
                       {cleaner.cleaner_name}
@@ -385,12 +423,19 @@ const AdminReviewManagement = () => {
 };
 
 // Reviews List Component
-const ReviewsList = ({ reviews, onToggleVisibility, onDelete, showAdminInfo }) => {
+const ReviewsList = ({
+  reviews,
+  onToggleVisibility,
+  onDelete,
+  showAdminInfo,
+}) => {
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
       <span
         key={i}
-        className={`text-sm ${i < rating ? "text-yellow-400" : "text-gray-300"}`}
+        className={`text-sm ${
+          i < rating ? "text-yellow-400" : "text-gray-300"
+        }`}
       >
         ★
       </span>
@@ -420,7 +465,9 @@ const ReviewsList = ({ reviews, onToggleVisibility, onDelete, showAdminInfo }) =
         <div
           key={review.id}
           className={`border rounded-lg p-4 ${
-            review.is_admin_created ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"
+            review.is_admin_created
+              ? "bg-blue-50 border-blue-200"
+              : "bg-white border-gray-200"
           }`}
         >
           <div className="flex items-start justify-between">
@@ -469,7 +516,9 @@ const ReviewsList = ({ reviews, onToggleVisibility, onDelete, showAdminInfo }) =
                 onClick={() => onToggleVisibility(review.id, review.is_visible)}
                 variant="outline"
                 size="sm"
-                className={review.is_visible ? "text-orange-600" : "text-green-600"}
+                className={
+                  review.is_visible ? "text-orange-600" : "text-green-600"
+                }
               >
                 {review.is_visible ? "Hide" : "Show"}
               </Button>
@@ -530,7 +579,10 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
       }
     } catch (error) {
       console.error("Error creating admin review:", error);
-      showToast(error.response?.data?.error || "Error creating review", "error");
+      showToast(
+        error.response?.data?.error || "Error creating review",
+        "error"
+      );
     } finally {
       setSubmitting(false);
     }
@@ -547,7 +599,9 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
             </label>
             <select
               value={formData.cleanerId}
-              onChange={(e) => setFormData({ ...formData, cleanerId: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, cleanerId: e.target.value })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2"
               required
             >
@@ -566,7 +620,9 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
             </label>
             <select
               value={formData.rating}
-              onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value) })}
+              onChange={(e) =>
+                setFormData({ ...formData, rating: parseInt(e.target.value) })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2"
             >
               {[5, 4, 3, 2, 1].map((rating) => (
@@ -584,7 +640,9 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
             <input
               type="text"
               value={formData.customerName}
-              onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, customerName: e.target.value })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2"
               placeholder="e.g., John Smith"
             />
@@ -596,7 +654,9 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
             </label>
             <textarea
               value={formData.comment}
-              onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, comment: e.target.value })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2"
               rows="3"
               placeholder="Write a review comment..."
@@ -610,7 +670,9 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
             <input
               type="text"
               value={formData.serviceName}
-              onChange={(e) => setFormData({ ...formData, serviceName: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, serviceName: e.target.value })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2"
               placeholder="e.g., House Cleaning"
             />
@@ -622,7 +684,9 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
             </label>
             <textarea
               value={formData.adminNotes}
-              onChange={(e) => setFormData({ ...formData, adminNotes: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, adminNotes: e.target.value })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2"
               rows="2"
               placeholder="Internal notes about this review..."
@@ -682,7 +746,10 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
     if (formData.reviews.length < 20) {
       setFormData({
         ...formData,
-        reviews: [...formData.reviews, { rating: 5, comment: "", customerName: "" }],
+        reviews: [
+          ...formData.reviews,
+          { rating: 5, comment: "", customerName: "" },
+        ],
       });
     }
   };
@@ -707,12 +774,18 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
     try {
       const response = await api.post("/reviews/admin/bulk-create", formData);
       if (response.data.success) {
-        showToast(`${response.data.reviews.length} admin reviews created successfully`, "success");
+        showToast(
+          `${response.data.reviews.length} admin reviews created successfully`,
+          "success"
+        );
         onSuccess();
       }
     } catch (error) {
       console.error("Error creating bulk admin reviews:", error);
-      showToast(error.response?.data?.error || "Error creating reviews", "error");
+      showToast(
+        error.response?.data?.error || "Error creating reviews",
+        "error"
+      );
     } finally {
       setSubmitting(false);
     }
@@ -721,7 +794,9 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-semibold mb-4">Bulk Create Admin Reviews</h3>
+        <h3 className="text-lg font-semibold mb-4">
+          Bulk Create Admin Reviews
+        </h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -729,7 +804,9 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
             </label>
             <select
               value={formData.cleanerId}
-              onChange={(e) => setFormData({ ...formData, cleanerId: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, cleanerId: e.target.value })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2"
               required
             >
@@ -748,7 +825,9 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
             </label>
             <textarea
               value={formData.adminNotes}
-              onChange={(e) => setFormData({ ...formData, adminNotes: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, adminNotes: e.target.value })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2"
               rows="2"
               placeholder="Internal notes for all these reviews..."
@@ -773,7 +852,10 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
 
             <div className="space-y-4 max-h-60 overflow-y-auto">
               {formData.reviews.map((review, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-3">
+                <div
+                  key={index}
+                  className="border border-gray-200 rounded-lg p-3"
+                >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-gray-700">
                       Review #{index + 1}
@@ -798,7 +880,13 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
                       </label>
                       <select
                         value={review.rating}
-                        onChange={(e) => updateReview(index, "rating", parseInt(e.target.value))}
+                        onChange={(e) =>
+                          updateReview(
+                            index,
+                            "rating",
+                            parseInt(e.target.value)
+                          )
+                        }
                         className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm"
                       >
                         {[5, 4, 3, 2, 1].map((rating) => (
@@ -816,7 +904,9 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
                       <input
                         type="text"
                         value={review.customerName}
-                        onChange={(e) => updateReview(index, "customerName", e.target.value)}
+                        onChange={(e) =>
+                          updateReview(index, "customerName", e.target.value)
+                        }
                         className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm"
                         placeholder="e.g., Jane Doe"
                       />
@@ -829,7 +919,9 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
                     </label>
                     <textarea
                       value={review.comment}
-                      onChange={(e) => updateReview(index, "comment", e.target.value)}
+                      onChange={(e) =>
+                        updateReview(index, "comment", e.target.value)
+                      }
                       className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm"
                       rows="2"
                       placeholder="Review comment..."
@@ -846,7 +938,9 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
               disabled={submitting}
               className="flex-1 bg-blue-600 hover:bg-blue-700"
             >
-              {submitting ? "Creating..." : `Create ${formData.reviews.length} Reviews`}
+              {submitting
+                ? "Creating..."
+                : `Create ${formData.reviews.length} Reviews`}
             </Button>
             <Button
               type="button"

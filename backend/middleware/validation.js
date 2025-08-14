@@ -212,11 +212,17 @@ const adminReviewSchema = Joi.object({
 const bulkAdminReviewSchema = Joi.object({
   cleanerId: Joi.number().integer().positive().required(),
   adminNotes: Joi.string().max(500),
-  reviews: Joi.array().items(Joi.object({
-    rating: Joi.number().integer().min(1).max(5).required(),
-    comment: Joi.string().max(1000),
-    customerName: Joi.string().max(100),
-  })).min(1).max(20).required(),
+  reviews: Joi.array()
+    .items(
+      Joi.object({
+        rating: Joi.number().integer().min(1).max(5).required(),
+        comment: Joi.string().max(1000),
+        customerName: Joi.string().max(100),
+      })
+    )
+    .min(1)
+    .max(20)
+    .required(),
 });
 
 const updateAdminReviewSchema = Joi.object({

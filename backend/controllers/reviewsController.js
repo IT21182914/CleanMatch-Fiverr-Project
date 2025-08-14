@@ -64,7 +64,14 @@ const createReview = async (req, res) => {
     const reviewResult = await query(
       `INSERT INTO reviews (booking_id, customer_id, cleaner_id, rating, comment, is_admin_created)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [bookingId, req.user.id, booking.cleaner_id, rating, comment || null, false]
+      [
+        bookingId,
+        req.user.id,
+        booking.cleaner_id,
+        rating,
+        comment || null,
+        false,
+      ]
     );
 
     // Update cleaner's average rating
@@ -586,13 +593,13 @@ const adminDeleteReview = async (req, res) => {
  */
 const createAdminReview = async (req, res) => {
   try {
-    const { 
-      cleanerId, 
-      rating, 
-      comment, 
-      customerName, 
+    const {
+      cleanerId,
+      rating,
+      comment,
+      customerName,
       serviceName,
-      adminNotes 
+      adminNotes,
     } = req.body;
 
     if (!cleanerId || !rating) {
@@ -628,17 +635,17 @@ const createAdminReview = async (req, res) => {
       // Check if a synthetic customer with this name already exists
       const existingCustomer = await query(
         "SELECT id FROM users WHERE first_name = $1 AND role = 'admin_synthetic_customer'",
-        [customerName.split(' ')[0]]
+        [customerName.split(" ")[0]]
       );
 
       if (existingCustomer.rows.length > 0) {
         customerId = existingCustomer.rows[0].id;
       } else {
         // Create synthetic customer
-        const nameParts = customerName.split(' ');
+        const nameParts = customerName.split(" ");
         const firstName = nameParts[0];
-        const lastName = nameParts.slice(1).join(' ') || 'Customer';
-        
+        const lastName = nameParts.slice(1).join(" ") || "Customer";
+
         const customerResult = await query(
           `INSERT INTO users (
             first_name, last_name, email, role, is_active, created_at
@@ -657,15 +664,15 @@ const createAdminReview = async (req, res) => {
         is_admin_created, admin_created_by, admin_notes, is_verified, is_visible
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
       [
-        customerId, 
-        cleanerId, 
-        rating, 
+        customerId,
+        cleanerId,
+        rating,
         comment || null,
         true,
         req.user.id,
         adminNotes || null,
         true,
-        true
+        true,
       ]
     );
 
@@ -673,14 +680,14 @@ const createAdminReview = async (req, res) => {
     await logAdminReviewAction(
       reviewResult.rows[0].id,
       req.user.id,
-      'create',
+      "create",
       null,
       {
         rating,
         comment,
         cleanerId,
         customerName,
-        serviceName
+        serviceName,
       },
       `Admin created review for marketing purposes`
     );
@@ -693,8 +700,8 @@ const createAdminReview = async (req, res) => {
       message: "Admin review created successfully",
       review: {
         ...reviewResult.rows[0],
-        customer_name: customerName || 'Anonymous Customer',
-        service_name: serviceName || 'General Cleaning'
+        customer_name: customerName || "Anonymous Customer",
+        service_name: serviceName || "General Cleaning",
       },
     });
   } catch (error) {
@@ -748,7 +755,7 @@ const updateAdminReview = async (req, res) => {
     await logAdminReviewAction(
       id,
       req.user.id,
-      'update',
+      "update",
       oldValues,
       { rating, comment, adminNotes, isVisible },
       `Admin updated review`
@@ -949,16 +956,20 @@ const bulkCreateAdminReviews = async (req, res) => {
       // Create synthetic customer if needed
       let customerId = null;
       if (customerName) {
-        const nameParts = customerName.split(' ');
+        const nameParts = customerName.split(" ");
         const firstName = nameParts[0];
-        const lastName = nameParts.slice(1).join(' ') || 'Customer';
-        
+        const lastName = nameParts.slice(1).join(" ") || "Customer";
+
         const customerResult = await query(
           `INSERT INTO users (
             first_name, last_name, email, role, is_active, created_at
           ) VALUES ($1, $2, $3, 'admin_synthetic_customer', false, CURRENT_TIMESTAMP)
           RETURNING id`,
-          [firstName, lastName, `synthetic_${Date.now()}_${Math.random()}@adminreview.local`]
+          [
+            firstName,
+            lastName,
+            `synthetic_${Date.now()}_${Math.random()}@adminreview.local`,
+          ]
         );
         customerId = customerResult.rows[0].id;
       }
@@ -970,28 +981,28 @@ const bulkCreateAdminReviews = async (req, res) => {
           is_admin_created, admin_created_by, admin_notes, is_verified, is_visible
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
         [
-          customerId, 
-          cleanerId, 
-          rating, 
+          customerId,
+          cleanerId,
+          rating,
           comment || null,
           true,
           req.user.id,
-          adminNotes || 'Bulk created for marketing purposes',
+          adminNotes || "Bulk created for marketing purposes",
           true,
-          true
+          true,
         ]
       );
 
       createdReviews.push({
         ...reviewResult.rows[0],
-        customer_name: customerName || 'Anonymous Customer'
+        customer_name: customerName || "Anonymous Customer",
       });
 
       // Log the admin action
       await logAdminReviewAction(
         reviewResult.rows[0].id,
         req.user.id,
-        'create',
+        "create",
         null,
         { rating, comment, cleanerId, customerName },
         `Bulk created admin review`
@@ -1018,7 +1029,14 @@ const bulkCreateAdminReviews = async (req, res) => {
 /**
  * Helper function to log admin review actions
  */
-const logAdminReviewAction = async (reviewId, adminId, action, oldValues, newValues, reason) => {
+const logAdminReviewAction = async (
+  reviewId,
+  adminId,
+  action,
+  oldValues,
+  newValues,
+  reason
+) => {
   try {
     await query(
       `INSERT INTO admin_review_audit (
@@ -1030,11 +1048,11 @@ const logAdminReviewAction = async (reviewId, adminId, action, oldValues, newVal
         action,
         oldValues ? JSON.stringify(oldValues) : null,
         newValues ? JSON.stringify(newValues) : null,
-        reason
+        reason,
       ]
     );
   } catch (error) {
-    console.error('Error logging admin review action:', error);
+    console.error("Error logging admin review action:", error);
     // Don't throw error as this is not critical
   }
 };
