@@ -62,9 +62,9 @@ const createReview = async (req, res) => {
 
     // Create the review
     const reviewResult = await query(
-      `INSERT INTO reviews (booking_id, customer_id, cleaner_id, rating, comment)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [bookingId, req.user.id, booking.cleaner_id, rating, comment || null]
+      `INSERT INTO reviews (booking_id, customer_id, cleaner_id, rating, comment, is_admin_created)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [bookingId, req.user.id, booking.cleaner_id, rating, comment || null, false]
     );
 
     // Update cleaner's average rating
@@ -579,6 +579,466 @@ const adminDeleteReview = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Create admin review for marketing/growth purposes
+ * @route   POST /api/reviews/admin/create
+ * @access  Private (Admin only)
+ */
+const createAdminReview = async (req, res) => {
+  try {
+    const { 
+      cleanerId, 
+      rating, 
+      comment, 
+      customerName, 
+      serviceName,
+      adminNotes 
+    } = req.body;
+
+    if (!cleanerId || !rating) {
+      return res.status(400).json({
+        success: false,
+        error: "Cleaner ID and rating are required",
+      });
+    }
+
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({
+        success: false,
+        error: "Rating must be between 1 and 5",
+      });
+    }
+
+    // Verify cleaner exists
+    const cleanerResult = await query(
+      "SELECT * FROM users WHERE id = $1 AND role = 'cleaner'",
+      [cleanerId]
+    );
+
+    if (cleanerResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Cleaner not found",
+      });
+    }
+
+    // Create a synthetic customer for the admin review if customerName is provided
+    let customerId = null;
+    if (customerName) {
+      // Check if a synthetic customer with this name already exists
+      const existingCustomer = await query(
+        "SELECT id FROM users WHERE first_name = $1 AND role = 'admin_synthetic_customer'",
+        [customerName.split(' ')[0]]
+      );
+
+      if (existingCustomer.rows.length > 0) {
+        customerId = existingCustomer.rows[0].id;
+      } else {
+        // Create synthetic customer
+        const nameParts = customerName.split(' ');
+        const firstName = nameParts[0];
+        const lastName = nameParts.slice(1).join(' ') || 'Customer';
+        
+        const customerResult = await query(
+          `INSERT INTO users (
+            first_name, last_name, email, role, is_active, created_at
+          ) VALUES ($1, $2, $3, 'admin_synthetic_customer', false, CURRENT_TIMESTAMP)
+          RETURNING id`,
+          [firstName, lastName, `synthetic_${Date.now()}@adminreview.local`]
+        );
+        customerId = customerResult.rows[0].id;
+      }
+    }
+
+    // Create the admin review
+    const reviewResult = await query(
+      `INSERT INTO reviews (
+        customer_id, cleaner_id, rating, comment, 
+        is_admin_created, admin_created_by, admin_notes, is_verified, is_visible
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [
+        customerId, 
+        cleanerId, 
+        rating, 
+        comment || null,
+        true,
+        req.user.id,
+        adminNotes || null,
+        true,
+        true
+      ]
+    );
+
+    // Log the admin action
+    await logAdminReviewAction(
+      reviewResult.rows[0].id,
+      req.user.id,
+      'create',
+      null,
+      {
+        rating,
+        comment,
+        cleanerId,
+        customerName,
+        serviceName
+      },
+      `Admin created review for marketing purposes`
+    );
+
+    // Update cleaner's average rating
+    await updateCleanerRating(cleanerId);
+
+    res.status(201).json({
+      success: true,
+      message: "Admin review created successfully",
+      review: {
+        ...reviewResult.rows[0],
+        customer_name: customerName || 'Anonymous Customer',
+        service_name: serviceName || 'General Cleaning'
+      },
+    });
+  } catch (error) {
+    console.error("Create admin review error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error creating admin review",
+    });
+  }
+};
+
+/**
+ * @desc    Update admin review
+ * @route   PUT /api/reviews/admin/:id
+ * @access  Private (Admin only)
+ */
+const updateAdminReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rating, comment, adminNotes, isVisible } = req.body;
+
+    // Get existing review
+    const existingReview = await query(
+      "SELECT * FROM reviews WHERE id = $1 AND is_admin_created = true",
+      [id]
+    );
+
+    if (existingReview.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Admin review not found",
+      });
+    }
+
+    const oldValues = existingReview.rows[0];
+
+    // Update the review
+    const updateResult = await query(
+      `UPDATE reviews 
+       SET rating = COALESCE($1, rating),
+           comment = COALESCE($2, comment),
+           admin_notes = COALESCE($3, admin_notes),
+           is_visible = COALESCE($4, is_visible),
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $5 AND is_admin_created = true
+       RETURNING *`,
+      [rating, comment, adminNotes, isVisible, id]
+    );
+
+    // Log the admin action
+    await logAdminReviewAction(
+      id,
+      req.user.id,
+      'update',
+      oldValues,
+      { rating, comment, adminNotes, isVisible },
+      `Admin updated review`
+    );
+
+    // Update cleaner's average rating if rating changed
+    if (rating && rating !== oldValues.rating) {
+      await updateCleanerRating(oldValues.cleaner_id);
+    }
+
+    res.json({
+      success: true,
+      message: "Admin review updated successfully",
+      review: updateResult.rows[0],
+    });
+  } catch (error) {
+    console.error("Update admin review error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error updating admin review",
+    });
+  }
+};
+
+/**
+ * @desc    Get admin review management dashboard
+ * @route   GET /api/reviews/admin/dashboard
+ * @access  Private (Admin only)
+ */
+const getAdminReviewDashboard = async (req, res) => {
+  try {
+    // Get review statistics
+    const stats = await query(`
+      SELECT 
+        COUNT(*) as total_reviews,
+        COUNT(CASE WHEN is_admin_created = true THEN 1 END) as admin_reviews,
+        COUNT(CASE WHEN is_admin_created = false THEN 1 END) as customer_reviews,
+        COUNT(CASE WHEN is_visible = true THEN 1 END) as visible_reviews,
+        COUNT(CASE WHEN is_visible = false THEN 1 END) as hidden_reviews,
+        AVG(rating)::DECIMAL(3,2) as average_rating,
+        COUNT(CASE WHEN rating = 5 THEN 1 END) as five_star,
+        COUNT(CASE WHEN rating = 4 THEN 1 END) as four_star,
+        COUNT(CASE WHEN rating = 3 THEN 1 END) as three_star,
+        COUNT(CASE WHEN rating = 2 THEN 1 END) as two_star,
+        COUNT(CASE WHEN rating = 1 THEN 1 END) as one_star
+      FROM reviews
+    `);
+
+    // Get recent admin actions
+    const recentActions = await query(`
+      SELECT 
+        ara.*, 
+        u.first_name || ' ' || u.last_name as admin_name,
+        r.rating,
+        cleaner.first_name || ' ' || cleaner.last_name as cleaner_name
+      FROM admin_review_audit ara
+      JOIN users u ON ara.admin_id = u.id
+      LEFT JOIN reviews r ON ara.review_id = r.id
+      LEFT JOIN users cleaner ON r.cleaner_id = cleaner.id
+      ORDER BY ara.created_at DESC
+      LIMIT 20
+    `);
+
+    // Get cleaners with most admin reviews
+    const topAdminReviewedCleaners = await query(`
+      SELECT 
+        u.id,
+        u.first_name || ' ' || u.last_name as cleaner_name,
+        COUNT(*) as admin_review_count,
+        AVG(r.rating)::DECIMAL(3,2) as admin_avg_rating
+      FROM reviews r
+      JOIN users u ON r.cleaner_id = u.id
+      WHERE r.is_admin_created = true AND r.is_visible = true
+      GROUP BY u.id, u.first_name, u.last_name
+      ORDER BY admin_review_count DESC
+      LIMIT 10
+    `);
+
+    res.json({
+      success: true,
+      dashboard: {
+        statistics: stats.rows[0],
+        recentActions: recentActions.rows,
+        topAdminReviewedCleaners: topAdminReviewedCleaners.rows,
+      },
+    });
+  } catch (error) {
+    console.error("Get admin review dashboard error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving admin dashboard",
+    });
+  }
+};
+
+/**
+ * @desc    Get all admin-created reviews
+ * @route   GET /api/reviews/admin/admin-reviews
+ * @access  Private (Admin only)
+ */
+const getAdminCreatedReviews = async (req, res) => {
+  try {
+    const { page = 1, limit = 20, cleanerId } = req.query;
+    const offset = (page - 1) * limit;
+
+    let whereConditions = ["r.is_admin_created = true"];
+    let queryParams = [];
+    let paramCount = 1;
+
+    if (cleanerId) {
+      whereConditions.push(`r.cleaner_id = $${paramCount++}`);
+      queryParams.push(cleanerId);
+    }
+
+    const whereClause = `WHERE ${whereConditions.join(" AND ")}`;
+
+    const reviewsQuery = `
+      SELECT 
+        r.*,
+        cleaner.first_name || ' ' || cleaner.last_name as cleaner_name,
+        customer.first_name || ' ' || customer.last_name as customer_name,
+        admin.first_name || ' ' || admin.last_name as admin_created_by_name
+      FROM reviews r
+      JOIN users cleaner ON r.cleaner_id = cleaner.id
+      LEFT JOIN users customer ON r.customer_id = customer.id
+      LEFT JOIN users admin ON r.admin_created_by = admin.id
+      ${whereClause}
+      ORDER BY r.created_at DESC
+      LIMIT $${paramCount} OFFSET $${paramCount + 1}
+    `;
+
+    queryParams.push(limit, offset);
+    const reviewsResult = await query(reviewsQuery, queryParams);
+
+    // Get total count
+    const countQuery = `SELECT COUNT(*) as total FROM reviews r ${whereClause}`;
+    const countResult = await query(countQuery, queryParams.slice(0, -2));
+    const total = parseInt(countResult.rows[0].total);
+
+    res.json({
+      success: true,
+      reviews: reviewsResult.rows,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error("Get admin created reviews error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving admin reviews",
+    });
+  }
+};
+
+/**
+ * @desc    Bulk create admin reviews for a cleaner
+ * @route   POST /api/reviews/admin/bulk-create
+ * @access  Private (Admin only)
+ */
+const bulkCreateAdminReviews = async (req, res) => {
+  try {
+    const { cleanerId, reviews: reviewsData, adminNotes } = req.body;
+
+    if (!cleanerId || !reviewsData || !Array.isArray(reviewsData)) {
+      return res.status(400).json({
+        success: false,
+        error: "Cleaner ID and reviews array are required",
+      });
+    }
+
+    // Verify cleaner exists
+    const cleanerResult = await query(
+      "SELECT * FROM users WHERE id = $1 AND role = 'cleaner'",
+      [cleanerId]
+    );
+
+    if (cleanerResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Cleaner not found",
+      });
+    }
+
+    const createdReviews = [];
+
+    // Create each review
+    for (const reviewData of reviewsData) {
+      const { rating, comment, customerName } = reviewData;
+
+      if (!rating || rating < 1 || rating > 5) {
+        continue; // Skip invalid ratings
+      }
+
+      // Create synthetic customer if needed
+      let customerId = null;
+      if (customerName) {
+        const nameParts = customerName.split(' ');
+        const firstName = nameParts[0];
+        const lastName = nameParts.slice(1).join(' ') || 'Customer';
+        
+        const customerResult = await query(
+          `INSERT INTO users (
+            first_name, last_name, email, role, is_active, created_at
+          ) VALUES ($1, $2, $3, 'admin_synthetic_customer', false, CURRENT_TIMESTAMP)
+          RETURNING id`,
+          [firstName, lastName, `synthetic_${Date.now()}_${Math.random()}@adminreview.local`]
+        );
+        customerId = customerResult.rows[0].id;
+      }
+
+      // Create the review
+      const reviewResult = await query(
+        `INSERT INTO reviews (
+          customer_id, cleaner_id, rating, comment, 
+          is_admin_created, admin_created_by, admin_notes, is_verified, is_visible
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+        [
+          customerId, 
+          cleanerId, 
+          rating, 
+          comment || null,
+          true,
+          req.user.id,
+          adminNotes || 'Bulk created for marketing purposes',
+          true,
+          true
+        ]
+      );
+
+      createdReviews.push({
+        ...reviewResult.rows[0],
+        customer_name: customerName || 'Anonymous Customer'
+      });
+
+      // Log the admin action
+      await logAdminReviewAction(
+        reviewResult.rows[0].id,
+        req.user.id,
+        'create',
+        null,
+        { rating, comment, cleanerId, customerName },
+        `Bulk created admin review`
+      );
+    }
+
+    // Update cleaner's average rating
+    await updateCleanerRating(cleanerId);
+
+    res.status(201).json({
+      success: true,
+      message: `Successfully created ${createdReviews.length} admin reviews`,
+      reviews: createdReviews,
+    });
+  } catch (error) {
+    console.error("Bulk create admin reviews error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error creating admin reviews",
+    });
+  }
+};
+
+/**
+ * Helper function to log admin review actions
+ */
+const logAdminReviewAction = async (reviewId, adminId, action, oldValues, newValues, reason) => {
+  try {
+    await query(
+      `INSERT INTO admin_review_audit (
+        review_id, admin_id, action, old_values, new_values, reason
+      ) VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        reviewId,
+        adminId,
+        action,
+        oldValues ? JSON.stringify(oldValues) : null,
+        newValues ? JSON.stringify(newValues) : null,
+        reason
+      ]
+    );
+  } catch (error) {
+    console.error('Error logging admin review action:', error);
+    // Don't throw error as this is not critical
+  }
+};
+
 module.exports = {
   createReview,
   getCleanerReviews,
@@ -590,4 +1050,10 @@ module.exports = {
   getAllReviews,
   toggleReviewVisibility,
   adminDeleteReview,
+  // New admin functions
+  createAdminReview,
+  updateAdminReview,
+  getAdminReviewDashboard,
+  getAdminCreatedReviews,
+  bulkCreateAdminReviews,
 };

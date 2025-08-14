@@ -199,6 +199,33 @@ const reviewSchema = Joi.object({
   comment: Joi.string().max(500),
 });
 
+// Admin review validation schemas
+const adminReviewSchema = Joi.object({
+  cleanerId: Joi.number().integer().positive().required(),
+  rating: Joi.number().integer().min(1).max(5).required(),
+  comment: Joi.string().max(1000),
+  customerName: Joi.string().max(100),
+  serviceName: Joi.string().max(100),
+  adminNotes: Joi.string().max(500),
+});
+
+const bulkAdminReviewSchema = Joi.object({
+  cleanerId: Joi.number().integer().positive().required(),
+  adminNotes: Joi.string().max(500),
+  reviews: Joi.array().items(Joi.object({
+    rating: Joi.number().integer().min(1).max(5).required(),
+    comment: Joi.string().max(1000),
+    customerName: Joi.string().max(100),
+  })).min(1).max(20).required(),
+});
+
+const updateAdminReviewSchema = Joi.object({
+  rating: Joi.number().integer().min(1).max(5),
+  comment: Joi.string().max(1000),
+  adminNotes: Joi.string().max(500),
+  isVisible: Joi.boolean(),
+});
+
 // Ticket validation schemas
 const ticketCreateSchema = Joi.object({
   bookingId: Joi.number().integer().positive().optional().allow(null),
@@ -297,6 +324,9 @@ module.exports = {
   bookingSchema,
   serviceSchema,
   reviewSchema,
+  adminReviewSchema,
+  bulkAdminReviewSchema,
+  updateAdminReviewSchema,
   ticketCreateSchema,
   ticketMessageSchema,
   ticketUpdateSchema,
