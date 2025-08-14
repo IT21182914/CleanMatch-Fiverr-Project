@@ -559,9 +559,9 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
         onClose();
       }
     };
-    document.addEventListener('keydown', handleEsc);
+    document.addEventListener("keydown", handleEsc);
     return () => {
-      document.removeEventListener('keydown', handleEsc);
+      document.removeEventListener("keydown", handleEsc);
     };
   }, [onClose]);
 
@@ -644,26 +644,36 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
   };
 
   return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 z-50"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl mx-4 my-8">
+        <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold">Create Admin Review</h3>
           <button
             type="button"
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Cleaner
             </label>
             <select
@@ -671,7 +681,7 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
               onChange={(e) =>
                 setFormData({ ...formData, cleanerId: e.target.value })
               }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             >
               <option value="">Select a cleaner</option>
@@ -686,7 +696,7 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Rating
             </label>
             <select
@@ -694,7 +704,7 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
               onChange={(e) =>
                 setFormData({ ...formData, rating: parseInt(e.target.value) })
               }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               {[5, 4, 3, 2, 1].map((rating) => (
                 <option key={rating} value={rating}>
@@ -705,7 +715,7 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Customer Name (Optional)
             </label>
             <input
@@ -714,13 +724,13 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
               onChange={(e) =>
                 setFormData({ ...formData, customerName: e.target.value })
               }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="e.g., John Smith"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Comment
             </label>
             <textarea
@@ -728,14 +738,14 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
               onChange={(e) =>
                 setFormData({ ...formData, comment: e.target.value })
               }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              rows="3"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              rows="4"
               placeholder="Write a review comment..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Service Name (Optional)
             </label>
             <input
@@ -744,13 +754,13 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
               onChange={(e) =>
                 setFormData({ ...formData, serviceName: e.target.value })
               }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="e.g., House Cleaning"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Admin Notes (Internal)
             </label>
             <textarea
@@ -758,17 +768,17 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
               onChange={(e) =>
                 setFormData({ ...formData, adminNotes: e.target.value })
               }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              rows="2"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              rows="3"
               placeholder="Internal notes about this review..."
             />
           </div>
 
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="submit"
               disabled={submitting}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 py-3"
             >
               {submitting ? "Creating..." : "Create Review"}
             </Button>
@@ -776,7 +786,7 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
               type="button"
               onClick={onClose}
               variant="outline"
-              className="flex-1"
+              className="flex-1 py-3"
             >
               Cancel
             </Button>
@@ -805,9 +815,9 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
         onClose();
       }
     };
-    document.addEventListener('keydown', handleEsc);
+    document.addEventListener("keydown", handleEsc);
     return () => {
-      document.removeEventListener('keydown', handleEsc);
+      document.removeEventListener("keydown", handleEsc);
     };
   }, [onClose]);
 
@@ -917,28 +927,36 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
   };
 
   return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 z-50"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">
-            Bulk Create Admin Reviews
-          </h3>
+      <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl mx-4 my-8">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-lg font-semibold">Bulk Create Admin Reviews</h3>
           <button
             type="button"
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Cleaner
             </label>
             <select
@@ -946,7 +964,7 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
               onChange={(e) =>
                 setFormData({ ...formData, cleanerId: e.target.value })
               }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             >
               <option value="">Select a cleaner</option>
@@ -961,7 +979,7 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Admin Notes (Internal)
             </label>
             <textarea
@@ -969,8 +987,8 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
               onChange={(e) =>
                 setFormData({ ...formData, adminNotes: e.target.value })
               }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              rows="2"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              rows="3"
               placeholder="Internal notes for all these reviews..."
             />
           </div>
@@ -1073,11 +1091,11 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
             </div>
           </div>
 
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="submit"
               disabled={submitting}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 py-3"
             >
               {submitting
                 ? "Creating..."
@@ -1087,7 +1105,7 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
               type="button"
               onClick={onClose}
               variant="outline"
-              className="flex-1"
+              className="flex-1 py-3"
             >
               Cancel
             </Button>
