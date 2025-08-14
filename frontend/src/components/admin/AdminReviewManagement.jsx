@@ -648,7 +648,7 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
       className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 z-50"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl mx-4 my-8">
+      <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-sm sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl mx-4 my-8">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold">Create Admin Review</h3>
           <button
@@ -671,64 +671,86 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
             </svg>
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Cleaner
-            </label>
-            <select
-              value={formData.cleanerId}
-              onChange={(e) =>
-                setFormData({ ...formData, cleanerId: e.target.value })
-              }
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            >
-              <option value="">Select a cleaner</option>
-              {cleaners.map((cleaner) => (
-                <option key={cleaner.id} value={cleaner.id}>
-                  {cleaner.first_name && cleaner.last_name
-                    ? `${cleaner.first_name} ${cleaner.last_name}`
-                    : cleaner.name || `Cleaner ${cleaner.id}`}
-                </option>
-              ))}
-            </select>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* First Row - Cleaner and Rating Side by Side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Cleaner
+              </label>
+              <select
+                value={formData.cleanerId}
+                onChange={(e) =>
+                  setFormData({ ...formData, cleanerId: e.target.value })
+                }
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">Select a cleaner</option>
+                {cleaners.map((cleaner) => (
+                  <option key={cleaner.id} value={cleaner.id}>
+                    {cleaner.first_name && cleaner.last_name
+                      ? `${cleaner.first_name} ${cleaner.last_name}`
+                      : cleaner.name || `Cleaner ${cleaner.id}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Rating
+              </label>
+              <select
+                value={formData.rating}
+                onChange={(e) =>
+                  setFormData({ ...formData, rating: parseInt(e.target.value) })
+                }
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {[5, 4, 3, 2, 1].map((rating) => (
+                  <option key={rating} value={rating}>
+                    {rating} Star{rating !== 1 ? "s" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Rating
-            </label>
-            <select
-              value={formData.rating}
-              onChange={(e) =>
-                setFormData({ ...formData, rating: parseInt(e.target.value) })
-              }
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {[5, 4, 3, 2, 1].map((rating) => (
-                <option key={rating} value={rating}>
-                  {rating} Star{rating !== 1 ? "s" : ""}
-                </option>
-              ))}
-            </select>
+          {/* Second Row - Customer Name and Service Name */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Customer Name (Optional)
+              </label>
+              <input
+                type="text"
+                value={formData.customerName}
+                onChange={(e) =>
+                  setFormData({ ...formData, customerName: e.target.value })
+                }
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="e.g., John Smith"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Service Name (Optional)
+              </label>
+              <input
+                type="text"
+                value={formData.serviceName}
+                onChange={(e) =>
+                  setFormData({ ...formData, serviceName: e.target.value })
+                }
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="e.g., House Cleaning"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Customer Name (Optional)
-            </label>
-            <input
-              type="text"
-              value={formData.customerName}
-              onChange={(e) =>
-                setFormData({ ...formData, customerName: e.target.value })
-              }
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., John Smith"
-            />
-          </div>
-
+          {/* Full Width - Comment */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Comment
@@ -744,21 +766,8 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Service Name (Optional)
-            </label>
-            <input
-              type="text"
-              value={formData.serviceName}
-              onChange={(e) =>
-                setFormData({ ...formData, serviceName: e.target.value })
-              }
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., House Cleaning"
-            />
-          </div>
-
+          {/* Full Width - Admin Notes */}
+          {/* Full Width - Admin Notes */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Admin Notes (Internal)
@@ -931,7 +940,7 @@ const AdminBulkReviewForm = ({ onClose, onSuccess }) => {
       className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 z-50"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl mx-4 my-8">
+      <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-2xl sm:max-w-4xl lg:max-w-6xl xl:max-w-7xl max-h-[90vh] overflow-y-auto shadow-2xl mx-4 my-8">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold">Bulk Create Admin Reviews</h3>
           <button
