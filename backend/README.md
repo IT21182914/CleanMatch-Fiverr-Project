@@ -28,49 +28,99 @@ backend/
 ├── config/
 │   └── database.js          # PostgreSQL connection and table creation
 ├── controllers/             # Business logic controllers
+├── docs/                    # Documentation files
+│   ├── api.md              # API documentation
+│   ├── DATABASE_GUIDE.md   # Database schema guide
+│   ├── PROJECT_OVERVIEW.md # Project overview
+│   ├── REVIEW_SYSTEM_GUIDE.md # Review system documentation
+│   ├── TICKETING_SYSTEM_GUIDE.md # Ticketing system guide
+│   ├── ENHANCED_ASSIGNMENT_GUIDE.md # Assignment system guide
+│   ├── ASSIGNMENT_SYSTEM_STATUS.md # System status documentation
+│   ├── ORGANIZATION_GUIDE.md # Organization guide
+│   ├── DATABASE_README.md  # Database setup documentation
+│   └── SCRIPTS_README.md   # Scripts documentation
 ├── middleware/
 │   ├── auth.js             # Authentication and authorization
 │   ├── errorHandler.js     # Global error handling
+│   ├── fileUpload.js       # File upload handling
 │   └── validation.js       # Request validation schemas
+├── migrations/              # Database migration files
+│   ├── *.sql              # SQL migration scripts
+│   ├── *.js               # JavaScript migration scripts
+│   └── README.md          # Migration documentation
 ├── routes/
 │   ├── auth.js             # Authentication endpoints
 │   ├── users.js            # User management
 │   ├── services.js         # Service management
 │   ├── bookings.js         # Booking operations
 │   ├── payments.js         # Payment processing
+│   ├── reviews.js          # Review system endpoints
+│   ├── tickets.js          # Support ticket system
+│   ├── trust.js            # Trust and verification system
 │   └── admin.js            # Admin operations
-├── utils/
-│   ├── matchCleaner.js     # AI cleaner matching algorithm
-│   ├── stripe.js           # Stripe payment utilities
-│   ├── email.js            # Email sending utilities
-│   └── scheduler.js        # Cron job management
 ├── scripts/                # Setup and utility scripts
 │   ├── setup.js            # Main project setup
-│   ├── seed.js             # Database seeding
-│   └── create-admin.js     # Admin user creation
-├── database/               # Database scripts and migrations
-│   ├── migrations/         # Database migration files
-│   ├── add-rating-columns.js # Add rating functionality
-│   └── migrate-membership.js # Membership migrations
+│   ├── setup-offers.js     # Offer system setup
+│   ├── setup-supabase-storage.js # Storage setup
+│   └── setup-trust.js     # Trust system setup
+├── seeds/                  # Database seeding files
+│   ├── seed.js             # Main database seeding
+│   ├── create-admin.js     # Admin user creation
+│   ├── create-test-freelancers.js # Test data creation
+│   ├── create-sample-documents.js # Sample documents
+│   └── README.md           # Seeding documentation
+├── tests/                  # Test files and utilities
+│   ├── test-*.js           # Test suites
+│   ├── check-*.js          # Schema validation tests
+│   ├── create-sample-*.js  # Test data utilities
+│   └── README.md           # Testing documentation
 ├── tools/                  # Development and monitoring tools
-│   ├── db-monitor.js       # Database monitoring
-│   ├── process-manager.js  # Production process management
-│   └── check-users.js      # Data validation tools
-├── tests/                  # Test files
-│   ├── test-server.js      # Server tests
-│   ├── test-api.js         # API endpoint tests
-│   └── test-comprehensive.js # Full system tests
-├── docs/                   # Documentation
-│   ├── api.md              # API documentation
-│   ├── DATABASE_GUIDE.md   # Database setup guide
-│   └── PROJECT_OVERVIEW.md # Project overview
+├── utils/                  # Utility functions
 ├── uploads/                # File uploads directory
-├── server.js               # Express server setup
+├── server.js               # Main application entry point
 ├── package.json            # Dependencies and scripts
 └── .env.example            # Environment variables template
 ```
 
-## 🛠️ Setup & Installation
+## � Organized Structure
+
+The backend has been organized into logical folders for better maintainability:
+
+### 📋 **tests/** - All Test Files
+- Consolidated all testing-related files
+- Includes unit tests, integration tests, and schema validation
+- Test data creation utilities for consistent testing environments
+- See `tests/README.md` for detailed testing documentation
+
+### 🔄 **migrations/** - Database Migrations
+- All database schema changes and migrations
+- Both SQL and JavaScript migration files
+- Migration runners and utilities
+- Consolidated from previous `database/` folder
+- See `migrations/README.md` for migration guidelines
+
+### 🌱 **seeds/** - Database Seeding
+- Database initialization and seeding scripts
+- Admin user creation utilities
+- Test data generation for development
+- Sample data creation tools
+- See `seeds/README.md` for seeding instructions
+
+### 📚 **docs/** - Documentation
+- Comprehensive project documentation
+- API documentation and guides
+- System architecture documentation
+- All README files consolidated here
+- Database guides and project overviews
+
+### Benefits of This Organization:
+- **Better Separation of Concerns**: Each folder has a clear, single responsibility
+- **Easier Navigation**: Developers can quickly find relevant files
+- **Improved Maintainability**: Related files are grouped together
+- **Better Documentation**: Each major folder has its own README
+- **Cleaner Root Directory**: Less clutter in the main backend folder
+
+## �🛠️ Setup & Installation
 
 ### Prerequisites
 - Node.js (v18+)
