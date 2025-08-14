@@ -103,10 +103,10 @@ const TestimonialsSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 xs:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xs:gap-8">
           {loading
             ? // Loading skeleton
-              [...Array(3)].map((_, index) => (
+              [...Array(6)].map((_, index) => (
                 <Card
                   key={`loading-${index}`}
                   className="h-full shadow-xl rounded-xl xs:rounded-2xl overflow-hidden backdrop-blur-sm bg-white/90 animate-pulse"

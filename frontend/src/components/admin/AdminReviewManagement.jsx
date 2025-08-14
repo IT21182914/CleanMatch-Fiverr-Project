@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Card } from "../ui/Card";
-import { Button } from "../ui/Button";
+import Button from "../ui/Button";
 import { useToast } from "../../hooks/useToast";
-import { api } from "../../lib/api";
+import api from "../../lib/api";
 
 const AdminReviewManagement = () => {
   const [dashboard, setDashboard] = useState(null);
