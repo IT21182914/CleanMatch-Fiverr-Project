@@ -549,6 +549,7 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
     adminNotes: "",
   });
   const [cleaners, setCleaners] = useState([]);
+  const [services, setServices] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const { showToast } = useToast();
 
@@ -580,6 +581,19 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
         console.error("Error fetching cleaners:", error);
         showToast("Using demo cleaners for testing", "warning");
         setFallbackCleaners();
+      }
+    };
+
+    // Fetch services list
+    const fetchServices = async () => {
+      try {
+        const response = await api.get("/services?limit=100");
+        if (response.data.success) {
+          setServices(response.data.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        showToast("Error loading services", "error");
       }
     };
 
@@ -620,6 +634,7 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
     };
 
     fetchCleaners();
+    fetchServices();
   }, [showToast]);
 
   const handleSubmit = async (e) => {
@@ -738,15 +753,20 @@ const AdminReviewCreateForm = ({ onClose, onSuccess }) => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Service Name (Optional)
               </label>
-              <input
-                type="text"
+              <select
                 value={formData.serviceName}
                 onChange={(e) =>
                   setFormData({ ...formData, serviceName: e.target.value })
                 }
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="e.g., House Cleaning"
-              />
+              >
+                <option value="">Select a service (optional)</option>
+                {services.map((service) => (
+                  <option key={service.id} value={service.name}>
+                    {service.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
