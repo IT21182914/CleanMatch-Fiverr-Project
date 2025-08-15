@@ -32,6 +32,7 @@ const Availability = () => {
   const [locationUpdating, setLocationUpdating] = useState(false);
   const [countdown, setCountdown] = useState(120); // 2 minutes in seconds
   const [showCountdown, setShowCountdown] = useState(false);
+  const [isFirstLocationUpdate, setIsFirstLocationUpdate] = useState(true);
   const locationIntervalRef = useRef(null);
   const countdownIntervalRef = useRef(null);
   const [schedule, setSchedule] = useState({
@@ -135,7 +136,7 @@ const Availability = () => {
   };
 
   // Update location automatically
-  const updateLocationAutomatically = async () => {
+  const updateLocationAutomatically = async (immediate = false) => {
     try {
       setLocationUpdating(true);
       const location = await getCurrentLocation();
@@ -148,7 +149,13 @@ const Availability = () => {
         longitude: location.longitude,
       });
 
-      console.log("Location updated automatically:", location);
+      console.log(`Location updated ${immediate ? 'immediately' : 'automatically'}:`, location);
+
+      // If this was the first update, mark it as done and start the regular countdown
+      if (immediate && isFirstLocationUpdate) {
+        setIsFirstLocationUpdate(false);
+        startCountdown(); // Start regular 2-minute countdown after first immediate update
+      }
     } catch (error) {
       setLocationError(error.message);
       console.error("Auto location update error:", error);
@@ -188,13 +195,20 @@ const Availability = () => {
   };
 
   // Start location tracking interval (every 2 minutes)
-  const startLocationTracking = () => {
-    startCountdown();
+  const startLocationTracking = async () => {
+    // If this is the first time or after page reload, update location immediately
+    if (isFirstLocationUpdate) {
+      await updateLocationAutomatically(true); // immediate = true
+    } else {
+      // Otherwise start the regular countdown
+      startCountdown();
+    }
   };
 
   // Stop location tracking
   const stopLocationTracking = () => {
     stopCountdown();
+    setIsFirstLocationUpdate(true); // Reset for next time they go online
   };
 
   // Handle location confirmation from modal (only for initial setup)
@@ -220,8 +234,9 @@ const Availability = () => {
 
       console.log("Location updated:", location);
 
-      // Start automatic tracking after initial setup
-      startLocationTracking();
+      // Mark as first update done and start countdown for regular updates
+      setIsFirstLocationUpdate(false);
+      startCountdown();
     } catch (error) {
       setLocationError(error.message);
       console.error("Location error:", error);
@@ -280,7 +295,10 @@ const Availability = () => {
           });
 
           setIsAvailable(true);
-          startLocationTracking(); // Start automatic tracking
+
+          // Mark first update as done since we just did it manually
+          setIsFirstLocationUpdate(false);
+          startCountdown(); // Start the regular countdown
 
           setSuccessMessage(
             "You are now available for new bookings with location tracking enabled."
@@ -558,13 +576,21 @@ const Availability = () => {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium text-gray-900">
-                          {locationUpdating ? "Updating Location..." : "Location Tracking Active"}
+                          {locationUpdating
+                            ? (isFirstLocationUpdate ? "Getting your location..." : "Updating Location...")
+                            : "Location Tracking Active"
+                          }
                         </h4>
                         {showCountdown && !locationUpdating && (
                           <div className="flex items-center space-x-2">
                             <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                               Next update: {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
                             </div>
+                          </div>
+                        )}
+                        {!showCountdown && !locationUpdating && isFirstLocationUpdate && (
+                          <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                            Ready for immediate update
                           </div>
                         )}
                       </div>
@@ -579,8 +605,14 @@ const Availability = () => {
 
                       <p className="text-xs text-gray-400 mt-1">
                         {locationUpdating
-                          ? "Updating your current location..."
-                          : "Location updates automatically every 2 minutes"
+                          ? (isFirstLocationUpdate
+                            ? "Getting your current location..."
+                            : "Updating your current location..."
+                          )
+                          : (isFirstLocationUpdate
+                            ? "Location will be updated immediately when you go online"
+                            : "Location updates automatically every 2 minutes"
+                          )
                         }
                       </p>
                     </div>
@@ -751,6 +783,7 @@ const Availability = () => {
                   <li>• Use the quick schedule options to save time</li>
                   <li>• Toggle availability off when you need time off</li>
                   <li>• Allow location access for better job matching and customer trust</li>
+                  <li>• Location updates immediately when you come back online</li>
                   <li>• Your location is updated every 2 minutes while you're available</li>
                 </ul>
               </div>
