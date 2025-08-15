@@ -4,8 +4,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "start:pm": "node tools/process-manager.js",
     "dev": "nodemon server.js",
+    "start:pm": "node tools/process-manager.js",
     "seed": "node scripts/seed.js",
     "setup": "node scripts/setup.js",
     "test": "jest",
