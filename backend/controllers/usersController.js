@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const { query } = require("../config/database");
+const { geocodeAddress, isZipCode } = require("../utils/geocoding");
 
 /**
  * @desc    Get current user's profile
@@ -396,11 +397,11 @@ const getUserBookings = async (req, res) => {
       },
       cleaner: booking.cleaner_first_name
         ? {
-            firstName: booking.cleaner_first_name,
-            lastName: booking.cleaner_last_name,
-            email: booking.cleaner_email,
-            phone: booking.cleaner_phone,
-          }
+          firstName: booking.cleaner_first_name,
+          lastName: booking.cleaner_last_name,
+          email: booking.cleaner_email,
+          phone: booking.cleaner_phone,
+        }
         : null,
     }));
 
@@ -424,13 +425,13 @@ const getUserBookings = async (req, res) => {
 };
 
 /**
- * @desc    Update cleaner availability status
+ * @desc    Update cleaner availability status with location
  * @route   PUT /api/users/availability
  * @access  Private (Cleaners only)
  */
 const updateCleanerAvailability = async (req, res) => {
   try {
-    const { isAvailable } = req.body;
+    const { isAvailable, latitude, longitude } = req.body;
 
     if (typeof isAvailable !== "boolean") {
       return res.status(400).json({
@@ -439,16 +440,70 @@ const updateCleanerAvailability = async (req, res) => {
       });
     }
 
-    await query(
-      "UPDATE cleaner_profiles SET is_available = $1 WHERE user_id = $2",
-      [isAvailable, req.user.id]
-    );
+    // If setting to available, require location data
+    if (isAvailable && (!latitude || !longitude)) {
+      return res.status(400).json({
+        success: false,
+        error: "Location (latitude and longitude) is required when setting availability to true",
+      });
+    }
+
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    // Always update availability status
+    updateFields.push(`is_available = $${paramCount++}`);
+    values.push(isAvailable);
+
+    // Update location if provided and going online
+    if (isAvailable && latitude && longitude) {
+      updateFields.push(`current_latitude = $${paramCount++}`);
+      values.push(latitude);
+
+      updateFields.push(`current_longitude = $${paramCount++}`);
+      values.push(longitude);
+
+      updateFields.push(`last_location_update = CURRENT_TIMESTAMP`);
+
+    }
+
+    // Always update last_active when availability changes
+    updateFields.push(`last_active = CURRENT_TIMESTAMP`);
+
+    // If going offline, clear location data for privacy
+    if (!isAvailable) {
+      updateFields.push(`current_latitude = NULL`);
+      updateFields.push(`current_longitude = NULL`);
+      updateFields.push(`last_location_update = NULL`);
+    }
+
+    values.push(req.user.id);
+
+    const updateQuery = `
+      UPDATE cleaner_profiles 
+      SET ${updateFields.join(", ")}
+      WHERE user_id = $${paramCount}
+      RETURNING is_available, current_latitude, current_longitude, last_location_update
+    `;
+
+    const result = await query(updateQuery, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Cleaner profile not found",
+      });
+    }
 
     res.json({
       success: true,
-      message: `Availability ${
-        isAvailable ? "enabled" : "disabled"
-      } successfully`,
+      message: `Availability ${isAvailable ? "enabled" : "disabled"} successfully`,
+      data: {
+        isAvailable: result.rows[0].is_available,
+        locationUpdated: isAvailable ? !!result.rows[0].last_location_update : false,
+        lastLocationUpdate: result.rows[0].last_location_update,
+      },
     });
   } catch (error) {
     console.error("Update availability error:", error);
@@ -524,6 +579,257 @@ const getUserReviews = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get nearby available cleaners
+ * @route   GET /api/users/nearby-cleaners
+ * @access  Private (Customers only)
+ */
+const getNearbyCleaners = async (req, res) => {
+  try {
+    const { latitude, longitude, zipCode, radius = 20, serviceType, minRating = 0 } = req.query;
+
+    let customerLat, customerLng, searchMethod, geocodedAddress;
+
+    // Priority 1: Use provided latitude and longitude if available
+    if (latitude && longitude) {
+      customerLat = parseFloat(latitude);
+      customerLng = parseFloat(longitude);
+
+      if (isNaN(customerLat) || isNaN(customerLng)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid latitude or longitude format",
+        });
+      }
+
+      searchMethod = "coordinates";
+    }
+    // Priority 2: Use zipcode if latitude/longitude not provided
+    else if (zipCode) {
+      if (!isZipCode(zipCode)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid zipcode format. Please provide a valid US zipcode (e.g., 07094) or Canadian postal code.",
+        });
+      }
+
+      try {
+        console.log(`Geocoding zipcode: ${zipCode}`);
+        const geocodeResult = await geocodeAddress(zipCode);
+
+        customerLat = geocodeResult.latitude;
+        customerLng = geocodeResult.longitude;
+        geocodedAddress = geocodeResult.formattedAddress;
+        searchMethod = "geocoded";
+
+        console.log(`Geocoded ${zipCode} to coordinates: ${customerLat}, ${customerLng}`);
+      } catch (geocodeError) {
+        console.error("Geocoding error:", geocodeError.message);
+        return res.status(400).json({
+          success: false,
+          error: `Unable to geocode zipcode: ${geocodeError.message}`,
+          details: "Please check the zipcode or provide latitude and longitude instead.",
+        });
+      }
+    }
+    // Neither coordinates nor zipcode provided
+    else {
+      return res.status(400).json({
+        success: false,
+        error: "Either latitude & longitude OR zipcode is required",
+        examples: {
+          coordinates: "?latitude=40.7128&longitude=-74.0060&radius=20",
+          zipcode: "?zipCode=07094&radius=20"
+        }
+      });
+    }
+
+    const radiusKm = parseFloat(radius);
+    const minRatingValue = parseFloat(minRating);
+
+    if (isNaN(radiusKm) || radiusKm <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid radius. Must be a positive number.",
+      });
+    }
+
+    if (isNaN(minRatingValue) || minRatingValue < 0 || minRatingValue > 5) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid minimum rating. Must be between 0 and 5.",
+      });
+    }
+
+    // Build the query with proper distance calculation using the Haversine formula
+    let baseQuery = `
+      SELECT 
+        cp.user_id,
+        cp.bio,
+        cp.experience_years,
+        cp.hourly_rate,
+        cp.rating,
+        cp.total_jobs,
+        cp.current_latitude,
+        cp.current_longitude,
+        cp.last_location_update,
+        cp.last_active,
+        cp.service_radius,
+        cp.certifications,
+        u.first_name,
+        u.last_name,
+        u.email,
+        u.phone,
+        u.profile_image,
+        EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - cp.last_location_update))/60 as minutes_since_last_update,
+        (
+          6371 * acos(
+            cos(radians($1)) * cos(radians(cp.current_latitude)) *
+            cos(radians(cp.current_longitude) - radians($2)) +
+            sin(radians($1)) * sin(radians(cp.current_latitude))
+          )
+        ) AS distance_km
+      FROM cleaner_profiles cp
+      JOIN users u ON cp.user_id = u.id
+      WHERE cp.is_available = true 
+        AND cp.current_latitude IS NOT NULL 
+        AND cp.current_longitude IS NOT NULL
+        AND cp.last_location_update > (CURRENT_TIMESTAMP - INTERVAL '3 minutes')
+        AND cp.rating >= $3
+        AND (
+          6371 * acos(
+            cos(radians($1)) * cos(radians(cp.current_latitude)) *
+            cos(radians(cp.current_longitude) - radians($2)) +
+            sin(radians($1)) * sin(radians(cp.current_latitude))
+          )
+        ) <= $4
+    `;
+
+    const queryParams = [customerLat, customerLng, minRatingValue, radiusKm];
+    let paramCount = 5;
+
+    // Add service type filter if specified
+    if (serviceType) {
+      baseQuery += ` AND $${paramCount} = ANY(cp.cleaning_services)`;
+      queryParams.push(serviceType);
+      paramCount++;
+    }
+
+    baseQuery += `
+      ORDER BY distance_km ASC, cp.rating DESC, cp.total_jobs DESC
+      LIMIT 50
+    `;
+
+    const result = await query(baseQuery, queryParams);
+
+    // Transform the data for frontend
+    const nearbyCleaners = result.rows.map(cleaner => ({
+      id: cleaner.user_id,
+      firstName: cleaner.first_name,
+      lastName: cleaner.last_name,
+      email: cleaner.email,
+      phone: cleaner.phone,
+      profileImage: cleaner.profile_image,
+      bio: cleaner.bio,
+      experienceYears: cleaner.experience_years,
+      hourlyRate: cleaner.hourly_rate,
+      rating: parseFloat(cleaner.rating) || 0,
+      totalJobs: cleaner.total_jobs || 0,
+      serviceRadius: cleaner.service_radius,
+      certifications: cleaner.certifications,
+      distanceKm: parseFloat(cleaner.distance_km).toFixed(2),
+      minutesSinceLastUpdate: Math.round(cleaner.minutes_since_last_update || 0),
+      isOnline: cleaner.minutes_since_last_update <= 3,
+      location: {
+        latitude: cleaner.current_latitude,
+        longitude: cleaner.current_longitude,
+        lastUpdate: cleaner.last_location_update,
+      },
+    }));
+
+    // Get count by distance ranges for analytics
+    const distanceStats = {
+      within5km: nearbyCleaners.filter(c => parseFloat(c.distanceKm) <= 5).length,
+      within10km: nearbyCleaners.filter(c => parseFloat(c.distanceKm) <= 10).length,
+      within20km: nearbyCleaners.filter(c => parseFloat(c.distanceKm) <= 20).length,
+      total: nearbyCleaners.length,
+    };
+
+    res.json({
+      success: true,
+      data: nearbyCleaners,
+      searchCriteria: {
+        latitude: customerLat,
+        longitude: customerLng,
+        radiusKm,
+        serviceType: serviceType || "all",
+        minRating: minRatingValue,
+        searchMethod, // "coordinates" or "geocoded"
+        ...(searchMethod === "geocoded" && {
+          originalZipCode: zipCode,
+          geocodedAddress: geocodedAddress
+        })
+      },
+      stats: distanceStats,
+      message: nearbyCleaners.length > 0
+        ? `Found ${nearbyCleaners.length} available cleaners within ${radiusKm}km`
+        : `No cleaners available within ${radiusKm}km radius`,
+    });
+
+  } catch (error) {
+    console.error("Get nearby cleaners error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving nearby cleaners",
+    });
+  }
+};
+
+/**
+ * @desc    Get online cleaners count and stats
+ * @route   GET /api/users/online-stats
+ * @access  Private
+ */
+const getOnlineCleanersStats = async (req, res) => {
+  try {
+    const statsQuery = `
+      SELECT 
+        COUNT(*) as total_online,
+        AVG(rating) as average_rating,
+        COUNT(*) FILTER (WHERE rating >= 4.5) as high_rated_count,
+        COUNT(*) FILTER (WHERE experience_years >= 2) as experienced_count,
+        MIN(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_location_update))/60) as most_recent_update_minutes
+      FROM cleaner_profiles cp
+      WHERE cp.is_available = true 
+        AND cp.current_latitude IS NOT NULL 
+        AND cp.current_longitude IS NOT NULL
+        AND cp.last_location_update > (CURRENT_TIMESTAMP - INTERVAL '3 minutes')
+    `;
+
+    const result = await query(statsQuery);
+    const stats = result.rows[0];
+
+    res.json({
+      success: true,
+      stats: {
+        totalOnlineCleaners: parseInt(stats.total_online) || 0,
+        averageRating: parseFloat(stats.average_rating) || 0,
+        highRatedCleaners: parseInt(stats.high_rated_count) || 0,
+        experiencedCleaners: parseInt(stats.experienced_count) || 0,
+        mostRecentUpdateMinutes: parseFloat(stats.most_recent_update_minutes) || 0,
+      },
+      message: `${stats.total_online || 0} cleaners are currently online`,
+    });
+
+  } catch (error) {
+    console.error("Get online stats error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving online statistics",
+    });
+  }
+};
+
 module.exports = {
   getUserProfile,
   updateUserProfile,
@@ -532,4 +838,6 @@ module.exports = {
   getUserBookings,
   updateCleanerAvailability,
   getUserReviews,
+  getNearbyCleaners,
+  getOnlineCleanersStats,
 };
