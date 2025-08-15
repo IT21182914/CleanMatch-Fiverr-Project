@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "start:pm": "node tools/process-manager.js",
     "dev": "nodemon server.js",
     "seed": "node scripts/seed.js",
