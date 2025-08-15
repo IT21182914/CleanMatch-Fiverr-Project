@@ -37,7 +37,7 @@ const connectDB = async (retries = 5) => {
 
     const config = {
       connectionString: databaseUrl,
-      ssl: sslConfig,
+      ssl: { rejectUnauthorized: false },
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
