@@ -151,7 +151,7 @@ app.get("/api", (req, res) => {
   res.json({
     name: "CleanMatch API",
     version: "1.0.0",
-    description: "AI-powered cleaning services marketplace API",
+    description: "AI-powered cleaning services marketplace API with real-time location tracking",
     endpoints: {
       auth: "/api/auth",
       users: "/api/users",
@@ -165,6 +165,15 @@ app.get("/api", (req, res) => {
       reviews: "/api/reviews",
       stats: "/api/stats",
       trust: "/api/trust",
+      tickets: "/api/tickets",
+    },
+    newFeatures: {
+      locationTracking: {
+        cleanerAvailability: "PUT /api/users/availability",
+        nearbyCleaners: "GET /api/users/nearby-cleaners",
+        onlineStats: "GET /api/users/online-stats",
+        bookingCleaners: "GET /api/bookings/:id/nearby-cleaners",
+      }
     },
     documentation: "/api/docs",
     health: "/health",

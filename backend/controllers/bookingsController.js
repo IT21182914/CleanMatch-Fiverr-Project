@@ -1321,6 +1321,187 @@ const getBookingAssignmentStatus = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get nearby cleaners for a specific booking after payment
+ * @route   GET /api/bookings/:id/nearby-cleaners
+ * @access  Private
+ */
+const getNearbyCleanersForBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { latitude, longitude, radius = 20 } = req.query;
+
+    // Get booking details and verify it belongs to the user or user is admin
+    const bookingResult = await query(
+      `SELECT 
+        b.*,
+        s.name as service_name, 
+        s.category as service_category
+       FROM bookings b
+       JOIN services s ON b.service_id = s.id
+       WHERE b.id = $1`,
+      [id]
+    );
+
+    if (bookingResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Booking not found",
+      });
+    }
+
+    const booking = bookingResult.rows[0];
+
+    // Check if user has access to this booking
+    if (
+      req.user.role !== "admin" &&
+      booking.customer_id !== req.user.id
+    ) {
+      return res.status(403).json({
+        success: false,
+        error: "Access denied to this booking",
+      });
+    }
+
+    // Ensure payment is completed before showing cleaners
+    if (booking.payment_status !== "completed") {
+      return res.status(400).json({
+        success: false,
+        error: "Payment must be completed before viewing available cleaners",
+        paymentStatus: booking.payment_status,
+      });
+    }
+
+    // Use provided location or booking address for search
+    let searchLat = parseFloat(latitude);
+    let searchLng = parseFloat(longitude);
+
+    if (!searchLat || !searchLng) {
+      // If no coordinates provided, could add geocoding here
+      // For now, return error
+      return res.status(400).json({
+        success: false,
+        error: "Location coordinates are required. Please provide latitude and longitude.",
+      });
+    }
+
+    const radiusKm = parseFloat(radius);
+
+    // Get nearby available cleaners
+    const cleanersQuery = `
+      SELECT 
+        cp.user_id,
+        cp.bio,
+        cp.experience_years,
+        cp.hourly_rate,
+        cp.rating,
+        cp.total_jobs,
+        cp.current_latitude,
+        cp.current_longitude,
+        cp.last_location_update,
+        cp.service_radius,
+        cp.certifications,
+        cp.cleaning_services,
+        u.first_name,
+        u.last_name,
+        u.phone,
+        u.profile_image,
+        EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - cp.last_location_update))/60 as minutes_since_last_update,
+        (
+          6371 * acos(
+            cos(radians($1)) * cos(radians(cp.current_latitude)) *
+            cos(radians(cp.current_longitude) - radians($2)) +
+            sin(radians($1)) * sin(radians(cp.current_latitude))
+          )
+        ) AS distance_km
+      FROM cleaner_profiles cp
+      JOIN users u ON cp.user_id = u.id
+      WHERE cp.is_available = true 
+        AND cp.current_latitude IS NOT NULL 
+        AND cp.current_longitude IS NOT NULL
+        AND cp.last_location_update > (CURRENT_TIMESTAMP - INTERVAL '3 minutes')
+        AND (
+          6371 * acos(
+            cos(radians($1)) * cos(radians(cp.current_latitude)) *
+            cos(radians(cp.current_longitude) - radians($2)) +
+            sin(radians($1)) * sin(radians(cp.current_latitude))
+          )
+        ) <= $3
+      ORDER BY distance_km ASC, cp.rating DESC, cp.total_jobs DESC
+      LIMIT 20
+    `;
+
+    const cleanersResult = await query(cleanersQuery, [searchLat, searchLng, radiusKm]);
+
+    // Transform the data
+    const availableCleaners = cleanersResult.rows.map(cleaner => ({
+      id: cleaner.user_id,
+      firstName: cleaner.first_name,
+      lastName: cleaner.last_name,
+      phone: cleaner.phone,
+      profileImage: cleaner.profile_image,
+      bio: cleaner.bio,
+      experienceYears: cleaner.experience_years,
+      hourlyRate: cleaner.hourly_rate,
+      rating: parseFloat(cleaner.rating) || 0,
+      totalJobs: cleaner.total_jobs || 0,
+      serviceRadius: cleaner.service_radius,
+      certifications: cleaner.certifications,
+      cleaningServices: cleaner.cleaning_services,
+      distanceKm: parseFloat(cleaner.distance_km).toFixed(2),
+      minutesSinceLastUpdate: Math.round(cleaner.minutes_since_last_update || 0),
+      isOnline: cleaner.minutes_since_last_update <= 3,
+      location: {
+        latitude: cleaner.current_latitude,
+        longitude: cleaner.current_longitude,
+        lastUpdate: cleaner.last_location_update,
+      },
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        booking: {
+          id: booking.id,
+          serviceName: booking.service_name,
+          serviceCategory: booking.service_category,
+          bookingDate: booking.booking_date,
+          bookingTime: booking.booking_time,
+          durationHours: booking.duration_hours,
+          totalAmount: booking.total_amount,
+          status: booking.status,
+          address: booking.address,
+          city: booking.city,
+          state: booking.state,
+          zipCode: booking.zip_code,
+        },
+        cleaners: availableCleaners,
+      },
+      searchCriteria: {
+        latitude: searchLat,
+        longitude: searchLng,
+        radiusKm,
+      },
+      stats: {
+        totalFound: availableCleaners.length,
+        within5km: availableCleaners.filter(c => parseFloat(c.distanceKm) <= 5).length,
+        within10km: availableCleaners.filter(c => parseFloat(c.distanceKm) <= 10).length,
+        onlineNow: availableCleaners.filter(c => c.isOnline).length,
+      },
+      message: availableCleaners.length > 0 
+        ? `Found ${availableCleaners.length} available cleaners for your booking`
+        : "No cleaners currently available in this area",
+    });
+
+  } catch (error) {
+    console.error("Get nearby cleaners for booking error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving nearby cleaners",
+    });
+  }
+};
+
 module.exports = {
   createBooking,
   getBookingById,
@@ -1331,4 +1512,5 @@ module.exports = {
   createBookingReview,
   retryAutoAssignment,
   getBookingAssignmentStatus,
+  getNearbyCleanersForBooking,
 };
