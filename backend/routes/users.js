@@ -13,6 +13,8 @@ const {
   getUserBookings,
   updateCleanerAvailability,
   getUserReviews,
+  getNearbyCleaners,
+  getOnlineCleanersStats,
 } = require("../controllers/usersController");
 const router = express.Router();
 
@@ -61,5 +63,20 @@ router.put(
 // @desc    Get user's reviews
 // @access  Private
 router.get("/reviews", auth, getUserReviews);
+
+// @route   GET /api/users/nearby-cleaners
+// @desc    Get nearby available cleaners
+// @access  Private (Customers only)
+router.get(
+  "/nearby-cleaners",
+  // auth,
+  // authorize("customer"),
+  getNearbyCleaners
+);
+
+// @route   GET /api/users/online-stats
+// @desc    Get online cleaners statistics
+// @access  Private
+router.get("/online-stats", auth, getOnlineCleanersStats);
 
 module.exports = router;

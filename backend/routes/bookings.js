@@ -15,6 +15,7 @@ const {
   createBookingReview,
   retryAutoAssignment,
   getBookingAssignmentStatus,
+  getNearbyCleanersForBooking,
 } = require("../controllers/bookingsController");
 const router = express.Router();
 
@@ -73,5 +74,10 @@ router.post("/recommendations-by-zip", auth, getZipBasedRecommendations);
 // @desc    Add review for completed booking
 // @access  Private
 router.post("/:id/review", auth, validate(reviewSchema), createBookingReview);
+
+// @route   GET /api/bookings/:id/nearby-cleaners
+// @desc    Get nearby cleaners for booking after payment
+// @access  Private
+router.get("/:id/nearby-cleaners", auth, getNearbyCleanersForBooking);
 
 module.exports = router;
