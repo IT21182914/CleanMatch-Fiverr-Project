@@ -84,12 +84,19 @@ app.use("/api/auth", authLimiter);
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Get allowed origins from environment variable or use defaults
+      const envAllowedOrigins = process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(",").map((url) => url.trim())
+        : [];
+
       const allowedOrigins = [
         process.env.FRONTEND_URL || "http://localhost:5173",
         "http://localhost:3000",
         "http://localhost:5000",
         "http://localhost:5174", // Add port 5174 for frontend
         "http://localhost:5175", // Add port 5175 as backup
+        "https://young-cliffs-57962-dbd5fa993e19.herokuapp.com", // Hosted backend URL
+        ...envAllowedOrigins, // Add environment-specified origins
       ];
 
       // Allow requests with no origin (like mobile apps or curl requests)
@@ -151,7 +158,8 @@ app.get("/api", (req, res) => {
   res.json({
     name: "CleanMatch API",
     version: "1.0.0",
-    description: "AI-powered cleaning services marketplace API with real-time location tracking",
+    description:
+      "AI-powered cleaning services marketplace API with real-time location tracking",
     endpoints: {
       auth: "/api/auth",
       users: "/api/users",
@@ -173,7 +181,7 @@ app.get("/api", (req, res) => {
         nearbyCleaners: "GET /api/users/nearby-cleaners",
         onlineStats: "GET /api/users/online-stats",
         bookingCleaners: "GET /api/bookings/:id/nearby-cleaners",
-      }
+      },
     },
     documentation: "/api/docs",
     health: "/health",
