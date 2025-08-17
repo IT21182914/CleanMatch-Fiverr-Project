@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Shield,
   Leaf,
+  Briefcase,
 } from "lucide-react";
 
 const AboutUs = () => {
@@ -278,7 +279,7 @@ const AboutUs = () => {
                 <div className="bg-white p-6 rounded-2xl shadow-lg border border-[#4EC6E5]/10 hover:shadow-xl transition-shadow duration-300">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-white text-xl">👔</span>
+                      <Briefcase className="w-6 h-6 text-white" />
                     </div>
                     <div>
                       <h4 className="font-bold text-gray-900 text-lg mb-2">
