@@ -72,6 +72,8 @@ const AdminReviewManagement = React.lazy(() =>
 import Home from "./pages/Home";
 const Services = React.lazy(() => import("./pages/Services"));
 const ServiceDetails = React.lazy(() => import("./pages/ServiceDetails"));
+const Contact = React.lazy(() => import("./pages/Contact"));
+const AboutUs = React.lazy(() => import("./pages/AboutUs"));
 const AIMatchingDemo = React.lazy(() => import("./pages/AIMatchingDemo"));
 const LoadingDemo = React.lazy(() => import("./pages/LoadingDemo"));
 const ImageGalleryDemo = React.lazy(() => import("./pages/ImageGalleryDemo"));
@@ -91,6 +93,8 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/services" element={<Services />} />
                   <Route path="/services/:id" element={<ServiceDetails />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/about" element={<AboutUs />} />
                   <Route path="/ai-demo" element={<AIMatchingDemo />} />
                   <Route path="/loading-demo" element={<LoadingDemo />} />
                   <Route

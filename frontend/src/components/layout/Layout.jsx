@@ -32,11 +32,9 @@ const Layout = ({ children }) => {
   // Determine if sidebar should be shown
   const showSidebar = isAuthenticated && !isFullWidth;
 
-  // Determine if footer should be shown - only on public pages and booking pages
+  // Determine if footer should be shown - only on public pages (exclude booking pages)
   const showFooter =
     isHomePage ||
-    (location.pathname.includes("/book") &&
-      !location.pathname.includes("/admin")) ||
     location.pathname === "/services" ||
     location.pathname === "/about" ||
     location.pathname === "/contact" ||

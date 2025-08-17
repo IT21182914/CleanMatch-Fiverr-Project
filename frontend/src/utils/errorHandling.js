@@ -84,22 +84,31 @@ export const parseApiError = (error) => {
     console.log("Network error details:", {
       code: error.code,
       message: error.message,
-      config: error.config
+      config: error.config,
     });
-    
+
     if (error.code === "ECONNABORTED" || error.code === "NETWORK_ERROR") {
       return new NetworkError("Request timeout. Please try again.");
     }
-    
-    if (error.code === "ECONNREFUSED" || error.message?.includes("ECONNREFUSED")) {
-      return new NetworkError("Unable to connect to server. Please ensure the backend server is running on http://localhost:5000");
+
+    if (
+      error.code === "ECONNREFUSED" ||
+      error.message?.includes("ECONNREFUSED")
+    ) {
+      return new NetworkError(
+        "Unable to connect to server. Please check your internet connection and try again."
+      );
     }
-    
+
     if (error.message?.includes("Network Error")) {
-      return new NetworkError("Network connection failed. Please check your internet connection and ensure the backend server is running.");
+      return new NetworkError(
+        "Network connection failed. Please check your internet connection and try again."
+      );
     }
-    
-    return new NetworkError("Connection failed. Please check if the backend server is running on http://localhost:5000");
+
+    return new NetworkError(
+      "Connection failed. Please check your internet connection and try again."
+    );
   }
 
   const { status, data } = error.response;
