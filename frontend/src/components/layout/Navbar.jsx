@@ -100,9 +100,8 @@ const Navbar = () => {
         { name: "Agencies", href: "/agencies", icon: UserIcon },
         {
           name: "About us",
-          href: "https://simorghservice.com/about-us",
+          href: "/about",
           icon: ClipboardDocumentListIcon,
-          external: true,
         },
         { name: "Contact us", href: "/contact", icon: ChatBubbleLeftRightIcon },
       ];
