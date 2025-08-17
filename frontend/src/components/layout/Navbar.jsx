@@ -98,7 +98,12 @@ const Navbar = () => {
           // },
         },
         { name: "Agencies", href: "/agencies", icon: UserIcon },
-        { name: "About us", href: "/about", icon: ClipboardDocumentListIcon },
+        {
+          name: "About us",
+          href: "https://simorghservice.com/about-us",
+          icon: ClipboardDocumentListIcon,
+          external: true,
+        },
         { name: "Contact us", href: "/contact", icon: ChatBubbleLeftRightIcon },
       ];
     }
@@ -240,38 +245,54 @@ const Navbar = () => {
               // }
 
               // Regular navigation items
+              const linkContent = (
+                <>
+                  <Icon className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-1.5 xl:mr-2" />
+                  <span
+                    className={cn(
+                      "relative z-10 truncate",
+                      isActive
+                        ? "text-white"
+                        : item.highlight
+                        ? "text-[#4EC6E5] group-hover:text-white"
+                        : "bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent group-hover:text-white"
+                    )}
+                  >
+                    {item.name}
+                  </span>
+                </>
+              );
+
+              const linkClassName = cn(
+                "group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm xl:text-sm font-semibold transition-all duration-300 border backdrop-blur-sm isolate whitespace-nowrap overflow-hidden",
+                "before:absolute before:inset-0 before:rounded-lg xl:before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-500 hover:before:translate-x-[100%]",
+                isActive
+                  ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-2 border-[#2BA8CD] shadow-lg xl:shadow-2xl shadow-[#4EC6E5]/50 transform relative before:absolute before:inset-0 before:bg-white/20 before:rounded-lg xl:before:rounded-xl before:animate-pulse z-40"
+                  : item.highlight
+                  ? "border-[#4EC6E5]/30 bg-[#F0FBFE] hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:border-[#4EC6E5] hover:shadow-xl hover:shadow-[#4EC6E5]/25 hover:z-40"
+                  : "bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:z-40"
+              );
+
               return (
                 <div
                   key={item.name}
                   className="flex items-center relative z-40"
                 >
                   <div className="relative">
-                    <Link
-                      to={item.href}
-                      className={cn(
-                        "group relative inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2.5 2xl:px-5 2xl:py-3 rounded-lg xl:rounded-xl text-xs lg:text-sm xl:text-sm font-semibold transition-all duration-300 border backdrop-blur-sm isolate whitespace-nowrap overflow-hidden",
-                        "before:absolute before:inset-0 before:rounded-lg xl:before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-500 hover:before:translate-x-[100%]",
-                        isActive
-                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] border-2 border-[#2BA8CD] shadow-lg xl:shadow-2xl shadow-[#4EC6E5]/50 transform relative before:absolute before:inset-0 before:bg-white/20 before:rounded-lg xl:before:rounded-xl before:animate-pulse z-40"
-                          : item.highlight
-                          ? "border-[#4EC6E5]/30 bg-[#F0FBFE] hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:border-[#4EC6E5] hover:shadow-xl hover:shadow-[#4EC6E5]/25 hover:z-40"
-                          : "bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg hover:z-40"
-                      )}
-                    >
-                      <Icon className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-1.5 xl:mr-2" />
-                      <span
-                        className={cn(
-                          "relative z-10 truncate",
-                          isActive
-                            ? "text-white"
-                            : item.highlight
-                            ? "text-[#4EC6E5] group-hover:text-white"
-                            : "bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent group-hover:text-white"
-                        )}
+                    {item.external ? (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={linkClassName}
                       >
-                        {item.name}
-                      </span>
-                    </Link>
+                        {linkContent}
+                      </a>
+                    ) : (
+                      <Link to={item.href} className={linkClassName}>
+                        {linkContent}
+                      </Link>
+                    )}
                   </div>
                 </div>
               );
@@ -517,21 +538,8 @@ const Navbar = () => {
                   //   );
                   // }
 
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={cn(
-                        "group flex items-center px-3 xs:px-4 py-3 xs:py-4 sm:py-5 rounded-lg sm:rounded-xl font-medium transition-all duration-300 w-full touch-manipulation min-h-[48px] xs:min-h-[52px] sm:min-h-[56px]",
-                        "text-sm xs:text-base",
-                        isActive
-                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] shadow-lg shadow-[#4EC6E5]/30 scale-[1.02] transform"
-                          : item.highlight
-                          ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] shadow-md"
-                          : "hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md border border-slate-200 hover:border-[#4EC6E5] bg-white hover:scale-[1.02] active:scale-100"
-                      )}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
+                  const linkContent = (
+                    <>
                       <Icon className="h-4 w-4 xs:h-5 xs:w-5 mr-3 flex-shrink-0" />
                       <span
                         className={cn(
@@ -548,6 +556,38 @@ const Navbar = () => {
                           <div className="w-1.5 h-1.5 xs:w-2 xs:h-2 bg-white/80 rounded-full animate-pulse"></div>
                         </div>
                       )}
+                    </>
+                  );
+
+                  const linkClassName = cn(
+                    "group flex items-center px-3 xs:px-4 py-3 xs:py-4 sm:py-5 rounded-lg sm:rounded-xl font-medium transition-all duration-300 w-full touch-manipulation min-h-[48px] xs:min-h-[52px] sm:min-h-[56px]",
+                    "text-sm xs:text-base",
+                    isActive
+                      ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] shadow-lg shadow-[#4EC6E5]/30 scale-[1.02] transform"
+                      : item.highlight
+                      ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] shadow-md"
+                      : "hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] hover:shadow-md border border-slate-200 hover:border-[#4EC6E5] bg-white hover:scale-[1.02] active:scale-100"
+                  );
+
+                  return item.external ? (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={linkClassName}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {linkContent}
+                    </a>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={linkClassName}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {linkContent}
                     </Link>
                   );
                 })}

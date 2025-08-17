@@ -32,7 +32,12 @@ const TopNavbar = ({
   const publicNavigation = [
     { name: "Home", href: "/", icon: HomeIcon },
     { name: "Services", href: "/services", icon: SparklesIcon },
-    { name: "About us", href: "/about", icon: ClipboardDocumentListIcon },
+    {
+      name: "About us",
+      href: "https://simorghservice.com/about-us",
+      icon: ClipboardDocumentListIcon,
+      external: true,
+    },
     { name: "Contact us", href: "/contact", icon: ChatBubbleLeftRightIcon },
   ];
 
@@ -159,31 +164,48 @@ const TopNavbar = ({
               <div className="hidden lg:flex lg:items-center lg:space-x-2 xl:space-x-4">
                 {publicNavigation.map((item) => {
                   const Icon = item.icon;
-                  const isActive = location.pathname === item.href;
+                  const isActive =
+                    location.pathname === item.href && !item.external;
+
+                  const linkContent = (
+                    <>
+                      <Icon className="h-4 w-4 mr-2" />
+                      <span
+                        className={cn(
+                          "truncate",
+                          isActive
+                            ? "text-white"
+                            : "bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent hover:text-white"
+                        )}
+                      >
+                        {item.name}
+                      </span>
+                    </>
+                  );
+
+                  const className = cn(
+                    "inline-flex items-center px-3 xl:px-4 py-2 xl:py-2.5 text-sm xl:text-base font-medium rounded-lg xl:rounded-xl transition-all duration-200 relative z-10",
+                    isActive
+                      ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] shadow-lg border border-[#4EC6E5]/30"
+                      : "bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg"
+                  );
 
                   return (
                     <div key={item.name} className="flex items-center">
-                      <Link
-                        to={item.href}
-                        className={cn(
-                          "inline-flex items-center px-3 xl:px-4 py-2 xl:py-2.5 text-sm xl:text-base font-medium rounded-lg xl:rounded-xl transition-all duration-200 relative z-10",
-                          isActive
-                            ? "bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] shadow-lg border border-[#4EC6E5]/30"
-                            : "bg-white/50 hover:bg-gradient-to-r hover:from-[#4EC6E5] hover:to-[#2BA8CD] border-transparent hover:border-[#4EC6E5]/30 hover:shadow-lg"
-                        )}
-                      >
-                        <Icon className="h-4 w-4 mr-2" />
-                        <span
-                          className={cn(
-                            "truncate",
-                            isActive
-                              ? "text-white"
-                              : "bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 bg-clip-text text-transparent hover:text-white"
-                          )}
+                      {item.external ? (
+                        <a
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={className}
                         >
-                          {item.name}
-                        </span>
-                      </Link>
+                          {linkContent}
+                        </a>
+                      ) : (
+                        <Link to={item.href} className={className}>
+                          {linkContent}
+                        </Link>
+                      )}
                     </div>
                   );
                 })}
