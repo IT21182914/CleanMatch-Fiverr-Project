@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { useState, useCallback, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import {
   CalendarIcon,
   ClockIcon,
@@ -25,6 +26,39 @@ import {
 
 const CustomerBookings = () => {
   const [filter, setFilter] = useState("all");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Handle success messages from redirects
+  useEffect(() => {
+    if (location.state?.message) {
+      toast.success(location.state.message);
+      // Clear the state to prevent showing the message again on refresh
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
+
+  // Function to handle booking cancellation
+  const handleCancelBooking = async (bookingId) => {
+    if (!window.confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await bookingsAPI.updateStatus(bookingId, 'cancelled');
+      if (response.data.success) {
+        toast.success('Booking cancelled successfully');
+        // Trigger a refresh of the bookings list
+        setRefreshTrigger(prev => prev + 1);
+      } else {
+        toast.error(response.data.error || 'Failed to cancel booking');
+      }
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      toast.error('Failed to cancel booking. Please try again.');
+    }
+  };
 
   // Lazy loading fetch function
   const fetchBookings = useCallback(
@@ -45,7 +79,7 @@ const CustomerBookings = () => {
         throw error;
       }
     },
-    [filter]
+    [filter, refreshTrigger]
   );
 
   // Render individual booking item
@@ -68,15 +102,28 @@ const CustomerBookings = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <span
-                className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(
-                  booking.status
-                )}`}
-              >
-                {capitalizeFirst(booking.status)}
-              </span>
+              <div className="space-y-1">
+                <span
+                  className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(
+                    booking.status
+                  )}`}
+                >
+                  Work: {capitalizeFirst(booking.status)}
+                </span>
+                {/* Payment Status Badge */}
+                <div>
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${booking.paymentStatus === "paid"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                      }`}
+                  >
+                    Payment: {capitalizeFirst(booking.paymentStatus === "paid" ? "PAID" : "PENDING")}
+                  </span>
+                </div>
+              </div>
               <span className="text-lg font-bold text-gray-900">
-                {formatCurrency(booking.totalAmount)}
+                {formatCurrency(booking.totalAmount || booking.total_amount)}
               </span>
             </div>
           </div>
@@ -112,17 +159,52 @@ const CustomerBookings = () => {
               variant="outline"
               size="sm"
               className="inline-flex items-center"
+              onClick={() => navigate(`/customer/bookings/${booking.id}`)}
             >
               <EyeIcon className="h-4 w-4 mr-1" />
               View Details
             </Button>
 
+            {/* Payment button for unpaid bookings */}
+            {(booking.payment_status === "pending" || booking.paymentStatus === "pending") &&
+              (booking.status === "pending" || booking.status === "confirmed") && (
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => navigate(`/payment/${booking.id}`)}
+                >
+                  Complete Payment
+                </Button>
+              )}
+
+            {/* Select Cleaner button for paid bookings without assigned cleaner */}
+            {(booking.payment_status === "paid" || booking.paymentStatus === "paid") &&
+              !booking.cleaner &&
+              booking.status === "confirmed" && (
+                <Button
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={() => navigate("/customer/select-cleaner", {
+                    state: { booking }
+                  })}
+                >
+                  Select Cleaner
+                </Button>
+              )}
+
             {booking.status === "completed" && !booking.review && (
               <Button size="sm">Leave Review</Button>
             )}
 
-            {booking.status === "pending" && (
-              <Button variant="outline" size="sm">
+            {/* Cancel button for pending bookings or confirmed bookings without cleaner */}
+            {(booking.status === "pending" || 
+              (booking.status === "confirmed" && !booking.cleaner)) && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="text-red-600 border-red-300 hover:bg-red-50"
+                onClick={() => handleCancelBooking(booking.id)}
+              >
                 Cancel Booking
               </Button>
             )}
@@ -166,11 +248,10 @@ const CustomerBookings = () => {
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key)}
-              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                filter === tab.key
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors ${filter === tab.key
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
             >
               {tab.label}
             </button>
@@ -184,7 +265,7 @@ const CustomerBookings = () => {
         renderItem={renderBookingItem}
         pageSize={5}
         className="space-y-4"
-        dependencies={[filter]}
+        dependencies={[filter, refreshTrigger]}
         renderEmpty={() => (
           <Card>
             <CardContent className="text-center py-12">

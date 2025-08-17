@@ -77,6 +77,8 @@ router.get(
 // @route   GET /api/users/online-stats
 // @desc    Get online cleaners statistics
 // @access  Private
-router.get("/online-stats", auth, getOnlineCleanersStats);
+router.get("/online-stats", 
+  auth,
+  getOnlineCleanersStats);
 
 module.exports = router;

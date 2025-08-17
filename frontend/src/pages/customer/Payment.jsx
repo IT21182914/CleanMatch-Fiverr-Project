@@ -67,7 +67,21 @@ const Payment = () => {
   }, [bookingId]);
 
   const handlePaymentSuccess = () => {
-    navigate("/bookings?success=true");
+    // Navigate to cleaner selection with booking data
+    console.log("Payment successful");
+    bookingsAPI.updatePaymentStatus(bookingId, "paid")
+      .then(() => {
+        console.log("Payment successful, navigating to booking details with success message");
+        navigate(`/customer/bookings/${bookingId}`, {
+          state: {
+            message: "Payment completed successfully! You can now select a cleaner for your booking.",
+            paymentSuccess: true
+          }
+        });
+      }).catch((error) => {
+        console.error("Error updating booking payment status:", error);
+        setError("Failed to update payment status. Please try again.");
+      });
   };
 
   const handlePaymentError = (error) => {
