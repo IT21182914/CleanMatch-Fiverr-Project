@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Mail,
   Phone,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 
 const Contact = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
     email: "",
@@ -119,27 +121,26 @@ const Contact = () => {
       {/* Hero Section */}
       <div className="relative">
         <div className="relative h-[75vh] overflow-hidden">
-          {/* Enhanced Background Image with Better Visibility */}
+          {/* Background Image with Original Natural Look */}
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-110"
             style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')",
+              backgroundImage: "url('/images/Office-Cleaning.jpg')",
             }}
           />
 
-          {/* Modern Gradient Overlay for Better Text Visibility */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/75"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/10"></div>
+          {/* Balanced overlay for natural image visibility and text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/60 to-white/75"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-white/5 to-white/30"></div>
 
           {/* Content */}
           <div className="relative z-10 flex items-center h-full">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
               <div className="max-w-4xl">
-                <div className="mb-8 inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-50 to-teal-50 border border-cyan-200/50 rounded-full shadow-sm">
+                <div className="mb-8 inline-flex items-center px-6 py-3 bg-white/95 backdrop-blur-sm border border-cyan-200/50 rounded-full shadow-lg">
                   <Sparkles className="h-5 w-5 text-cyan-600 mr-3" />
                   <span
-                    className="text-cyan-700 font-medium"
+                    className="text-cyan-700 font-semibold"
                     style={{ fontFamily: "Inter, sans-serif" }}
                   >
                     Professional Cleaning Services
@@ -148,18 +149,24 @@ const Contact = () => {
 
                 <h1
                   className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
-                  style={{ fontFamily: "Poppins, sans-serif" }}
+                  style={{
+                    fontFamily: "Poppins, sans-serif",
+                    textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  }}
                 >
-                  <span className="text-gray-800">Contact</span>
+                  <span className="text-gray-900 drop-shadow-sm">Contact</span>
                   <br />
-                  <span className="text-4xl md:text-6xl bg-gradient-to-r from-cyan-600 via-teal-600 to-blue-600 bg-clip-text text-transparent">
+                  <span className="text-4xl md:text-6xl bg-gradient-to-r from-cyan-600 via-teal-600 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
                     Simorgh Services
                   </span>
                 </h1>
 
                 <p
-                  className="text-xl md:text-2xl text-gray-600 font-light leading-relaxed mb-10 max-w-3xl"
-                  style={{ fontFamily: "Inter, sans-serif" }}
+                  className="text-xl md:text-2xl text-gray-800 font-medium leading-relaxed mb-10 max-w-3xl drop-shadow-sm"
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    textShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                  }}
                 >
                   Your trusted cleaning partner for private and commercial
                   spaces. Experience excellence in every detail with our
@@ -168,13 +175,14 @@ const Contact = () => {
 
                 <div className="flex flex-wrap gap-6">
                   <button
-                    className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-semibold rounded-full hover:from-cyan-600 hover:to-teal-700 transform hover:scale-105 transition-all duration-300 shadow-xl shadow-cyan-200/50"
+                    className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-semibold rounded-full hover:from-cyan-600 hover:to-teal-700 transform hover:scale-105 transition-all duration-300 shadow-2xl shadow-cyan-300/60 border border-white/20"
                     style={{ fontFamily: "Inter, sans-serif" }}
                   >
                     Get Free Quote
                   </button>
                   <button
-                    className="px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 font-semibold rounded-full hover:border-cyan-300 hover:bg-cyan-50 transition-all duration-300 shadow-lg"
+                    onClick={() => navigate("/services")}
+                    className="px-8 py-4 bg-white/95 backdrop-blur-md border-2 border-gray-200/80 text-gray-700 font-semibold rounded-full hover:border-cyan-300 hover:bg-cyan-50/90 transition-all duration-300 shadow-xl shadow-gray-200/50"
                     style={{ fontFamily: "Inter, sans-serif" }}
                   >
                     View Services
