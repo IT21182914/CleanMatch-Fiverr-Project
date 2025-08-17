@@ -119,80 +119,65 @@ const Contact = () => {
       </div>
 
       {/* Hero Section */}
-      <div className="relative">
-        <div className="relative h-[75vh] overflow-hidden">
-          {/* Background Image with Original Natural Look */}
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-110"
-            style={{
-              backgroundImage: "url('/images/Office-Cleaning.jpg')",
-            }}
-          />
+      <section className="relative h-[70vh] bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 overflow-hidden">
+        <div className="absolute inset-0 bg-black/60"></div>
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: "url('/images/Office-Cleaning.jpg')",
+          }}
+        ></div>
+        {/* Enhanced Professional overlay for better text visibility */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/50 to-slate-800/60"></div>
 
-          {/* Balanced overlay for natural image visibility and text readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/60 to-white/75"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-white/5 to-white/30"></div>
+        <div className="relative z-10 container mx-auto px-6 h-full flex items-center">
+          <div className="max-w-4xl">
+            <div className="mb-8">
+              <span className="inline-flex items-center px-6 py-3 rounded-full text-base font-semibold bg-white/20 text-white border border-white/30 backdrop-blur-md shadow-2xl shadow-black/20">
+                <Sparkles className="w-5 h-5 mr-3" />
+                Professional Cleaning Services
+              </span>
+            </div>
 
-          {/* Content */}
-          <div className="relative z-10 flex items-center h-full">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-              <div className="max-w-4xl">
-                <div className="mb-8 inline-flex items-center px-6 py-3 bg-white/95 backdrop-blur-sm border border-cyan-200/50 rounded-full shadow-lg">
-                  <Sparkles className="h-5 w-5 text-cyan-600 mr-3" />
-                  <span
-                    className="text-cyan-700 font-semibold"
-                    style={{ fontFamily: "Inter, sans-serif" }}
-                  >
-                    Professional Cleaning Services
-                  </span>
-                </div>
+            <h1
+              className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-tight drop-shadow-2xl"
+              style={{
+                textShadow:
+                  "0 4px 20px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.6)",
+              }}
+            >
+              Get in Touch with{" "}
+              <span className="text-white drop-shadow-2xl">
+                Simorgh Services
+              </span>
+            </h1>
 
-                <h1
-                  className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
-                  style={{
-                    fontFamily: "Poppins, sans-serif",
-                    textShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <span className="text-gray-900 drop-shadow-sm">Contact</span>
-                  <br />
-                  <span className="text-4xl md:text-6xl bg-gradient-to-r from-cyan-600 via-teal-600 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
-                    Simorgh Services
-                  </span>
-                </h1>
+            <p
+              className="text-2xl md:text-3xl text-white mb-10 max-w-3xl leading-relaxed drop-shadow-xl font-medium"
+              style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}
+            >
+              Your trusted cleaning partner for private and commercial spaces.
+              Experience excellence in every detail with our professional team.
+            </p>
 
-                <p
-                  className="text-xl md:text-2xl text-gray-800 font-medium leading-relaxed mb-10 max-w-3xl drop-shadow-sm"
-                  style={{
-                    fontFamily: "Inter, sans-serif",
-                    textShadow: "0 1px 2px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  Your trusted cleaning partner for private and commercial
-                  spaces. Experience excellence in every detail with our
-                  professional team.
-                </p>
-
-                <div className="flex flex-wrap gap-6">
-                  <button
-                    className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-semibold rounded-full hover:from-cyan-600 hover:to-teal-700 transform hover:scale-105 transition-all duration-300 shadow-2xl shadow-cyan-300/60 border border-white/20"
-                    style={{ fontFamily: "Inter, sans-serif" }}
-                  >
-                    Get Free Quote
-                  </button>
-                  <button
-                    onClick={() => navigate("/services")}
-                    className="px-8 py-4 bg-white/95 backdrop-blur-md border-2 border-gray-200/80 text-gray-700 font-semibold rounded-full hover:border-cyan-300 hover:bg-cyan-50/90 transition-all duration-300 shadow-xl shadow-gray-200/50"
-                    style={{ fontFamily: "Inter, sans-serif" }}
-                  >
-                    View Services
-                  </button>
-                </div>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-6">
+              <button className="bg-white text-gray-800 px-10 py-5 rounded-xl font-bold text-xl hover:bg-gray-100 transition-all duration-300 hover:scale-105 shadow-2xl shadow-black/30">
+                Get Free Quote
+              </button>
+              <button
+                onClick={() => navigate("/services")}
+                className="border-3 border-white text-white px-10 py-5 rounded-xl font-bold text-xl hover:bg-white/15 transition-all duration-300 backdrop-blur-md shadow-2xl shadow-black/30"
+              >
+                View Services
+              </button>
             </div>
           </div>
         </div>
-      </div>
+
+        {/* Floating elements */}
+        <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full blur-3xl animate-bounce"></div>
+        <div className="absolute bottom-20 left-20 w-20 h-20 bg-gray-300/20 rounded-full blur-2xl animate-pulse"></div>
+      </section>
 
       {/* Features Section */}
       <div className="relative py-24 bg-gray-50">
@@ -204,13 +189,13 @@ const Contact = () => {
                   <div className="text-white">{feature.icon}</div>
                 </div>
                 <h3
-                  className="text-xl font-semibold text-gray-800 mb-3"
+                  className="text-2xl font-bold text-gray-900 mb-3"
                   style={{ fontFamily: "Poppins, sans-serif" }}
                 >
                   {feature.title}
                 </h3>
                 <p
-                  className="text-gray-600 leading-relaxed"
+                  className="text-gray-700 leading-relaxed text-lg font-medium"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
                   {feature.description}
@@ -226,7 +211,7 @@ const Contact = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2
-              className="text-4xl md:text-5xl font-bold text-gray-800 mb-6"
+              className="text-5xl md:text-6xl font-bold text-gray-900 mb-8"
               style={{ fontFamily: "Poppins, sans-serif" }}
             >
               Let's Start the{" "}
@@ -235,7 +220,7 @@ const Contact = () => {
               </span>
             </h2>
             <p
-              className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed"
+              className="text-2xl text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium"
               style={{ fontFamily: "Inter, sans-serif" }}
             >
               Ready to experience premium cleaning services? Get in touch with
@@ -264,13 +249,13 @@ const Contact = () => {
                       </div>
                       <div>
                         <p
-                          className="text-sm text-gray-500 mb-1"
+                          className="text-sm text-gray-600 mb-1 font-medium"
                           style={{ fontFamily: "Inter, sans-serif" }}
                         >
                           Email us
                         </p>
                         <p
-                          className="text-gray-800 font-semibold text-lg"
+                          className="text-gray-900 font-bold text-xl"
                           style={{ fontFamily: "Inter, sans-serif" }}
                         >
                           contact@simorghservice.com
@@ -287,13 +272,13 @@ const Contact = () => {
               <div className="bg-white border border-gray-100 p-10 rounded-3xl shadow-2xl shadow-gray-200/20">
                 <div className="mb-8">
                   <h3
-                    className="text-2xl font-bold text-gray-800 mb-2"
+                    className="text-3xl font-bold text-gray-900 mb-3"
                     style={{ fontFamily: "Poppins, sans-serif" }}
                   >
                     Send us a Message
                   </h3>
                   <p
-                    className="text-gray-600"
+                    className="text-gray-700 text-lg font-medium"
                     style={{ fontFamily: "Inter, sans-serif" }}
                   >
                     We'll get back to you within 24 hours
@@ -304,7 +289,7 @@ const Contact = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label
-                        className="block text-sm font-semibold text-gray-700 mb-3"
+                        className="block text-base font-bold text-gray-800 mb-3"
                         style={{ fontFamily: "Inter, sans-serif" }}
                       >
                         First Name *
@@ -322,7 +307,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <label
-                        className="block text-sm font-semibold text-gray-700 mb-3"
+                        className="block text-base font-bold text-gray-800 mb-3"
                         style={{ fontFamily: "Inter, sans-serif" }}
                       >
                         Phone
@@ -341,7 +326,7 @@ const Contact = () => {
 
                   <div>
                     <label
-                      className="block text-sm font-semibold text-gray-700 mb-3"
+                      className="block text-base font-bold text-gray-800 mb-3"
                       style={{ fontFamily: "Inter, sans-serif" }}
                     >
                       Email *
@@ -360,7 +345,7 @@ const Contact = () => {
 
                   <div>
                     <label
-                      className="block text-sm font-semibold text-gray-700 mb-3"
+                      className="block text-base font-bold text-gray-800 mb-3"
                       style={{ fontFamily: "Inter, sans-serif" }}
                     >
                       Message *
@@ -405,7 +390,7 @@ const Contact = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2
-              className="text-4xl md:text-5xl font-bold text-gray-800 mb-6"
+              className="text-5xl md:text-6xl font-bold text-gray-900 mb-8"
               style={{ fontFamily: "Poppins, sans-serif" }}
             >
               Frequently Asked{" "}
@@ -414,7 +399,7 @@ const Contact = () => {
               </span>
             </h2>
             <p
-              className="text-xl text-gray-600 leading-relaxed"
+              className="text-2xl text-gray-700 leading-relaxed font-medium"
               style={{ fontFamily: "Inter, sans-serif" }}
             >
               Everything you need to know about our cleaning services
@@ -433,7 +418,7 @@ const Contact = () => {
                 >
                   <div className="flex justify-between items-center">
                     <h3
-                      className="text-lg font-semibold text-gray-800 pr-4"
+                      className="text-xl font-bold text-gray-900 pr-4"
                       style={{ fontFamily: "Poppins, sans-serif" }}
                     >
                       {faq.question}
@@ -456,7 +441,7 @@ const Contact = () => {
                 >
                   <div className="px-8 pb-6">
                     <p
-                      className="text-gray-600 leading-relaxed"
+                      className="text-gray-700 leading-relaxed text-lg font-medium"
                       style={{ fontFamily: "Inter, sans-serif" }}
                     >
                       {faq.answer}
