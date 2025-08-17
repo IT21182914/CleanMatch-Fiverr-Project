@@ -394,40 +394,6 @@ const Contact = () => {
                     )}
                   </button>
                 </div>
-
-                {/* Additional Contact Info */}
-                <div className="mt-10 pt-8 border-t border-gray-100">
-                  <h4
-                    className="text-lg font-semibold text-gray-800 mb-6"
-                    style={{ fontFamily: "Poppins, sans-serif" }}
-                  >
-                    Alternative Contact Methods
-                  </h4>
-                  <div className="space-y-4">
-                    <div className="flex items-center text-gray-600 hover:text-gray-800 transition-colors group cursor-pointer">
-                      <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-teal-600 rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform shadow-lg">
-                        <Phone className="h-5 w-5 text-white" />
-                      </div>
-                      <span
-                        className="font-medium"
-                        style={{ fontFamily: "Inter, sans-serif" }}
-                      >
-                        +1 (555) 123-4567
-                      </span>
-                    </div>
-                    <div className="flex items-center text-gray-600 hover:text-gray-800 transition-colors group cursor-pointer">
-                      <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-teal-600 rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform shadow-lg">
-                        <MapPin className="h-5 w-5 text-white" />
-                      </div>
-                      <span
-                        className="font-medium"
-                        style={{ fontFamily: "Inter, sans-serif" }}
-                      >
-                        Professional Cleaning Services
-                      </span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
