@@ -12,6 +12,7 @@ import {
   StarIcon,
   ExclamationTriangleIcon,
   WrenchScrewdriverIcon,
+  LockClosedIcon,
 } from "@heroicons/react/24/outline";
 import { getServiceImage } from "../../utils/serviceImages";
 
@@ -189,7 +190,9 @@ const Service21 = ({ service, handleBookNow }) => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
-            <div className="text-4xl mb-2">🦺</div>
+            <div className="text-4xl mb-2">
+              <ShieldCheckIcon className="h-10 w-10 text-red-600 mx-auto" />
+            </div>
             <h4 className="font-semibold text-red-900 mb-2">Certified Teams</h4>
             <p className="text-red-800 text-sm">
               All technicians certified in high-altitude safety and fall
@@ -197,7 +200,9 @@ const Service21 = ({ service, handleBookNow }) => {
             </p>
           </div>
           <div className="text-center">
-            <div className="text-4xl mb-2">🔒</div>
+            <div className="text-4xl mb-2">
+              <LockClosedIcon className="h-10 w-10 text-red-600 mx-auto" />
+            </div>
             <h4 className="font-semibold text-red-900 mb-2">
               Safety Equipment
             </h4>
@@ -206,7 +211,9 @@ const Service21 = ({ service, handleBookNow }) => {
             </p>
           </div>
           <div className="text-center">
-            <div className="text-4xl mb-2">🛡️</div>
+            <div className="text-4xl mb-2">
+              <TrophyIcon className="h-10 w-10 text-red-600 mx-auto" />
+            </div>
             <h4 className="font-semibold text-red-900 mb-2">
               Insurance Coverage
             </h4>

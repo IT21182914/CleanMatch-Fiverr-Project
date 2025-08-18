@@ -189,27 +189,25 @@ const Service17 = ({ service, handleBookNow }) => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
-            <div className="text-4xl mb-2">🦺</div>
-            <h4 className="font-semibold text-red-900 mb-2">
-              Personal Protection
-            </h4>
-            <p className="text-red-800 text-sm">
-              Full PPE compliance and safety gear for all team members
-            </p>
+            <div className="flex justify-center mb-2">
+              <ShieldCheckIcon className="h-12 w-12 text-red-600" />
+            </div>
+            <h4 className="font-semibold text-red-900 mb-2">Personal Protection</h4>
+            <p className="text-red-800 text-sm">Full PPE compliance and safety gear for all team members</p>
           </div>
           <div className="text-center">
-            <div className="text-4xl mb-2">⚠️</div>
+            <div className="flex justify-center mb-2">
+              <ExclamationTriangleIcon className="h-12 w-12 text-red-600" />
+            </div>
             <h4 className="font-semibold text-red-900 mb-2">Risk Assessment</h4>
-            <p className="text-red-800 text-sm">
-              Thorough site evaluation and hazard identification protocols
-            </p>
+            <p className="text-red-800 text-sm">Thorough site evaluation and hazard identification protocols</p>
           </div>
           <div className="text-center">
-            <div className="text-4xl mb-2">📋</div>
+            <div className="flex justify-center mb-2">
+              <ClockIcon className="h-12 w-12 text-red-600" />
+            </div>
             <h4 className="font-semibold text-red-900 mb-2">Documentation</h4>
-            <p className="text-red-800 text-sm">
-              Complete compliance records and safety audit trails
-            </p>
+            <p className="text-red-800 text-sm">Complete compliance records and safety audit trails</p>
           </div>
         </div>
       </div>

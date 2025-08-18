@@ -12,6 +12,7 @@ import {
   StarIcon,
   HomeIcon,
   ExclamationTriangleIcon,
+  CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
 import { getServiceImage } from "../../utils/serviceImages";
 
@@ -185,7 +186,9 @@ const Service19 = ({ service, handleBookNow }) => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
-            <div className="text-4xl mb-2">❄️</div>
+            <div className="text-4xl mb-2">
+              <ShieldCheckIcon className="h-10 w-10 text-slate-600 mx-auto" />
+            </div>
             <h4 className="font-semibold text-slate-900 mb-2">
               Storm Preparation
             </h4>
@@ -194,7 +197,9 @@ const Service19 = ({ service, handleBookNow }) => {
             </p>
           </div>
           <div className="text-center">
-            <div className="text-4xl mb-2">🚨</div>
+            <div className="text-4xl mb-2">
+              <ExclamationTriangleIcon className="h-10 w-10 text-slate-600 mx-auto" />
+            </div>
             <h4 className="font-semibold text-slate-900 mb-2">
               Emergency Response
             </h4>
@@ -203,7 +208,9 @@ const Service19 = ({ service, handleBookNow }) => {
             </p>
           </div>
           <div className="text-center">
-            <div className="text-4xl mb-2">🧹</div>
+            <div className="text-4xl mb-2">
+              <SparklesIcon className="h-10 w-10 text-slate-600 mx-auto" />
+            </div>
             <h4 className="font-semibold text-slate-900 mb-2">
               Post-Storm Cleanup
             </h4>
@@ -221,7 +228,9 @@ const Service19 = ({ service, handleBookNow }) => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex items-start gap-3">
-            <div className="text-2xl">🍂</div>
+            <div className="text-2xl">
+              <CalendarDaysIcon className="h-8 w-8 text-blue-600" />
+            </div>
             <div>
               <h4 className="font-semibold text-blue-900 mb-2">
                 Fall Preparation
@@ -233,7 +242,9 @@ const Service19 = ({ service, handleBookNow }) => {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="text-2xl">❄️</div>
+            <div className="text-2xl">
+              <ShieldCheckIcon className="h-8 w-8 text-blue-600" />
+            </div>
             <div>
               <h4 className="font-semibold text-blue-900 mb-2">
                 Winter Operations

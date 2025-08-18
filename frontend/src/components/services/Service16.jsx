@@ -187,17 +187,18 @@ const Service16 = ({ service, handleBookNow }) => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="text-center">
-            <div className="text-4xl mb-2">🌸</div>
-            <h4 className="font-semibold text-green-900 mb-2">
-              Spring & Summer
-            </h4>
+            <div className="flex justify-center mb-2">
+              <SunIcon className="h-12 w-12 text-green-600" />
+            </div>
+            <h4 className="font-semibold text-green-900 mb-2">Spring & Summer</h4>
             <p className="text-green-800 text-sm">
-              Regular maintenance promotes healthy growth and prevents weed
-              establishment
+              Regular maintenance promotes healthy growth and prevents weed establishment
             </p>
           </div>
           <div className="text-center">
-            <div className="text-4xl mb-2">🍂</div>
+            <div className="flex justify-center mb-2">
+              <HomeIcon className="h-12 w-12 text-orange-600" />
+            </div>
             <h4 className="font-semibold text-green-900 mb-2">Fall & Winter</h4>
             <p className="text-green-800 text-sm">
               Seasonal cleanup and preparation for dormancy and spring revival

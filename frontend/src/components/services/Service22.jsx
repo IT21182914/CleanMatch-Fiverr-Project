@@ -7,49 +7,48 @@ import {
   SparklesIcon,
   FireIcon,
   GlobeAltIcon,
-  KeyIcon,
+  HomeIcon,
   TrophyIcon,
   StarIcon,
-  HomeIcon,
+  HeartIcon,
   CalendarDaysIcon,
-  BuildingOfficeIcon,
 } from "@heroicons/react/24/outline";
 import { getServiceImage } from "../../utils/serviceImages";
 
-const Service18 = ({ service, handleBookNow }) => {
+const Service22 = ({ service, handleBookNow }) => {
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8">
       <h2 className="text-3xl font-bold text-gray-900 mb-6">
-        Hospitality Excellence at Every Level
+        Home is Where Clean Begins
       </h2>
       <p className="text-xl text-gray-700 leading-relaxed mb-8">
-        Your hotel's reputation depends on immaculate cleanliness and
-        exceptional guest experiences. Our professional hospitality cleaning
-        team understands the unique demands of the hotel industry, delivering
-        consistent, high-quality service that exceeds guest expectations and
-        maintains your establishment's prestigious reputation.
+        Your home should be your sanctuary—a place where you can relax, recharge, 
+        and create memories with loved ones. Our residential cleaning service brings 
+        professional-quality care to every corner of your living space, from cozy 
+        apartments to spacious family homes, ensuring your personal haven always 
+        feels fresh, welcoming, and perfectly maintained.
       </p>
 
       {/* Limited Time Offer */}
-      <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border-l-4 border-amber-500 p-8 rounded-xl mb-8">
+      <div className="bg-gradient-to-r from-rose-50 to-pink-50 border-l-4 border-rose-500 p-8 rounded-xl mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-amber-500 rounded-full">
-            <KeyIcon className="h-6 w-6 text-white" />
+          <div className="p-2 bg-rose-500 rounded-full">
+            <HomeIcon className="h-6 w-6 text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-amber-900">
-            Premium Hotel Service
+          <h3 className="text-2xl font-bold text-rose-900">
+            Complete Home Care
           </h3>
         </div>
-        <p className="text-amber-800 text-xl leading-relaxed">
-          Professional hotel cleaning services for only{" "}
-          <span className="font-bold text-3xl text-amber-900">
+        <p className="text-rose-800 text-xl leading-relaxed">
+          Professional residential cleaning for only{" "}
+          <span className="font-bold text-3xl text-rose-900">
             {service.memberPrice}
           </span>{" "}
           with membership, instead of the regular{" "}
           <span className="line-through text-gray-500 text-lg">
             {service.regularPrice}
           </span>
-          . Hospitality-grade cleaning that ensures 5-star guest satisfaction.
+          . Transform your living space into the perfect home sanctuary you deserve.
         </p>
       </div>
 
@@ -58,66 +57,65 @@ const Service18 = ({ service, handleBookNow }) => {
         <img
           src={getServiceImage(service.name)}
           alt={service.name}
-          className="w-full h-auto object-contain bg-gradient-to-br from-amber-50 to-yellow-50"
+          className="w-full h-auto object-contain bg-gradient-to-br from-rose-50 to-pink-50"
           loading="lazy"
         />
       </div>
 
       <h3 className="text-2xl font-bold text-gray-900 mb-6">
-        Why hotels trust our hospitality expertise?
+        Why families choose our residential care?
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-          <div className="p-2 bg-amber-500 rounded-full">
+          <div className="p-2 bg-rose-500 rounded-full">
+            <HeartIcon className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 text-lg mb-1">
+              Family-Focused Care
+            </h4>
+            <p className="text-gray-600 text-base">
+              Understanding of family life and child-safe cleaning practices
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+          <div className="p-2 bg-pink-500 rounded-full">
             <CheckBadgeIcon className="h-5 w-5 text-white" />
           </div>
           <div>
             <h4 className="font-semibold text-gray-900 text-lg mb-1">
-              Hotel Standards
+              Trusted Professionals
             </h4>
             <p className="text-gray-600 text-base">
-              Trained in hospitality industry cleaning protocols and guest
-              expectations
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-          <div className="p-2 bg-blue-500 rounded-full">
-            <ClockIcon className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <h4 className="font-semibold text-gray-900 text-lg mb-1">
-              24/7 Availability
-            </h4>
-            <p className="text-gray-600 text-base">
-              Round-the-clock service to match your hotel's operational needs
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-          <div className="p-2 bg-green-500 rounded-full">
-            <UsersIcon className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <h4 className="font-semibold text-gray-900 text-lg mb-1">
-              Guest Focus
-            </h4>
-            <p className="text-gray-600 text-base">
-              Understanding of guest privacy and minimal disruption protocols
+              Background-checked team members you can trust in your home
             </p>
           </div>
         </div>
         <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
           <div className="p-2 bg-purple-500 rounded-full">
+            <ClockIcon className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 text-lg mb-1">
+              Flexible Scheduling
+            </h4>
+            <p className="text-gray-600 text-base">
+              Service times that work around your family's busy schedule
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+          <div className="p-2 bg-indigo-500 rounded-full">
             <TrophyIcon className="h-5 w-5 text-white" />
           </div>
           <div>
             <h4 className="font-semibold text-gray-900 text-lg mb-1">
-              Quality Assurance
+              Consistent Quality
             </h4>
             <p className="text-gray-600 text-base">
-              Rigorous quality checks to maintain your hotel's reputation
+              Same high standards every visit, every room, every time
             </p>
           </div>
         </div>
@@ -126,130 +124,100 @@ const Service18 = ({ service, handleBookNow }) => {
       {/* Additional Service Details */}
       <div className="bg-gradient-to-r from-gray-50 to-slate-100 rounded-2xl p-8 mb-10">
         <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          Complete Hotel Cleaning Solutions
+          Complete Residential Cleaning Services
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <h4 className="font-semibold text-gray-900 text-lg flex items-center gap-2">
-              <KeyIcon className="h-5 w-5 text-amber-500" />
-              Guest Room Services
+              <HomeIcon className="h-5 w-5 text-rose-500" />
+              Living Areas & Bedrooms
             </h4>
             <ul className="text-gray-600 space-y-2 ml-7">
-              <li>• Room turnover and preparation</li>
-              <li>• Bathroom deep sanitization</li>
-              <li>• Bed making and linen changes</li>
-              <li>• Carpet vacuuming and spot cleaning</li>
-              <li>• Amenity restocking and arrangement</li>
+              <li>• Dusting all surfaces and furniture</li>
+              <li>• Vacuuming carpets and rugs</li>
+              <li>• Mopping hard floors thoroughly</li>
+              <li>• Cleaning mirrors and glass surfaces</li>
+              <li>• Organizing and tidying personal spaces</li>
             </ul>
           </div>
           <div className="space-y-4">
             <h4 className="font-semibold text-gray-900 text-lg flex items-center gap-2">
-              <HomeIcon className="h-5 w-5 text-blue-500" />
-              Common Areas & Facilities
+              <SparklesIcon className="h-5 w-5 text-pink-500" />
+              Kitchen & Bathroom Focus
             </h4>
             <ul className="text-gray-600 space-y-2 ml-7">
-              <li>• Lobby and reception area maintenance</li>
-              <li>• Restaurant and bar cleaning</li>
-              <li>• Conference room preparation</li>
-              <li>• Fitness center and pool areas</li>
-              <li>• Elevator and hallway upkeep</li>
+              <li>• Deep kitchen cleaning and sanitization</li>
+              <li>• Bathroom disinfection and polishing</li>
+              <li>• Appliance cleaning inside and out</li>
+              <li>• Tile and grout restoration</li>
+              <li>• Fixture polishing and maintenance</li>
             </ul>
           </div>
         </div>
-
+        
         <div className="mt-8 p-6 bg-white rounded-xl border border-gray-200">
           <h4 className="font-semibold text-gray-900 text-lg mb-3 text-center">
-            Hotel Types We Service
+            Home Types We Service
           </h4>
           <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
-            <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full">
-              Luxury Hotels
-            </span>
-            <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
-              Business Hotels
-            </span>
-            <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full">
-              Boutique Properties
-            </span>
-            <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full">
-              Resort Hotels
-            </span>
-            <span className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full">
-              Extended Stay
-            </span>
+            <span className="bg-rose-100 text-rose-800 px-3 py-1 rounded-full">Single Family Homes</span>
+            <span className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full">Apartments</span>
+            <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">Condominiums</span>
+            <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full">Townhouses</span>
+            <span className="bg-violet-100 text-violet-800 px-3 py-1 rounded-full">Lofts & Studios</span>
           </div>
         </div>
       </div>
 
-      {/* Guest Satisfaction Focus */}
+      {/* Family Benefits */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 mb-10">
         <h3 className="text-2xl font-bold text-blue-900 mb-4 text-center flex items-center justify-center gap-2">
-          <StarIcon className="h-6 w-6" />
-          Guest Satisfaction Guaranteed
+          <HeartIcon className="h-6 w-6" />
+          Made for Family Life
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-4xl mb-2">
-              <BuildingOfficeIcon className="h-10 w-10 text-blue-600 mx-auto" />
+              <ShieldCheckIcon className="h-10 w-10 text-blue-600 mx-auto" />
             </div>
-            <h4 className="font-semibold text-blue-900 mb-2">
-              First Impressions
-            </h4>
-            <p className="text-blue-800 text-sm">
-              Spotless lobbies and common areas that wow guests from arrival
-            </p>
+            <h4 className="font-semibold text-blue-900 mb-2">Child-Safe Products</h4>
+            <p className="text-blue-800 text-sm">Non-toxic, family-friendly cleaning solutions safe around children and pets</p>
           </div>
           <div className="text-center">
             <div className="text-4xl mb-2">
               <HomeIcon className="h-10 w-10 text-blue-600 mx-auto" />
             </div>
-            <h4 className="font-semibold text-blue-900 mb-2">
-              Room Perfection
-            </h4>
-            <p className="text-blue-800 text-sm">
-              Every room cleaned to luxury standards with attention to detail
-            </p>
+            <h4 className="font-semibold text-blue-900 mb-2">Respect Your Space</h4>
+            <p className="text-blue-800 text-sm">Careful attention to personal belongings and family spaces</p>
           </div>
           <div className="text-center">
             <div className="text-4xl mb-2">
-              <StarIcon className="h-10 w-10 text-blue-600 mx-auto" />
+              <ClockIcon className="h-10 w-10 text-blue-600 mx-auto" />
             </div>
-            <h4 className="font-semibold text-blue-900 mb-2">5-Star Reviews</h4>
-            <p className="text-blue-800 text-sm">
-              Consistent cleanliness that generates positive guest feedback
-            </p>
+            <h4 className="font-semibold text-blue-900 mb-2">Time for Family</h4>
+            <p className="text-blue-800 text-sm">More quality time with loved ones instead of household chores</p>
           </div>
         </div>
       </div>
 
-      {/* Scheduling Options */}
+      {/* Service Frequency Options */}
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-8 mb-10">
         <h3 className="text-2xl font-bold text-green-900 mb-6 text-center">
-          Flexible Service Scheduling
+          Cleaning Schedule That Works for You
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex items-start gap-3">
             <CalendarDaysIcon className="h-6 w-6 text-green-600 mt-1" />
             <div>
-              <h4 className="font-semibold text-green-900 mb-2">
-                Daily Housekeeping
-              </h4>
-              <p className="text-green-800 text-sm">
-                Regular daily cleaning schedules adapted to your occupancy rates
-                and check-in/out times
-              </p>
+              <h4 className="font-semibold text-green-900 mb-2">Regular Service</h4>
+              <p className="text-green-800 text-sm">Weekly, bi-weekly, or monthly cleaning schedules to maintain your home consistently</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <ClockIcon className="h-6 w-6 text-green-600 mt-1" />
+            <SparklesIcon className="h-6 w-6 text-green-600 mt-1" />
             <div>
-              <h4 className="font-semibold text-green-900 mb-2">
-                Emergency Response
-              </h4>
-              <p className="text-green-800 text-sm">
-                Quick response cleaning for unexpected situations and
-                last-minute guest requests
-              </p>
+              <h4 className="font-semibold text-green-900 mb-2">Special Occasions</h4>
+              <p className="text-green-800 text-sm">One-time deep cleaning for holidays, parties, or when you need extra help</p>
             </div>
           </div>
         </div>
@@ -261,22 +229,22 @@ const Service18 = ({ service, handleBookNow }) => {
             <StarIcon className="h-6 w-6 text-white" />
           </div>
           <h3 className="text-2xl font-bold">
-            Ready to Elevate Your Hotel's Standards?
+            Ready to Come Home to Clean?
           </h3>
         </div>
         <p className="mb-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-          Partner with us to provide your guests with an exceptional hospitality
-          experience built on pristine cleanliness and attention to detail.
+          Let us handle the cleaning so you can focus on what matters most—enjoying 
+          your beautifully maintained home with family and friends.
         </p>
         <button
           onClick={handleBookNow}
           className="bg-white text-[#4EC6E5] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
         >
-          Book Hotel Service
+          Book Home Cleaning
         </button>
       </div>
     </div>
   );
 };
 
-export default Service18;
+export default Service22;

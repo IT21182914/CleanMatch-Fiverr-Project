@@ -12,6 +12,7 @@ import {
   StarIcon,
   HomeIcon,
   BeakerIcon,
+  CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
 import { getServiceImage } from "../../utils/serviceImages";
 
@@ -190,7 +191,9 @@ const Service20 = ({ service, handleBookNow }) => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="text-center p-4 bg-white rounded-lg">
-            <div className="text-3xl mb-2">🍂</div>
+            <div className="text-3xl mb-2">
+              <CalendarDaysIcon className="h-8 w-8 text-green-600 mx-auto" />
+            </div>
             <h4 className="font-semibold text-green-900 mb-2">
               Fall Preparation
             </h4>
@@ -200,7 +203,9 @@ const Service20 = ({ service, handleBookNow }) => {
             </p>
           </div>
           <div className="text-center p-4 bg-white rounded-lg">
-            <div className="text-3xl mb-2">❄️</div>
+            <div className="text-3xl mb-2">
+              <ShieldCheckIcon className="h-8 w-8 text-green-600 mx-auto" />
+            </div>
             <h4 className="font-semibold text-green-900 mb-2">
               Winter Maintenance
             </h4>
@@ -210,7 +215,9 @@ const Service20 = ({ service, handleBookNow }) => {
             </p>
           </div>
           <div className="text-center p-4 bg-white rounded-lg">
-            <div className="text-3xl mb-2">🌸</div>
+            <div className="text-3xl mb-2">
+              <SparklesIcon className="h-8 w-8 text-green-600 mx-auto" />
+            </div>
             <h4 className="font-semibold text-green-900 mb-2">
               Spring Revival
             </h4>
@@ -219,7 +226,9 @@ const Service20 = ({ service, handleBookNow }) => {
             </p>
           </div>
           <div className="text-center p-4 bg-white rounded-lg">
-            <div className="text-3xl mb-2">☀️</div>
+            <div className="text-3xl mb-2">
+              <SunIcon className="h-8 w-8 text-green-600 mx-auto" />
+            </div>
             <h4 className="font-semibold text-green-900 mb-2">
               Summer Optimization
             </h4>
