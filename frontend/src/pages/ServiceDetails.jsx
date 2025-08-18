@@ -54,6 +54,8 @@ import Service14 from "../components/services/Service14";
 import Service15 from "../components/services/Service15";
 import Service16 from "../components/services/Service16";
 import Service17 from "../components/services/Service17";
+import Service18 from "../components/services/Service18";
+import Service19 from "../components/services/Service19";
 
 const ServiceDetails = () => {
   const { id } = useParams();
@@ -170,6 +172,10 @@ const ServiceDetails = () => {
         return <Service16 service={service} handleBookNow={handleBookNow} />;
       case 17:
         return <Service17 service={service} handleBookNow={handleBookNow} />;
+      case 18:
+        return <Service18 service={service} handleBookNow={handleBookNow} />;
+      case 19:
+        return <Service19 service={service} handleBookNow={handleBookNow} />;
       default:
         return renderDefaultService();
     }
