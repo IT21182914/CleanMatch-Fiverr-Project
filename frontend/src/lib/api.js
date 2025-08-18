@@ -168,6 +168,8 @@ export const userAPI = {
   changePassword: (data) => enhancedApi.put("/users/change-password", data),
   getUserBookings: (params) => enhancedApi.get("/users/bookings", { params }),
   getUserReviews: (params) => enhancedApi.get("/users/reviews", { params }),
+  getNearbyCleaners: (query) => 
+    enhancedApi.get(`users/nearby-cleaners${query}`),
 };
 
 // Services API calls
@@ -192,10 +194,16 @@ export const bookingsAPI = {
   getById: (id) => enhancedApi.get(`/bookings/${id}`),
   updateStatus: (id, status) =>
     enhancedApi.put(`/bookings/${id}/status`, { status }),
+  updatePaymentStatus: (id, paymentStatus) =>
+    enhancedApi.put(`/bookings/${id}/payment-status`, { paymentStatus }),
   assignCleaner: (id, cleanerId) =>
     enhancedApi.post(`/bookings/${id}/assign`, { cleanerId }),
+  requestCleaner: (id, params) =>
+    enhancedApi.put(`/bookings/${id}/assign`, { ...params }),
   getRecommendations: (id) =>
     enhancedApi.get(`/bookings/${id}/recommendations`),
+  getNearbyCleaners: (id, params) =>
+    enhancedApi.get(`/bookings/${id}/nearby-cleaners`, { params }),
   // AI-Enhanced ZIP Code Matching
   getZipBasedRecommendations: (searchData) =>
     enhancedApi.post("/bookings/recommendations-by-zip", searchData),

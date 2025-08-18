@@ -9,6 +9,7 @@ const {
   createBooking,
   getBookingById,
   updateBookingStatus,
+  updateBookingPaymentStatus,
   assignCleanerToBooking,
   getCleanerRecommendationsForBooking,
   getZipBasedRecommendations,
@@ -40,10 +41,20 @@ router.get("/:id", auth, getBookingById);
 // @access  Private
 router.put("/:id/status", auth, updateBookingStatus);
 
+// @route   PUT /api/bookings/:id/payment_status
+// @desc    Update booking payment status
+// @access  Private
+router.put("/:id/payment-status", auth, updateBookingPaymentStatus);
+
 // @route   POST /api/bookings/:id/assign
 // @desc    Manually assign cleaner to booking
 // @access  Private (Admin or Customer)
 router.post("/:id/assign", auth, assignCleanerToBooking);
+
+// @route   PUT /api/bookings/:id/assign
+// @desc    Request/assign cleaner to booking (alternative route)
+// @access  Private (Admin or Customer)
+router.put("/:id/assign", auth, assignCleanerToBooking);
 
 // @route   POST /api/bookings/:id/retry-assignment
 // @desc    Retry auto-assignment for pending bookings

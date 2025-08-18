@@ -35,6 +35,8 @@ const createBooking = async (req, res) => {
       city,
       state,
       zipCode,
+      latitude,
+      longitude,
       autoAssign = true,
     } = req.body;
 
@@ -488,6 +490,84 @@ const updateBookingStatus = async (req, res) => {
   }
 };
 
+
+
+/**
+ * @desc    Update booking payment status
+ * @route   PUT /api/bookings/:id/payment-status
+ * @access  Private
+ */
+const updateBookingPaymentStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { paymentStatus } = req.body;
+    console.log("Payment status update request:", paymentStatus);
+
+    const validStatuses = [
+      "pending",
+      "paid"
+    ];
+
+    if (!validStatuses.includes(paymentStatus)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid status",
+      });
+    }
+
+    // Get booking details
+    const bookingResult = await query("SELECT * FROM bookings WHERE id = $1", [
+      id,
+    ]);
+
+    if (bookingResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Booking not found",
+      });
+    }
+
+    const booking = bookingResult.rows[0];
+
+    // Check permissions
+    let hasPermission = false;
+
+    if (req.user.role === "admin") {
+      hasPermission = true;
+    } else if (
+      req.user.role === "customer" &&
+      booking.customer_id === req.user.id
+    ) {
+      hasPermission = true;
+    } 
+
+    if (!hasPermission) {
+      return res.status(403).json({
+        success: false,
+        error: "Access denied for this status update",
+      });
+    }
+
+    // Update booking status
+    await query(
+      "UPDATE bookings SET payment_status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
+      [paymentStatus, id]
+    );
+
+    res.json({
+      success: true,
+      message: `Booking payment status updated to ${paymentStatus}`,
+    });
+  } catch (error) {
+    console.error("Update booking payment status error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error updating booking payment status",
+    });
+  }
+};
+
+
 /**
  * @desc    Manually assign cleaner to booking (Admin override)
  * @route   POST /api/bookings/:id/assign
@@ -500,6 +580,7 @@ const assignCleanerToBooking = async (req, res) => {
     await client.query("BEGIN");
 
     const { id } = req.params;
+    console.log("bodyyou", req.body)
     const { cleanerId, overrideReason } = req.body;
 
     // Get booking details
@@ -1506,6 +1587,7 @@ module.exports = {
   createBooking,
   getBookingById,
   updateBookingStatus,
+  updateBookingPaymentStatus,
   assignCleanerToBooking,
   getCleanerRecommendationsForBooking,
   getZipBasedRecommendations,

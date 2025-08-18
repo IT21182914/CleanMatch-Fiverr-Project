@@ -28,6 +28,9 @@ const EnhancedBookService = React.lazy(() =>
 const CustomerBookings = React.lazy(() =>
   import("./pages/customer/CustomerBookings")
 );
+const BookingDetails = React.lazy(() =>
+  import("./pages/customer/BookingDetails")
+);
 const Payment = React.lazy(() => import("./pages/customer/Payment"));
 const CustomerProfile = React.lazy(() => import("./pages/customer/Profile"));
 const MembershipSubscription = React.lazy(() =>
@@ -36,6 +39,9 @@ const MembershipSubscription = React.lazy(() =>
 const CustomerTickets = React.lazy(() => import("./pages/customer/Tickets"));
 const CustomerTicketDetails = React.lazy(() =>
   import("./pages/customer/TicketDetails")
+);
+const CleanerSelection = React.lazy(() =>
+  import("./pages/customer/CleanerSelection")
 );
 
 // Cleaner pages
@@ -153,6 +159,15 @@ function App() {
                   />
 
                   <Route
+                    path="/customer/bookings/:id"
+                    element={
+                      <ProtectedRoute requiredRole="customer">
+                        <BookingDetails />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
                     path="/customer/profile"
                     element={
                       <ProtectedRoute requiredRole="customer">
@@ -184,6 +199,15 @@ function App() {
                     element={
                       <ProtectedRoute requiredRole="customer">
                         <MembershipSubscription />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/customer/select-cleaner"
+                    element={
+                      <ProtectedRoute requiredRole="customer">
+                        <CleanerSelection />
                       </ProtectedRoute>
                     }
                   />

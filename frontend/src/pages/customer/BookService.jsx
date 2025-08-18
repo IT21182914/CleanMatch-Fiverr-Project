@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import {
   CalendarDaysIcon,
   ClockIcon,
@@ -48,6 +49,8 @@ const BookService = () => {
     bathrooms: "2",
     pets: false,
     frequency: "one-time",
+    latitude: null,
+    longitude: null,
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -190,6 +193,8 @@ const BookService = () => {
         pets: formData.pets,
         frequency: formData.frequency,
         addOns: Object.values(selectedAddOns).filter(Boolean),
+        latitude: formData.latitude,
+        longitude: formData.longitude,
       };
 
       const response = await bookingsAPI.create(bookingData);
@@ -660,6 +665,54 @@ const BookService = () => {
                           Address & Final Details
                         </h2>
 
+                        {/* Location Detection Section */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center">
+                              <MapPinIcon className="h-5 w-5 text-blue-500 mr-2" />
+                              <span className="font-medium text-blue-900">
+                                Location Services
+                              </span>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (navigator.geolocation) {
+                                  navigator.geolocation.getCurrentPosition(
+                                    (position) => {
+                                      setFormData(prev => ({
+                                        ...prev,
+                                        latitude: position.coords.latitude,
+                                        longitude: position.coords.longitude
+                                      }));
+                                      toast.success("Location detected successfully!");
+                                    },
+                                    (error) => {
+                                      console.error("Geolocation error:", error);
+                                      toast.error("Failed to detect location. Please enter your postal code.");
+                                    }
+                                  );
+                                } else {
+                                  toast.error("Geolocation not supported by this browser.");
+                                }
+                              }}
+                            >
+                              Use Current Location
+                            </Button>
+                          </div>
+                          <p className="text-sm text-blue-700">
+                            We use your location to find the best cleaners nearby. 
+                            You can also manually enter your postal code below.
+                          </p>
+                          {formData.latitude && formData.longitude && (
+                            <div className="mt-2 text-sm text-green-700 font-medium">
+                              ✓ Location detected: {formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}
+                            </div>
+                          )}
+                        </div>
+
                         <Input
                           label="Full Address"
                           name="address"
@@ -693,13 +746,14 @@ const BookService = () => {
                         </div>
 
                         <Input
-                          label="ZIP Code"
+                          label="ZIP/Postal Code"
                           name="zipCode"
                           value={formData.zipCode}
                           onChange={handleChange}
                           error={errors.zipCode}
-                          placeholder="12345"
+                          placeholder="12345 or A1B 2C3"
                           required
+                          helpText="Required for finding nearby cleaners if location services are disabled"
                         />
 
                         <Textarea
