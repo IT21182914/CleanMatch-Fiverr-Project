@@ -16,6 +16,17 @@ import {
   FireIcon,
   TrophyIcon,
   SparklesIcon,
+  TruckIcon,
+  HomeIcon,
+  KeyIcon,
+  EyeIcon,
+  WindowIcon,
+  SunIcon,
+  WrenchScrewdriverIcon,
+  BeakerIcon,
+  BugAntIcon,
+  UserGroupIcon,
+  CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
 import {
   HeartIcon as HeartIconSolid,
@@ -637,6 +648,764 @@ const ServiceDetails = () => {
                       className="bg-white text-[#4EC6E5] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
                     >
                       Book Office Cleaning Now
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : id === "4" ? (
+              <>
+                {/* Move in & out Cleaning - Service ID 4 */}
+                <div className="bg-white rounded-2xl shadow-xl p-8">
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white px-6 py-3 rounded-full text-sm font-semibold mb-4 shadow-lg">
+                      <TruckIcon className="h-5 w-5" />
+                      Moving Special - Complete Transition Service
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                      Make Your Move Stress-Free
+                    </h2>
+                    <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                      Whether you're moving out and want your security deposit
+                      back, or moving into a new space that needs to be
+                      spotless, our comprehensive move-in/out cleaning service
+                      ensures a seamless transition.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div className="space-y-6">
+                      <div className="bg-[#4EC6E5]/10 border-l-4 border-[#4EC6E5] p-6 rounded-r-lg">
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                          <HomeIcon className="h-5 w-5 text-[#4EC6E5]" />
+                          Move-Out Cleaning
+                        </h3>
+                        <p className="text-gray-700 mb-4">
+                          Get your full security deposit back with our thorough
+                          move-out cleaning service.
+                        </p>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li>• Deep clean all rooms and surfaces</li>
+                          <li>• Inside appliances (oven, fridge, microwave)</li>
+                          <li>• Bathroom deep sanitization</li>
+                          <li>• Window and mirror cleaning</li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-[#2BA8CD]/10 border-l-4 border-[#2BA8CD] p-6 rounded-r-lg">
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                          <KeyIcon className="h-5 w-5 text-[#2BA8CD]" />
+                          Move-In Cleaning
+                        </h3>
+                        <p className="text-gray-700 mb-4">
+                          Start fresh in your new home with a pristine, move-in
+                          ready space.
+                        </p>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li>• Complete property sanitization</li>
+                          <li>• All surfaces disinfected</li>
+                          <li>• Cabinets and drawers cleaned</li>
+                          <li>• Final inspection included</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-[#4EC6E5]/10 to-[#2BA8CD]/10 rounded-xl p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">
+                        Why Choose Our Moving Cleaning?
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <CheckBadgeIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Deposit Back Guarantee
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              We ensure move-out cleaning meets landlord
+                              standards
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <ClockIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Same-Day Service
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Quick turnaround for urgent moving dates
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <UsersIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Experienced Team
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Specialists in transition cleaning requirements
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Service Image Display */}
+                  <div className="mb-8 rounded-2xl overflow-hidden shadow-lg">
+                    <img
+                      src={getServiceImage(service.name)}
+                      alt={service.name}
+                      className="w-full h-auto object-contain bg-gradient-to-br from-[#4EC6E5]/10 to-[#2BA8CD]/10"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-6 mb-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
+                      Complete Moving Cleaning Checklist
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#4EC6E5]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <SparklesIcon className="h-6 w-6 text-[#4EC6E5]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Deep Surface Clean
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          All surfaces wiped and disinfected
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#2BA8CD]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <FireIcon className="h-6 w-6 text-[#2BA8CD]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Appliance Interior
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Inside ovens, fridges, microwaves
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#4EC6E5]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <GlobeAltIcon className="h-6 w-6 text-[#4EC6E5]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Full Property Scope
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Every room, closet, and corner
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#2BA8CD]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <EyeIcon className="h-6 w-6 text-[#2BA8CD]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Final Inspection
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Quality check before handover
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white rounded-2xl p-8 text-center shadow-lg">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <div className="p-2 bg-white/20 rounded-full">
+                        <TruckIcon className="h-6 w-6 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold">
+                        Book Your Moving Cleaning Today
+                      </h3>
+                    </div>
+                    <p className="mb-6 opacity-90">
+                      Make your move stress-free with professional cleaning
+                      service
+                    </p>
+                    <button
+                      onClick={handleBookNow}
+                      className="bg-white text-[#4EC6E5] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
+                    >
+                      Book Moving Cleaning Now
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : id === "5" ? (
+              <>
+                {/* Glass and Window Cleaning - Service ID 5 */}
+                <div className="bg-white rounded-2xl shadow-xl p-8">
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white px-6 py-3 rounded-full text-sm font-semibold mb-4 shadow-lg">
+                      <WindowIcon className="h-5 w-5" />
+                      Crystal Clear Views - Professional Window Service
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                      Let Natural Light Transform Your Space
+                    </h2>
+                    <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                      Our expert window and glass cleaning service ensures
+                      crystal-clear views and enhanced natural light throughout
+                      your home or office. From interior and exterior windows to
+                      glass doors and mirrors, we bring shine to every surface.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div className="space-y-6">
+                      <div className="bg-[#4EC6E5]/10 border-l-4 border-[#4EC6E5] p-6 rounded-r-lg">
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                          <WindowIcon className="h-5 w-5 text-[#4EC6E5]" />
+                          Interior & Exterior Windows
+                        </h3>
+                        <p className="text-gray-700 mb-4">
+                          Complete window cleaning service for both inside and
+                          outside surfaces.
+                        </p>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li>• Streak-free window cleaning</li>
+                          <li>• Window frame and sill cleaning</li>
+                          <li>• Screen removal and cleaning</li>
+                          <li>• Water stain removal</li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-[#2BA8CD]/10 border-l-4 border-[#2BA8CD] p-6 rounded-r-lg">
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                          <SunIcon className="h-5 w-5 text-[#2BA8CD]" />
+                          Glass Doors & Surfaces
+                        </h3>
+                        <p className="text-gray-700 mb-4">
+                          Professional cleaning for all glass surfaces in your
+                          property.
+                        </p>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li>• Sliding glass doors</li>
+                          <li>• Glass partitions and walls</li>
+                          <li>• Mirrors and reflective surfaces</li>
+                          <li>• Glass furniture and fixtures</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-[#4EC6E5]/10 to-[#2BA8CD]/10 rounded-xl p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">
+                        Why Choose Our Glass Cleaning?
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <CheckBadgeIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Streak-Free Results
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Professional techniques for crystal-clear finish
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <ShieldCheckIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Safe & Insured
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Fully insured professionals with safety equipment
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <WrenchScrewdriverIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Professional Tools
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Squeegees, scrapers, and eco-friendly solutions
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Service Image Display */}
+                  <div className="mb-8 rounded-2xl overflow-hidden shadow-lg">
+                    <img
+                      src={getServiceImage(service.name)}
+                      alt={service.name}
+                      className="w-full h-auto object-contain bg-gradient-to-br from-[#4EC6E5]/10 to-[#2BA8CD]/10"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-6 mb-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
+                      Complete Glass Cleaning Process
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#4EC6E5]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <EyeIcon className="h-6 w-6 text-[#4EC6E5]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Pre-Inspection
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Assessment of glass condition and stains
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#2BA8CD]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <SparklesIcon className="h-6 w-6 text-[#2BA8CD]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Deep Cleaning
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Thorough cleaning with specialized solutions
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#4EC6E5]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <WindowIcon className="h-6 w-6 text-[#4EC6E5]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Professional Squeegee
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Streak-free finish with expert technique
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#2BA8CD]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <CheckBadgeIcon className="h-6 w-6 text-[#2BA8CD]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Quality Check
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Final inspection for perfect results
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white rounded-2xl p-8 text-center shadow-lg">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <div className="p-2 bg-white/20 rounded-full">
+                        <WindowIcon className="h-6 w-6 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold">
+                        Book Your Window Cleaning Today
+                      </h3>
+                    </div>
+                    <p className="mb-6 opacity-90">
+                      Experience crystal-clear views and enhanced natural light
+                    </p>
+                    <button
+                      onClick={handleBookNow}
+                      className="bg-white text-[#4EC6E5] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
+                    >
+                      Book Glass Cleaning Now
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : id === "6" ? (
+              <>
+                {/* Disinfect cleaning - Service ID 6 */}
+                <div className="bg-white rounded-2xl shadow-xl p-8">
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white px-6 py-3 rounded-full text-sm font-semibold mb-4 shadow-lg">
+                      <ShieldCheckIcon className="h-5 w-5" />
+                      Health Protection - Hospital-Grade Disinfection
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                      Advanced Disinfection for Maximum Safety
+                    </h2>
+                    <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                      Our professional disinfection service uses EPA-approved,
+                      hospital-grade products to eliminate germs, bacteria, and
+                      viruses from all surfaces. Perfect for homes, offices, and
+                      high-traffic areas requiring the highest level of
+                      cleanliness and safety.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div className="space-y-6">
+                      <div className="bg-[#4EC6E5]/10 border-l-4 border-[#4EC6E5] p-6 rounded-r-lg">
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                          <BeakerIcon className="h-5 w-5 text-[#4EC6E5]" />
+                          EPA-Approved Disinfectants
+                        </h3>
+                        <p className="text-gray-700 mb-4">
+                          Hospital-grade products that meet the highest safety
+                          and efficacy standards.
+                        </p>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li>• EPA-registered disinfectants</li>
+                          <li>• Eliminates 99.9% of pathogens</li>
+                          <li>• Safe for homes and offices</li>
+                          <li>• Non-toxic when used properly</li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-[#2BA8CD]/10 border-l-4 border-[#2BA8CD] p-6 rounded-r-lg">
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                          <HeartIconSolid className="h-5 w-5 text-[#2BA8CD]" />
+                          High-Touch Surface Focus
+                        </h3>
+                        <p className="text-gray-700 mb-4">
+                          Targeted disinfection of areas with the highest
+                          contamination risk.
+                        </p>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li>• Door handles and light switches</li>
+                          <li>• Desks, keyboards, and phones</li>
+                          <li>• Bathroom fixtures and surfaces</li>
+                          <li>• Kitchen counters and appliances</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-[#4EC6E5]/10 to-[#2BA8CD]/10 rounded-xl p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">
+                        Why Choose Our Disinfection Service?
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <ShieldCheckIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Health Certification
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Certified technicians with health safety training
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <BugAntIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Pathogen Elimination
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Destroys viruses, bacteria, and harmful
+                              microorganisms
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <SunIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Air Quality Improvement
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Reduces airborne contaminants and allergens
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Service Image Display */}
+                  <div className="mb-8 rounded-2xl overflow-hidden shadow-lg">
+                    <img
+                      src={getServiceImage(service.name)}
+                      alt={service.name}
+                      className="w-full h-auto object-contain bg-gradient-to-br from-[#4EC6E5]/10 to-[#2BA8CD]/10"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-6 mb-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
+                      Professional Disinfection Process
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#4EC6E5]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <EyeIcon className="h-6 w-6 text-[#4EC6E5]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Area Assessment
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Identify high-risk areas and contamination points
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#2BA8CD]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <BeakerIcon className="h-6 w-6 text-[#2BA8CD]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          EPA-Grade Treatment
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Apply hospital-grade disinfectants systematically
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#4EC6E5]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <ClockIcon className="h-6 w-6 text-[#4EC6E5]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Dwell Time
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Allow proper contact time for maximum effectiveness
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#2BA8CD]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <CheckBadgeIcon className="h-6 w-6 text-[#2BA8CD]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Safety Verification
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Confirm all areas are safe and sanitized
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white rounded-2xl p-8 text-center shadow-lg">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <div className="p-2 bg-white/20 rounded-full">
+                        <ShieldCheckIcon className="h-6 w-6 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold">
+                        Book Your Disinfection Service Today
+                      </h3>
+                    </div>
+                    <p className="mb-6 opacity-90">
+                      Protect your space with professional-grade disinfection
+                    </p>
+                    <button
+                      onClick={handleBookNow}
+                      className="bg-white text-[#4EC6E5] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
+                    >
+                      Book Disinfection Now
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : id === "7" ? (
+              <>
+                {/* Maid service - Service ID 7 */}
+                <div className="bg-white rounded-2xl shadow-xl p-8">
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white px-6 py-3 rounded-full text-sm font-semibold mb-4 shadow-lg">
+                      <UserGroupIcon className="h-5 w-5" />
+                      Regular Service - Trusted Professional Maids
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                      Consistent Quality Home Maintenance
+                    </h2>
+                    <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                      Our professional maid service provides regular, reliable
+                      home maintenance with trusted professionals who understand
+                      your cleaning preferences. Perfect for busy families and
+                      professionals who want to maintain a consistently clean
+                      home.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div className="space-y-6">
+                      <div className="bg-[#4EC6E5]/10 border-l-4 border-[#4EC6E5] p-6 rounded-r-lg">
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                          <CalendarDaysIcon className="h-5 w-5 text-[#4EC6E5]" />
+                          Flexible Scheduling Options
+                        </h3>
+                        <p className="text-gray-700 mb-4">
+                          Choose the cleaning schedule that works best for your
+                          lifestyle and budget.
+                        </p>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li>• Weekly regular cleaning service</li>
+                          <li>• Bi-weekly maintenance visits</li>
+                          <li>• Monthly deep cleaning</li>
+                          <li>• One-time or seasonal cleaning</li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-[#2BA8CD]/10 border-l-4 border-[#2BA8CD] p-6 rounded-r-lg">
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                          <UserGroupIcon className="h-5 w-5 text-[#2BA8CD]" />
+                          Trusted Professionals
+                        </h3>
+                        <p className="text-gray-700 mb-4">
+                          Background-checked, trained professionals who take
+                          pride in their work.
+                        </p>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li>• Background checked and insured</li>
+                          <li>• Consistent team assignment</li>
+                          <li>• Trained in professional techniques</li>
+                          <li>• Respectful of your home and privacy</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-[#4EC6E5]/10 to-[#2BA8CD]/10 rounded-xl p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">
+                        Why Choose Our Maid Service?
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <CheckBadgeIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Consistent Quality
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Same high standards every visit with detailed
+                              checklists
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <HomeIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Complete Home Care
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              All rooms and areas cleaned systematically
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="p-1 bg-[#4EC6E5]/20 rounded-full">
+                            <ClockIcon className="h-4 w-4 text-[#4EC6E5]" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              Time Saving
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Reclaim your weekends and free time
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Service Image Display */}
+                  <div className="mb-8 rounded-2xl overflow-hidden shadow-lg">
+                    <img
+                      src={getServiceImage(service.name)}
+                      alt={service.name}
+                      className="w-full h-auto object-contain bg-gradient-to-br from-[#4EC6E5]/10 to-[#2BA8CD]/10"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-6 mb-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
+                      What's Included in Every Visit
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#4EC6E5]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <SparklesIcon className="h-6 w-6 text-[#4EC6E5]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Dusting & Vacuuming
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          All surfaces, furniture, and floor cleaning
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#2BA8CD]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <FireIcon className="h-6 w-6 text-[#2BA8CD]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Kitchen Deep Clean
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Counters, appliances, sink, and stovetop
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#4EC6E5]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <ShieldCheckIcon className="h-6 w-6 text-[#4EC6E5]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Bathroom Sanitization
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Complete bathroom cleaning and disinfection
+                        </p>
+                      </div>
+                      <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                        <div className="w-12 h-12 bg-[#2BA8CD]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <HomeIcon className="h-6 w-6 text-[#2BA8CD]" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                          Living Areas
+                        </h4>
+                        <p className="text-gray-600 text-xs">
+                          Bedrooms, living room, and common spaces
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white rounded-2xl p-8 text-center shadow-lg">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <div className="p-2 bg-white/20 rounded-full">
+                        <UserGroupIcon className="h-6 w-6 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold">
+                        Start Your Regular Maid Service Today
+                      </h3>
+                    </div>
+                    <p className="mb-6 opacity-90">
+                      Enjoy a consistently clean home with trusted professionals
+                    </p>
+                    <button
+                      onClick={handleBookNow}
+                      className="bg-white text-[#4EC6E5] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
+                    >
+                      Book Maid Service Now
                     </button>
                   </div>
                 </div>
