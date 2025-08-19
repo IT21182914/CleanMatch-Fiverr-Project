@@ -223,9 +223,7 @@ const AIMatchingDemo = () => {
 
           <div className="space-y-4">
             <Link to="/book-ai">
-              <Button size="lg" className="w-full md:w-auto px-8">
-                Try AI Booking Now
-              </Button>
+              <Button size="lg" className="w-full md:w-auto px-8"></Button>
             </Link>
             <p className="text-sm text-gray-600">
               Or use the{" "}

@@ -118,7 +118,7 @@ const Navbar = () => {
           icon: CalendarIcon,
           highlight: true,
         },
-        { name: "AI Booking", href: "/book-ai", icon: SparklesIcon },
+
         {
           name: "My Bookings",
           href: "/customer/bookings",
