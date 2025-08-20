@@ -153,25 +153,31 @@ const AdminTicketManagement = () => {
 
     return (
       <div
-        className={`p-4 sm:p-6 rounded-lg border ${colorClasses[color]} transition-all hover:shadow-md`}
+        className={`p-3 xs:p-4 sm:p-6 rounded-lg border ${colorClasses[color]} transition-all hover:shadow-md`}
       >
         <div className="flex items-center justify-between">
-          <div>
-            <div className="text-2xl sm:text-3xl font-bold mb-1">
+          <div className="min-w-0 flex-1">
+            <div className="text-xl xs:text-2xl sm:text-3xl font-bold mb-1 leading-none">
               {value || 0}
             </div>
-            <div className="text-xs sm:text-sm font-medium">{title}</div>
+            <div className="text-xs xs:text-sm font-medium leading-tight">
+              {title}
+            </div>
             {subtitle && (
-              <div className="text-xs opacity-75 mt-1">{subtitle}</div>
+              <div className="text-xs opacity-75 mt-1 leading-tight">
+                {subtitle}
+              </div>
             )}
           </div>
           {trend && (
             <div
-              className={`text-sm font-medium ${
+              className={`text-xs xs:text-sm font-medium ${
                 trend.positive ? "text-green-600" : "text-red-600"
-              }`}
+              } ml-2 flex-shrink-0`}
             >
-              {trend.positive ? "↗" : "↘"} {trend.value}
+              <div className="whitespace-nowrap">
+                {trend.positive ? "↗" : "↘"} {trend.value}
+              </div>
             </div>
           )}
         </div>
@@ -181,10 +187,10 @@ const AdminTicketManagement = () => {
 
   if (loadingStats) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 xs:px-4 py-4 xs:py-8">
         <div className="text-center">
           <LoadingSpinner />
-          <p className="mt-4 text-gray-600">
+          <p className="mt-4 text-gray-600 text-sm xs:text-base">
             Loading ticket management dashboard...
           </p>
         </div>
@@ -193,29 +199,31 @@ const AdminTicketManagement = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 sm:py-8">
+    <div className="container mx-auto px-2 xs:px-4 py-4 xs:py-6 sm:py-8 max-w-7xl">
       {/* Breadcrumb */}
-      <div className="mb-4 sm:mb-6">
-        <nav className="text-sm text-gray-600 mb-3 sm:mb-4">
-          <Link to="/admin" className="hover:text-blue-600">
-            Admin Dashboard
-          </Link>
-          <span className="mx-2">/</span>
-          <span className="text-gray-900 font-medium">Ticket Management</span>
+      <div className="mb-4 xs:mb-6">
+        <nav className="text-xs xs:text-sm text-gray-600 mb-2 xs:mb-3 sm:mb-4 overflow-x-auto">
+          <div className="flex items-center whitespace-nowrap">
+            <Link to="/admin" className="hover:text-blue-600 transition-colors">
+              Admin Dashboard
+            </Link>
+            <span className="mx-1 xs:mx-2">/</span>
+            <span className="text-gray-900 font-medium">Ticket Management</span>
+          </div>
         </nav>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-3 xs:gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            <h1 className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight break-words">
               Ticket Management
             </h1>
-            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">
+            <p className="text-gray-600 mt-1 xs:mt-2 text-xs xs:text-sm sm:text-base leading-tight">
               Manage customer support tickets and complaints
             </p>
           </div>
 
           {/* Quick Actions */}
-          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className="flex flex-col xs:flex-row gap-2 xs:gap-3">
             <button
               onClick={async () => {
                 const ticketsResponse = await getAdminTickets(filters);
@@ -223,18 +231,18 @@ const AdminTicketManagement = () => {
                 setPagination(ticketsResponse.data.pagination);
                 toast.success("Tickets refreshed");
               }}
-              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 xs:flex-none px-3 xs:px-4 py-2 xs:py-2.5 text-xs xs:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
             >
-              <RefreshCcw className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Refresh</span>
+              <RefreshCcw className="w-3 h-3 xs:w-4 xs:h-4 flex-shrink-0" />
+              <span>Refresh</span>
             </button>
             <Link
               to="/admin/tickets/stats"
-              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 xs:flex-none px-3 xs:px-4 py-2 xs:py-2.5 text-xs xs:text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
             >
-              <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Analytics</span>
-              <span className="sm:hidden">Stats</span>
+              <BarChart3 className="w-3 h-3 xs:w-4 xs:h-4 flex-shrink-0" />
+              <span className="xs:hidden">Stats</span>
+              <span className="hidden xs:inline">Analytics</span>
             </Link>
           </div>
         </div>
@@ -242,7 +250,7 @@ const AdminTicketManagement = () => {
 
       {/* Statistics Cards */}
       {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 xs:gap-3 sm:gap-4 mb-4 xs:mb-6 sm:mb-8">
           <StatCard
             title="Open Tickets"
             value={stats.general.open_tickets}
@@ -286,22 +294,24 @@ const AdminTicketManagement = () => {
       {stats?.sla &&
         (stats.sla.overdue_first_response > 0 ||
           stats.sla.overdue_resolution > 0) && (
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 mt-0.5" />
+          <div className="mb-4 xs:mb-6 p-3 xs:p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start gap-2 xs:gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <AlertTriangle className="w-4 h-4 xs:w-5 xs:h-5 text-red-500" />
               </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">SLA Alerts</h3>
-                <div className="mt-1 text-xs sm:text-sm text-red-700">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-xs xs:text-sm font-medium text-red-800 mb-1">
+                  SLA Alerts
+                </h3>
+                <div className="text-xs xs:text-sm text-red-700 space-y-1">
                   {stats.sla.overdue_first_response > 0 && (
-                    <div className="mb-1 sm:mb-0 sm:mr-4 sm:inline">
+                    <div>
                       {stats.sla.overdue_first_response} tickets overdue for
                       first response
                     </div>
                   )}
                   {stats.sla.overdue_resolution > 0 && (
-                    <div className="sm:inline">
+                    <div>
                       {stats.sla.overdue_resolution} tickets overdue for
                       resolution
                     </div>
@@ -313,28 +323,31 @@ const AdminTicketManagement = () => {
         )}
 
       {/* Filters */}
-      <AdminTicketFilters
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        stats={stats}
-        adminUsers={adminUsers}
-      />
+      <div className="mb-4 xs:mb-6">
+        <AdminTicketFilters
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          stats={stats}
+          adminUsers={adminUsers}
+        />
+      </div>
 
       {/* Ticket List */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="px-3 xs:px-4 sm:px-6 py-3 xs:py-4 border-b border-gray-200">
+          <div className="flex flex-col gap-3 xs:gap-4">
+            <h2 className="text-sm xs:text-base sm:text-lg font-semibold text-gray-900">
               Tickets ({pagination.total || 0})
             </h2>
 
             {/* Bulk Actions */}
             {selectedTickets.length > 0 && (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
-                <span className="text-xs sm:text-sm text-gray-600">
-                  {selectedTickets.length} selected
+              <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2 xs:gap-3 p-2 xs:p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <span className="text-xs xs:text-sm text-blue-700 font-medium">
+                  {selectedTickets.length} ticket
+                  {selectedTickets.length !== 1 ? "s" : ""} selected
                 </span>
-                <div className="flex gap-2 w-full sm:w-auto">
+                <div className="flex flex-col xs:flex-row gap-2 xs:gap-3">
                   <button
                     onClick={() =>
                       setStatusModal({
@@ -342,10 +355,9 @@ const AdminTicketManagement = () => {
                         ticket: { bulk: true, ids: selectedTickets },
                       })
                     }
-                    className="flex-1 sm:flex-none px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100"
+                    className="px-3 xs:px-4 py-1.5 xs:py-2 text-xs xs:text-sm font-medium text-blue-700 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
                   >
-                    <span className="sm:hidden">Status</span>
-                    <span className="hidden sm:inline">Bulk Update Status</span>
+                    Update Status
                   </button>
                   <button
                     onClick={() =>
@@ -354,10 +366,9 @@ const AdminTicketManagement = () => {
                         ticket: { bulk: true, ids: selectedTickets },
                       })
                     }
-                    className="flex-1 sm:flex-none px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100"
+                    className="px-3 xs:px-4 py-1.5 xs:py-2 text-xs xs:text-sm font-medium text-green-700 bg-white border border-green-300 rounded-lg hover:bg-green-50 transition-colors"
                   >
-                    <span className="sm:hidden">Assign</span>
-                    <span className="hidden sm:inline">Bulk Assign</span>
+                    Bulk Assign
                   </button>
                 </div>
               </div>
@@ -366,21 +377,21 @@ const AdminTicketManagement = () => {
         </div>
 
         {loading ? (
-          <div className="py-8 sm:py-12 text-center">
+          <div className="py-8 xs:py-12 text-center">
             <LoadingSpinner />
-            <p className="mt-4 text-gray-600 text-sm sm:text-base">
+            <p className="mt-4 text-gray-600 text-xs xs:text-sm sm:text-base">
               Loading tickets...
             </p>
           </div>
         ) : tickets.length === 0 ? (
-          <div className="py-8 sm:py-12 text-center">
+          <div className="py-8 xs:py-12 text-center px-4">
             <div className="flex justify-center mb-4">
-              <Ticket className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400" />
+              <Ticket className="w-10 h-10 xs:w-12 xs:h-12 sm:w-16 sm:h-16 text-gray-400" />
             </div>
-            <p className="text-gray-500 text-base sm:text-lg mb-2">
+            <p className="text-gray-500 text-sm xs:text-base sm:text-lg mb-2">
               No tickets found
             </p>
-            <p className="text-gray-400 text-sm sm:text-base">
+            <p className="text-gray-400 text-xs xs:text-sm sm:text-base">
               Try adjusting your filters or check back later.
             </p>
           </div>
@@ -412,63 +423,92 @@ const AdminTicketManagement = () => {
 
         {/* Pagination */}
         {pagination.pages > 1 && (
-          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
+          <div className="px-3 xs:px-4 sm:px-6 py-3 xs:py-4 border-t border-gray-200">
+            <div className="flex flex-col gap-3 xs:gap-4">
+              {/* Results info */}
+              <div className="text-xs xs:text-sm text-gray-700 text-center xs:text-left">
                 Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
                 {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
                 of {pagination.total} results
               </div>
-              <div className="flex gap-1 sm:gap-2">
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={pagination.page <= 1}
-                  className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="hidden sm:inline">Previous</span>
-                  <span className="sm:hidden">←</span>
-                </button>
 
-                {/* Page numbers */}
-                {Array.from(
-                  {
-                    length: Math.min(
-                      window.innerWidth < 640 ? 3 : 5,
-                      pagination.pages
-                    ),
-                  },
-                  (_, i) => {
-                    const pageNum =
-                      Math.max(
-                        1,
-                        pagination.page - (window.innerWidth < 640 ? 1 : 2)
-                      ) + i;
-                    if (pageNum > pagination.pages) return null;
+              {/* Pagination controls */}
+              <div className="flex justify-center xs:justify-end">
+                <div className="flex items-center gap-1 xs:gap-2 overflow-x-auto">
+                  {/* Previous button */}
+                  <button
+                    onClick={() => handlePageChange(pagination.page - 1)}
+                    disabled={pagination.page <= 1}
+                    className="flex-shrink-0 px-2 xs:px-3 py-1 xs:py-2 text-xs xs:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <span className="xs:hidden">←</span>
+                    <span className="hidden xs:inline">Previous</span>
+                  </button>
 
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        className={`px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium rounded-lg ${
-                          pageNum === pagination.page
-                            ? "text-blue-700 bg-blue-50 border border-blue-200"
-                            : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50"
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  }
-                )}
+                  {/* Page numbers - responsive count */}
+                  <div className="flex items-center gap-1">
+                    {Array.from(
+                      {
+                        length: Math.min(
+                          window.innerWidth < 480
+                            ? 3
+                            : window.innerWidth < 640
+                            ? 4
+                            : 5,
+                          pagination.pages
+                        ),
+                      },
+                      (_, i) => {
+                        const maxVisible =
+                          window.innerWidth < 480
+                            ? 3
+                            : window.innerWidth < 640
+                            ? 4
+                            : 5;
+                        const halfVisible = Math.floor(maxVisible / 2);
+                        let startPage = Math.max(
+                          1,
+                          pagination.page - halfVisible
+                        );
+                        let endPage = Math.min(
+                          pagination.pages,
+                          startPage + maxVisible - 1
+                        );
 
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={pagination.page >= pagination.pages}
-                  className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="hidden sm:inline">Next</span>
-                  <span className="sm:hidden">→</span>
-                </button>
+                        if (endPage - startPage + 1 < maxVisible) {
+                          startPage = Math.max(1, endPage - maxVisible + 1);
+                        }
+
+                        const pageNum = startPage + i;
+                        if (pageNum > endPage) return null;
+
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`flex-shrink-0 px-2 xs:px-3 py-1 xs:py-2 text-xs xs:text-sm font-medium rounded-lg transition-colors ${
+                              pageNum === pagination.page
+                                ? "text-blue-700 bg-blue-50 border border-blue-200"
+                                : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      }
+                    )}
+                  </div>
+
+                  {/* Next button */}
+                  <button
+                    onClick={() => handlePageChange(pagination.page + 1)}
+                    disabled={pagination.page >= pagination.pages}
+                    className="flex-shrink-0 px-2 xs:px-3 py-1 xs:py-2 text-xs xs:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <span className="xs:hidden">→</span>
+                    <span className="hidden xs:inline">Next</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
