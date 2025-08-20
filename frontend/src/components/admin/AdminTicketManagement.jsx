@@ -153,12 +153,14 @@ const AdminTicketManagement = () => {
 
     return (
       <div
-        className={`p-6 rounded-lg border ${colorClasses[color]} transition-all hover:shadow-md`}
+        className={`p-4 sm:p-6 rounded-lg border ${colorClasses[color]} transition-all hover:shadow-md`}
       >
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-3xl font-bold mb-1">{value || 0}</div>
-            <div className="text-sm font-medium">{title}</div>
+            <div className="text-2xl sm:text-3xl font-bold mb-1">
+              {value || 0}
+            </div>
+            <div className="text-xs sm:text-sm font-medium">{title}</div>
             {subtitle && (
               <div className="text-xs opacity-75 mt-1">{subtitle}</div>
             )}
@@ -191,10 +193,10 @@ const AdminTicketManagement = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-6 sm:py-8">
       {/* Breadcrumb */}
-      <div className="mb-6">
-        <nav className="text-sm text-gray-600 mb-4">
+      <div className="mb-4 sm:mb-6">
+        <nav className="text-sm text-gray-600 mb-3 sm:mb-4">
           <Link to="/admin" className="hover:text-blue-600">
             Admin Dashboard
           </Link>
@@ -202,18 +204,18 @@ const AdminTicketManagement = () => {
           <span className="text-gray-900 font-medium">Ticket Management</span>
         </nav>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Ticket Management
             </h1>
-            <p className="text-gray-600 mt-2">
+            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">
               Manage customer support tickets and complaints
             </p>
           </div>
 
           {/* Quick Actions */}
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={async () => {
                 const ticketsResponse = await getAdminTickets(filters);
@@ -221,17 +223,18 @@ const AdminTicketManagement = () => {
                 setPagination(ticketsResponse.data.pagination);
                 toast.success("Tickets refreshed");
               }}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
             >
-              <RefreshCcw className="w-4 h-4" />
-              Refresh
+              <RefreshCcw className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Refresh</span>
             </button>
             <Link
               to="/admin/tickets/stats"
-              className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-2"
+              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
             >
-              <BarChart3 className="w-4 h-4" />
-              Analytics
+              <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Analytics</span>
+              <span className="sm:hidden">Stats</span>
             </Link>
           </div>
         </div>
@@ -239,7 +242,7 @@ const AdminTicketManagement = () => {
 
       {/* Statistics Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <StatCard
             title="Open Tickets"
             value={stats.general.open_tickets}
@@ -283,25 +286,25 @@ const AdminTicketManagement = () => {
       {stats?.sla &&
         (stats.sla.overdue_first_response > 0 ||
           stats.sla.overdue_resolution > 0) && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-center">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start">
               <div className="flex-shrink-0">
-                <AlertTriangle className="w-5 h-5 text-red-500" />
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 mt-0.5" />
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-red-800">SLA Alerts</h3>
-                <div className="mt-1 text-sm text-red-700">
+                <div className="mt-1 text-xs sm:text-sm text-red-700">
                   {stats.sla.overdue_first_response > 0 && (
-                    <span className="mr-4">
+                    <div className="mb-1 sm:mb-0 sm:mr-4 sm:inline">
                       {stats.sla.overdue_first_response} tickets overdue for
                       first response
-                    </span>
+                    </div>
                   )}
                   {stats.sla.overdue_resolution > 0 && (
-                    <span>
+                    <div className="sm:inline">
                       {stats.sla.overdue_resolution} tickets overdue for
                       resolution
-                    </span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -319,57 +322,65 @@ const AdminTicketManagement = () => {
 
       {/* Ticket List */}
       <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900">
               Tickets ({pagination.total || 0})
             </h2>
 
             {/* Bulk Actions */}
             {selectedTickets.length > 0 && (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                <span className="text-xs sm:text-sm text-gray-600">
                   {selectedTickets.length} selected
                 </span>
-                <button
-                  onClick={() =>
-                    setStatusModal({
-                      show: true,
-                      ticket: { bulk: true, ids: selectedTickets },
-                    })
-                  }
-                  className="px-3 py-1 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100"
-                >
-                  Bulk Update Status
-                </button>
-                <button
-                  onClick={() =>
-                    setAssignModal({
-                      show: true,
-                      ticket: { bulk: true, ids: selectedTickets },
-                    })
-                  }
-                  className="px-3 py-1 text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100"
-                >
-                  Bulk Assign
-                </button>
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={() =>
+                      setStatusModal({
+                        show: true,
+                        ticket: { bulk: true, ids: selectedTickets },
+                      })
+                    }
+                    className="flex-1 sm:flex-none px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100"
+                  >
+                    <span className="sm:hidden">Status</span>
+                    <span className="hidden sm:inline">Bulk Update Status</span>
+                  </button>
+                  <button
+                    onClick={() =>
+                      setAssignModal({
+                        show: true,
+                        ticket: { bulk: true, ids: selectedTickets },
+                      })
+                    }
+                    className="flex-1 sm:flex-none px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100"
+                  >
+                    <span className="sm:hidden">Assign</span>
+                    <span className="hidden sm:inline">Bulk Assign</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
         </div>
 
         {loading ? (
-          <div className="py-12 text-center">
+          <div className="py-8 sm:py-12 text-center">
             <LoadingSpinner />
-            <p className="mt-4 text-gray-600">Loading tickets...</p>
+            <p className="mt-4 text-gray-600 text-sm sm:text-base">
+              Loading tickets...
+            </p>
           </div>
         ) : tickets.length === 0 ? (
-          <div className="py-12 text-center">
+          <div className="py-8 sm:py-12 text-center">
             <div className="flex justify-center mb-4">
-              <Ticket className="w-16 h-16 text-gray-400" />
+              <Ticket className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400" />
             </div>
-            <p className="text-gray-500 text-lg mb-2">No tickets found</p>
-            <p className="text-gray-400">
+            <p className="text-gray-500 text-base sm:text-lg mb-2">
+              No tickets found
+            </p>
+            <p className="text-gray-400 text-sm sm:text-base">
               Try adjusting your filters or check back later.
             </p>
           </div>
@@ -401,34 +412,44 @@ const AdminTicketManagement = () => {
 
         {/* Pagination */}
         {pagination.pages > 1 && (
-          <div className="px-6 py-4 border-t border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-700">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
                 Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
                 {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
                 of {pagination.total} results
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1 sm:gap-2">
                 <button
                   onClick={() => handlePageChange(pagination.page - 1)}
                   disabled={pagination.page <= 1}
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Previous
+                  <span className="hidden sm:inline">Previous</span>
+                  <span className="sm:hidden">←</span>
                 </button>
 
                 {/* Page numbers */}
                 {Array.from(
-                  { length: Math.min(5, pagination.pages) },
+                  {
+                    length: Math.min(
+                      window.innerWidth < 640 ? 3 : 5,
+                      pagination.pages
+                    ),
+                  },
                   (_, i) => {
-                    const pageNum = Math.max(1, pagination.page - 2) + i;
+                    const pageNum =
+                      Math.max(
+                        1,
+                        pagination.page - (window.innerWidth < 640 ? 1 : 2)
+                      ) + i;
                     if (pageNum > pagination.pages) return null;
 
                     return (
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                        className={`px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium rounded-lg ${
                           pageNum === pagination.page
                             ? "text-blue-700 bg-blue-50 border border-blue-200"
                             : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50"
@@ -443,9 +464,10 @@ const AdminTicketManagement = () => {
                 <button
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page >= pagination.pages}
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Next
+                  <span className="hidden sm:inline">Next</span>
+                  <span className="sm:hidden">→</span>
                 </button>
               </div>
             </div>
