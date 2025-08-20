@@ -113,11 +113,15 @@ const PendingFreelancers = () => {
 
     if (!url) {
       return (
-        <div className="border rounded-lg p-3">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">{title}</h4>
-          <div className="w-full h-32 bg-gray-100 rounded border flex items-center justify-center">
-            <DocumentIcon className="h-8 w-8 text-gray-400" />
-            <span className="ml-2 text-sm text-gray-500">No document</span>
+        <div className="border rounded-lg p-2 xs:p-3">
+          <h4 className="text-xs xs:text-sm font-medium text-gray-900 mb-2 truncate">
+            {title}
+          </h4>
+          <div className="w-full h-24 xs:h-28 sm:h-32 bg-gray-100 rounded border flex items-center justify-center">
+            <DocumentIcon className="h-6 w-6 xs:h-8 xs:w-8 text-gray-400" />
+            <span className="ml-2 text-xs xs:text-sm text-gray-500">
+              No document
+            </span>
           </div>
         </div>
       );
@@ -139,13 +143,17 @@ const PendingFreelancers = () => {
     };
 
     return (
-      <div className="border rounded-lg p-3">
-        <h4 className="text-sm font-medium text-gray-900 mb-2">{title}</h4>
-        <div className="relative w-full h-32">
+      <div className="border rounded-lg p-2 xs:p-3">
+        <h4 className="text-xs xs:text-sm font-medium text-gray-900 mb-2 truncate">
+          {title}
+        </h4>
+        <div className="relative w-full h-24 xs:h-28 sm:h-32">
           {loading && (
             <div className="absolute inset-0 bg-gray-100 rounded border flex items-center justify-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-              <span className="ml-2 text-sm text-gray-500">Loading...</span>
+              <div className="animate-spin rounded-full h-4 w-4 xs:h-6 xs:w-6 border-b-2 border-blue-600"></div>
+              <span className="ml-2 text-xs xs:text-sm text-gray-500 hidden xs:inline">
+                Loading...
+              </span>
             </div>
           )}
 
@@ -153,15 +161,17 @@ const PendingFreelancers = () => {
             <img
               src={fullDocumentUrl}
               alt={title}
-              className="w-full h-32 object-cover rounded border"
+              className="w-full h-24 xs:h-28 sm:h-32 object-cover rounded border"
               onError={handleImageError}
               onLoad={handleImageLoad}
               style={{ display: loading ? "none" : "block" }}
             />
           ) : (
-            <div className="w-full h-32 bg-gray-100 rounded border flex items-center justify-center">
-              <DocumentIcon className="h-8 w-8 text-gray-400" />
-              <span className="ml-2 text-sm text-gray-500">Document</span>
+            <div className="w-full h-24 xs:h-28 sm:h-32 bg-gray-100 rounded border flex items-center justify-center">
+              <DocumentIcon className="h-6 w-6 xs:h-8 xs:w-8 text-gray-400" />
+              <span className="ml-2 text-xs xs:text-sm text-gray-500">
+                Document
+              </span>
             </div>
           )}
         </div>
@@ -171,10 +181,11 @@ const PendingFreelancers = () => {
             href={fullDocumentUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-500"
+            className="inline-flex items-center text-xs xs:text-sm text-blue-600 hover:text-blue-500"
           >
-            <EyeIcon className="h-4 w-4 mr-1" />
-            View Full Size
+            <EyeIcon className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
+            <span className="hidden xs:inline">View Full Size</span>
+            <span className="xs:hidden">View</span>
           </a>
           {imageError && (
             <span className="text-xs text-red-500">Image not available</span>
@@ -185,39 +196,39 @@ const PendingFreelancers = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 xs:space-y-6 px-2 xs:px-4 py-2 xs:py-4 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="md:flex md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 xs:gap-4 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0 flex-1">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+          <h2 className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-bold leading-tight text-gray-900 break-words">
             Pending Freelancer Applications
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-xs xs:text-sm text-gray-500 leading-tight">
             Review and approve freelancer applications with uploaded documents.
           </p>
         </div>
-        <div className="mt-4 flex md:ml-4 md:mt-0">
-          <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-sm font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
-            <ClockIcon className="h-4 w-4 mr-1" />
+        <div className="flex justify-center md:justify-end">
+          <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 xs:px-3 py-1 xs:py-1.5 text-xs xs:text-sm font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+            <ClockIcon className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
             {pagination.total} Pending
           </span>
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 xs:gap-4 sm:gap-5">
         <Card>
-          <CardContent className="p-5">
+          <CardContent className="p-3 xs:p-4 sm:p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <ClockIcon className="h-8 w-8 text-yellow-400" />
+                <ClockIcon className="h-6 w-6 xs:h-8 xs:w-8 text-yellow-400" />
               </div>
-              <div className="ml-5 w-0 flex-1">
+              <div className="ml-3 xs:ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
+                  <dt className="text-xs xs:text-sm font-medium text-gray-500 truncate">
                     Pending Applications
                   </dt>
-                  <dd className="text-lg font-medium text-gray-900">
+                  <dd className="text-sm xs:text-base sm:text-lg font-medium text-gray-900">
                     {pagination.total}
                   </dd>
                 </dl>
@@ -227,17 +238,17 @@ const PendingFreelancers = () => {
         </Card>
 
         <Card>
-          <CardContent className="p-5">
+          <CardContent className="p-3 xs:p-4 sm:p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <DocumentIcon className="h-8 w-8 text-blue-400" />
+                <DocumentIcon className="h-6 w-6 xs:h-8 xs:w-8 text-blue-400" />
               </div>
-              <div className="ml-5 w-0 flex-1">
+              <div className="ml-3 xs:ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
+                  <dt className="text-xs xs:text-sm font-medium text-gray-500 truncate">
                     With Documents
                   </dt>
-                  <dd className="text-lg font-medium text-gray-900">
+                  <dd className="text-sm xs:text-base sm:text-lg font-medium text-gray-900">
                     {freelancers.length}
                   </dd>
                 </dl>
@@ -246,18 +257,18 @@ const PendingFreelancers = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-5">
+        <Card className="xs:col-span-2 sm:col-span-1">
+          <CardContent className="p-3 xs:p-4 sm:p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <UserIcon className="h-8 w-8 text-green-400" />
+                <UserIcon className="h-6 w-6 xs:h-8 xs:w-8 text-green-400" />
               </div>
-              <div className="ml-5 w-0 flex-1">
+              <div className="ml-3 xs:ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
+                  <dt className="text-xs xs:text-sm font-medium text-gray-500 truncate">
                     Ready for Review
                   </dt>
-                  <dd className="text-lg font-medium text-gray-900">
+                  <dd className="text-sm xs:text-base sm:text-lg font-medium text-gray-900">
                     {
                       freelancers.filter(
                         (f) => f.agreement_accepted && f.terms_1099_accepted
@@ -271,260 +282,443 @@ const PendingFreelancers = () => {
         </Card>
       </div>
 
-      {/* Freelancers Table */}
+      {/* Freelancers Table/Cards */}
       <Card>
-        <CardHeader>
+        <CardHeader className="p-3 xs:p-4 sm:p-6">
           <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center">
-              <UserIcon className="h-5 w-5 mr-2" />
-              Pending Freelancers ({pagination.total})
+            <span className="flex items-center text-sm xs:text-base sm:text-lg">
+              <UserIcon className="h-4 w-4 xs:h-5 xs:w-5 mr-2" />
+              <span className="hidden xs:inline">
+                Pending Freelancers ({pagination.total})
+              </span>
+              <span className="xs:hidden">Pending ({pagination.total})</span>
             </span>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
             <div className="overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Freelancer
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Location
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Services
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Documents
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Applied
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {[...Array(5)].map((_, index) => (
-                    <LoadingTableRow key={index} columns={6} />
-                  ))}
-                </tbody>
-              </table>
+              {/* Desktop table loading */}
+              <div className="hidden lg:block">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Freelancer
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Location
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Services
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Documents
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Applied
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {[...Array(5)].map((_, index) => (
+                      <LoadingTableRow key={index} columns={6} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile card loading */}
+              <div className="lg:hidden space-y-4 p-4">
+                {[...Array(3)].map((_, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-100 rounded-lg p-4 animate-pulse"
+                  >
+                    <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
+                    <div className="h-3 bg-gray-300 rounded w-2/3"></div>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : freelancers.length === 0 ? (
-            <div className="text-center py-12">
-              <UserIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <div className="text-center py-8 xs:py-12 px-4">
+              <UserIcon className="h-10 w-10 xs:h-12 xs:w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-sm xs:text-base sm:text-lg font-medium text-gray-900 mb-2">
                 No pending applications
               </h3>
-              <p className="text-gray-500">
+              <p className="text-xs xs:text-sm text-gray-500">
                 All freelancer applications have been processed.
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Freelancer
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Location
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Services
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Documents
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Applied
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {freelancers.map((freelancer) => (
-                    <tr key={freelancer.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                              <span className="text-sm font-medium text-blue-600">
-                                {freelancer.first_name?.charAt(0)}
-                                {freelancer.last_name?.charAt(0)}
-                              </span>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Freelancer
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Location
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Services
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Documents
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Applied
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {freelancers.map((freelancer) => (
+                      <tr key={freelancer.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <span className="text-sm font-medium text-blue-600">
+                                  {freelancer.first_name?.charAt(0)}
+                                  {freelancer.last_name?.charAt(0)}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {freelancer.first_name} {freelancer.last_name}
+                              </div>
+                              <div className="text-sm text-gray-500 flex items-center">
+                                <EnvelopeIcon className="h-3 w-3 mr-1" />
+                                {freelancer.email}
+                              </div>
+                              {freelancer.phone && (
+                                <div className="text-sm text-gray-500 flex items-center">
+                                  <PhoneIcon className="h-3 w-3 mr-1" />
+                                  {freelancer.phone}
+                                </div>
+                              )}
                             </div>
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {freelancer.first_name} {freelancer.last_name}
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 flex items-center">
+                            <MapPinIcon className="h-4 w-4 mr-1" />
+                            {freelancer.city}, {freelancer.state}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {freelancer.zip_code}
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">
+                            <div className="font-medium">
+                              {capitalizeFirst(freelancer.cleaning_frequency)}
                             </div>
-                            <div className="text-sm text-gray-500 flex items-center">
-                              <EnvelopeIcon className="h-3 w-3 mr-1" />
-                              {freelancer.email}
-                            </div>
-                            {freelancer.phone && (
-                              <div className="text-sm text-gray-500 flex items-center">
-                                <PhoneIcon className="h-3 w-3 mr-1" />
-                                {freelancer.phone}
+                            {freelancer.cleaning_services && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                {freelancer.cleaning_services
+                                  .slice(0, 2)
+                                  .join(", ")}
+                                {freelancer.cleaning_services.length > 2 &&
+                                  " +more"}
+                              </div>
+                            )}
+                            {freelancer.preferred_hours && (
+                              <div className="text-xs text-gray-500">
+                                {freelancer.preferred_hours}
                               </div>
                             )}
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 flex items-center">
-                          <MapPinIcon className="h-4 w-4 mr-1" />
-                          {freelancer.city}, {freelancer.state}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {freelancer.zip_code}
-                        </div>
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900">
-                          <div className="font-medium">
-                            {capitalizeFirst(freelancer.cleaning_frequency)}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center space-x-1">
+                            {freelancer.id_front_url && (
+                              <div
+                                className="w-2 h-2 bg-green-400 rounded-full"
+                                title="ID Front"
+                              ></div>
+                            )}
+                            {freelancer.id_back_url && (
+                              <div
+                                className="w-2 h-2 bg-green-400 rounded-full"
+                                title="ID Back"
+                              ></div>
+                            )}
+                            {freelancer.ssn_front_url && (
+                              <div
+                                className="w-2 h-2 bg-green-400 rounded-full"
+                                title="SSN Front"
+                              ></div>
+                            )}
+                            {freelancer.ssn_back_url && (
+                              <div
+                                className="w-2 h-2 bg-green-400 rounded-full"
+                                title="SSN Back"
+                              ></div>
+                            )}
                           </div>
-                          {freelancer.cleaning_services && (
-                            <div className="text-xs text-gray-500 mt-1">
-                              {freelancer.cleaning_services
-                                .slice(0, 2)
-                                .join(", ")}
-                              {freelancer.cleaning_services.length > 2 &&
-                                " +more"}
-                            </div>
-                          )}
-                          {freelancer.preferred_hours && (
-                            <div className="text-xs text-gray-500">
-                              {freelancer.preferred_hours}
-                            </div>
-                          )}
+                          <div className="text-xs text-gray-500 mt-1">
+                            4/4 Documents
+                          </div>
+                          {freelancer.agreement_accepted &&
+                            freelancer.terms_1099_accepted && (
+                              <div className="text-xs text-green-600 mt-1">
+                                ✓ Agreements Signed
+                              </div>
+                            )}
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDateTime(freelancer.created_at)}
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-48">
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewDetails(freelancer.id)}
+                              className="flex items-center text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                            >
+                              <EyeIcon className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+
+                            <Button
+                              variant="success"
+                              size="sm"
+                              loading={updating[freelancer.id]}
+                              onClick={() =>
+                                handleActionClick(freelancer, "approve")
+                              }
+                              className="flex items-center"
+                            >
+                              <CheckCircleIcon className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              loading={updating[freelancer.id]}
+                              onClick={() =>
+                                handleActionClick(freelancer, "reject")
+                              }
+                              className="text-red-600 border-red-300 hover:bg-red-50 flex items-center"
+                            >
+                              <XCircleIcon className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="lg:hidden space-y-3 xs:space-y-4 p-3 xs:p-4">
+                {freelancers.map((freelancer) => (
+                  <div
+                    key={freelancer.id}
+                    className="bg-white border border-gray-200 rounded-lg p-3 xs:p-4 hover:shadow-md transition-shadow"
+                  >
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center min-w-0 flex-1">
+                        <div className="flex-shrink-0 h-8 w-8 xs:h-10 xs:w-10">
+                          <div className="h-8 w-8 xs:h-10 xs:w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                            <span className="text-xs xs:text-sm font-medium text-blue-600">
+                              {freelancer.first_name?.charAt(0)}
+                              {freelancer.last_name?.charAt(0)}
+                            </span>
+                          </div>
                         </div>
-                      </td>
-
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-1">
-                          {freelancer.id_front_url && (
-                            <div
-                              className="w-2 h-2 bg-green-400 rounded-full"
-                              title="ID Front"
-                            ></div>
-                          )}
-                          {freelancer.id_back_url && (
-                            <div
-                              className="w-2 h-2 bg-green-400 rounded-full"
-                              title="ID Back"
-                            ></div>
-                          )}
-                          {freelancer.ssn_front_url && (
-                            <div
-                              className="w-2 h-2 bg-green-400 rounded-full"
-                              title="SSN Front"
-                            ></div>
-                          )}
-                          {freelancer.ssn_back_url && (
-                            <div
-                              className="w-2 h-2 bg-green-400 rounded-full"
-                              title="SSN Back"
-                            ></div>
-                          )}
+                        <div className="ml-3 min-w-0 flex-1">
+                          <div className="text-sm xs:text-base font-medium text-gray-900 truncate">
+                            {freelancer.first_name} {freelancer.last_name}
+                          </div>
+                          <div className="text-xs xs:text-sm text-gray-500 truncate">
+                            {freelancer.email}
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          4/4 Documents
+                      </div>
+
+                      {/* Status Badge */}
+                      {freelancer.agreement_accepted &&
+                        freelancer.terms_1099_accepted && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2 flex-shrink-0">
+                            ✓ Ready
+                          </span>
+                        )}
+                    </div>
+
+                    {/* Details Grid */}
+                    <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 mb-3">
+                      <div>
+                        <div className="text-xs text-gray-500 mb-1">
+                          Location
                         </div>
-                        {freelancer.agreement_accepted &&
-                          freelancer.terms_1099_accepted && (
-                            <div className="text-xs text-green-600 mt-1">
-                              ✓ Agreements Signed
-                            </div>
-                          )}
-                      </td>
+                        <div className="text-xs xs:text-sm text-gray-900 flex items-center">
+                          <MapPinIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+                          <span className="truncate">
+                            {freelancer.city}, {freelancer.state}
+                          </span>
+                        </div>
+                      </div>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDateTime(freelancer.created_at)}
-                      </td>
+                      <div>
+                        <div className="text-xs text-gray-500 mb-1">
+                          Applied
+                        </div>
+                        <div className="text-xs xs:text-sm text-gray-900">
+                          {formatDateTime(freelancer.created_at)}
+                        </div>
+                      </div>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-48">
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewDetails(freelancer.id)}
-                            className="flex items-center text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                          >
-                            <EyeIcon className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
+                      <div className="xs:col-span-2">
+                        <div className="text-xs text-gray-500 mb-1">
+                          Services
+                        </div>
+                        <div className="text-xs xs:text-sm text-gray-900">
+                          {capitalizeFirst(freelancer.cleaning_frequency)}
+                          {freelancer.cleaning_services &&
+                            freelancer.cleaning_services.length > 0 && (
+                              <span className="text-gray-500 ml-1">
+                                •{" "}
+                                {freelancer.cleaning_services
+                                  .slice(0, 2)
+                                  .join(", ")}
+                                {freelancer.cleaning_services.length > 2 &&
+                                  " +more"}
+                              </span>
+                            )}
+                        </div>
+                      </div>
+                    </div>
 
-                          <Button
-                            variant="success"
-                            size="sm"
-                            loading={updating[freelancer.id]}
-                            onClick={() =>
-                              handleActionClick(freelancer, "approve")
+                    {/* Documents Status */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-xs text-gray-500">Documents</div>
+                      <div className="flex items-center space-x-1">
+                        {[
+                          freelancer.id_front_url,
+                          freelancer.id_back_url,
+                          freelancer.ssn_front_url,
+                          freelancer.ssn_back_url,
+                        ].map((url, index) => (
+                          <div
+                            key={index}
+                            className={`w-2 h-2 rounded-full ${
+                              url ? "bg-green-400" : "bg-gray-300"
+                            }`}
+                            title={
+                              ["ID Front", "ID Back", "SSN Front", "SSN Back"][
+                                index
+                              ]
                             }
-                            className="flex items-center"
-                          >
-                            <CheckCircleIcon className="h-4 w-4 mr-1" />
-                            Approve
-                          </Button>
+                          />
+                        ))}
+                        <span className="text-xs text-gray-500 ml-2">4/4</span>
+                      </div>
+                    </div>
 
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            loading={updating[freelancer.id]}
-                            onClick={() =>
-                              handleActionClick(freelancer, "reject")
-                            }
-                            className="text-red-600 border-red-300 hover:bg-red-50 flex items-center"
-                          >
-                            <XCircleIcon className="h-4 w-4 mr-1" />
-                            Reject
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                    {/* Actions */}
+                    <div className="flex flex-col xs:flex-row gap-2 xs:gap-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewDetails(freelancer.id)}
+                        className="flex-1 xs:flex-none flex items-center justify-center text-blue-600 hover:text-blue-800 hover:bg-blue-50 text-xs xs:text-sm"
+                      >
+                        <EyeIcon className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
+                        View Details
+                      </Button>
+
+                      <div className="flex gap-2 xs:gap-3">
+                        <Button
+                          variant="success"
+                          size="sm"
+                          loading={updating[freelancer.id]}
+                          onClick={() =>
+                            handleActionClick(freelancer, "approve")
+                          }
+                          className="flex-1 xs:flex-none flex items-center justify-center text-xs xs:text-sm"
+                        >
+                          <CheckCircleIcon className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
+                          Approve
+                        </Button>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          loading={updating[freelancer.id]}
+                          onClick={() =>
+                            handleActionClick(freelancer, "reject")
+                          }
+                          className="flex-1 xs:flex-none text-red-600 border-red-300 hover:bg-red-50 flex items-center justify-center text-xs xs:text-sm"
+                        >
+                          <XCircleIcon className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
+                          Reject
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
 
       {/* Pagination */}
       {pagination.pages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between px-2 xs:px-0">
+          {/* Mobile pagination */}
           <div className="flex-1 flex justify-between sm:hidden">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => handlePageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
+              className="text-xs xs:text-sm"
             >
               Previous
             </Button>
+            <span className="flex items-center text-xs xs:text-sm text-gray-700">
+              {pagination.page} / {pagination.pages}
+            </span>
             <Button
               variant="outline"
+              size="sm"
               onClick={() => handlePageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.pages}
+              className="text-xs xs:text-sm"
             >
               Next
             </Button>
           </div>
 
+          {/* Desktop pagination */}
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-gray-700">
+              <p className="text-xs xs:text-sm text-gray-700">
                 Showing{" "}
                 <span className="font-medium">
                   {(pagination.page - 1) * pagination.limit + 1}
@@ -544,28 +738,37 @@ const PendingFreelancers = () => {
               <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                 <Button
                   variant="outline"
+                  size="sm"
                   onClick={() => handlePageChange(pagination.page - 1)}
                   disabled={pagination.page === 1}
-                  className="rounded-r-none"
+                  className="rounded-r-none text-xs xs:text-sm"
                 >
                   Previous
                 </Button>
 
                 {[...Array(pagination.pages)].map((_, index) => {
                   const page = index + 1;
-                  if (
-                    page === 1 ||
-                    page === pagination.pages ||
-                    (page >= pagination.page - 2 && page <= pagination.page + 2)
-                  ) {
+                  const isVisible =
+                    window.innerWidth >= 768
+                      ? page === 1 ||
+                        page === pagination.pages ||
+                        (page >= pagination.page - 2 &&
+                          page <= pagination.page + 2)
+                      : page === 1 ||
+                        page === pagination.pages ||
+                        (page >= pagination.page - 1 &&
+                          page <= pagination.page + 1);
+
+                  if (isVisible) {
                     return (
                       <Button
                         key={page}
                         variant={
                           page === pagination.page ? "primary" : "outline"
                         }
+                        size="sm"
                         onClick={() => handlePageChange(page)}
-                        className="rounded-none"
+                        className="rounded-none text-xs xs:text-sm"
                       >
                         {page}
                       </Button>
@@ -577,7 +780,7 @@ const PendingFreelancers = () => {
                     return (
                       <span
                         key={page}
-                        className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
+                        className="relative inline-flex items-center px-2 xs:px-4 py-1 xs:py-2 border border-gray-300 bg-white text-xs xs:text-sm font-medium text-gray-700"
                       >
                         ...
                       </span>
@@ -588,9 +791,10 @@ const PendingFreelancers = () => {
 
                 <Button
                   variant="outline"
+                  size="sm"
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page === pagination.pages}
-                  className="rounded-l-none"
+                  className="rounded-l-none text-xs xs:text-sm"
                 >
                   Next
                 </Button>
@@ -602,58 +806,60 @@ const PendingFreelancers = () => {
 
       {/* Freelancer Details Modal */}
       {showDetailsModal && selectedFreelancer && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 lg:w-4/5 xl:w-3/4 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 p-2 xs:p-4">
+          <div className="relative top-4 xs:top-8 sm:top-20 mx-auto border w-full max-w-6xl shadow-lg rounded-md bg-white">
+            <div className="p-3 xs:p-4 sm:p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-sm xs:text-base sm:text-lg font-medium text-gray-900">
                   Freelancer Application Details
                 </h3>
                 <button
                   onClick={() => setShowDetailsModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 p-1"
                 >
-                  <XCircleIcon className="h-6 w-6" />
+                  <XCircleIcon className="h-5 w-5 xs:h-6 xs:w-6" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xs:gap-6">
                 {/* Personal Information */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Personal Information</CardTitle>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm xs:text-base">
+                      Personal Information
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-3 pt-0">
                     <div>
-                      <span className="text-sm font-medium text-gray-500">
+                      <span className="text-xs xs:text-sm font-medium text-gray-500">
                         Name
                       </span>
-                      <p className="text-sm text-gray-900">
+                      <p className="text-xs xs:text-sm text-gray-900">
                         {selectedFreelancer.first_name}{" "}
                         {selectedFreelancer.last_name}
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-gray-500">
+                      <span className="text-xs xs:text-sm font-medium text-gray-500">
                         Email
                       </span>
-                      <p className="text-sm text-gray-900">
+                      <p className="text-xs xs:text-sm text-gray-900 break-all">
                         {selectedFreelancer.email}
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-gray-500">
+                      <span className="text-xs xs:text-sm font-medium text-gray-500">
                         Phone
                       </span>
-                      <p className="text-sm text-gray-900">
+                      <p className="text-xs xs:text-sm text-gray-900">
                         {selectedFreelancer.phone}
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-gray-500">
+                      <span className="text-xs xs:text-sm font-medium text-gray-500">
                         Address
                       </span>
-                      <p className="text-sm text-gray-900">
+                      <p className="text-xs xs:text-sm text-gray-900">
                         {selectedFreelancer.address}
                         <br />
                         {selectedFreelancer.city}, {selectedFreelancer.state}{" "}
@@ -661,10 +867,10 @@ const PendingFreelancers = () => {
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-gray-500">
+                      <span className="text-xs xs:text-sm font-medium text-gray-500">
                         Applied
                       </span>
-                      <p className="text-sm text-gray-900">
+                      <p className="text-xs xs:text-sm text-gray-900">
                         {formatDateTime(selectedFreelancer.created_at)}
                       </p>
                     </div>
@@ -673,30 +879,32 @@ const PendingFreelancers = () => {
 
                 {/* Professional Information */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Professional Information</CardTitle>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm xs:text-base">
+                      Professional Information
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-3 pt-0">
                     <div>
-                      <span className="text-sm font-medium text-gray-500">
+                      <span className="text-xs xs:text-sm font-medium text-gray-500">
                         Work Schedule
                       </span>
-                      <p className="text-sm text-gray-900">
+                      <p className="text-xs xs:text-sm text-gray-900">
                         {capitalizeFirst(selectedFreelancer.cleaning_frequency)}
                       </p>
                     </div>
                     {selectedFreelancer.preferred_hours && (
                       <div>
-                        <span className="text-sm font-medium text-gray-500">
+                        <span className="text-xs xs:text-sm font-medium text-gray-500">
                           Preferred Hours
                         </span>
-                        <p className="text-sm text-gray-900">
+                        <p className="text-xs xs:text-sm text-gray-900">
                           {selectedFreelancer.preferred_hours}
                         </p>
                       </div>
                     )}
                     <div>
-                      <span className="text-sm font-medium text-gray-500">
+                      <span className="text-xs xs:text-sm font-medium text-gray-500">
                         Cleaning Services
                       </span>
                       <div className="flex flex-wrap gap-1 mt-1">
@@ -714,10 +922,10 @@ const PendingFreelancers = () => {
                     </div>
                     {selectedFreelancer.message && (
                       <div>
-                        <span className="text-sm font-medium text-gray-500">
+                        <span className="text-xs xs:text-sm font-medium text-gray-500">
                           Message
                         </span>
-                        <p className="text-sm text-gray-900">
+                        <p className="text-xs xs:text-sm text-gray-900">
                           {selectedFreelancer.message}
                         </p>
                       </div>
@@ -727,16 +935,18 @@ const PendingFreelancers = () => {
 
                 {/* Agreement Status */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Agreement Status</CardTitle>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm xs:text-base">
+                      Agreement Status
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-3 pt-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs xs:text-sm text-gray-500">
                         Contractor Agreement
                       </span>
                       <span
-                        className={`text-sm ${
+                        className={`text-xs xs:text-sm ${
                           selectedFreelancer.agreement_accepted
                             ? "text-green-600"
                             : "text-red-600"
@@ -748,9 +958,11 @@ const PendingFreelancers = () => {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">1099 Terms</span>
+                      <span className="text-xs xs:text-sm text-gray-500">
+                        1099 Terms
+                      </span>
                       <span
-                        className={`text-sm ${
+                        className={`text-xs xs:text-sm ${
                           selectedFreelancer.terms_1099_accepted
                             ? "text-green-600"
                             : "text-red-600"
@@ -762,11 +974,11 @@ const PendingFreelancers = () => {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs xs:text-sm text-gray-500">
                         Brings Own Supplies
                       </span>
                       <span
-                        className={`text-sm ${
+                        className={`text-xs xs:text-sm ${
                           selectedFreelancer.brings_supplies
                             ? "text-green-600"
                             : "text-red-600"
@@ -776,11 +988,11 @@ const PendingFreelancers = () => {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs xs:text-sm text-gray-500">
                         Has Experience
                       </span>
                       <span
-                        className={`text-sm ${
+                        className={`text-xs xs:text-sm ${
                           selectedFreelancer.has_experience
                             ? "text-green-600"
                             : "text-red-600"
@@ -794,11 +1006,13 @@ const PendingFreelancers = () => {
 
                 {/* Uploaded Documents */}
                 <Card className="lg:col-span-1">
-                  <CardHeader>
-                    <CardTitle>Uploaded Documents</CardTitle>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm xs:text-base">
+                      Uploaded Documents
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
+                  <CardContent className="pt-0">
+                    <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4">
                       <DocumentViewer
                         url={selectedFreelancer.id_front_url}
                         title="ID Front"
@@ -821,32 +1035,36 @@ const PendingFreelancers = () => {
               </div>
 
               {/* Actions */}
-              <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
+              <div className="flex flex-col xs:flex-row justify-end gap-2 xs:gap-3 mt-6 pt-4 border-t">
                 <Button
                   variant="outline"
+                  size="sm"
                   onClick={() => setShowDetailsModal(false)}
+                  className="xs:order-1 text-xs xs:text-sm"
                 >
                   Close
                 </Button>
                 <Button
                   variant="outline"
+                  size="sm"
                   onClick={() => {
                     setShowDetailsModal(false);
                     handleActionClick(selectedFreelancer, "reject");
                   }}
-                  className="text-red-600 border-red-300 hover:bg-red-50"
+                  className="xs:order-2 text-red-600 border-red-300 hover:bg-red-50 text-xs xs:text-sm"
                 >
-                  <XCircleIcon className="h-4 w-4 mr-1" />
+                  <XCircleIcon className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
                   Reject
                 </Button>
                 <Button
+                  size="sm"
                   onClick={() => {
                     setShowDetailsModal(false);
                     handleActionClick(selectedFreelancer, "approve");
                   }}
-                  className="bg-green-600 hover:bg-green-700 text-white"
+                  className="xs:order-3 bg-green-600 hover:bg-green-700 text-white text-xs xs:text-sm"
                 >
-                  <CheckCircleIcon className="h-4 w-4 mr-1" />
+                  <CheckCircleIcon className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
                   Approve
                 </Button>
               </div>
@@ -857,55 +1075,58 @@ const PendingFreelancers = () => {
 
       {/* Action Confirmation Modal */}
       {showActionModal && selectedFreelancer && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 p-4">
+          <div className="relative top-20 mx-auto border w-full max-w-md shadow-lg rounded-md bg-white">
+            <div className="p-4 xs:p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-sm xs:text-base sm:text-lg font-medium text-gray-900">
                   {actionType === "approve" ? "Approve" : "Reject"} Freelancer
                 </h3>
                 <button
                   onClick={() => setShowActionModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 p-1"
                 >
-                  <XCircleIcon className="h-6 w-6" />
+                  <XCircleIcon className="h-5 w-5 xs:h-6 xs:w-6" />
                 </button>
               </div>
 
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-xs xs:text-sm text-gray-500 mb-4">
                 Are you sure you want to {actionType}{" "}
                 {selectedFreelancer.first_name} {selectedFreelancer.last_name}'s
                 freelancer application?
               </p>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs xs:text-sm font-medium text-gray-700 mb-2">
                   Notes (Optional)
                 </label>
                 <textarea
                   value={actionNotes}
                   onChange={(e) => setActionNotes(e.target.value)}
                   rows={3}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-xs xs:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder={`Add notes for ${actionType} decision...`}
                 />
               </div>
 
-              <div className="flex justify-end space-x-3">
+              <div className="flex flex-col xs:flex-row justify-end gap-2 xs:gap-3">
                 <Button
                   variant="outline"
+                  size="sm"
                   onClick={() => setShowActionModal(false)}
+                  className="xs:order-1 text-xs xs:text-sm"
                 >
                   Cancel
                 </Button>
                 <Button
+                  size="sm"
                   onClick={handleConfirmAction}
                   loading={updating[selectedFreelancer.id]}
-                  className={
+                  className={`xs:order-2 text-xs xs:text-sm ${
                     actionType === "approve"
                       ? "bg-green-600 hover:bg-green-700 text-white"
                       : "bg-red-600 hover:bg-red-700 text-white"
-                  }
+                  }`}
                 >
                   {actionType === "approve" ? "Approve" : "Reject"}
                 </Button>
