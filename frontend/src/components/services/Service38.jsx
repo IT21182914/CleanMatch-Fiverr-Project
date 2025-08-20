@@ -28,12 +28,13 @@ const Service38 = ({ service, handleBookNow }) => {
         Premium Retail Store Cleaning for Customer Experience Excellence
       </h2>
       <p className="text-xl text-gray-700 leading-relaxed mb-8">
-        Your retail space is where first impressions become lasting relationships 
-        and sales decisions are made. Our specialized retail cleaning services ensure 
-        every customer enters a pristine, welcoming environment that reflects your 
-        brand quality. From high-traffic areas to detailed product displays, we maintain 
-        the immaculate presentation that drives customer confidence, enhances shopping 
-        experiences, and ultimately increases your sales performance.
+        Your retail space is where first impressions become lasting
+        relationships and sales decisions are made. Our specialized retail
+        cleaning services ensure every customer enters a pristine, welcoming
+        environment that reflects your brand quality. From high-traffic areas to
+        detailed product displays, we maintain the immaculate presentation that
+        drives customer confidence, enhances shopping experiences, and
+        ultimately increases your sales performance.
       </p>
 
       {/* Retail Offer Banner */}
@@ -55,7 +56,8 @@ const Service38 = ({ service, handleBookNow }) => {
           <span className="line-through text-gray-500 text-lg">
             {service.regularPrice}
           </span>
-          . Pristine retail environment that drives customer satisfaction and sales.
+          . Pristine retail environment that drives customer satisfaction and
+          sales.
         </p>
       </div>
 
@@ -83,7 +85,8 @@ const Service38 = ({ service, handleBookNow }) => {
               Sales-focused cleaning approach
             </h4>
             <p className="text-gray-600 text-base">
-              Every detail designed to enhance customer experience and drive purchases
+              Every detail designed to enhance customer experience and drive
+              purchases
             </p>
           </div>
         </div>
@@ -109,7 +112,8 @@ const Service38 = ({ service, handleBookNow }) => {
               Brand image enhancement
             </h4>
             <p className="text-gray-600 text-base">
-              Professional presentation that reflects your brand quality and values
+              Professional presentation that reflects your brand quality and
+              values
             </p>
           </div>
         </div>
@@ -122,7 +126,8 @@ const Service38 = ({ service, handleBookNow }) => {
               Customer safety priority
             </h4>
             <p className="text-gray-600 text-base">
-              Safe, healthy shopping environment with proper sanitization protocols
+              Safe, healthy shopping environment with proper sanitization
+              protocols
             </p>
           </div>
         </div>
@@ -138,7 +143,9 @@ const Service38 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-emerald-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <BuildingStorefrontIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Fashion & Apparel</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Fashion & Apparel
+            </h4>
             <p className="text-gray-600 text-sm">
               Clothing stores, boutiques, shoe shops, accessory retailers
             </p>
@@ -147,7 +154,9 @@ const Service38 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-teal-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <BeakerIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Electronics & Tech</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Electronics & Tech
+            </h4>
             <p className="text-gray-600 text-sm">
               Electronics stores, phone shops, computer retailers, gaming stores
             </p>
@@ -192,7 +201,8 @@ const Service38 = ({ service, handleBookNow }) => {
                 Customer Area Deep Clean
               </h4>
               <p className="text-gray-600">
-                Thorough cleaning of all customer-facing areas including sales floors, fitting rooms, and product displays
+                Thorough cleaning of all customer-facing areas including sales
+                floors, fitting rooms, and product displays
               </p>
             </div>
           </div>
@@ -205,7 +215,8 @@ const Service38 = ({ service, handleBookNow }) => {
                 Window & Display Enhancement
               </h4>
               <p className="text-gray-600">
-                Professional window cleaning and product display maintenance for maximum visual appeal
+                Professional window cleaning and product display maintenance for
+                maximum visual appeal
               </p>
             </div>
           </div>
@@ -218,7 +229,8 @@ const Service38 = ({ service, handleBookNow }) => {
                 High-Traffic Surface Care
               </h4>
               <p className="text-gray-600">
-                Specialized attention to floors, counters, and high-touch areas with appropriate cleaning solutions
+                Specialized attention to floors, counters, and high-touch areas
+                with appropriate cleaning solutions
               </p>
             </div>
           </div>
@@ -231,7 +243,8 @@ const Service38 = ({ service, handleBookNow }) => {
                 Final Presentation Check
               </h4>
               <p className="text-gray-600">
-                Complete quality inspection ensuring every area meets professional retail standards for opening
+                Complete quality inspection ensuring every area meets
+                professional retail standards for opening
               </p>
             </div>
           </div>
@@ -331,7 +344,8 @@ const Service38 = ({ service, handleBookNow }) => {
               Increased Sales
             </h4>
             <p className="text-gray-600 text-sm">
-              Clean, organized retail environment directly influences customer purchasing decisions
+              Clean, organized retail environment directly influences customer
+              purchasing decisions
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl">
@@ -342,7 +356,8 @@ const Service38 = ({ service, handleBookNow }) => {
               Brand Reputation
             </h4>
             <p className="text-gray-600 text-sm">
-              Professional cleanliness enhances brand image and customer trust in your products
+              Professional cleanliness enhances brand image and customer trust
+              in your products
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-cyan-50 to-green-50 rounded-xl">
@@ -353,7 +368,8 @@ const Service38 = ({ service, handleBookNow }) => {
               Customer Loyalty
             </h4>
             <p className="text-gray-600 text-sm">
-              Exceptional shopping environment encourages repeat visits and customer recommendations
+              Exceptional shopping environment encourages repeat visits and
+              customer recommendations
             </p>
           </div>
         </div>
@@ -369,7 +385,9 @@ const Service38 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-green-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <CalendarDaysIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Daily Maintenance</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Daily Maintenance
+            </h4>
             <p className="text-gray-600 text-sm">
               Regular cleaning to maintain pristine customer environment
             </p>
@@ -378,7 +396,9 @@ const Service38 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-blue-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <ClockIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">After-Hours Deep Clean</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              After-Hours Deep Clean
+            </h4>
             <p className="text-gray-600 text-sm">
               Comprehensive cleaning when store is closed for business
             </p>
@@ -405,9 +425,10 @@ const Service38 = ({ service, handleBookNow }) => {
           </h3>
         </div>
         <p className="mb-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-          Your customers make buying decisions within moments of entering your store. 
-          Let our professional cleaning service create the pristine environment that 
-          drives sales, enhances your brand, and keeps customers coming back.
+          Your customers make buying decisions within moments of entering your
+          store. Let our professional cleaning service create the pristine
+          environment that drives sales, enhances your brand, and keeps
+          customers coming back.
         </p>
         <button
           onClick={handleBookNow}

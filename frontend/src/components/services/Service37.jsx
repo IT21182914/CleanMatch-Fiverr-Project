@@ -28,12 +28,13 @@ const Service37 = ({ service, handleBookNow }) => {
         Professional Gym & Fitness Center Cleaning Excellence
       </h2>
       <p className="text-xl text-gray-700 leading-relaxed mb-8">
-        Your fitness facility's cleanliness directly impacts member satisfaction, 
-        retention, and health safety. Our specialized gym cleaning services ensure 
-        every piece of equipment, locker room, and workout area meets the highest 
-        hygiene standards. From intensive equipment sanitization to comprehensive 
-        facility maintenance, we create the clean, healthy environment your members 
-        deserve while supporting your business reputation and success.
+        Your fitness facility's cleanliness directly impacts member
+        satisfaction, retention, and health safety. Our specialized gym cleaning
+        services ensure every piece of equipment, locker room, and workout area
+        meets the highest hygiene standards. From intensive equipment
+        sanitization to comprehensive facility maintenance, we create the clean,
+        healthy environment your members deserve while supporting your business
+        reputation and success.
       </p>
 
       {/* Gym Offer Banner */}
@@ -83,7 +84,8 @@ const Service37 = ({ service, handleBookNow }) => {
               Medical-grade sanitization
             </h4>
             <p className="text-gray-600 text-base">
-              Advanced disinfection protocols for equipment and high-touch surfaces
+              Advanced disinfection protocols for equipment and high-touch
+              surfaces
             </p>
           </div>
         </div>
@@ -109,7 +111,8 @@ const Service37 = ({ service, handleBookNow }) => {
               Equipment expertise
             </h4>
             <p className="text-gray-600 text-base">
-              Specialized knowledge of fitness equipment cleaning and maintenance
+              Specialized knowledge of fitness equipment cleaning and
+              maintenance
             </p>
           </div>
         </div>
@@ -138,7 +141,9 @@ const Service37 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-purple-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <WrenchScrewdriverIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Equipment Areas</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Equipment Areas
+            </h4>
             <p className="text-gray-600 text-sm">
               Cardio machines, weight equipment, functional training zones
             </p>
@@ -167,9 +172,7 @@ const Service37 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-pink-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <HomeIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">
-              Common Areas
-            </h4>
+            <h4 className="font-semibold text-gray-900 mb-2">Common Areas</h4>
             <p className="text-gray-600 text-sm">
               Reception, lobby, juice bar, relaxation areas
             </p>
@@ -192,7 +195,8 @@ const Service37 = ({ service, handleBookNow }) => {
                 Equipment Deep Sanitization
               </h4>
               <p className="text-gray-600">
-                Thorough cleaning and disinfection of all fitness equipment including cardio machines, weights, and accessories
+                Thorough cleaning and disinfection of all fitness equipment
+                including cardio machines, weights, and accessories
               </p>
             </div>
           </div>
@@ -205,7 +209,8 @@ const Service37 = ({ service, handleBookNow }) => {
                 Locker Room Deep Clean
               </h4>
               <p className="text-gray-600">
-                Complete sanitization of changing areas, showers, restrooms with anti-bacterial and anti-fungal treatments
+                Complete sanitization of changing areas, showers, restrooms with
+                anti-bacterial and anti-fungal treatments
               </p>
             </div>
           </div>
@@ -218,7 +223,8 @@ const Service37 = ({ service, handleBookNow }) => {
                 Floor Care & Surface Cleaning
               </h4>
               <p className="text-gray-600">
-                Specialized floor cleaning for various surfaces including rubber, wood, and tile with appropriate products
+                Specialized floor cleaning for various surfaces including
+                rubber, wood, and tile with appropriate products
               </p>
             </div>
           </div>
@@ -231,7 +237,8 @@ const Service37 = ({ service, handleBookNow }) => {
                 Air Quality & Final Inspection
               </h4>
               <p className="text-gray-600">
-                HVAC cleaning, air freshening, and comprehensive quality assurance check for member-ready facility
+                HVAC cleaning, air freshening, and comprehensive quality
+                assurance check for member-ready facility
               </p>
             </div>
           </div>
@@ -331,7 +338,8 @@ const Service37 = ({ service, handleBookNow }) => {
               Member Retention
             </h4>
             <p className="text-gray-600 text-sm">
-              Clean facilities directly impact member satisfaction and long-term retention rates
+              Clean facilities directly impact member satisfaction and long-term
+              retention rates
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-violet-50 to-indigo-50 rounded-xl">
@@ -342,7 +350,8 @@ const Service37 = ({ service, handleBookNow }) => {
               Health Compliance
             </h4>
             <p className="text-gray-600 text-sm">
-              Meet all health department requirements and maintain professional facility standards
+              Meet all health department requirements and maintain professional
+              facility standards
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-indigo-50 to-pink-50 rounded-xl">
@@ -353,7 +362,8 @@ const Service37 = ({ service, handleBookNow }) => {
               Competitive Advantage
             </h4>
             <p className="text-gray-600 text-sm">
-              Exceptional cleanliness sets your facility apart from competition and attracts new members
+              Exceptional cleanliness sets your facility apart from competition
+              and attracts new members
             </p>
           </div>
         </div>
@@ -369,7 +379,9 @@ const Service37 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-green-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <CalendarDaysIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Daily Maintenance</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Daily Maintenance
+            </h4>
             <p className="text-gray-600 text-sm">
               Regular equipment cleaning and facility maintenance
             </p>
@@ -378,7 +390,9 @@ const Service37 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-blue-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <ClockIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Deep Clean Service</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Deep Clean Service
+            </h4>
             <p className="text-gray-600 text-sm">
               Comprehensive weekly or monthly intensive cleaning
             </p>
@@ -387,7 +401,9 @@ const Service37 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-purple-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <FireIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Emergency Response</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Emergency Response
+            </h4>
             <p className="text-gray-600 text-sm">
               24/7 availability for urgent cleaning situations
             </p>
@@ -405,9 +421,9 @@ const Service37 = ({ service, handleBookNow }) => {
           </h3>
         </div>
         <p className="mb-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-          Your gym members deserve a clean, safe, and healthy environment. 
-          Let our professional cleaning service maintain the highest standards 
-          while you focus on helping your members achieve their fitness goals.
+          Your gym members deserve a clean, safe, and healthy environment. Let
+          our professional cleaning service maintain the highest standards while
+          you focus on helping your members achieve their fitness goals.
         </p>
         <button
           onClick={handleBookNow}
