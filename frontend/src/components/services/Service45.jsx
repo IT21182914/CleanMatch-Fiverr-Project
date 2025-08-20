@@ -28,13 +28,14 @@ const Service45 = ({ service, handleBookNow }) => {
         Professional Film Studio & Production Facility Cleaning Services
       </h2>
       <p className="text-xl text-gray-700 leading-relaxed mb-8">
-        Film and television production demands flawless environments where every 
-        detail matters. Our specialized studio cleaning services ensure pristine 
-        sets, equipment areas, and production spaces that meet the exacting standards 
-        of the entertainment industry. From soundstages to post-production suites, 
-        we maintain immaculate facilities that protect expensive equipment, preserve 
-        creative environments, and support seamless production workflows without 
-        disrupting your shooting schedules or artistic vision.
+        Film and television production demands flawless environments where every
+        detail matters. Our specialized studio cleaning services ensure pristine
+        sets, equipment areas, and production spaces that meet the exacting
+        standards of the entertainment industry. From soundstages to
+        post-production suites, we maintain immaculate facilities that protect
+        expensive equipment, preserve creative environments, and support
+        seamless production workflows without disrupting your shooting schedules
+        or artistic vision.
       </p>
 
       {/* Film Studio Offer Banner */}
@@ -84,7 +85,8 @@ const Service45 = ({ service, handleBookNow }) => {
               Production-safe cleaning protocols
             </h4>
             <p className="text-gray-600 text-base">
-              Specialized techniques that protect sensitive filming and audio equipment
+              Specialized techniques that protect sensitive filming and audio
+              equipment
             </p>
           </div>
         </div>
@@ -97,7 +99,8 @@ const Service45 = ({ service, handleBookNow }) => {
               Shoot schedule coordination
             </h4>
             <p className="text-gray-600 text-base">
-              Flexible cleaning times that work around production schedules and deadlines
+              Flexible cleaning times that work around production schedules and
+              deadlines
             </p>
           </div>
         </div>
@@ -193,7 +196,8 @@ const Service45 = ({ service, handleBookNow }) => {
                 Pre-Production Setup & Equipment Protection
               </h4>
               <p className="text-gray-600">
-                Comprehensive facility preparation and equipment protection setup before filming begins
+                Comprehensive facility preparation and equipment protection
+                setup before filming begins
               </p>
             </div>
           </div>
@@ -206,7 +210,8 @@ const Service45 = ({ service, handleBookNow }) => {
                 Between-Takes Maintenance
               </h4>
               <p className="text-gray-600">
-                Quick, silent cleaning between takes and scenes without disrupting production flow
+                Quick, silent cleaning between takes and scenes without
+                disrupting production flow
               </p>
             </div>
           </div>
@@ -219,7 +224,8 @@ const Service45 = ({ service, handleBookNow }) => {
                 Set Preservation & Deep Clean
               </h4>
               <p className="text-gray-600">
-                Careful preservation of set designs and comprehensive cleaning of production areas
+                Careful preservation of set designs and comprehensive cleaning
+                of production areas
               </p>
             </div>
           </div>
@@ -232,7 +238,8 @@ const Service45 = ({ service, handleBookNow }) => {
                 Post-Production Restoration
               </h4>
               <p className="text-gray-600">
-                Complete facility restoration and preparation for next production with equipment care
+                Complete facility restoration and preparation for next
+                production with equipment care
               </p>
             </div>
           </div>
@@ -332,7 +339,8 @@ const Service45 = ({ service, handleBookNow }) => {
               Production Excellence
             </h4>
             <p className="text-gray-600 text-sm">
-              Pristine environments ensure flawless shots and professional production quality
+              Pristine environments ensure flawless shots and professional
+              production quality
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl">
@@ -343,7 +351,8 @@ const Service45 = ({ service, handleBookNow }) => {
               Equipment Protection
             </h4>
             <p className="text-gray-600 text-sm">
-              Professional cleaning protects valuable filming equipment and extends its operational life
+              Professional cleaning protects valuable filming equipment and
+              extends its operational life
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-violet-50 to-blue-50 rounded-xl">
@@ -354,7 +363,8 @@ const Service45 = ({ service, handleBookNow }) => {
               Creative Support
             </h4>
             <p className="text-gray-600 text-sm">
-              Immaculate facilities support artistic vision and creative processes without distraction
+              Immaculate facilities support artistic vision and creative
+              processes without distraction
             </p>
           </div>
         </div>
@@ -379,7 +389,9 @@ const Service45 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-blue-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <ClockIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">During Production</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              During Production
+            </h4>
             <p className="text-gray-600 text-sm">
               Silent maintenance between takes and scenes
             </p>
@@ -388,7 +400,9 @@ const Service45 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-indigo-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <SparklesIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Post-Production</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Post-Production
+            </h4>
             <p className="text-gray-600 text-sm">
               Complete restoration after filming wraps
             </p>
@@ -406,9 +420,10 @@ const Service45 = ({ service, handleBookNow }) => {
           </h3>
         </div>
         <p className="mb-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-          Every great film deserves a flawless production environment. Let our 
-          specialized studio cleaning service maintain the pristine conditions that 
-          support your creative vision and ensure professional production quality.
+          Every great film deserves a flawless production environment. Let our
+          specialized studio cleaning service maintain the pristine conditions
+          that support your creative vision and ensure professional production
+          quality.
         </p>
         <button
           onClick={handleBookNow}

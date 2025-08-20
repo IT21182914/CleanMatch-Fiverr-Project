@@ -28,13 +28,14 @@ const Service48 = ({ service, handleBookNow }) => {
         Professional Music Studio & Recording Facility Cleaning Services
       </h2>
       <p className="text-xl text-gray-700 leading-relaxed mb-8">
-        Music studios and recording facilities require meticulous cleaning that 
-        preserves acoustic integrity while maintaining the pristine environment 
-        essential for professional audio production. Our specialized studio cleaning 
-        services understand the delicate balance between thorough sanitization and 
-        equipment protection. From control rooms to live rooms, we provide 
-        comprehensive cleaning with sound-sensitive protocols that ensure optimal 
-        recording conditions while protecting valuable audio equipment and instruments.
+        Music studios and recording facilities require meticulous cleaning that
+        preserves acoustic integrity while maintaining the pristine environment
+        essential for professional audio production. Our specialized studio
+        cleaning services understand the delicate balance between thorough
+        sanitization and equipment protection. From control rooms to live rooms,
+        we provide comprehensive cleaning with sound-sensitive protocols that
+        ensure optimal recording conditions while protecting valuable audio
+        equipment and instruments.
       </p>
 
       {/* Studio Offer Banner */}
@@ -48,7 +49,8 @@ const Service48 = ({ service, handleBookNow }) => {
           </h3>
         </div>
         <p className="text-purple-800 text-xl leading-relaxed">
-          Professional music studio and recording facility cleaning services for only{" "}
+          Professional music studio and recording facility cleaning services for
+          only{" "}
           <span className="font-bold text-3xl text-purple-900">
             {service.memberPrice}
           </span>{" "}
@@ -84,7 +86,8 @@ const Service48 = ({ service, handleBookNow }) => {
               Acoustic environment preservation
             </h4>
             <p className="text-gray-600 text-base">
-              Cleaning methods that maintain acoustic integrity and sound quality
+              Cleaning methods that maintain acoustic integrity and sound
+              quality
             </p>
           </div>
         </div>
@@ -123,7 +126,8 @@ const Service48 = ({ service, handleBookNow }) => {
               Session schedule coordination
             </h4>
             <p className="text-gray-600 text-base">
-              Flexible timing that works around recording and production schedules
+              Flexible timing that works around recording and production
+              schedules
             </p>
           </div>
         </div>
@@ -139,7 +143,9 @@ const Service48 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-purple-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <MusicalNoteIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Recording Studios</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Recording Studios
+            </h4>
             <p className="text-gray-600 text-sm">
               Control rooms, live rooms, vocal booths
             </p>
@@ -148,7 +154,9 @@ const Service48 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-pink-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <TrophyIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Mastering Suites</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Mastering Suites
+            </h4>
             <p className="text-gray-600 text-sm">
               Critical listening rooms, mastering facilities
             </p>
@@ -193,7 +201,8 @@ const Service48 = ({ service, handleBookNow }) => {
                 Equipment Assessment & Protection
               </h4>
               <p className="text-gray-600">
-                Comprehensive evaluation and protection of all audio equipment, instruments, and sensitive electronics
+                Comprehensive evaluation and protection of all audio equipment,
+                instruments, and sensitive electronics
               </p>
             </div>
           </div>
@@ -206,7 +215,8 @@ const Service48 = ({ service, handleBookNow }) => {
                 Acoustic-Sensitive Surface Care
               </h4>
               <p className="text-gray-600">
-                Meticulous cleaning of acoustic panels, soundproofing, and surfaces that affect audio quality
+                Meticulous cleaning of acoustic panels, soundproofing, and
+                surfaces that affect audio quality
               </p>
             </div>
           </div>
@@ -219,7 +229,8 @@ const Service48 = ({ service, handleBookNow }) => {
                 Dust-Free Environment Creation
               </h4>
               <p className="text-gray-600">
-                Specialized cleaning techniques to eliminate dust and particles that could interfere with equipment
+                Specialized cleaning techniques to eliminate dust and particles
+                that could interfere with equipment
               </p>
             </div>
           </div>
@@ -232,7 +243,8 @@ const Service48 = ({ service, handleBookNow }) => {
                 Audio Quality Verification
               </h4>
               <p className="text-gray-600">
-                Final inspection ensuring all cleaning maintains optimal acoustic conditions and equipment functionality
+                Final inspection ensuring all cleaning maintains optimal
+                acoustic conditions and equipment functionality
               </p>
             </div>
           </div>
@@ -328,11 +340,10 @@ const Service48 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-purple-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <MusicalNoteIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-3">
-              Sound Quality
-            </h4>
+            <h4 className="font-semibold text-gray-900 mb-3">Sound Quality</h4>
             <p className="text-gray-600 text-sm">
-              Pristine environments ensure optimal acoustic conditions for professional recording
+              Pristine environments ensure optimal acoustic conditions for
+              professional recording
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-pink-50 to-indigo-50 rounded-xl">
@@ -343,7 +354,8 @@ const Service48 = ({ service, handleBookNow }) => {
               Equipment Protection
             </h4>
             <p className="text-gray-600 text-sm">
-              Specialized cleaning protects valuable audio equipment and extends lifespan
+              Specialized cleaning protects valuable audio equipment and extends
+              lifespan
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-indigo-50 to-violet-50 rounded-xl">
@@ -354,7 +366,8 @@ const Service48 = ({ service, handleBookNow }) => {
               Professional Image
             </h4>
             <p className="text-gray-600 text-sm">
-              Immaculate studios enhance client confidence and professional reputation
+              Immaculate studios enhance client confidence and professional
+              reputation
             </p>
           </div>
         </div>
@@ -379,7 +392,9 @@ const Service48 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-pink-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <ClockIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Off-Hours Service</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Off-Hours Service
+            </h4>
             <p className="text-gray-600 text-sm">
               Comprehensive cleaning when studio is not in use
             </p>
@@ -388,7 +403,9 @@ const Service48 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-purple-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <StarIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Project Preparation</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Project Preparation
+            </h4>
             <p className="text-gray-600 text-sm">
               Pre-session deep cleaning for important recordings
             </p>
@@ -406,9 +423,10 @@ const Service48 = ({ service, handleBookNow }) => {
           </h3>
         </div>
         <p className="mb-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-          Your music studio deserves cleaning services that understand the critical 
-          importance of acoustic integrity and equipment protection. Let our specialized 
-          team maintain the pristine environment essential for professional audio excellence.
+          Your music studio deserves cleaning services that understand the
+          critical importance of acoustic integrity and equipment protection.
+          Let our specialized team maintain the pristine environment essential
+          for professional audio excellence.
         </p>
         <button
           onClick={handleBookNow}

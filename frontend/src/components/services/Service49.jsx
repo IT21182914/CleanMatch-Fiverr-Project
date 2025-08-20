@@ -28,13 +28,14 @@ const Service49 = ({ service, handleBookNow }) => {
         Professional Manufacturing Plant & Industrial Facility Cleaning Services
       </h2>
       <p className="text-xl text-gray-700 leading-relaxed mb-8">
-        Manufacturing and industrial facilities demand specialized cleaning services 
-        that meet strict safety, compliance, and operational requirements. Our 
-        comprehensive industrial cleaning solutions ensure production areas, machinery 
-        zones, and administrative spaces maintain the highest standards of cleanliness 
-        and safety. From heavy-duty equipment cleaning to precision area maintenance, 
-        we provide thorough services with industry-specific protocols that support 
-        operational efficiency while ensuring worker safety and regulatory compliance.
+        Manufacturing and industrial facilities demand specialized cleaning
+        services that meet strict safety, compliance, and operational
+        requirements. Our comprehensive industrial cleaning solutions ensure
+        production areas, machinery zones, and administrative spaces maintain
+        the highest standards of cleanliness and safety. From heavy-duty
+        equipment cleaning to precision area maintenance, we provide thorough
+        services with industry-specific protocols that support operational
+        efficiency while ensuring worker safety and regulatory compliance.
       </p>
 
       {/* Industrial Offer Banner */}
@@ -48,7 +49,8 @@ const Service49 = ({ service, handleBookNow }) => {
           </h3>
         </div>
         <p className="text-orange-800 text-xl leading-relaxed">
-          Professional manufacturing plant and industrial facility cleaning services for only{" "}
+          Professional manufacturing plant and industrial facility cleaning
+          services for only{" "}
           <span className="font-bold text-3xl text-orange-900">
             {service.memberPrice}
           </span>{" "}
@@ -84,7 +86,8 @@ const Service49 = ({ service, handleBookNow }) => {
               Industrial safety compliance
             </h4>
             <p className="text-gray-600 text-base">
-              Specialized knowledge of industrial safety standards and regulations
+              Specialized knowledge of industrial safety standards and
+              regulations
             </p>
           </div>
         </div>
@@ -97,7 +100,8 @@ const Service49 = ({ service, handleBookNow }) => {
               Heavy-duty equipment expertise
             </h4>
             <p className="text-gray-600 text-base">
-              Professional cleaning of industrial machinery and production equipment
+              Professional cleaning of industrial machinery and production
+              equipment
             </p>
           </div>
         </div>
@@ -110,7 +114,8 @@ const Service49 = ({ service, handleBookNow }) => {
               Hazardous material handling
             </h4>
             <p className="text-gray-600 text-base">
-              Safe cleaning procedures for industrial waste and hazardous materials
+              Safe cleaning procedures for industrial waste and hazardous
+              materials
             </p>
           </div>
         </div>
@@ -139,7 +144,9 @@ const Service49 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-orange-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <CogIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Manufacturing Plants</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Manufacturing Plants
+            </h4>
             <p className="text-gray-600 text-sm">
               Production floors, assembly lines, quality control areas
             </p>
@@ -168,9 +175,7 @@ const Service49 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-amber-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <FireIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">
-              Heavy Industry
-            </h4>
+            <h4 className="font-semibold text-gray-900 mb-2">Heavy Industry</h4>
             <p className="text-gray-600 text-sm">
               Steel mills, foundries, automotive plants, machinery facilities
             </p>
@@ -193,7 +198,8 @@ const Service49 = ({ service, handleBookNow }) => {
                 Safety Assessment & Equipment Shutdown
               </h4>
               <p className="text-gray-600">
-                Comprehensive safety evaluation and proper equipment shutdown procedures before cleaning begins
+                Comprehensive safety evaluation and proper equipment shutdown
+                procedures before cleaning begins
               </p>
             </div>
           </div>
@@ -206,7 +212,8 @@ const Service49 = ({ service, handleBookNow }) => {
                 Heavy-Duty Industrial Cleaning
               </h4>
               <p className="text-gray-600">
-                Specialized cleaning of production equipment, machinery, and industrial surfaces using appropriate methods
+                Specialized cleaning of production equipment, machinery, and
+                industrial surfaces using appropriate methods
               </p>
             </div>
           </div>
@@ -219,7 +226,8 @@ const Service49 = ({ service, handleBookNow }) => {
                 Waste Management & Disposal
               </h4>
               <p className="text-gray-600">
-                Safe handling and disposal of industrial waste and hazardous materials according to regulations
+                Safe handling and disposal of industrial waste and hazardous
+                materials according to regulations
               </p>
             </div>
           </div>
@@ -232,7 +240,8 @@ const Service49 = ({ service, handleBookNow }) => {
                 Safety Compliance Verification
               </h4>
               <p className="text-gray-600">
-                Final inspection ensuring all areas meet industrial safety standards and regulatory requirements
+                Final inspection ensuring all areas meet industrial safety
+                standards and regulatory requirements
               </p>
             </div>
           </div>
@@ -332,7 +341,8 @@ const Service49 = ({ service, handleBookNow }) => {
               Safety Compliance
             </h4>
             <p className="text-gray-600 text-sm">
-              Professional cleaning maintains safety standards and regulatory compliance
+              Professional cleaning maintains safety standards and regulatory
+              compliance
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-red-50 to-yellow-50 rounded-xl">
@@ -370,7 +380,9 @@ const Service49 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-orange-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <CalendarDaysIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Shift-Based Service</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Shift-Based Service
+            </h4>
             <p className="text-gray-600 text-sm">
               Cleaning during production downtime between shifts
             </p>
@@ -379,7 +391,9 @@ const Service49 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-red-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <ClockIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Maintenance Windows</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Maintenance Windows
+            </h4>
             <p className="text-gray-600 text-sm">
               Deep cleaning during scheduled maintenance periods
             </p>
@@ -388,7 +402,9 @@ const Service49 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-orange-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <StarIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Emergency Response</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Emergency Response
+            </h4>
             <p className="text-gray-600 text-sm">
               24/7 emergency cleaning for spills and incidents
             </p>
@@ -406,9 +422,10 @@ const Service49 = ({ service, handleBookNow }) => {
           </h3>
         </div>
         <p className="mb-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-          Your industrial facility deserves cleaning services that understand safety 
-          requirements and operational demands. Let our specialized team maintain the 
-          clean, safe environment essential for productive manufacturing operations.
+          Your industrial facility deserves cleaning services that understand
+          safety requirements and operational demands. Let our specialized team
+          maintain the clean, safe environment essential for productive
+          manufacturing operations.
         </p>
         <button
           onClick={handleBookNow}

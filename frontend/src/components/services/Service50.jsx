@@ -28,13 +28,14 @@ const Service50 = ({ service, handleBookNow }) => {
         Professional Automotive Service Center & Garage Cleaning Services
       </h2>
       <p className="text-xl text-gray-700 leading-relaxed mb-8">
-        Automotive service centers and garages require specialized cleaning that 
-        handles grease, oil, automotive chemicals, and heavy-duty equipment while 
-        maintaining a professional customer environment. Our comprehensive automotive 
-        facility cleaning services ensure service bays, customer areas, and administrative 
-        spaces meet the highest standards of cleanliness and safety. From hydraulic lift 
-        areas to customer waiting rooms, we provide thorough cleaning with automotive-specific 
-        protocols that support both operational efficiency and customer satisfaction.
+        Automotive service centers and garages require specialized cleaning that
+        handles grease, oil, automotive chemicals, and heavy-duty equipment
+        while maintaining a professional customer environment. Our comprehensive
+        automotive facility cleaning services ensure service bays, customer
+        areas, and administrative spaces meet the highest standards of
+        cleanliness and safety. From hydraulic lift areas to customer waiting
+        rooms, we provide thorough cleaning with automotive-specific protocols
+        that support both operational efficiency and customer satisfaction.
       </p>
 
       {/* Automotive Offer Banner */}
@@ -48,7 +49,8 @@ const Service50 = ({ service, handleBookNow }) => {
           </h3>
         </div>
         <p className="text-slate-800 text-xl leading-relaxed">
-          Professional automotive service center and garage cleaning services for only{" "}
+          Professional automotive service center and garage cleaning services
+          for only{" "}
           <span className="font-bold text-3xl text-slate-900">
             {service.memberPrice}
           </span>{" "}
@@ -84,7 +86,8 @@ const Service50 = ({ service, handleBookNow }) => {
               Automotive-specific cleaning expertise
             </h4>
             <p className="text-gray-600 text-base">
-              Specialized knowledge of automotive fluids, chemicals, and equipment
+              Specialized knowledge of automotive fluids, chemicals, and
+              equipment
             </p>
           </div>
         </div>
@@ -139,7 +142,9 @@ const Service50 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-slate-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <TruckIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Auto Repair Shops</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Auto Repair Shops
+            </h4>
             <p className="text-gray-600 text-sm">
               Service bays, lift areas, tool storage, customer areas
             </p>
@@ -148,7 +153,9 @@ const Service50 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-gray-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <BuildingOfficeIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Dealership Service Centers</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Dealership Service Centers
+            </h4>
             <p className="text-gray-600 text-sm">
               Service departments, customer lounges, parts areas
             </p>
@@ -193,7 +200,8 @@ const Service50 = ({ service, handleBookNow }) => {
                 Service Bay Preparation & Assessment
               </h4>
               <p className="text-gray-600">
-                Evaluation of service areas, equipment positioning, and preparation for heavy-duty cleaning procedures
+                Evaluation of service areas, equipment positioning, and
+                preparation for heavy-duty cleaning procedures
               </p>
             </div>
           </div>
@@ -206,7 +214,8 @@ const Service50 = ({ service, handleBookNow }) => {
                 Heavy-Duty Degreasing & Equipment Care
               </h4>
               <p className="text-gray-600">
-                Professional removal of automotive fluids, grease, and residues from lifts, tools, and work surfaces
+                Professional removal of automotive fluids, grease, and residues
+                from lifts, tools, and work surfaces
               </p>
             </div>
           </div>
@@ -219,7 +228,8 @@ const Service50 = ({ service, handleBookNow }) => {
                 Customer Area Professional Cleaning
               </h4>
               <p className="text-gray-600">
-                Thorough cleaning of waiting areas, reception, and customer-facing spaces for professional presentation
+                Thorough cleaning of waiting areas, reception, and
+                customer-facing spaces for professional presentation
               </p>
             </div>
           </div>
@@ -232,7 +242,8 @@ const Service50 = ({ service, handleBookNow }) => {
                 Safety & Quality Verification
               </h4>
               <p className="text-gray-600">
-                Final inspection ensuring all areas meet automotive industry standards and customer expectations
+                Final inspection ensuring all areas meet automotive industry
+                standards and customer expectations
               </p>
             </div>
           </div>
@@ -332,7 +343,8 @@ const Service50 = ({ service, handleBookNow }) => {
               Customer Confidence
             </h4>
             <p className="text-gray-600 text-sm">
-              Clean facilities build trust and confidence in your automotive services
+              Clean facilities build trust and confidence in your automotive
+              services
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-gray-50 to-zinc-50 rounded-xl">
@@ -343,7 +355,8 @@ const Service50 = ({ service, handleBookNow }) => {
               Safety Standards
             </h4>
             <p className="text-gray-600 text-sm">
-              Professional cleaning maintains safety standards and reduces workplace hazards
+              Professional cleaning maintains safety standards and reduces
+              workplace hazards
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-zinc-50 to-stone-50 rounded-xl">
@@ -354,7 +367,8 @@ const Service50 = ({ service, handleBookNow }) => {
               Professional Image
             </h4>
             <p className="text-gray-600 text-sm">
-              Well-maintained facilities enhance reputation and attract more customers
+              Well-maintained facilities enhance reputation and attract more
+              customers
             </p>
           </div>
         </div>
@@ -379,7 +393,9 @@ const Service50 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-gray-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <ClockIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Weekend Deep Clean</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Weekend Deep Clean
+            </h4>
             <p className="text-gray-600 text-sm">
               Comprehensive cleaning when shop is closed
             </p>
@@ -388,7 +404,9 @@ const Service50 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-slate-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <StarIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Emergency Service</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Emergency Service
+            </h4>
             <p className="text-gray-600 text-sm">
               Quick response for spills and urgent cleaning needs
             </p>
@@ -406,9 +424,10 @@ const Service50 = ({ service, handleBookNow }) => {
           </h3>
         </div>
         <p className="mb-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-          Your automotive business deserves cleaning services that understand the unique 
-          challenges of service environments. Let our specialized team maintain the clean, 
-          professional facility that drives customer confidence and business success.
+          Your automotive business deserves cleaning services that understand
+          the unique challenges of service environments. Let our specialized
+          team maintain the clean, professional facility that drives customer
+          confidence and business success.
         </p>
         <button
           onClick={handleBookNow}

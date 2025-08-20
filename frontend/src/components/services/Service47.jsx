@@ -28,13 +28,14 @@ const Service47 = ({ service, handleBookNow }) => {
         Professional University & College Campus Cleaning Services
       </h2>
       <p className="text-xl text-gray-700 leading-relaxed mb-8">
-        Educational institutions require specialized cleaning services that support 
-        learning environments while maintaining the highest standards of health and 
-        safety. Our comprehensive campus cleaning services ensure every classroom, 
-        dormitory, laboratory, and common area creates an optimal environment for 
-        academic excellence. From lecture halls to student centers, we provide 
-        thorough cleaning with education-focused protocols that support the diverse 
-        needs of modern university and college communities.
+        Educational institutions require specialized cleaning services that
+        support learning environments while maintaining the highest standards of
+        health and safety. Our comprehensive campus cleaning services ensure
+        every classroom, dormitory, laboratory, and common area creates an
+        optimal environment for academic excellence. From lecture halls to
+        student centers, we provide thorough cleaning with education-focused
+        protocols that support the diverse needs of modern university and
+        college communities.
       </p>
 
       {/* Campus Offer Banner */}
@@ -139,7 +140,9 @@ const Service47 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-blue-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <AcademicCapIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Classrooms & Lecture Halls</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Classrooms & Lecture Halls
+            </h4>
             <p className="text-gray-600 text-sm">
               Learning spaces, auditoriums, seminar rooms
             </p>
@@ -157,9 +160,7 @@ const Service47 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-purple-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <HomeIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">
-              Dormitories
-            </h4>
+            <h4 className="font-semibold text-gray-900 mb-2">Dormitories</h4>
             <p className="text-gray-600 text-sm">
               Student housing, common areas, residential facilities
             </p>
@@ -193,7 +194,8 @@ const Service47 = ({ service, handleBookNow }) => {
                 Academic Schedule Coordination
               </h4>
               <p className="text-gray-600">
-                Careful planning with academic calendars to minimize disruption to classes and campus activities
+                Careful planning with academic calendars to minimize disruption
+                to classes and campus activities
               </p>
             </div>
           </div>
@@ -206,7 +208,8 @@ const Service47 = ({ service, handleBookNow }) => {
                 Specialized Facility Cleaning
               </h4>
               <p className="text-gray-600">
-                Tailored cleaning approaches for laboratories, classrooms, dormitories, and common areas
+                Tailored cleaning approaches for laboratories, classrooms,
+                dormitories, and common areas
               </p>
             </div>
           </div>
@@ -219,7 +222,8 @@ const Service47 = ({ service, handleBookNow }) => {
                 Health & Safety Focus
               </h4>
               <p className="text-gray-600">
-                Thorough sanitization and cleaning protocols that support student and faculty health
+                Thorough sanitization and cleaning protocols that support
+                student and faculty health
               </p>
             </div>
           </div>
@@ -232,7 +236,8 @@ const Service47 = ({ service, handleBookNow }) => {
                 Campus-wide Quality Assurance
               </h4>
               <p className="text-gray-600">
-                Comprehensive inspection ensuring all campus areas meet educational facility standards
+                Comprehensive inspection ensuring all campus areas meet
+                educational facility standards
               </p>
             </div>
           </div>
@@ -332,7 +337,8 @@ const Service47 = ({ service, handleBookNow }) => {
               Learning Environment
             </h4>
             <p className="text-gray-600 text-sm">
-              Clean, healthy facilities support optimal learning and academic performance
+              Clean, healthy facilities support optimal learning and academic
+              performance
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl">
@@ -343,18 +349,18 @@ const Service47 = ({ service, handleBookNow }) => {
               Student Wellbeing
             </h4>
             <p className="text-gray-600 text-sm">
-              Proper cleaning and sanitization promote student health and campus safety
+              Proper cleaning and sanitization promote student health and campus
+              safety
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl">
             <div className="p-3 bg-purple-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <TrophyIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-3">
-              Campus Pride
-            </h4>
+            <h4 className="font-semibold text-gray-900 mb-3">Campus Pride</h4>
             <p className="text-gray-600 text-sm">
-              Well-maintained facilities enhance institutional reputation and campus pride
+              Well-maintained facilities enhance institutional reputation and
+              campus pride
             </p>
           </div>
         </div>
@@ -370,7 +376,9 @@ const Service47 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-blue-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <CalendarDaysIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Academic Year Service</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Academic Year Service
+            </h4>
             <p className="text-gray-600 text-sm">
               Regular maintenance throughout the academic calendar
             </p>
@@ -379,7 +387,9 @@ const Service47 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-indigo-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <ClockIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Break Period Deep Clean</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Break Period Deep Clean
+            </h4>
             <p className="text-gray-600 text-sm">
               Comprehensive cleaning during semester breaks
             </p>
@@ -406,9 +416,10 @@ const Service47 = ({ service, handleBookNow }) => {
           </h3>
         </div>
         <p className="mb-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-          Your educational institution deserves cleaning services that understand 
-          the unique needs of campus life. Let our specialized team create optimal 
-          learning environments that support student success and campus pride.
+          Your educational institution deserves cleaning services that
+          understand the unique needs of campus life. Let our specialized team
+          create optimal learning environments that support student success and
+          campus pride.
         </p>
         <button
           onClick={handleBookNow}

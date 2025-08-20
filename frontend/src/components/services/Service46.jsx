@@ -28,13 +28,14 @@ const Service46 = ({ service, handleBookNow }) => {
         Professional Bank & Financial Institution Cleaning Services
       </h2>
       <p className="text-xl text-gray-700 leading-relaxed mb-8">
-        Financial institutions represent trust, security, and professional excellence 
-        in the community. Our specialized banking facility cleaning services ensure 
-        every customer interaction area, teller station, and office space maintains 
-        the immaculate presentation that builds client confidence. From high-security 
-        areas to customer lobbies, we provide comprehensive cleaning with strict 
-        confidentiality protocols that protect sensitive environments while creating 
-        the professional atmosphere essential for financial success.
+        Financial institutions represent trust, security, and professional
+        excellence in the community. Our specialized banking facility cleaning
+        services ensure every customer interaction area, teller station, and
+        office space maintains the immaculate presentation that builds client
+        confidence. From high-security areas to customer lobbies, we provide
+        comprehensive cleaning with strict confidentiality protocols that
+        protect sensitive environments while creating the professional
+        atmosphere essential for financial success.
       </p>
 
       {/* Banking Offer Banner */}
@@ -97,7 +98,8 @@ const Service46 = ({ service, handleBookNow }) => {
               Confidentiality and privacy protocols
             </h4>
             <p className="text-gray-600 text-base">
-              Strict confidentiality measures for sensitive financial environments
+              Strict confidentiality measures for sensitive financial
+              environments
             </p>
           </div>
         </div>
@@ -139,7 +141,9 @@ const Service46 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-green-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <BanknotesIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Commercial Banks</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Commercial Banks
+            </h4>
             <p className="text-gray-600 text-sm">
               Branch locations, main offices, customer service areas
             </p>
@@ -193,7 +197,8 @@ const Service46 = ({ service, handleBookNow }) => {
                 Security Clearance & Access Verification
               </h4>
               <p className="text-gray-600">
-                Comprehensive security verification and coordination with bank security personnel for facility access
+                Comprehensive security verification and coordination with bank
+                security personnel for facility access
               </p>
             </div>
           </div>
@@ -206,7 +211,8 @@ const Service46 = ({ service, handleBookNow }) => {
                 Customer Area Professional Cleaning
               </h4>
               <p className="text-gray-600">
-                Meticulous cleaning of lobbies, teller areas, and all customer-facing spaces to maintain professional image
+                Meticulous cleaning of lobbies, teller areas, and all
+                customer-facing spaces to maintain professional image
               </p>
             </div>
           </div>
@@ -219,7 +225,8 @@ const Service46 = ({ service, handleBookNow }) => {
                 Office & Administrative Area Maintenance
               </h4>
               <p className="text-gray-600">
-                Thorough cleaning of offices, meeting rooms, and work areas with document confidentiality awareness
+                Thorough cleaning of offices, meeting rooms, and work areas with
+                document confidentiality awareness
               </p>
             </div>
           </div>
@@ -232,7 +239,8 @@ const Service46 = ({ service, handleBookNow }) => {
                 Security Protocol Compliance Check
               </h4>
               <p className="text-gray-600">
-                Final inspection ensuring all banking security requirements are met with proper documentation
+                Final inspection ensuring all banking security requirements are
+                met with proper documentation
               </p>
             </div>
           </div>
@@ -332,7 +340,8 @@ const Service46 = ({ service, handleBookNow }) => {
               Client Confidence
             </h4>
             <p className="text-gray-600 text-sm">
-              Immaculate facilities build client trust and confidence in your financial institution
+              Immaculate facilities build client trust and confidence in your
+              financial institution
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl">
@@ -343,7 +352,8 @@ const Service46 = ({ service, handleBookNow }) => {
               Security Assurance
             </h4>
             <p className="text-gray-600 text-sm">
-              Professional cleaning maintains security standards while ensuring facility excellence
+              Professional cleaning maintains security standards while ensuring
+              facility excellence
             </p>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl">
@@ -354,7 +364,8 @@ const Service46 = ({ service, handleBookNow }) => {
               Professional Image
             </h4>
             <p className="text-gray-600 text-sm">
-              Pristine facilities reflect financial stability and professional excellence to clients
+              Pristine facilities reflect financial stability and professional
+              excellence to clients
             </p>
           </div>
         </div>
@@ -379,7 +390,9 @@ const Service46 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-blue-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <ClockIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">After-Hours Service</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              After-Hours Service
+            </h4>
             <p className="text-gray-600 text-sm">
               Comprehensive cleaning when bank is closed
             </p>
@@ -388,7 +401,9 @@ const Service46 = ({ service, handleBookNow }) => {
             <div className="p-3 bg-green-500 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <StarIcon className="h-8 w-8 text-white" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Weekend Deep Clean</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Weekend Deep Clean
+            </h4>
             <p className="text-gray-600 text-sm">
               Intensive cleaning during bank closure periods
             </p>
@@ -406,9 +421,10 @@ const Service46 = ({ service, handleBookNow }) => {
           </h3>
         </div>
         <p className="mb-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-          Your financial institution represents trust, security, and professional excellence. 
-          Let our specialized banking cleaning service maintain the immaculate environment 
-          that builds client confidence and supports your business success.
+          Your financial institution represents trust, security, and
+          professional excellence. Let our specialized banking cleaning service
+          maintain the immaculate environment that builds client confidence and
+          supports your business success.
         </p>
         <button
           onClick={handleBookNow}
