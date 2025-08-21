@@ -165,10 +165,11 @@ const bookingSchema = Joi.object({
     .pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
     .required(),
   durationHours: Joi.number().integer().min(1).max(12).required(),
-  specialInstructions: Joi.string().max(500),
+  specialInstructions: Joi.string().max(500).allow("", null).optional(),
   address: Joi.string().required(),
   city: Joi.string().required(),
   state: Joi.string().required(),
+  locationMethod: Joi.string().required(),
   zipCode: Joi.string().allow(null),
   latitude: Joi.number().allow(null),
   longitude: Joi.number().allow(null),

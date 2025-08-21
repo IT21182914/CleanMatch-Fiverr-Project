@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import Layout from "./components/layout/Layout";
@@ -374,6 +375,17 @@ function App() {
               </Suspense>
             </Layout>
           </Router>
+          {/* React Hot Toast components */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#363636',
+                color: '#fff',
+              },
+            }}
+          />
         </ToastProvider>
       </AuthProvider>
     </ErrorBoundary>

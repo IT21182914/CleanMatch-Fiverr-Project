@@ -93,9 +93,13 @@ app.use(
         process.env.FRONTEND_URL || "http://localhost:5173",
         "http://localhost:3000",
         "http://localhost:5000",
+        "http://localhost:5173",
+        "http://localhost:5173/*",
         "http://localhost:5174", // Add port 5174 for frontend
-        "http://localhost:5175", // Add port 5175 as backup
+        "http://localhost:5174/*", // Add port 5174 for frontend
+        "http://localhost:5175/*", // Add port 5175 as backup
         "https://young-cliffs-57962-dbd5fa993e19.herokuapp.com", // Hosted backend URL
+        "https://young-cliffs-57962-dbd5fa993e19.herokuapp.com/*", // Hosted backend URL
         ...envAllowedOrigins, // Add environment-specified origins
       ];
 

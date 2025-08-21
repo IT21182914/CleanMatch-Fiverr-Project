@@ -37,8 +37,40 @@ const createBooking = async (req, res) => {
       zipCode,
       latitude,
       longitude,
-      autoAssign = true,
+      locationMethod,
+      postalCode,
+      autoAssign = false,
     } = req.body;
+
+    // Handle location data based on location method
+    let finalLatitude = null;
+    let finalLongitude = null;
+    let finalPostalCode = null;
+
+    if (locationMethod === 'gps') {
+      // For GPS method
+      finalLatitude = latitude;
+      finalLongitude = longitude;
+      finalPostalCode = null;
+    } else if (locationMethod === 'postal') {
+      // For postal method
+      finalPostalCode = postalCode;
+      finalLatitude = null;
+      finalLongitude = null;
+    }
+
+    // Get user details
+    const userResult = await client.query("SELECT * FROM users WHERE id = $1", [
+      req.user.id,
+    ]);
+
+    if (userResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
+    }
 
     // Get service details
     const serviceResult = await client.query(
@@ -54,88 +86,57 @@ const createBooking = async (req, res) => {
       });
     }
 
-    const service = serviceResult.rows[0];
-    const baseAmount = parseFloat(service.base_price) * durationHours;
-    const membershipAmount = service.membership_price
-      ? parseFloat(service.membership_price) * durationHours
-      : baseAmount;
-
-    // Check for active membership and calculate discount
+    // Check for active membership of user
     const membershipResult = await client.query(
-      `SELECT * FROM memberships 
-       WHERE user_id = $1 AND status = 'active' 
-       AND current_period_end > NOW()`,
-      [req.user.id]
+      `SELECT * FROM memberships
+      WHERE user_id = $1 AND status = 'active'
+      AND current_period_end > NOW()`,
+      [userResult.rows[0].id]
     );
 
-    let totalAmount = baseAmount;
-    let membershipDiscount = 0;
-    let membershipId = null;
-    let appliedOffer = null;
-    let offerDiscount = 0;
-
-    // Check for first clean offer eligibility
-    let firstCleanOffer = null;
-    try {
-      const eligibilityCheck = await checkFirstCleanEligibilityInternal(
-        req.user.id
-      );
-      if (eligibilityCheck.eligible) {
-        const validHours = [2, 3, 4, 6];
-        if (validHours.includes(durationHours)) {
-          firstCleanOffer = eligibilityCheck.offer;
-        }
-      }
-    } catch (error) {
-      console.error("Error checking first clean eligibility:", error);
-      // Continue without offer
-    }
-
-    // Apply first clean offer if eligible (takes priority over membership discount)
-    if (firstCleanOffer) {
-      appliedOffer = firstCleanOffer;
-
-      if (firstCleanOffer.discount_type === "fixed_price") {
-        totalAmount = parseFloat(firstCleanOffer.discount_value);
-        offerDiscount = baseAmount - totalAmount;
-      } else if (firstCleanOffer.discount_type === "fixed_amount") {
-        offerDiscount = parseFloat(firstCleanOffer.discount_value);
-        totalAmount = Math.max(0, baseAmount - offerDiscount);
-      } else if (firstCleanOffer.discount_type === "percentage") {
-        offerDiscount =
-          baseAmount * (parseFloat(firstCleanOffer.discount_value) / 100);
-        totalAmount = baseAmount - offerDiscount;
-      }
-    } else if (membershipResult.rows.length > 0) {
-      // Apply membership pricing only if no special offer
-      const membership = membershipResult.rows[0];
-      membershipId = membership.id;
-
-      if (service.membership_price) {
-        // Use fixed membership price if available
-        totalAmount = membershipAmount;
-        membershipDiscount = baseAmount - membershipAmount;
-      } else {
-        // Fallback to percentage discount if no membership_price set
-        const discountPercentage = parseFloat(membership.discount_percentage);
-        membershipDiscount = baseAmount * (discountPercentage / 100);
-        totalAmount = baseAmount - membershipDiscount;
-      }
-    }
-
-    // Get user details
-    const userResult = await client.query("SELECT * FROM users WHERE id = $1", [
-      req.user.id,
-    ]);
-
+    const service = serviceResult.rows[0];
     const user = userResult.rows[0];
+    const membership = membershipResult.rows[0];
+
+    let membershipId = null;
+    let membershipDiscount = 0.0;
+    let totalAmount = 0.0;
+    let baseAmount = 0.0;
+
+    try {
+      baseAmount = parseFloat(service.base_price);
+    } catch (error) {
+      console.error("Error parsing base amount:", error);
+      return res.status(400).json({
+        success: false,
+        error: "Error parsing base amount.",
+      });
+    }
+
+    // Calculate base amount for membership
+    if (membership) {
+      try {
+        membershipId = membership.id;
+        membershipDiscount = baseAmount / 2.0;
+        totalAmount = membershipDiscount * durationHours;
+      } catch (error) {
+        console.error("Error calculating base amount:", error);
+        return res.status(400).json({
+          success: false,
+          error: "Error calculating base amount:",
+        });
+      }
+    } else {
+      totalAmount = baseAmount * durationHours;
+    }
 
     // Create booking
     const bookingResult = await client.query(
       `INSERT INTO bookings (
         customer_id, service_id, booking_date, booking_time, duration_hours,
-        total_amount, special_instructions, address, city, state, zip_code
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        total_amount, special_instructions, address, city, state, zip_code,
+        latitude, longitude, location_method
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *`,
       [
         req.user.id,
@@ -148,7 +149,10 @@ const createBooking = async (req, res) => {
         address,
         city,
         state,
-        zipCode,
+        finalPostalCode,
+        finalLatitude,
+        finalLongitude,
+        locationMethod
       ]
     );
 
@@ -160,7 +164,7 @@ const createBooking = async (req, res) => {
         await recordMembershipUsage(
           membershipId,
           booking.id,
-          baseAmount,
+          membershipDiscount * durationHours,
           totalAmount
         );
       } catch (error) {
@@ -169,22 +173,7 @@ const createBooking = async (req, res) => {
       }
     }
 
-    // Record offer usage if offer was applied
-    if (appliedOffer && offerDiscount > 0) {
-      try {
-        await recordOfferUsage(
-          req.user.id,
-          appliedOffer.id,
-          booking.id,
-          baseAmount,
-          totalAmount,
-          offerDiscount
-        );
-      } catch (error) {
-        console.error("Error recording offer usage:", error);
-        // Continue with booking creation even if usage recording fails
-      }
-    }
+
     let assignedCleaner = null;
     let assignmentResult = null;
 
@@ -192,8 +181,8 @@ const createBooking = async (req, res) => {
     if (autoAssign) {
       try {
         const bookingDetails = {
-          latitude: null, // You might want to geocode the address
-          longitude: null,
+          latitude: finalLatitude,
+          longitude: finalLongitude,
           bookingDate,
           bookingTime,
           durationHours,
@@ -228,15 +217,15 @@ const createBooking = async (req, res) => {
         }
       } catch (error) {
         console.error("Auto-assignment error:", error);
-        // Continue without assignment - booking remains pending
         booking.status = "pending_assignment";
       }
     }
 
     // Create Stripe customer if needed and payment intent
     try {
-      const stripeCustomerId = await createStripeCustomer(user);
 
+      const stripeCustomerId = await createStripeCustomer(user);
+      
       const paymentIntent = await createPaymentIntent({
         amount: totalAmount,
         customerId: stripeCustomerId,
@@ -267,26 +256,26 @@ const createBooking = async (req, res) => {
         pricing_breakdown: {
           base_amount: Math.round(baseAmount * 100) / 100,
           membership_discount: Math.round(membershipDiscount * 100) / 100,
-          offer_discount: Math.round(offerDiscount * 100) / 100,
-          total_amount: Math.round(totalAmount * 100) / 100,
-          applied_offer: appliedOffer
-            ? {
-                id: appliedOffer.id,
-                name: appliedOffer.name,
-                type: appliedOffer.offer_type,
-                discount_type: appliedOffer.discount_type,
-                discount_value: appliedOffer.discount_value,
-              }
-            : null,
+          // offer_discount: Math.round(offerDiscount * 100) / 100,
+          // total_amount: Math.round(totalAmount * 100) / 100,
+          // applied_offer: appliedOffer
+          //   ? {
+          //     id: appliedOffer.id,
+          //     name: appliedOffer.name,
+          //     type: appliedOffer.offer_type,
+          //     discount_type: appliedOffer.discount_type,
+          //     discount_value: appliedOffer.discount_value,
+          //   }
+          //   : null,
         },
-        assigned_cleaner: assignedCleaner
-          ? {
-              id: assignedCleaner.id,
-              name: `${assignedCleaner.first_name} ${assignedCleaner.last_name}`,
-              rating: assignedCleaner.rating,
-              hourly_rate: assignedCleaner.hourly_rate,
-            }
-          : null,
+        // assigned_cleaner: assignedCleaner
+        //   ? {
+        //     id: assignedCleaner.id,
+        //     name: `${assignedCleaner.first_name} ${assignedCleaner.last_name}`,
+        //     rating: assignedCleaner.rating,
+        //     hourly_rate: assignedCleaner.hourly_rate,
+        //   }
+        //   : null,
       },
     });
   } catch (error) {
@@ -382,13 +371,13 @@ const getBookingById = async (req, res) => {
       },
       cleaner: booking.cleaner_id
         ? {
-            firstName: booking.cleaner_first_name,
-            lastName: booking.cleaner_last_name,
-            email: booking.cleaner_email,
-            phone: booking.cleaner_phone,
-            rating: booking.cleaner_rating,
-            hourlyRate: booking.cleaner_hourly_rate,
-          }
+          firstName: booking.cleaner_first_name,
+          lastName: booking.cleaner_last_name,
+          email: booking.cleaner_email,
+          phone: booking.cleaner_phone,
+          rating: booking.cleaner_rating,
+          hourlyRate: booking.cleaner_hourly_rate,
+        }
         : null,
     };
 
@@ -539,7 +528,7 @@ const updateBookingPaymentStatus = async (req, res) => {
       booking.customer_id === req.user.id
     ) {
       hasPermission = true;
-    } 
+    }
 
     if (!hasPermission) {
       return res.status(403).json({
@@ -701,11 +690,11 @@ const assignCleanerToBooking = async (req, res) => {
     const updateParams =
       req.user.role === "admin"
         ? [
-            cleanerId,
-            "confirmed",
-            id,
-            overrideReason || "Manual admin assignment",
-          ]
+          cleanerId,
+          "confirmed",
+          id,
+          overrideReason || "Manual admin assignment",
+        ]
         : [cleanerId, "confirmed", id];
 
     await client.query(updateQuery, updateParams);
@@ -724,12 +713,10 @@ const assignCleanerToBooking = async (req, res) => {
       [
         cleanerId,
         "New Booking Assignment",
-        `You have been ${
-          req.user.role === "admin"
-            ? "manually assigned by admin to"
-            : "assigned to"
-        } a cleaning job for ${booking.booking_date} at ${
-          booking.booking_time
+        `You have been ${req.user.role === "admin"
+          ? "manually assigned by admin to"
+          : "assigned to"
+        } a cleaning job for ${booking.booking_date} at ${booking.booking_time
         }.`,
         "new_assignment",
         JSON.stringify({
@@ -895,10 +882,10 @@ const getCleanerRecommendationsForBooking = async (req, res) => {
           cleaner.zip_priority === 1
             ? "exact"
             : cleaner.zip_priority === 2
-            ? "area"
-            : cleaner.zip_priority === 3
-            ? "region"
-            : "distant",
+              ? "area"
+              : cleaner.zip_priority === 3
+                ? "region"
+                : "distant",
         priorityScore: cleaner.priorityScore,
         availability: {
           isAvailable: cleaner.is_available,
@@ -1342,8 +1329,8 @@ const getBookingAssignmentStatus = async (req, res) => {
             cleaner.zip_priority === 1
               ? "exact"
               : cleaner.zip_priority === 2
-              ? "area"
-              : "distant",
+                ? "area"
+                : "distant",
           currentJobs: cleaner.current_active_jobs || 0,
         }));
       } catch (error) {
@@ -1366,12 +1353,12 @@ const getBookingAssignmentStatus = async (req, res) => {
         },
         cleaner: booking.cleaner_id
           ? {
-              id: booking.cleaner_id,
-              name: `${booking.cleaner_first_name} ${booking.cleaner_last_name}`,
-              phone: booking.cleaner_phone,
-              rating: booking.cleaner_rating || 0,
-              totalJobs: booking.cleaner_total_jobs || 0,
-            }
+            id: booking.cleaner_id,
+            name: `${booking.cleaner_first_name} ${booking.cleaner_last_name}`,
+            phone: booking.cleaner_phone,
+            rating: booking.cleaner_rating || 0,
+            totalJobs: booking.cleaner_total_jobs || 0,
+          }
           : null,
         location: {
           address: booking.address,
@@ -1569,7 +1556,7 @@ const getNearbyCleanersForBooking = async (req, res) => {
         within10km: availableCleaners.filter(c => parseFloat(c.distanceKm) <= 10).length,
         onlineNow: availableCleaners.filter(c => c.isOnline).length,
       },
-      message: availableCleaners.length > 0 
+      message: availableCleaners.length > 0
         ? `Found ${availableCleaners.length} available cleaners for your booking`
         : "No cleaners currently available in this area",
     });

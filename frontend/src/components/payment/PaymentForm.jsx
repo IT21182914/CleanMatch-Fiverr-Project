@@ -66,7 +66,7 @@ const PaymentForm = ({ bookingId, onSuccess, onError }) => {
         loading={loading}
         disabled={!stripe || !elements || loading}
       >
-        {loading ? "Processing..." : "Complete Payment"}
+        {loading ? "Processing" : "Complete Payment"}
       </Button>
 
       <div className="text-center">

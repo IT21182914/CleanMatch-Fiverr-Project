@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Elements } from "@stripe/react-stripe-js";
@@ -6,11 +7,10 @@ import { paymentsAPI, bookingsAPI } from "../../lib/api";
 import {
   Card,
   CardHeader,
-  CardTitle,
   CardContent,
 } from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
-import { LoadingPage, ModernPageLoader } from "../../components/ui/Loading";
+import { ModernPageLoader } from "../../components/ui/Loading";
 import { formatCurrency, formatDateTime } from "../../lib/utils";
 import PaymentForm from "../../components/payment/PaymentForm";
 
@@ -25,61 +25,45 @@ const Payment = () => {
   useEffect(() => {
     const fetchBookingAndCreatePaymentIntent = async () => {
       try {
-        // Fetch booking details
         const bookingResponse = await bookingsAPI.getById(bookingId);
         const bookingData =
           bookingResponse.data.data ||
           bookingResponse.data.booking ||
           bookingResponse.data;
-        console.log("Payment - booking data:", bookingData);
         setBooking(bookingData);
 
-        // Create payment intent
-        const paymentResponse = await paymentsAPI.createPaymentIntent(
-          bookingId
-        );
+        const paymentResponse = await paymentsAPI.createPaymentIntent(bookingId);
 
-        // Handle different response structures
         const clientSecret =
           paymentResponse.data.client_secret ||
           paymentResponse.data.data?.clientSecret ||
           paymentResponse.data.data?.client_secret;
 
-        if (!clientSecret) {
-          throw new Error("Failed to get payment client secret");
-        }
+        if (!clientSecret) throw new Error("Failed to get payment client secret");
 
         setClientSecret(clientSecret);
       } catch (error) {
-        console.error(
-          "Error fetching booking or creating payment intent:",
-          error
-        );
+        console.error("Error fetching booking or creating payment intent:", error);
         setError("Failed to load payment information. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
-    if (bookingId) {
-      fetchBookingAndCreatePaymentIntent();
-    }
+    if (bookingId) fetchBookingAndCreatePaymentIntent();
   }, [bookingId]);
 
   const handlePaymentSuccess = () => {
-    // Navigate to cleaner selection with booking data
-    console.log("Payment successful");
     bookingsAPI.updatePaymentStatus(bookingId, "paid")
       .then(() => {
-        console.log("Payment successful, navigating to booking details with success message");
         navigate(`/customer/bookings/${bookingId}`, {
           state: {
             message: "Payment completed successfully! You can now select a cleaner for your booking.",
             paymentSuccess: true
           }
         });
-      }).catch((error) => {
-        console.error("Error updating booking payment status:", error);
+      })
+      .catch(() => {
         setError("Failed to update payment status. Please try again.");
       });
   };
@@ -88,37 +72,16 @@ const Payment = () => {
     setError(error);
   };
 
-  if (loading) {
-    return <ModernPageLoader message="Loading payment details..." />;
-  }
+  if (loading) return <ModernPageLoader message="Loading payment details..." />;
 
   if (error) {
     return (
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardContent className="text-center py-12">
-            <div className="text-red-600 mb-4">
-              <svg
-                className="h-12 w-12 mx-auto"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Payment Error
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Payment Error</h3>
             <p className="text-gray-500 mb-6">{error}</p>
-            <Button onClick={() => navigate("/bookings")}>
-              Return to Bookings
-            </Button>
+            <Button onClick={() => navigate("/bookings")}>Return to Bookings</Button>
           </CardContent>
         </Card>
       </div>
@@ -130,15 +93,11 @@ const Payment = () => {
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardContent className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Booking Not Found
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Booking Not Found</h3>
             <p className="text-gray-500 mb-6">
               The booking you're trying to pay for could not be found.
             </p>
-            <Button onClick={() => navigate("/bookings")}>
-              Return to Bookings
-            </Button>
+            <Button onClick={() => navigate("/bookings")}>Return to Bookings</Button>
           </CardContent>
         </Card>
       </div>
@@ -158,135 +117,114 @@ const Payment = () => {
     },
   };
 
-  const options = {
-    clientSecret,
-    appearance,
-  };
+  const options = { clientSecret, appearance };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Complete Your Payment
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Secure payment processing powered by Stripe
-        </p>
+    <div className="max-w-4xl mx-auto space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 pb-2">
+              Complete Payment
+            </h2>
+            <p className="text-xs text-gray-500">Booking #{bookingId}</p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Booking Summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
         <Card>
-          <CardHeader>
-            <CardTitle>Booking Summary</CardTitle>
+          <CardHeader className="pb-2 bg-cyan-50 border-b border-cyan-200 rounded-t-lg">
+            <h4 className="text-sm font-medium text-cyan-900">Booking Summary</h4>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 pt-2">
+            {/* Service Information */}
             <div>
-              <h4 className="font-medium text-gray-900">
-                {booking.service_name || booking.service?.name || "Service"}
-              </h4>
-              <p className="text-sm text-gray-500">
-                {booking.service?.description ||
-                  "Professional cleaning service"}
+              <span className="text-lg font-medium text-gray-900">
+                {booking.service_name || booking.service?.name || "Cleaning Service"}
+              </span>
+              <p className="text-sm text-gray-600 mt-0.5">
+                {booking.service?.description || "Professional cleaning service"}
               </p>
             </div>
 
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Date & Time:</span>
-                <span className="font-medium">
+            {/* Booking Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="flex items-center text-sm text-gray-600">
+                <svg className="h-3 w-3 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a3 3 0 002 2z" />
+                </svg>
+                <span>
                   {(() => {
-                    // Handle different possible date formats from backend
-                    const bookingDate =
-                      booking.bookingDate ||
-                      booking.booking_date ||
-                      booking.scheduledDate;
-                    const bookingTime =
-                      booking.bookingTime || booking.booking_time;
+                    const bookingDate = booking.bookingDate || booking.booking_date || booking.scheduledDate;
+                    const bookingTime = booking.bookingTime || booking.booking_time;
 
-                    if (!bookingDate) {
-                      return "Date not available";
-                    }
+                    if (!bookingDate) return "Date not available";
 
                     try {
                       if (bookingTime) {
-                        // If we have separate date and time, combine them
-                        // Handle date format: if it's already a full datetime, use it as is
-                        // If it's just a date, combine with time
-                        const dateStr = bookingDate.includes("T")
-                          ? bookingDate
-                          : `${bookingDate}T${bookingTime}`;
+                        const dateStr = bookingDate.includes("T") ? bookingDate : `${bookingDate}T${bookingTime}`;
                         return formatDateTime(dateStr);
                       } else {
                         return formatDateTime(bookingDate);
                       }
                     } catch (error) {
-                      console.error(
-                        "Date formatting error:",
-                        error,
-                        "Date:",
-                        bookingDate,
-                        "Time:",
-                        bookingTime
-                      );
+                      console.error("Date formatting error:", error);
                       return "Invalid date format";
                     }
                   })()}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Address:</span>
-                <span className="font-medium text-right">
-                  {booking.address}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Service Duration:</span>
-                <span className="font-medium">
-                  {booking.durationHours ||
-                    booking.duration_hours ||
-                    booking.service?.estimatedDuration ||
-                    2}{" "}
-                  hours
+              <div className="flex items-center text-sm text-gray-600">
+                <svg className="h-3 w-3 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>
+                  Duration: {booking.durationHours || booking.duration_hours || booking.service?.estimatedDuration || 2} hours
                 </span>
               </div>
             </div>
 
+            <div className="flex items-start text-sm text-gray-600">
+              <svg className="h-3 w-3 mr-1.5 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>{booking.address || "Address not specified"}</span>
+            </div>
+
+            {/* Special Instructions */}
             {(booking.specialInstructions || booking.special_instructions) && (
               <div>
-                <h5 className="font-medium text-gray-900 mb-1">
-                  Special Instructions:
-                </h5>
-                <p className="text-sm text-gray-600">
+                <span className="text-sm font-medium text-gray-900 mb-1">Special Instructions</span>
+                <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
                   {booking.specialInstructions || booking.special_instructions}
                 </p>
               </div>
             )}
 
-            <div className="border-t pt-4">
+            {/* Total Amount */}
+            <div className="border-t pt-2 mt-3">
               <div className="flex justify-between items-center">
-                <span className="text-lg font-medium text-gray-900">
-                  Total:
-                </span>
-                <span className="text-2xl font-bold text-blue-600">
-                  {formatCurrency(
-                    booking.totalAmount || booking.total_amount || 0
-                  )}
+                <span className="text-sm font-medium text-gray-900">Total:</span>
+                <span className="text-lg font-bold text-blue-600">
+                  {formatCurrency(booking.totalAmount || booking.total_amount || 0)}
                 </span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Includes all fees and taxes
-              </p>
+              <p className="text-xs text-gray-500 mt-0.5">Includes all fees and taxes</p>
             </div>
           </CardContent>
         </Card>
 
+
         {/* Payment Form */}
         <Card>
-          <CardHeader>
-            <CardTitle>Payment Details</CardTitle>
+          <CardHeader className="pb-2 bg-blue-50 border-b border-blue-200 rounded-t-lg">
+            <h4 className="text-sm font-medium text-blue-900">Payment Details</h4>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-2">
             {clientSecret && (
               <Elements options={options} stripe={stripePromise}>
                 <PaymentForm
@@ -299,36 +237,10 @@ const Payment = () => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Security Notice */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardContent className="flex items-center space-x-3">
-          <div className="flex-shrink-0">
-            <svg
-              className="h-5 w-5 text-blue-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-              />
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm text-blue-800">
-              <strong>Secure Payment:</strong> Your payment information is
-              encrypted and processed securely by Stripe. We never store your
-              payment details.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
 
 export default Payment;
+
+
