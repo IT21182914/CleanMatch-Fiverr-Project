@@ -20,8 +20,9 @@ const {
   getFreelancerDetails,
   getPayments,
   getRevenueAnalytics,
-  getReviews,
-  deleteReview,
+  // Review functions are disabled:
+  // getReviews,
+  // deleteReview,
   getUsersWithMembership,
   cancelUserMembership,
   grantUserMembership,
@@ -101,14 +102,31 @@ router.get("/payments", auth, authorize("admin"), getPayments);
 router.get("/analytics/revenue", auth, authorize("admin"), getRevenueAnalytics);
 
 // @route   GET /api/admin/reviews
-// @desc    Get all reviews for moderation
+// @desc    Get all reviews for moderation - DISABLED
 // @access  Private (Admin only)
-router.get("/reviews", auth, authorize("admin"), getReviews);
+// router.get("/reviews", auth, authorize("admin"), getReviews);
 
 // @route   DELETE /api/admin/reviews/:id
-// @desc    Delete review
+// @desc    Delete review - DISABLED  
 // @access  Private (Admin only)
-router.delete("/reviews/:id", auth, authorize("admin"), deleteReview);
+// router.delete("/reviews/:id", auth, authorize("admin"), deleteReview);
+
+// Placeholder routes to prevent 404 errors
+router.get("/reviews", auth, authorize("admin"), (req, res) => {
+  res.json({
+    success: false,
+    error: "Admin review feature is disabled",
+    reviews: [],
+    pagination: { page: 1, limit: 20, total: 0, pages: 0 }
+  });
+});
+
+router.delete("/reviews/:id", auth, authorize("admin"), (req, res) => {
+  res.json({
+    success: false,
+    error: "Admin review feature is disabled"
+  });
+});
 
 // @route   GET /api/admin/users-with-membership
 // @desc    Get all users with membership status

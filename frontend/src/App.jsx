@@ -11,6 +11,7 @@ import { ToastProvider } from "./contexts/ToastContext";
 import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import ErrorBoundary from "./components/layout/ErrorBoundary";
+import ScrollToTop from "./components/layout/ScrollToTop";
 import { ModernPageLoader } from "./components/ui/Loading";
 
 // Lazy load pages for better performance
@@ -71,8 +72,8 @@ const AdminTickets = React.lazy(() =>
 const AdminTicketDetails = React.lazy(() =>
   import("./pages/admin/TicketDetails")
 );
-const AdminReviewManagement = React.lazy(() =>
-  import("./components/admin/AdminReviewManagement")
+const AdminReviewsDisabled = React.lazy(() =>
+  import("./components/admin/AdminReviewsDisabled")
 );
 
 // Home page - Keep this eagerly loaded as it's the landing page
@@ -91,6 +92,7 @@ function App() {
       <AuthProvider>
         <ToastProvider>
           <Router>
+            <ScrollToTop />
             <Layout>
               <Suspense
                 fallback={<ModernPageLoader message="Loading page..." />}
@@ -345,7 +347,7 @@ function App() {
                     path="/admin/reviews"
                     element={
                       <ProtectedRoute requiredRole="admin">
-                        <AdminReviewManagement />
+                        <AdminReviewsDisabled />
                       </ProtectedRoute>
                     }
                   />
@@ -381,8 +383,8 @@ function App() {
             toastOptions={{
               duration: 4000,
               style: {
-                background: '#363636',
-                color: '#fff',
+                background: "#363636",
+                color: "#fff",
               },
             }}
           />

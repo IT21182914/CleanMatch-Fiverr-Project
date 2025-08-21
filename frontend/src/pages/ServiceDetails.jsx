@@ -96,6 +96,11 @@ const ServiceDetails = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Multiple scroll-to-top approaches to ensure it works
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
     // Find the service by id
     const foundService = allServices.find((s) => s.id === parseInt(id));
     setService(foundService);
@@ -105,7 +110,43 @@ const ServiceDetails = () => {
       // Update page title
       document.title = `${foundService.name} - CleanMatch`;
     }
+
+    // Additional scroll after state update
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }, 0);
   }, [id]);
+
+  // Additional useEffect to ensure scroll to top after component is fully rendered
+  useEffect(() => {
+    if (!loading && service) {
+      // Force scroll to top after the component is fully rendered
+      const forceScrollToTop = () => {
+        // Try multiple scroll methods
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+
+        // Target main element
+        const mainElement = document.querySelector("main");
+        if (mainElement) {
+          mainElement.scrollTop = 0;
+        }
+      };
+
+      // Execute immediately
+      forceScrollToTop();
+
+      // Execute with requestAnimationFrame
+      requestAnimationFrame(forceScrollToTop);
+
+      // Execute with small delay
+      setTimeout(forceScrollToTop, 50);
+
+      // Execute with longer delay as backup
+      setTimeout(forceScrollToTop, 200);
+    }
+  }, [loading, service]);
 
   if (loading) {
     return (
