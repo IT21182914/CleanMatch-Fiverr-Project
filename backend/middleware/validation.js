@@ -333,9 +333,10 @@ module.exports = {
   bookingSchema,
   serviceSchema,
   reviewSchema,
-  adminReviewSchema,
-  bulkAdminReviewSchema,
-  updateAdminReviewSchema,
+  // Admin review schemas are disabled:
+  // adminReviewSchema,
+  // bulkAdminReviewSchema,
+  // updateAdminReviewSchema,
   ticketCreateSchema,
   ticketMessageSchema,
   ticketUpdateSchema,

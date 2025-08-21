@@ -1067,11 +1067,11 @@ module.exports = {
   updateCleanerRating,
   getAllReviews,
   toggleReviewVisibility,
-  adminDeleteReview,
-  // New admin functions
-  createAdminReview,
-  updateAdminReview,
-  getAdminReviewDashboard,
-  getAdminCreatedReviews,
-  bulkCreateAdminReviews,
+  // Admin review functions are disabled
+  // adminDeleteReview,
+  // createAdminReview,
+  // updateAdminReview,
+  // getAdminReviewDashboard,
+  // getAdminCreatedReviews,
+  // bulkCreateAdminReviews,
 };
