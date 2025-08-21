@@ -32,6 +32,8 @@ const Payment = () => {
           bookingResponse.data;
         setBooking(bookingData);
 
+        console.log("Fetched Booking Data:", bookingData);
+
         const paymentResponse = await paymentsAPI.createPaymentIntent(bookingId);
 
         const clientSecret =
@@ -160,12 +162,15 @@ const Payment = () => {
                   {(() => {
                     const bookingDate = booking.bookingDate || booking.booking_date || booking.scheduledDate;
                     const bookingTime = booking.bookingTime || booking.booking_time;
+                    console.log("Booking Date:", bookingDate);
+                    console.log("Booking Time:", bookingTime);
 
                     if (!bookingDate) return "Date not available";
 
                     try {
                       if (bookingTime) {
                         const dateStr = bookingDate.includes("T") ? bookingDate : `${bookingDate}T${bookingTime}`;
+                        console.log("Formatted Date String:", dateStr);
                         return formatDateTime(dateStr);
                       } else {
                         return formatDateTime(bookingDate);

@@ -4,10 +4,30 @@ import { CalendarDaysIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/
 const DatePicker = ({ name, value, onChange, error, min, required, className = "" }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [selectedDate, setSelectedDate] = useState(value ? new Date(value) : null);
+    const [selectedDate, setSelectedDate] = useState(() => {
+        if (value && typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            // Create date from YYYY-MM-DD string without timezone conversion
+            const [year, month, day] = value.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+        return null;
+    });
     const containerRef = useRef(null);
 
-    const minDate = min ? new Date(min) : new Date();
+    const minDate = min ? (() => {
+        if (typeof min === 'string' && min.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            // Create date from YYYY-MM-DD string without timezone conversion
+            const [year, month, day] = min.split('-').map(Number);
+            const date = new Date(year, month - 1, day);
+            date.setHours(0, 0, 0, 0);
+            return date;
+        }
+        return new Date(min);
+    })() : (() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return today;
+    })();
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -19,6 +39,19 @@ const DatePicker = ({ name, value, onChange, error, min, required, className = "
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Update selected date when value prop changes
+    useEffect(() => {
+        if (value && typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            // Create date from YYYY-MM-DD string without timezone conversion
+            const [year, month, day] = value.split('-').map(Number);
+            const newSelectedDate = new Date(year, month - 1, day);
+            setSelectedDate(newSelectedDate);
+            setCurrentDate(newSelectedDate);
+        } else {
+            setSelectedDate(null);
+        }
+    }, [value]);
 
     const formatDate = (date) => {
         if (!date) return "";
@@ -32,7 +65,11 @@ const DatePicker = ({ name, value, onChange, error, min, required, className = "
 
     const formatDateValue = (date) => {
         if (!date) return "";
-        return date.toISOString().split('T')[0];
+        // Use local date formatting to avoid timezone issues
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
     };
 
     const handleDateSelect = (date) => {
@@ -74,7 +111,9 @@ const DatePicker = ({ name, value, onChange, error, min, required, className = "
     };
 
     const isDateDisabled = (date) => {
-        return date < minDate;
+        const compareDate = new Date(date);
+        compareDate.setHours(0, 0, 0, 0);
+        return compareDate < minDate;
     };
 
     const isDateSelected = (date) => {
@@ -106,8 +145,8 @@ const DatePicker = ({ name, value, onChange, error, min, required, className = "
             {/* Input Field */}
             <div
                 className={`w-full px-3 py-2 border rounded-lg cursor-pointer flex items-center justify-between ${error
-                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                        : "border-gray-300 focus:border-cyan-500 focus:ring-cyan-500"
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:border-cyan-500 focus:ring-cyan-500"
                     } ${isOpen ? "ring-2 ring-cyan-500 border-cyan-500" : ""}`}
                 onClick={() => setIsOpen(!isOpen)}
             >

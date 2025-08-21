@@ -34,13 +34,37 @@ export function formatDateTime(date) {
     return "Invalid date";
   }
 
-  return new Intl.DateTimeFormat("en-US", {
+  const s = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: true
   }).format(dateObj);
+  console.log("Formatted Date:", s);
+  return s;
+}
+
+export function formatDateTimeLocal(date) {
+  if (!date) return "Date not set";
+
+  const dateObj = new Date(date);
+  if (isNaN(dateObj.getTime())) {
+    return "Invalid date";
+  }
+
+  const s = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    timeZoneName: "short"
+  }).format(dateObj);
+  console.log("Formatted Date (Local):", s);
+  return s;
 }
 
 export function formatTime(timeString) {

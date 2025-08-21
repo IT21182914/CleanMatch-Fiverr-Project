@@ -35,27 +35,61 @@ const BookingForm = ({
     const locationMethod = formData.locationMethod || "gps";
 
     // Generate time slots
-    const timeSlots = [];
-    for (let hour = 8; hour <= 20; hour++) {
-        for (let minute = 0; minute < 60; minute += 30) {
-            const time = `${hour.toString().padStart(2, "0")}:${minute
-                .toString()
-                .padStart(2, "0")}`;
-            const displayTime = new Date(`2000-01-01T${time}`).toLocaleTimeString(
-                "en-US",
-                {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true,
-                }
-            );
-            timeSlots.push({ value: time, label: displayTime });
+    const generateTimeSlots = () => {
+        const slots = [];
+        for (let hour = 8; hour <= 20; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const time = `${hour.toString().padStart(2, "0")}:${minute
+                    .toString()
+                    .padStart(2, "0")}`;
+                const displayTime = new Date(`2000-01-01T${time}`).toLocaleTimeString(
+                    "en-US",
+                    {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true,
+                    }
+                );
+                slots.push({ value: time, label: displayTime });
+            }
         }
-    }
+        return slots;
+    };
+
+    // Filter time slots based on selected date
+    const getAvailableTimeSlots = () => {
+        const allSlots = generateTimeSlots();
+        
+        if (!formData.scheduledDate) return allSlots;
+        
+        const selectedDate = new Date(formData.scheduledDate);
+        const today = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        // If selected date is today (which shouldn't be allowed but just in case)
+        if (selectedDate.toDateString() === today.toDateString()) {
+            const currentHour = today.getHours();
+            const currentMinute = today.getMinutes();
+            
+            return allSlots.filter(slot => {
+                const [hour, minute] = slot.value.split(':').map(Number);
+                const slotTime = hour * 60 + minute;
+                const currentTime = currentHour * 60 + currentMinute + 120; // Add 2 hours buffer
+                
+                return slotTime >= currentTime;
+            });
+        }
+        
+        // For future dates, return all slots
+        return allSlots;
+    };
+
+    const timeSlots = getAvailableTimeSlots();
 
     // Get minimum date (tomorrow)
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate());
+    tomorrow.setDate(tomorrow.getDate() + 1);
     const minDate = tomorrow.toISOString().split("T")[0];
 
     const handleLocationDetection = async () => {
@@ -162,12 +196,66 @@ const BookingForm = ({
         // User must explicitly click "Get My Location" button
     };
 
+    // Handle date change and reset time if needed
+    const handleDateChange = (event) => {
+        const { name, value } = event.target;
+        
+        if (name === 'scheduledDate') {
+            // Reset time selection when date changes to ensure valid time slots
+            onChange({
+                target: {
+                    name: 'scheduledTime',
+                    value: ''
+                }
+            });
+        }
+        
+        // Call original onChange
+        onChange(event);
+    };
+
     const validateForm = () => {
         const newErrors = {};
 
-        // Common validations
-        if (!formData.scheduledDate) newErrors.scheduledDate = 'Please select a date';
-        if (!formData.scheduledTime) newErrors.scheduledTime = 'Please select a time';
+        // Date validation
+        if (!formData.scheduledDate) {
+            newErrors.scheduledDate = 'Please select a date';
+        } else {
+            const selectedDate = new Date(formData.scheduledDate);
+            const today = new Date();
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            // Reset time to compare dates only
+            selectedDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            tomorrow.setHours(0, 0, 0, 0);
+            
+            if (selectedDate < tomorrow) {
+                newErrors.scheduledDate = 'Please select a date from tomorrow onwards';
+            }
+        }
+
+        // Time validation
+        if (!formData.scheduledTime) {
+            newErrors.scheduledTime = 'Please select a time';
+        } else if (formData.scheduledDate) {
+            const selectedDate = new Date(formData.scheduledDate);
+            const today = new Date();
+            
+            // If somehow today is selected, validate time
+            if (selectedDate.toDateString() === today.toDateString()) {
+                const [selectedHour, selectedMinute] = formData.scheduledTime.split(':').map(Number);
+                const selectedTimeInMinutes = selectedHour * 60 + selectedMinute;
+                const currentTimeInMinutes = today.getHours() * 60 + today.getMinutes() + 120; // 2 hours buffer
+                
+                if (selectedTimeInMinutes < currentTimeInMinutes) {
+                    newErrors.scheduledTime = 'Please select a time at least 2 hours from now';
+                }
+            }
+        }
+
+        if (!formData.workDuration) newErrors.workDuration = 'Please select work duration';
 
         // Location method specific validations
         if (locationMethod === 'gps') {
@@ -269,7 +357,7 @@ const BookingForm = ({
                                 <DatePicker
                                     name="scheduledDate"
                                     value={formData.scheduledDate}
-                                    onChange={onChange}
+                                    onChange={handleDateChange}
                                     error={errors.scheduledDate}
                                     min={minDate}
                                     required
@@ -285,11 +373,36 @@ const BookingForm = ({
                                 required
                             >
                                 <option value="">Select time...</option>
-                                {timeSlots.map((slot) => (
-                                    <option key={slot.value} value={slot.value}>
-                                        {slot.label}
-                                    </option>
-                                ))}
+                                {timeSlots.length === 0 && formData.scheduledDate ? (
+                                    <option value="" disabled>No available time slots for selected date</option>
+                                ) : (
+                                    timeSlots.map((slot) => (
+                                        <option key={slot.value} value={slot.value}>
+                                            {slot.label}
+                                        </option>
+                                    ))
+                                )}
+                            </Select>
+                        </div>
+
+                        {/* Work Duration */}
+                        <div>
+                            <Select
+                                label="Work Duration"
+                                name="workDuration"
+                                value={formData.workDuration}
+                                onChange={onChange}
+                                error={errors.workDuration}
+                                required
+                            >
+                                <option value="">Select duration...</option>
+                                <option value="2">2 hours</option>
+                                <option value="3">3 hours</option>
+                                <option value="4">4 hours</option>
+                                <option value="5">5 hours</option>
+                                <option value="6">6 hours</option>
+                                <option value="7">7 hours</option>
+                                <option value="8">8 hours</option>
                             </Select>
                         </div>
 

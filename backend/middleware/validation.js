@@ -160,7 +160,7 @@ const cleanerProfileSchema = Joi.object({
 // Booking validation
 const bookingSchema = Joi.object({
   serviceId: Joi.number().integer().positive().required(),
-  bookingDate: Joi.date().greater("now").required(),
+  bookingDate: Joi.date().required(),
   bookingTime: Joi.string()
     .pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
     .required(),

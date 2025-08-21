@@ -43,11 +43,25 @@ const BookingDetails = () => {
     // Handle success messages from redirects
     useEffect(() => {
         if (location.state?.message) {
-            toast.success(location.state.message);
+            // Use a unique ID to prevent duplicate toasts
+            const toastId = `payment-success-${id}`;
+            
+            // Check if we've already shown this toast
+            if (!sessionStorage.getItem(toastId)) {
+                toast.success(location.state.message);
+                // Mark this toast as shown
+                sessionStorage.setItem(toastId, 'shown');
+                
+                // Clean up after 5 seconds
+                setTimeout(() => {
+                    sessionStorage.removeItem(toastId);
+                }, 5000);
+            }
+            
             // Clear the state to prevent showing the message again on refresh
             navigate(location.pathname, { replace: true });
         }
-    }, [location, navigate]);
+    }, [location, navigate, id]);
 
     const fetchBookingDetails = async () => {
         try {

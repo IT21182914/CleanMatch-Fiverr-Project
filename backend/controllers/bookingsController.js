@@ -15,6 +15,28 @@ const {
 } = require("./offersController");
 
 /**
+ * Helper function to combine booking date and time into ISO datetime string
+ */
+const combineDateTime = (bookingDate, bookingTime) => {
+  if (!bookingDate || !bookingTime) return null;
+
+  // If bookingDate is a Date object, format it to YYYY-MM-DD
+  let dateStr;
+  if (bookingDate instanceof Date) {
+    // Extract date in YYYY-MM-DD format
+    const year = bookingDate.getFullYear();
+    const month = (bookingDate.getMonth() + 1).toString().padStart(2, '0');
+    const day = bookingDate.getDate().toString().padStart(2, '0');
+    dateStr = `${year}-${month}-${day}`;
+  } else {
+    // Assume it's already a string in YYYY-MM-DD format
+    dateStr = bookingDate;
+  }
+
+  return `${dateStr}T${bookingTime}`;
+};
+
+/**
  * @desc    Create new booking
  * @route   POST /api/bookings
  * @access  Private (Customers only)
@@ -225,7 +247,7 @@ const createBooking = async (req, res) => {
     try {
 
       const stripeCustomerId = await createStripeCustomer(user);
-      
+
       const paymentIntent = await createPaymentIntent({
         amount: totalAmount,
         customerId: stripeCustomerId,
@@ -341,12 +363,15 @@ const getBookingById = async (req, res) => {
     }
 
     // Format the response with better structure
+    // Combine booking_date and booking_time into a single datetime
+    const combinedDateTime = combineDateTime(booking.booking_date, booking.booking_time);
+
     const formattedBooking = {
       id: booking.id,
       customerId: booking.customer_id,
       cleanerId: booking.cleaner_id,
       serviceId: booking.service_id,
-      bookingDate: booking.booking_date,
+      bookingDate: combinedDateTime,
       bookingTime: booking.booking_time,
       durationHours: booking.duration_hours,
       totalAmount: booking.total_amount,
@@ -1533,7 +1558,7 @@ const getNearbyCleanersForBooking = async (req, res) => {
           id: booking.id,
           serviceName: booking.service_name,
           serviceCategory: booking.service_category,
-          bookingDate: booking.booking_date,
+          bookingDate: combineDateTime(booking.booking_date, booking.booking_time),
           bookingTime: booking.booking_time,
           durationHours: booking.duration_hours,
           totalAmount: booking.total_amount,

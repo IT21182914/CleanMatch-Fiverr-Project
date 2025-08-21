@@ -166,6 +166,8 @@ const BookService = () => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
+    console.log("Form change:", name, value, type, checked);
+
     let newFormData;
 
     // Handle special location object from BookingForm
@@ -209,7 +211,7 @@ const BookService = () => {
         bookingTime: dataToSubmit.scheduledTime,
         specialInstructions: dataToSubmit.specialInstructions,
         locationMethod: dataToSubmit.locationMethod,
-        durationHours: 2,
+        durationHours: dataToSubmit.workDuration,
       };
 
       // Add location data based on method
@@ -225,6 +227,8 @@ const BookService = () => {
         bookingData.state = dataToSubmit.state;
         bookingData.zipCode = dataToSubmit.zipCode;
       }
+
+      console.log("Submitting booking data:", bookingData);
 
       const response = await bookingsAPI.create(bookingData);
       const booking = response.data?.data || response.data;

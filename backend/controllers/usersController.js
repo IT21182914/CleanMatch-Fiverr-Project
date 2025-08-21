@@ -586,7 +586,6 @@ const getUserReviews = async (req, res) => {
  */
 const getNearbyCleaners = async (req, res) => {
   try {
-    console.log("Fetching nearby cleaners with params:", req);
     const { latitude, longitude, zipCode, radius = 20, serviceType, minRating = 0 } = req.query;
 
     let customerLat, customerLng, searchMethod, geocodedAddress;

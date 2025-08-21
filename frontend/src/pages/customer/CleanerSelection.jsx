@@ -149,7 +149,17 @@ const CleanerSelection = () => {
     };
 
     if (loading) {
-        return <LoadingPage message="Finding available cleaners in your area..." />;
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-lg mb-4">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Finding available cleaners</h3>
+                    <p className="text-sm text-gray-500">Searching for professional cleaners in your area...</p>
+                </div>
+            </div>
+        );
     }
 
     if (!booking) {
@@ -157,210 +167,300 @@ const CleanerSelection = () => {
     }
 
     return (
-        <div className="max-w-6xl mx-auto space-y-6">
-            {/* Header */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
-                            Select Your Cleaner
-                        </h1>
-                        <p className="text-gray-600 mt-1">
-                            Choose from available cleaners in your area for booking #{booking.id}
-                        </p>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-sm text-gray-500">Service</p>
-                        <p className="font-semibold">{booking.service_name || booking.service?.name}</p>
-                        <p className="text-lg font-bold text-blue-600">
-                            {formatCurrency(booking.total_amount || booking.totalAmount)}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Selected Cleaner Card */}
-            {selectedCleaner && (
-                <Card className="border-blue-200 bg-blue-50">
-                    <CardHeader>
-                        <CardTitle className="flex items-center text-blue-800">
-                            <CheckIcon className="h-5 w-5 mr-2" />
-                            Selected Cleaner
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                                    <UserIcon className="h-6 w-6 text-blue-600" />
-                                </div>
-                                <div>
-                                    <h3 className="font-semibold text-blue-900">
-                                        {selectedCleaner.firstName} {selectedCleaner.lastName}
-                                    </h3>
-                                    <div className="flex items-center text-sm text-blue-700">
-                                        <StarIcon className="h-4 w-4 mr-1" />
-                                        {selectedCleaner.rating} ({selectedCleaner.totalJobs} jobs)
-                                    </div>
+        <div className="min-h-screen">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="space-y-6">
+                    {/* Header */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-8">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <div>
+                                <span className="text-xl lg:text-2xl font-bold text-gray-900 mb-2">
+                                    Select Your Professional Cleaner
+                                </span>
+                                <p className="text-sm text-gray-600">
+                                    Choose from available cleaners in your area for booking #{booking.id}
+                                </p>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span className="text-xs text-emerald-600 font-medium">
+                                        {cleaners.length} cleaners available
+                                    </span>
                                 </div>
                             </div>
-                            <div className="flex space-x-3">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setSelectedCleaner(null)}
-                                >
-                                    Change Selection
-                                </Button>
-                                <Button
-                                    onClick={handleRequestCleaner}
-                                    disabled={requesting}
-                                    className="bg-blue-600 hover:bg-blue-700"
-                                >
-                                    {requesting ? "Sending Request..." : "Request This Cleaner"}
-                                </Button>
+                            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-4 border border-emerald-100">
+                                <p className="text-xs text-gray-500 mb-1">Service</p>
+                                <p className="text-sm font-semibold text-gray-900 mb-2">
+                                    {booking.service_name || booking.service?.name}
+                                </p>
+                                <p className="text-lg font-bold text-emerald-600">
+                                    {formatCurrency(booking.total_amount || booking.totalAmount)}
+                                </p>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
-            )}
-
-            {/* Available Cleaners */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {cleaners.length === 0 ? (
-                    <div className="col-span-full text-center py-12">
-                        <MapPinIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                            No Cleaners Available
-                        </h3>
-                        <p className="text-gray-500 mb-4">
-                            There are no cleaners available in your area right now.
-                        </p>
-                        <Button
-                            variant="outline"
-                            onClick={() => fetchNearbyCleaners(userLocation, booking.zipCode || booking.zip_code)}
-                        >
-                            Refresh Search
-                        </Button>
                     </div>
-                ) : (
-                    cleaners.map((cleaner) => (
-                        <Card
-                            key={cleaner.id}
-                            className={`cursor-pointer transition-all hover:shadow-lg ${selectedCleaner?.id === cleaner.id
-                                ? "ring-2 ring-blue-500 bg-blue-50"
-                                : "hover:shadow-md"
-                                }`}
-                            onClick={() => handleSelectCleaner(cleaner)}
-                        >
-                            <CardContent className="p-6">
-                                <div className="flex items-center space-x-3 mb-4">
-                                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-                                        {cleaner.profileImage ? (
-                                            <img
-                                                src={cleaner.profileImage}
-                                                alt={`${cleaner.firstName} ${cleaner.lastName}`}
-                                                className="w-12 h-12 rounded-full object-cover"
-                                            />
-                                        ) : (
-                                            <UserIcon className="h-6 w-6 text-gray-400" />
-                                        )}
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-gray-900">
-                                            {cleaner.firstName} {cleaner.lastName}
-                                        </h3>
-                                        <div className="flex items-center text-sm text-gray-500">
-                                            <StarIcon className="h-4 w-4 mr-1 text-yellow-400" />
-                                            <span className="font-medium">{cleaner.rating}</span>
-                                            <span className="mx-1">•</span>
-                                            <span>{cleaner.totalJobs} jobs</span>
+
+                    {/* Selected Cleaner Card */}
+                    {selectedCleaner && (
+                        <Card className="border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 shadow-lg">
+                            <CardHeader className="pb-3">
+                                <CardTitle className="flex items-center text-emerald-800 text-base">
+                                    <CheckIcon className="h-5 w-5 mr-2" />
+                                    Selected Cleaner
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                    <div className="flex items-center space-x-4">
+                                        <div className="relative">
+                                            <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-sm border border-emerald-100">
+                                                {selectedCleaner.profileImage ? (
+                                                    <img
+                                                        src={selectedCleaner.profileImage}
+                                                        alt={`${selectedCleaner.firstName} ${selectedCleaner.lastName}`}
+                                                        className="w-12 h-12 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <UserIcon className="h-6 w-6 text-emerald-600" />
+                                                )}
+                                            </div>
+                                            {selectedCleaner.isOnline && (
+                                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-emerald-900 text-sm">
+                                                {selectedCleaner.firstName} {selectedCleaner.lastName}
+                                            </h3>
+                                            <div className="flex items-center text-xs text-emerald-700 mt-1">
+                                                <StarIcon className="h-3 w-3 mr-1 text-yellow-500 fill-current" />
+                                                <span className="font-medium">{selectedCleaner.rating}</span>
+                                                <span className="mx-1">•</span>
+                                                <span>{selectedCleaner.totalJobs} jobs completed</span>
+                                            </div>
+                                            <p className="text-xs text-emerald-600 mt-1">
+                                                {selectedCleaner.distanceKm} km away • {formatCurrency(selectedCleaner.hourlyRate)}/hour
+                                            </p>
                                         </div>
                                     </div>
-                                    {cleaner.isOnline && (
-                                        <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2 text-sm text-gray-600 mb-4">
-                                    <div className="flex items-center">
-                                        <MapPinIcon className="h-4 w-4 mr-2" />
-                                        <span>{cleaner.distanceKm} km away</span>
+                                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setSelectedCleaner(null)}
+                                            className="text-xs border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                                        >
+                                            Change Selection
+                                        </Button>
+                                        <Button
+                                            onClick={handleRequestCleaner}
+                                            disabled={requesting}
+                                            size="sm"
+                                            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md text-xs"
+                                        >
+                                            {requesting ? "Sending Request..." : "Request This Cleaner"}
+                                        </Button>
                                     </div>
-                                    <div className="flex items-center">
-                                        <ClockIcon className="h-4 w-4 mr-2" />
-                                        <span>{cleaner.experienceYears} years experience</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <span className="font-medium">
-                                            {formatCurrency(cleaner.hourlyRate)}/hour
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {cleaner.bio && (
-                                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                                        {cleaner.bio}
-                                    </p>
-                                )}
-
-                                {cleaner.certifications && cleaner.certifications.length > 0 && (
-                                    <div className="flex flex-wrap gap-1 mb-4">
-                                        {cleaner.certifications.slice(0, 2).map((cert, index) => (
-                                            <span
-                                                key={index}
-                                                className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
-                                            >
-                                                {cert}
-                                            </span>
-                                        ))}
-                                        {cleaner.certifications.length > 2 && (
-                                            <span className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
-                                                +{cleaner.certifications.length - 2} more
-                                            </span>
-                                        )}
-                                    </div>
-                                )}
-
-                                <div className="flex items-center justify-between">
-                                    {selectedCleaner?.id === cleaner.id ? (
-                                        <span className="flex items-center text-blue-600 font-medium">
-                                            <CheckIcon className="h-4 w-4 mr-1" />
-                                            Selected
-                                        </span>
-                                    ) : (
-                                        <span className="text-gray-400">Click to select</span>
-                                    )}
-
-                                    {cleaner.isOnline ? (
-                                        <span className="text-green-600 text-sm font-medium">
-                                            Online Now
-                                        </span>
-                                    ) : (
-                                        <span className="text-gray-400 text-sm">
-                                            Last seen {cleaner.minutesSinceLastUpdate} min ago
-                                        </span>
-                                    )}
                                 </div>
                             </CardContent>
                         </Card>
-                    ))
-                )}
-            </div>
+                    )}
 
-            {/* Action Buttons */}
-            <div className="flex justify-between items-center bg-white rounded-lg shadow-sm border p-6">
-                <Button
-                    variant="outline"
-                    onClick={() => navigate("/customer/bookings")}
-                >
-                    Back to My Bookings
-                </Button>
+                    {/* Available Cleaners */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-lg font-semibold text-gray-900">Available Cleaners</h2>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => fetchNearbyCleaners(userLocation, booking.zipCode || booking.zip_code)}
+                                className="text-xs"
+                            >
+                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Refresh
+                            </Button>
+                        </div>
 
-                {cleaners.length > 0 && !selectedCleaner && (
-                    <p className="text-gray-500">
-                        Select a cleaner to continue
-                    </p>
-                )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+                            {cleaners.length === 0 ? (
+                                <div className="col-span-full">
+                                    <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <MapPinIcon className="h-8 w-8 text-gray-400" />
+                                        </div>
+                                        <h3 className="text-base font-medium text-gray-900 mb-2">
+                                            No Cleaners Available
+                                        </h3>
+                                        <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
+                                            There are no cleaners available in your area right now. Try refreshing or expanding your search.
+                                        </p>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => fetchNearbyCleaners(userLocation, booking.zipCode || booking.zip_code)}
+                                            className="text-sm"
+                                        >
+                                            Refresh Search
+                                        </Button>
+                                    </div>
+                                </div>
+                            ) : (
+                                cleaners.map((cleaner) => (
+                                    <Card
+                                        key={cleaner.id}
+                                        className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${selectedCleaner?.id === cleaner.id
+                                            ? "ring-2 ring-emerald-500 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-lg"
+                                            : "hover:shadow-md bg-white border-gray-200"
+                                            }`}
+                                        onClick={() => handleSelectCleaner(cleaner)}
+                                    >
+                                        <CardContent className="p-4 lg:p-6">
+                                            {/* Cleaner Header */}
+                                            <div className="flex items-start space-x-3 mb-4">
+                                                <div className="relative flex-shrink-0">
+                                                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
+                                                        {cleaner.profileImage ? (
+                                                            <img
+                                                                src={cleaner.profileImage}
+                                                                alt={`${cleaner.firstName} ${cleaner.lastName}`}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            <UserIcon className="h-6 w-6 text-gray-400" />
+                                                        )}
+                                                    </div>
+                                                    {cleaner.isOnline && (
+                                                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="text-sm font-semibold text-gray-900 truncate">
+                                                        {cleaner.firstName} {cleaner.lastName}
+                                                    </h3>
+                                                    <div className="flex items-center text-xs text-gray-500 mt-1">
+                                                        <StarIcon className="h-3 w-3 mr-1 text-yellow-400 flex-shrink-0 fill-current" />
+                                                        <span className="font-medium">{cleaner.rating}</span>
+                                                        <span className="mx-1">•</span>
+                                                        <span className="truncate">{cleaner.totalJobs} jobs</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col items-end">
+                                                    {cleaner.isOnline ? (
+                                                        <span className="text-green-600 text-xs font-medium bg-green-50 px-2 py-1 rounded-full">
+                                                            Online
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-gray-400 text-xs bg-gray-50 px-2 py-1 rounded-full">
+                                                            {cleaner.minutesSinceLastUpdate}m ago
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Cleaner Details */}
+                                            <div className="space-y-2 mb-4">
+                                                <div className="flex items-center justify-between text-xs">
+                                                    <div className="flex items-center text-gray-600">
+                                                        <MapPinIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+                                                        <span>{cleaner.distanceKm} km away</span>
+                                                    </div>
+                                                    <span className="font-semibold text-emerald-600">
+                                                        {formatCurrency(cleaner.hourlyRate)}/hr
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center text-xs text-gray-600">
+                                                    <ClockIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+                                                    <span>{cleaner.experienceYears} years experience</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Bio */}
+                                            {cleaner.bio && (
+                                                <p className="text-xs text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+                                                    {cleaner.bio}
+                                                </p>
+                                            )}
+
+                                            {/* Certifications */}
+                                            {cleaner.certifications && cleaner.certifications.length > 0 && (
+                                                <div className="flex flex-wrap gap-1 mb-4">
+                                                    {cleaner.certifications.slice(0, 2).map((cert, index) => (
+                                                        <span
+                                                            key={index}
+                                                            className="inline-flex px-2 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-full font-medium"
+                                                        >
+                                                            {cert}
+                                                        </span>
+                                                    ))}
+                                                    {cleaner.certifications.length > 2 && (
+                                                        <span className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+                                                            +{cleaner.certifications.length - 2}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Selection Status */}
+                                            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                                {selectedCleaner?.id === cleaner.id ? (
+                                                    <span className="flex items-center text-emerald-600 font-medium text-xs">
+                                                        <CheckIcon className="h-3 w-3 mr-1" />
+                                                        Selected
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-gray-400 text-xs">Click to select</span>
+                                                )}
+                                                <div className="text-right">
+                                                    <div className="text-xs text-gray-500">
+                                                        Response time: <span className="font-medium">~2-5 min</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 lg:p-6">
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <Button
+                                variant="outline"
+                                onClick={() => navigate("/customer/bookings")}
+                                className="text-sm order-2 sm:order-1"
+                            >
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                                Back to My Bookings
+                            </Button>
+
+                            {cleaners.length > 0 && !selectedCleaner && (
+                                <div className="text-center order-1 sm:order-2">
+                                    <p className="text-sm text-gray-500 mb-1">
+                                        Select a cleaner to continue
+                                    </p>
+                                    <p className="text-xs text-gray-400">
+                                        Click on any cleaner card above to make your selection
+                                    </p>
+                                </div>
+                            )}
+
+                            {selectedCleaner && (
+                                <div className="text-center order-1 sm:order-2">
+                                    <p className="text-sm text-emerald-600 font-medium mb-1">
+                                        ✓ Cleaner selected
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                        Ready to send request to {selectedCleaner.firstName}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

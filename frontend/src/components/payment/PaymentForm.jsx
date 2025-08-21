@@ -11,6 +11,7 @@ const PaymentForm = ({ bookingId, onSuccess, onError }) => {
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [paymentProcessed, setPaymentProcessed] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,8 +39,9 @@ const PaymentForm = ({ bookingId, onSuccess, onError }) => {
         setMessage("An unexpected error occurred.");
         onError("An unexpected error occurred.");
       }
-    } else {
-      // Payment succeeded
+    } else if (!paymentProcessed) {
+      // Payment succeeded and not already processed
+      setPaymentProcessed(true);
       onSuccess();
     }
 
