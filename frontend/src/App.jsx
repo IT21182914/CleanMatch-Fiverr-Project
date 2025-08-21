@@ -11,6 +11,7 @@ import { ToastProvider } from "./contexts/ToastContext";
 import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import ErrorBoundary from "./components/layout/ErrorBoundary";
+import ScrollToTop from "./components/layout/ScrollToTop";
 import { ModernPageLoader } from "./components/ui/Loading";
 
 // Lazy load pages for better performance
@@ -91,6 +92,7 @@ function App() {
       <AuthProvider>
         <ToastProvider>
           <Router>
+            <ScrollToTop />
             <Layout>
               <Suspense
                 fallback={<ModernPageLoader message="Loading page..." />}
@@ -381,8 +383,8 @@ function App() {
             toastOptions={{
               duration: 4000,
               style: {
-                background: '#363636',
-                color: '#fff',
+                background: "#363636",
+                color: "#fff",
               },
             }}
           />
