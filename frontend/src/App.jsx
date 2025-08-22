@@ -72,8 +72,8 @@ const AdminTickets = React.lazy(() =>
 const AdminTicketDetails = React.lazy(() =>
   import("./pages/admin/TicketDetails")
 );
-const AdminReviewsDisabled = React.lazy(() =>
-  import("./components/admin/AdminReviewsDisabled")
+const AdminReviews = React.lazy(() =>
+  import("./components/admin/AdminReviews")
 );
 
 // Home page - Keep this eagerly loaded as it's the landing page
@@ -347,7 +347,7 @@ function App() {
                     path="/admin/reviews"
                     element={
                       <ProtectedRoute requiredRole="admin">
-                        <AdminReviewsDisabled />
+                        <AdminReviews />
                       </ProtectedRoute>
                     }
                   />

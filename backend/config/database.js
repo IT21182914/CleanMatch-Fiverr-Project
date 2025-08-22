@@ -37,7 +37,7 @@ const connectDB = async (retries = 5) => {
 
     const config = {
       connectionString: databaseUrl,
-      ssl: { rejectUnauthorized: false },
+      ssl: sslConfig,
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
@@ -723,6 +723,34 @@ const createTables = async () => {
         );
       END;
       $$ LANGUAGE plpgsql;
+    `);
+
+    // Admin Reviews Table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admin_reviews (
+        id SERIAL PRIMARY KEY,
+        cleaner_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        admin_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+        review_text TEXT NOT NULL,
+        is_visible BOOLEAN NOT NULL DEFAULT true,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create indexes for admin_reviews table
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_admin_reviews_cleaner_id ON admin_reviews(cleaner_id);
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_admin_reviews_admin_id ON admin_reviews(admin_id);
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_admin_reviews_created_at ON admin_reviews(created_at);
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_admin_reviews_is_visible ON admin_reviews(is_visible);
     `);
 
     console.log("✅ Database tables created/verified successfully");

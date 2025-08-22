@@ -203,6 +203,12 @@ app.get("/", (req, res) => {
   });
 });
 
+// Public admin reviews endpoint for homepage
+const {
+  getPublicAdminReviews,
+} = require("./controllers/adminReviewsController");
+app.get("/api/admin-reviews/public", getPublicAdminReviews);
+
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", require("./routes/freelancerAuth"));

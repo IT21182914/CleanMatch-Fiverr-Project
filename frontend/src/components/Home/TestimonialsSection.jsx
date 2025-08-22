@@ -196,21 +196,29 @@ const TestimonialsSection = () => {
 
     try {
       setLoading(true);
-      const response = await fetch(
-        "http://localhost:5000/api/reviews?limit=20&featured=true",
-        {
+
+      // Fetch both regular reviews and admin reviews
+      const [reviewsResponse, adminReviewsResponse] = await Promise.all([
+        fetch("http://localhost:5000/api/reviews?limit=15&featured=true", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-        }
-      );
+        }),
+        fetch("http://localhost:5000/api/admin-reviews/public?limit=10", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }),
+      ]);
 
-      if (response.ok) {
-        const data = await response.json();
-        // Transform API data to match testimonial format
+      let allApiReviews = [];
+
+      if (reviewsResponse.ok) {
+        const reviewsData = await reviewsResponse.json();
         const transformedReviews =
-          data.reviews?.map((review) => ({
+          reviewsData.reviews?.map((review) => ({
             name:
               review.customer_name ||
               review.reviewer_name ||
@@ -225,11 +233,31 @@ const TestimonialsSection = () => {
             isAdminReview: review.is_admin_review || false,
           })) || [];
 
+        allApiReviews.push(...transformedReviews);
+      }
+
+      if (adminReviewsResponse.ok) {
+        const adminReviewsData = await adminReviewsResponse.json();
+        const transformedAdminReviews =
+          adminReviewsData.reviews?.map((review) => ({
+            name: "Anonymous Customer", // Admin reviews don't store customer names
+            role: "Verified Customer",
+            content: review.review_text,
+            rating: review.rating,
+            verified: true,
+            service: `Service for ${review.cleaner_name}`,
+            isAdminReview: true,
+          })) || [];
+
+        allApiReviews.push(...transformedAdminReviews);
+      }
+
+      if (allApiReviews.length > 0) {
         // Combine API reviews with fallback testimonials up to 20 total
-        const combinedTestimonials = [
-          ...transformedReviews,
-          ...fallbackData,
-        ].slice(0, 20);
+        const combinedTestimonials = [...allApiReviews, ...fallbackData].slice(
+          0,
+          20
+        );
 
         setAllTestimonials(combinedTestimonials);
         setDisplayedTestimonials(combinedTestimonials.slice(0, 3));
