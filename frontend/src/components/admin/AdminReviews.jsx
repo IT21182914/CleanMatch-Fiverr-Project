@@ -17,6 +17,9 @@ import { AuthContext } from "../../contexts/AuthContext";
 
 const AdminReviews = () => {
   const { user, isAuthenticated, getToken } = useContext(AuthContext);
+  
+  // API base URL configuration
+  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
@@ -57,7 +60,7 @@ const AdminReviews = () => {
         ...filters,
       }).toString();
 
-      const response = await fetch(`/api/admin/reviews?${queryParams}`, {
+      const response = await fetch(`${API_BASE}/admin/reviews?${queryParams}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -81,7 +84,7 @@ const AdminReviews = () => {
       setReviews([]);
       toast.error("Failed to load reviews");
     }
-  }, [pagination.page, pagination.limit, filters, getToken]);
+  }, [pagination.page, pagination.limit, filters, getToken, API_BASE]);
 
   const fetchInitialData = useCallback(async () => {
     try {
@@ -108,16 +111,16 @@ const AdminReviews = () => {
       }
 
       // Log the exact URLs being called
-      console.log("🌐 Calling cleaners API: /api/admin/reviews/cleaners");
-      console.log("🌐 Calling stats API: /api/admin/reviews/stats");
+      console.log("🌐 Calling cleaners API:", `${API_BASE}/admin/reviews/cleaners`);
+      console.log("🌐 Calling stats API:", `${API_BASE}/admin/reviews/stats`);
       console.log("🌐 Current location:", window.location.origin);
       const [cleanersResponse, statsResponse] = await Promise.all([
-        fetch("/api/admin/reviews/cleaners", {
+        fetch(`${API_BASE}/admin/reviews/cleaners`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
-        fetch("/api/admin/reviews/stats", {
+        fetch(`${API_BASE}/admin/reviews/stats`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -206,7 +209,7 @@ const AdminReviews = () => {
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, user, getToken]); // Dependencies for useCallback
+  }, [isAuthenticated, user, getToken, API_BASE]); // Dependencies for useCallback
 
   useEffect(() => {
     // Only fetch data when user is authenticated
@@ -241,7 +244,7 @@ const AdminReviews = () => {
     }
 
     try {
-      const response = await fetch("/api/admin/reviews", {
+      const response = await fetch(`${API_BASE}/admin/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -280,7 +283,7 @@ const AdminReviews = () => {
     }
 
     try {
-      const response = await fetch(`/api/admin/reviews/${id}`, {
+      const response = await fetch(`${API_BASE}/admin/reviews/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -321,7 +324,7 @@ const AdminReviews = () => {
     }
 
     try {
-      const response = await fetch(`/api/admin/reviews/${id}`, {
+      const response = await fetch(`${API_BASE}/admin/reviews/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
