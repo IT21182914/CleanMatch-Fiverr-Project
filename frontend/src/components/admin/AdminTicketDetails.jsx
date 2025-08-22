@@ -310,10 +310,10 @@ const AdminTicketDetails = () => {
           <div className="flex gap-3">
             <button
               onClick={() => setShowReplyForm(true)}
-              className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 flex items-center gap-2"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 flex items-center gap-2"
             >
-              <MessageSquare className="w-4 h-4" />
-              Reply
+              <MessageSquare className="w-4 h-4 text-white" />
+              <span className="text-white">Reply</span>
             </button>
 
             {ticket.status === "open" && (
@@ -321,10 +321,10 @@ const AdminTicketDetails = () => {
                 onClick={() =>
                   handleStatusUpdate("in_progress", "Started investigation")
                 }
-                className="px-4 py-2 text-sm font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 flex items-center gap-2"
+                className="px-4 py-2 text-sm font-medium text-white bg-yellow-600 border border-yellow-600 rounded-lg hover:bg-yellow-700 flex items-center gap-2"
               >
-                <Clock className="w-4 h-4" />
-                Start Progress
+                <Clock className="w-4 h-4 text-white" />
+                <span className="text-white">Start Progress</span>
               </button>
             )}
 
@@ -332,18 +332,18 @@ const AdminTicketDetails = () => {
               <>
                 <button
                   onClick={() => setShowInvestigationModal(true)}
-                  className="px-4 py-2 text-sm font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 flex items-center gap-2"
+                  className="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-purple-600 rounded-lg hover:bg-purple-700 flex items-center gap-2"
                 >
-                  <Search className="w-4 h-4" />
-                  Record Investigation
+                  <Search className="w-4 h-4 text-white" />
+                  <span className="text-white">Record Investigation</span>
                 </button>
 
                 <button
                   onClick={() => setShowResolutionModal(true)}
-                  className="px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 flex items-center gap-2"
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-green-600 rounded-lg hover:bg-green-700 flex items-center gap-2"
                 >
-                  <CheckCircle className="w-4 h-4" />
-                  Resolve Ticket
+                  <CheckCircle className="w-4 h-4 text-white" />
+                  <span className="text-white">Resolve Ticket</span>
                 </button>
               </>
             )}
@@ -351,10 +351,10 @@ const AdminTicketDetails = () => {
             {ticket.status === "resolved" && (
               <button
                 onClick={() => handleClose("Customer confirmed resolution")}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 flex items-center gap-2"
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-600 border border-gray-600 rounded-lg hover:bg-gray-700 flex items-center gap-2"
               >
-                <Lock className="w-4 h-4" />
-                Close Ticket
+                <Lock className="w-4 h-4 text-white" />
+                <span className="text-white">Close Ticket</span>
               </button>
             )}
           </div>
