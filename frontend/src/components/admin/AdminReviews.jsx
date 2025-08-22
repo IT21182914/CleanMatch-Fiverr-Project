@@ -29,7 +29,7 @@ import { AuthContext } from "../../contexts/AuthContext";
 import { adminAPI } from "../../lib/api";
 
 const AdminReviews = () => {
-  const { user, isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
@@ -48,6 +48,19 @@ const AdminReviews = () => {
     visible: "",
     search: "",
   });
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check screen size for responsive pagination
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -126,7 +139,7 @@ const AdminReviews = () => {
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -279,20 +292,28 @@ const AdminReviews = () => {
       <Card
         className={`border ${colorClasses[color]} transition-all duration-200 hover:shadow-lg`}
       >
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-medium opacity-75 mb-1">{title}</p>
-              <p className="text-3xl font-bold mb-1">{value}</p>
-              {subtitle && <p className="text-xs opacity-75">{subtitle}</p>}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium opacity-75 mb-1 truncate">
+                {title}
+              </p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 truncate">
+                {value}
+              </p>
+              {subtitle && (
+                <p className="text-xs opacity-75 truncate">{subtitle}</p>
+              )}
             </div>
-            <div className={`p-3 rounded-xl ${iconColorClasses[color]}`}>
-              <Icon className="h-6 w-6" />
+            <div
+              className={`p-2 sm:p-3 rounded-xl ${iconColorClasses[color]} flex-shrink-0`}
+            >
+              <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
           </div>
           {trend && (
-            <div className="mt-3 flex items-center gap-1 text-sm">
-              <ArrowTrendingUpIcon className="h-4 w-4 text-green-600" />
+            <div className="mt-2 sm:mt-3 flex items-center gap-1 text-xs sm:text-sm">
+              <ArrowTrendingUpIcon className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
               <span className="text-green-600 font-medium">
                 {trend}% from last month
               </span>
@@ -306,20 +327,20 @@ const AdminReviews = () => {
   // Authentication guard
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <div className="mx-auto w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
-            <XCircleIcon className="w-8 h-8 text-red-600" />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8 text-center">
+          <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+            <XCircleIcon className="w-6 h-6 sm:w-8 sm:h-8 text-red-600" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
             Authentication Required
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
             Please login to access the admin review management system
           </p>
           <Button
             onClick={() => (window.location.href = "/login")}
-            className="w-full"
+            className="w-full text-sm sm:text-base"
           >
             Go to Login
           </Button>
@@ -330,13 +351,13 @@ const AdminReviews = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg font-medium">
+          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-base sm:text-lg font-medium">
             Loading Review Management
           </p>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 text-xs sm:text-sm mt-1">
             Please wait while we fetch your data...
           </p>
         </div>
@@ -346,21 +367,21 @@ const AdminReviews = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
             Review Management System
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600">
             Manage customer reviews and maintain service quality standards
           </p>
         </div>
 
         {/* Enhanced Tab Navigation */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="border-b border-gray-200 bg-white rounded-t-xl">
-            <nav className="flex space-x-8 px-6">
+            <nav className="flex flex-col sm:flex-row sm:space-x-8 px-4 sm:px-6">
               {[
                 {
                   id: "dashboard",
@@ -384,14 +405,14 @@ const AdminReviews = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  className={`group inline-flex items-center py-3 sm:py-4 px-2 sm:px-1 border-b-2 font-medium text-sm sm:text-base transition-colors w-full sm:w-auto justify-start sm:justify-center ${
                     activeTab === tab.id
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
                   <tab.icon
-                    className={`mr-2 h-5 w-5 ${
+                    className={`mr-2 h-4 w-4 sm:h-5 sm:w-5 ${
                       activeTab === tab.id
                         ? "text-blue-500"
                         : "text-gray-400 group-hover:text-gray-500"
@@ -417,9 +438,9 @@ const AdminReviews = () => {
 
         {/* Dashboard Tab */}
         {activeTab === "dashboard" && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <StatCard
                 title="Total Reviews"
                 value={stats?.totalReviews || 0}
@@ -454,20 +475,20 @@ const AdminReviews = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <Card className="border-0 shadow-sm">
                 <CardHeader className="border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2">
-                    <ClockIcon className="h-5 w-5 text-gray-600" />
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                    <ClockIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
                     Recent Activity
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="space-y-3 sm:space-y-4">
                     {reviews.slice(0, 3).map((review, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                        className="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg"
                       >
                         <div className="flex-shrink-0">
                           {renderStars(review.rating, "sm")}
@@ -483,7 +504,7 @@ const AdminReviews = () => {
                       </div>
                     ))}
                     {reviews.length === 0 && (
-                      <div className="text-center py-8">
+                      <div className="text-center py-6 sm:py-8">
                         <p className="text-gray-500 text-sm">
                           No recent activity
                         </p>
@@ -495,37 +516,37 @@ const AdminReviews = () => {
 
               <Card className="border-0 shadow-sm">
                 <CardHeader className="border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2">
-                    <AdjustmentsHorizontalIcon className="h-5 w-5 text-gray-600" />
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                    <AdjustmentsHorizontalIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
                     Quick Actions
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="space-y-3">
                     <button
                       onClick={() => setActiveTab("create")}
-                      className="w-full flex items-center gap-3 p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                      className="w-full flex items-center gap-3 p-2 sm:p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
                     >
-                      <PlusIcon className="h-5 w-5 text-blue-600" />
-                      <div>
-                        <p className="font-medium text-blue-900">
+                      <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="font-medium text-blue-900 text-sm sm:text-base">
                           Create New Review
                         </p>
-                        <p className="text-sm text-blue-600">
+                        <p className="text-xs sm:text-sm text-blue-600">
                           Add a review for a cleaner
                         </p>
                       </div>
                     </button>
                     <button
                       onClick={() => setActiveTab("reviews")}
-                      className="w-full flex items-center gap-3 p-3 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+                      className="w-full flex items-center gap-3 p-2 sm:p-3 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
                     >
-                      <StarIcon className="h-5 w-5 text-green-600" />
-                      <div>
-                        <p className="font-medium text-green-900">
+                      <StarIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="font-medium text-green-900 text-sm sm:text-base">
                           Manage Reviews
                         </p>
-                        <p className="text-sm text-green-600">
+                        <p className="text-xs sm:text-sm text-green-600">
                           Edit or moderate existing reviews
                         </p>
                       </div>
@@ -539,17 +560,17 @@ const AdminReviews = () => {
 
         {/* Reviews Tab */}
         {activeTab === "reviews" && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Enhanced Filters */}
             <Card className="border-0 shadow-sm">
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center gap-4 mb-4">
-                  <FunnelIcon className="h-5 w-5 text-gray-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <FunnelIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                     Filter Reviews
                   </h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Cleaner
@@ -562,7 +583,7 @@ const AdminReviews = () => {
                           cleanerId: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="">All Cleaners</option>
                       {cleaners.map((cleaner) => (
@@ -584,19 +605,19 @@ const AdminReviews = () => {
                           visible: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="">All Reviews</option>
                       <option value="true">Visible Only</option>
                       <option value="false">Hidden Only</option>
                     </select>
                   </div>
-                  <div>
+                  <div className="sm:col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Search
                     </label>
                     <div className="relative">
-                      <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                      <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                       <input
                         type="text"
                         value={filters.search}
@@ -607,7 +628,7 @@ const AdminReviews = () => {
                           }))
                         }
                         placeholder="Search reviews..."
-                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -617,16 +638,16 @@ const AdminReviews = () => {
 
             {/* Loading State for Reviews Tab */}
             {loading && (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {[...Array(3)].map((_, i) => (
                   <Card key={i} className="border-0 shadow-sm animate-pulse">
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        <div className="h-12 w-12 bg-gray-200 rounded-full"></div>
-                        <div className="flex-1 space-y-3">
-                          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 rounded-full flex-shrink-0"></div>
+                        <div className="flex-1 space-y-2 sm:space-y-3">
+                          <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/4"></div>
+                          <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4"></div>
+                          <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/2"></div>
                         </div>
                       </div>
                     </CardContent>
@@ -637,35 +658,37 @@ const AdminReviews = () => {
 
             {/* Reviews List */}
             {!loading && reviews.length > 0 && (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {reviews.map((review) => (
                   <Card
                     key={review.id}
                     className="border-0 shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-4 mb-3">
-                            <div className="flex items-center gap-2">
-                              <UserIcon className="h-5 w-5 text-gray-400" />
-                              <h3 className="font-semibold text-gray-900">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <UserIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0" />
+                              <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
                                 {review.cleaner_name}
                               </h3>
                             </div>
-                            {renderStars(review.rating, "md")}
-                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
-                              {review.rating}/5
-                            </span>
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              {renderStars(review.rating, "sm")}
+                              <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs sm:text-sm rounded-full flex-shrink-0">
+                                {review.rating}/5
+                              </span>
+                            </div>
                           </div>
 
-                          <p className="text-gray-700 mb-4 leading-relaxed">
+                          <p className="text-gray-700 mb-3 sm:mb-4 leading-relaxed text-sm sm:text-base">
                             {review.review_text}
                           </p>
 
-                          <div className="flex items-center gap-6 text-sm text-gray-500">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-xs sm:text-sm text-gray-500">
                             <div className="flex items-center gap-1">
-                              <CalendarIcon className="h-4 w-4" />
+                              <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                               <span>
                                 {new Date(
                                   review.created_at
@@ -675,14 +698,14 @@ const AdminReviews = () => {
                             <div className="flex items-center gap-1">
                               {review.is_visible ? (
                                 <>
-                                  <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                                  <CheckCircleIcon className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
                                   <span className="text-green-600 font-medium">
                                     Visible
                                   </span>
                                 </>
                               ) : (
                                 <>
-                                  <XCircleIcon className="h-4 w-4 text-red-500" />
+                                  <XCircleIcon className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
                                   <span className="text-red-600 font-medium">
                                     Hidden
                                   </span>
@@ -692,7 +715,7 @@ const AdminReviews = () => {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 ml-6">
+                        <div className="flex items-center gap-2 lg:ml-6 justify-end lg:justify-start">
                           <button
                             onClick={() =>
                               handleToggleVisibility(
@@ -710,9 +733,9 @@ const AdminReviews = () => {
                             }
                           >
                             {review.is_visible ? (
-                              <EyeSlashIcon className="h-5 w-5" />
+                              <EyeSlashIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                             ) : (
-                              <EyeIcon className="h-5 w-5" />
+                              <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                             )}
                           </button>
                           <button
@@ -720,14 +743,14 @@ const AdminReviews = () => {
                             className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
                             title="Edit review"
                           >
-                            <PencilIcon className="h-5 w-5" />
+                            <PencilIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                           </button>
                           <button
                             onClick={() => handleDeleteReview(review.id)}
                             className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                             title="Delete review"
                           >
-                            <TrashIcon className="h-5 w-5" />
+                            <TrashIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                           </button>
                         </div>
                       </div>
@@ -739,20 +762,23 @@ const AdminReviews = () => {
 
             {/* Empty State for No Reviews */}
             {!loading && reviews.length === 0 && (
-              <div className="text-center py-16">
-                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <StarIcon className="w-8 h-8 text-gray-400" />
+              <div className="text-center py-12 sm:py-16">
+                <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <StarIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                   No Reviews Found
                 </h3>
-                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                <p className="text-gray-600 mb-4 sm:mb-6 max-w-md mx-auto text-sm sm:text-base px-4">
                   {filters.cleanerId || filters.visible || filters.search
                     ? "No reviews match your current filters. Try adjusting your search criteria."
                     : "No reviews have been created yet. Start by creating your first review."}
                 </p>
                 {!filters.cleanerId && !filters.visible && !filters.search && (
-                  <Button onClick={() => setActiveTab("create")}>
+                  <Button
+                    onClick={() => setActiveTab("create")}
+                    className="text-sm sm:text-base"
+                  >
                     <PlusIcon className="h-4 w-4 mr-2" />
                     Create First Review
                   </Button>
@@ -763,9 +789,9 @@ const AdminReviews = () => {
             {/* Enhanced Pagination */}
             {!loading && pagination.pages > 1 && (
               <Card className="border-0 shadow-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-700">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-xs sm:text-sm text-gray-700 order-2 sm:order-1">
                       Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
                       {Math.min(
                         pagination.page * pagination.limit,
@@ -773,7 +799,7 @@ const AdminReviews = () => {
                       )}{" "}
                       of {pagination.total} reviews
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2 order-1 sm:order-2">
                       <button
                         onClick={() =>
                           setPagination((prev) => ({
@@ -782,15 +808,22 @@ const AdminReviews = () => {
                           }))
                         }
                         disabled={pagination.page <= 1}
-                        className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-1 px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <ArrowLeftIcon className="h-4 w-4" />
-                        Previous
+                        <ArrowLeftIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="hidden sm:inline">Previous</span>
                       </button>
                       {Array.from(
-                        { length: Math.min(5, pagination.pages) },
+                        {
+                          length: Math.min(isMobile ? 3 : 5, pagination.pages),
+                        },
                         (_, i) => {
-                          const page = Math.max(1, pagination.page - 2) + i;
+                          const page =
+                            Math.max(
+                              1,
+                              pagination.page -
+                                Math.floor((isMobile ? 3 : 5) / 2)
+                            ) + i;
                           if (page > pagination.pages) return null;
                           return (
                             <button
@@ -798,7 +831,7 @@ const AdminReviews = () => {
                               onClick={() =>
                                 setPagination((prev) => ({ ...prev, page }))
                               }
-                              className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                              className={`px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-lg ${
                                 pagination.page === page
                                   ? "bg-blue-600 text-white"
                                   : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
@@ -817,10 +850,10 @@ const AdminReviews = () => {
                           }))
                         }
                         disabled={pagination.page >= pagination.pages}
-                        className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-1 px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Next
-                        <ArrowRightIcon className="h-4 w-4" />
+                        <span className="hidden sm:inline">Next</span>
+                        <ArrowRightIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                       </button>
                     </div>
                   </div>
@@ -832,16 +865,19 @@ const AdminReviews = () => {
 
         {/* Create Review Tab */}
         {activeTab === "create" && (
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto px-4 sm:px-0">
             <Card className="border-0 shadow-sm">
               <CardHeader className="border-b border-gray-100">
-                <CardTitle className="flex items-center gap-2">
-                  <PlusIcon className="h-5 w-5 text-blue-600" />
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                   Create New Review
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <form onSubmit={handleCreateReview} className="space-y-6">
+              <CardContent className="p-4 sm:p-6">
+                <form
+                  onSubmit={handleCreateReview}
+                  className="space-y-4 sm:space-y-6"
+                >
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Select Cleaner *
@@ -854,7 +890,7 @@ const AdminReviews = () => {
                           cleanerId: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
                     >
                       <option value="">Choose a cleaner...</option>
@@ -870,7 +906,7 @@ const AdminReviews = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Rating *
                     </label>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                       <select
                         value={formData.rating}
                         onChange={(e) =>
@@ -879,7 +915,7 @@ const AdminReviews = () => {
                             rating: parseInt(e.target.value),
                           }))
                         }
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto"
                       >
                         {[1, 2, 3, 4, 5].map((rating) => (
                           <option key={rating} value={rating}>
@@ -887,7 +923,9 @@ const AdminReviews = () => {
                           </option>
                         ))}
                       </select>
-                      {renderStars(formData.rating, "md")}
+                      <div className="flex justify-center sm:justify-start">
+                        {renderStars(formData.rating, "md")}
+                      </div>
                     </div>
                   </div>
 
@@ -904,17 +942,20 @@ const AdminReviews = () => {
                         }))
                       }
                       rows="6"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
                       placeholder="Write a detailed review about the cleaner's performance, punctuality, quality of work, and overall service..."
                       required
                     />
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-xs sm:text-sm text-gray-500">
                       Minimum 20 characters required
                     </p>
                   </div>
 
-                  <div className="flex gap-4">
-                    <Button type="submit" className="flex-1">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
+                    <Button
+                      type="submit"
+                      className="flex-1 text-sm sm:text-base"
+                    >
                       <PlusIcon className="h-4 w-4 mr-2" />
                       Create Review
                     </Button>
@@ -928,7 +969,7 @@ const AdminReviews = () => {
                           reviewText: "",
                         })
                       }
-                      className="px-6"
+                      className="sm:px-6 text-sm sm:text-base"
                     >
                       Reset
                     </Button>
@@ -942,15 +983,15 @@ const AdminReviews = () => {
         {/* Enhanced Edit Review Modal */}
         {editingReview && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                  <PencilIcon className="h-5 w-5 text-blue-600" />
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <PencilIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                   Edit Review
                 </h3>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -960,13 +1001,13 @@ const AdminReviews = () => {
                       reviewText: formData.get("reviewText"),
                     });
                   }}
-                  className="space-y-6"
+                  className="space-y-4 sm:space-y-6"
                 >
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Cleaner
                     </label>
-                    <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700">
+                    <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm sm:text-base">
                       {editingReview.cleaner_name}
                     </div>
                   </div>
@@ -975,11 +1016,11 @@ const AdminReviews = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Rating
                     </label>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                       <select
                         name="rating"
                         defaultValue={editingReview.rating}
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto"
                       >
                         {[1, 2, 3, 4, 5].map((rating) => (
                           <option key={rating} value={rating}>
@@ -987,7 +1028,9 @@ const AdminReviews = () => {
                           </option>
                         ))}
                       </select>
-                      {renderStars(editingReview.rating, "md")}
+                      <div className="flex justify-center sm:justify-start">
+                        {renderStars(editingReview.rating, "md")}
+                      </div>
                     </div>
                   </div>
 
@@ -999,13 +1042,16 @@ const AdminReviews = () => {
                       name="reviewText"
                       defaultValue={editingReview.review_text}
                       rows="6"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
                       required
                     />
                   </div>
 
-                  <div className="flex gap-3 pt-4">
-                    <Button type="submit" className="flex-1">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                    <Button
+                      type="submit"
+                      className="flex-1 text-sm sm:text-base"
+                    >
                       <CheckCircleIcon className="h-4 w-4 mr-2" />
                       Update Review
                     </Button>
@@ -1013,7 +1059,7 @@ const AdminReviews = () => {
                       type="button"
                       variant="secondary"
                       onClick={() => setEditingReview(null)}
-                      className="px-6"
+                      className="sm:px-6 text-sm sm:text-base"
                     >
                       <XCircleIcon className="h-4 w-4 mr-2" />
                       Cancel
