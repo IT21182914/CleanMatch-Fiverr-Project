@@ -17,7 +17,7 @@ import { AuthContext } from "../../contexts/AuthContext";
 
 const AdminReviews = () => {
   const { user, isAuthenticated, getToken } = useContext(AuthContext);
-  
+
   // API base URL configuration
   const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -111,7 +111,10 @@ const AdminReviews = () => {
       }
 
       // Log the exact URLs being called
-      console.log("🌐 Calling cleaners API:", `${API_BASE}/admin/reviews/cleaners`);
+      console.log(
+        "🌐 Calling cleaners API:",
+        `${API_BASE}/admin/reviews/cleaners`
+      );
       console.log("🌐 Calling stats API:", `${API_BASE}/admin/reviews/stats`);
       console.log("🌐 Current location:", window.location.origin);
       const [cleanersResponse, statsResponse] = await Promise.all([
