@@ -30,26 +30,63 @@ const CustomerBookings = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Scroll to top on component mount
+  useEffect(() => {
+    // Multiple scroll-to-top approaches for maximum compatibility
+    const scrollToTop = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      // Target main element
+      const mainElement = document.querySelector("main");
+      if (mainElement) {
+        mainElement.scrollTop = 0;
+      }
+
+      // Target scrollable containers
+      const scrollableElements = document.querySelectorAll(
+        "[data-scroll-container], .overflow-y-auto, .overflow-auto, .min-h-screen"
+      );
+      scrollableElements.forEach((element) => {
+        if (element.scrollTop !== undefined) {
+          element.scrollTop = 0;
+        }
+      });
+    };
+
+    // Execute immediately
+    scrollToTop();
+
+    // Execute with requestAnimationFrame for better timing
+    requestAnimationFrame(() => {
+      scrollToTop();
+    });
+
+    // Execute with slight delay to ensure DOM is ready
+    setTimeout(scrollToTop, 50);
+  }, []);
+
   // Handle success messages from redirects
   useEffect(() => {
     if (location.state?.message) {
       // Use a unique ID to prevent duplicate toasts for payment success
-      const toastId = location.state?.paymentSuccess ? 
-        `payment-success-${Date.now()}` : 
-        `booking-message-${Date.now()}`;
-      
+      const toastId = location.state?.paymentSuccess
+        ? `payment-success-${Date.now()}`
+        : `booking-message-${Date.now()}`;
+
       // Check if we've already shown this toast
       if (!sessionStorage.getItem(toastId)) {
         toast.success(location.state.message);
         // Mark this toast as shown
-        sessionStorage.setItem(toastId, 'shown');
-        
+        sessionStorage.setItem(toastId, "shown");
+
         // Clean up after 5 seconds
         setTimeout(() => {
           sessionStorage.removeItem(toastId);
         }, 5000);
       }
-      
+
       // Clear the state to prevent showing the message again on refresh
       navigate(location.pathname, { replace: true });
     }
@@ -57,22 +94,26 @@ const CustomerBookings = () => {
 
   // Function to handle booking cancellation
   const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
+    if (
+      !window.confirm(
+        "Are you sure you want to cancel this booking? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
     try {
-      const response = await bookingsAPI.updateStatus(bookingId, 'cancelled');
+      const response = await bookingsAPI.updateStatus(bookingId, "cancelled");
       if (response.data.success) {
-        toast.success('Booking cancelled successfully');
+        toast.success("Booking cancelled successfully");
         // Trigger a refresh of the bookings list
-        setRefreshTrigger(prev => prev + 1);
+        setRefreshTrigger((prev) => prev + 1);
       } else {
-        toast.error(response.data.error || 'Failed to cancel booking');
+        toast.error(response.data.error || "Failed to cancel booking");
       }
     } catch (error) {
-      console.error('Error cancelling booking:', error);
-      toast.error('Failed to cancel booking. Please try again.');
+      console.error("Error cancelling booking:", error);
+      toast.error("Failed to cancel booking. Please try again.");
     }
   };
 
@@ -129,12 +170,16 @@ const CustomerBookings = () => {
                 {/* Payment Status Badge */}
                 <div>
                   <span
-                    className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${booking.paymentStatus === "paid"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
-                      }`}
+                    className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                      booking.paymentStatus === "paid"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
                   >
-                    Payment: {capitalizeFirst(booking.paymentStatus === "paid" ? "PAID" : "PENDING")}
+                    Payment:{" "}
+                    {capitalizeFirst(
+                      booking.paymentStatus === "paid" ? "PAID" : "PENDING"
+                    )}
                   </span>
                 </div>
               </div>
@@ -182,8 +227,10 @@ const CustomerBookings = () => {
             </Button>
 
             {/* Payment button for unpaid bookings */}
-            {(booking.payment_status === "pending" || booking.paymentStatus === "pending") &&
-              (booking.status === "pending" || booking.status === "confirmed") && (
+            {(booking.payment_status === "pending" ||
+              booking.paymentStatus === "pending") &&
+              (booking.status === "pending" ||
+                booking.status === "confirmed") && (
                 <Button
                   size="sm"
                   className="bg-green-600 hover:bg-green-700"
@@ -194,15 +241,18 @@ const CustomerBookings = () => {
               )}
 
             {/* Select Cleaner button for paid bookings without assigned cleaner */}
-            {(booking.payment_status === "paid" || booking.paymentStatus === "paid") &&
+            {(booking.payment_status === "paid" ||
+              booking.paymentStatus === "paid") &&
               !booking.cleaner &&
               booking.status === "confirmed" && (
                 <Button
                   size="sm"
                   className="bg-blue-600 hover:bg-blue-700"
-                  onClick={() => navigate("/customer/select-cleaner", {
-                    state: { booking }
-                  })}
+                  onClick={() =>
+                    navigate("/customer/select-cleaner", {
+                      state: { booking },
+                    })
+                  }
                 >
                   Select Cleaner
                 </Button>
@@ -213,10 +263,10 @@ const CustomerBookings = () => {
             )}
 
             {/* Cancel button for pending bookings or confirmed bookings without cleaner */}
-            {(booking.status === "pending" || 
+            {(booking.status === "pending" ||
               (booking.status === "confirmed" && !booking.cleaner)) && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 className="text-red-600 border-red-300 hover:bg-red-50"
                 onClick={() => handleCancelBooking(booking.id)}
@@ -264,10 +314,11 @@ const CustomerBookings = () => {
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key)}
-              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors ${filter === tab.key
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
+              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                filter === tab.key
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
             >
               {tab.label}
             </button>

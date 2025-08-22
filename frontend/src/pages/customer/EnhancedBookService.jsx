@@ -40,6 +40,50 @@ const EnhancedBookService = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
+  // Scroll to top when step changes
+  useEffect(() => {
+    // Multiple scroll-to-top approaches for maximum compatibility
+    const scrollToTop = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      // Target main element
+      const mainElement = document.querySelector("main");
+      if (mainElement) {
+        mainElement.scrollTop = 0;
+      }
+
+      // Target scrollable containers
+      const scrollableElements = document.querySelectorAll(
+        "[data-scroll-container], .overflow-y-auto, .overflow-auto, .min-h-screen"
+      );
+      scrollableElements.forEach((element) => {
+        if (element.scrollTop !== undefined) {
+          element.scrollTop = 0;
+        }
+      });
+    };
+
+    // Execute immediately
+    scrollToTop();
+
+    // Execute with requestAnimationFrame for better timing
+    requestAnimationFrame(() => {
+      scrollToTop();
+    });
+
+    // Execute with slight delay to ensure DOM is ready
+    setTimeout(scrollToTop, 50);
+  }, [step]);
+
+  // Scroll to top on initial component mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, []);
+
   useEffect(() => {
     fetchServices();
     // Try to get user's location
