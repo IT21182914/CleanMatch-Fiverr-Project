@@ -94,23 +94,32 @@ app.use(
         "http://localhost:3000",
         "http://localhost:5000",
         "http://localhost:5173",
-        "http://localhost:5173/*",
         "http://localhost:5174", // Add port 5174 for frontend
-        "http://localhost:5174/*", // Add port 5174 for frontend
-        "http://localhost:5175/*", // Add port 5175 as backup
+        "http://localhost:5175", // Add port 5175 as backup
         "https://young-cliffs-57962-dbd5fa993e19.herokuapp.com", // Hosted backend URL
-        "https://young-cliffs-57962-dbd5fa993e19.herokuapp.com/*", // Hosted backend URL
         ...envAllowedOrigins, // Add environment-specified origins
       ];
 
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
+      // Check if the origin matches any allowed origin exactly
       if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+        return callback(null, true);
       }
+
+      // Check for pattern matches (Vercel deployments, localhost with different ports, etc.)
+      const isLocalhost =
+        origin.startsWith("http://localhost:") ||
+        origin.startsWith("https://localhost:");
+      const isVercelApp = origin.endsWith(".vercel.app");
+      const isHerokuApp = origin.includes("herokuapp.com");
+
+      if (isLocalhost || isVercelApp || isHerokuApp) {
+        return callback(null, true);
+      }
+
+      callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],

@@ -8,6 +8,8 @@ const { query } = require("../config/database");
 const getCleaners = async (req, res) => {
   try {
     console.log("🧹 Admin getCleaners controller called");
+    console.log("🌍 Environment:", process.env.NODE_ENV || "development");
+    console.log("🔗 Database URL exists:", !!process.env.DATABASE_URL);
     console.log(
       "👤 User:",
       req.user
@@ -44,9 +46,12 @@ const getCleaners = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Get cleaners error:", error);
+    console.error("❌ Stack trace:", error.stack);
     res.status(500).json({
       success: false,
       error: "Server error retrieving cleaners",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
