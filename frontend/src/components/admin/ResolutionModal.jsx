@@ -1,4 +1,16 @@
 import React, { useState } from "react";
+import { 
+  CheckCircle, 
+  DollarSign, 
+  CreditCard, 
+  Gift, 
+  Users, 
+  Calendar, 
+  Award, 
+  FileText, 
+  Scale, 
+  Edit3 
+} from "lucide-react";
 
 const ResolutionModal = ({ show, ticket, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -16,16 +28,16 @@ const ResolutionModal = ({ show, ticket, onSubmit, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
 
   const resolutionTypes = [
-    { value: "issue_resolved", label: "✅ Issue Fully Resolved" },
-    { value: "partial_refund", label: "💰 Partial Refund Issued" },
-    { value: "full_refund", label: "💳 Full Refund Issued" },
-    { value: "service_credit", label: "🎟️ Service Credit Applied" },
-    { value: "freelancer_replaced", label: "👥 Freelancer Replaced" },
-    { value: "booking_rescheduled", label: "📅 Booking Rescheduled" },
-    { value: "compensation_offered", label: "🎁 Compensation Provided" },
-    { value: "no_action_required", label: "📋 No Action Required" },
-    { value: "escalated_to_legal", label: "⚖️ Escalated to Legal" },
-    { value: "other", label: "📝 Other (specify in details)" },
+    { value: "issue_resolved", label: "Issue Fully Resolved", icon: CheckCircle },
+    { value: "partial_refund", label: "Partial Refund Issued", icon: DollarSign },
+    { value: "full_refund", label: "Full Refund Issued", icon: CreditCard },
+    { value: "service_credit", label: "Service Credit Applied", icon: Gift },
+    { value: "freelancer_replaced", label: "Freelancer Replaced", icon: Users },
+    { value: "booking_rescheduled", label: "Booking Rescheduled", icon: Calendar },
+    { value: "compensation_offered", label: "Compensation Provided", icon: Award },
+    { value: "no_action_required", label: "No Action Required", icon: FileText },
+    { value: "escalated_to_legal", label: "Escalated to Legal", icon: Scale },
+    { value: "other", label: "Other (specify in details)", icon: Edit3 },
   ];
 
   const handleChange = (e) => {
@@ -115,28 +127,32 @@ const ResolutionModal = ({ show, ticket, onSubmit, onClose }) => {
                 Resolution Type *
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {resolutionTypes.map((type) => (
-                  <label
-                    key={type.value}
-                    className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${
-                      formData.resolution_type === type.value
-                        ? "border-green-500 bg-green-50"
-                        : "border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="resolution_type"
-                      value={type.value}
-                      checked={formData.resolution_type === type.value}
-                      onChange={handleChange}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
-                    />
-                    <span className="ml-3 text-sm font-medium text-gray-700">
-                      {type.label}
-                    </span>
-                  </label>
-                ))}
+                {resolutionTypes.map((type) => {
+                  const IconComponent = type.icon;
+                  return (
+                    <label
+                      key={type.value}
+                      className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${
+                        formData.resolution_type === type.value
+                          ? "border-green-500 bg-green-50"
+                          : "border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="resolution_type"
+                        value={type.value}
+                        checked={formData.resolution_type === type.value}
+                        onChange={handleChange}
+                        className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
+                      />
+                      <IconComponent className="ml-3 w-4 h-4 text-gray-600" />
+                      <span className="ml-2 text-sm font-medium text-gray-700">
+                        {type.label}
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
@@ -355,7 +371,10 @@ const ResolutionModal = ({ show, ticket, onSubmit, onClose }) => {
                     Resolving...
                   </>
                 ) : (
-                  "✅ Resolve Ticket"
+                  <>
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Resolve Ticket
+                  </>
                 )}
               </button>
             </div>
