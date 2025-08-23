@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { servicesAPI, bookingsAPI } from "../../lib/api";
-import { validateZipCode } from "../../lib/utils";
+// import { validateZipCode } from "../../lib/utils";
 
 // Import the new component modules
 import ServiceSearch from "../../components/booking/ServiceSearch";
@@ -15,7 +15,7 @@ const BookService = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [serviceError, setServiceError] = useState(null);
-  const [currentView, setCurrentView] = useState('services'); // 'services', 'details', 'booking', 'confirmation'
+  const [currentView, setCurrentView] = useState("services"); // 'services', 'details', 'booking', 'confirmation'
   const [selectedService, setSelectedService] = useState(null);
   const [formData, setFormData] = useState({
     scheduledDate: "",
@@ -34,95 +34,272 @@ const BookService = () => {
   const { serviceId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  console.log(setSearchParams);
+
+  // Scroll to top when view changes
+  useEffect(() => {
+    // Multiple scroll-to-top approaches for maximum compatibility
+    const scrollToTop = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      // Target main element
+      const mainElement = document.querySelector("main");
+      if (mainElement) {
+        mainElement.scrollTop = 0;
+      }
+
+      // Target scrollable containers
+      const scrollableElements = document.querySelectorAll(
+        "[data-scroll-container], .overflow-y-auto, .overflow-auto, .min-h-screen"
+      );
+      scrollableElements.forEach((element) => {
+        if (element.scrollTop !== undefined) {
+          element.scrollTop = 0;
+        }
+      });
+    };
+
+    // Execute immediately
+    scrollToTop();
+
+    // Execute with requestAnimationFrame for better timing
+    requestAnimationFrame(() => {
+      scrollToTop();
+    });
+
+    // Execute with slight delay to ensure DOM is ready
+    setTimeout(scrollToTop, 50);
+  }, [currentView]);
+
+  // Scroll to top on initial component mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, []);
+
+  // Handle browser back button navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      // Check current URL to determine what view should be shown
+      const currentPath = window.location.pathname;
+      const currentParams = new URLSearchParams(window.location.search);
+
+      if (currentPath === "/book") {
+        const viewParam = currentParams.get("view");
+        const serviceIdParam = currentParams.get("serviceId");
+
+        if (!viewParam && !serviceIdParam) {
+          // No view or service specified, show services list
+          setCurrentView("services");
+          setSelectedService(null);
+        } else if (viewParam === "details" && serviceIdParam) {
+          // Show service details
+          const service = services.find(
+            (s) => s.id.toString() === serviceIdParam
+          );
+          if (service) {
+            setSelectedService(service);
+            setCurrentView("details");
+          } else {
+            // Service not found, go back to services
+            setCurrentView("services");
+            setSelectedService(null);
+          }
+        } else if (viewParam === "booking" && serviceIdParam) {
+          // Show booking form
+          const service = services.find(
+            (s) => s.id.toString() === serviceIdParam
+          );
+          if (service) {
+            setSelectedService(service);
+            setCurrentView("booking");
+          } else {
+            // Service not found, go back to services
+            setCurrentView("services");
+            setSelectedService(null);
+          }
+        } else {
+          // Default to services
+          setCurrentView("services");
+          setSelectedService(null);
+        }
+      } else {
+        // If not on /book path, redirect to /book
+        navigate("/book", { replace: true });
+      }
+    };
+
+    // Listen for browser back/forward button clicks
+    window.addEventListener("popstate", handlePopState);
+
+    // Also handle the initial page load
+    handlePopState();
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [services, navigate]);
+
+  // Update browser history when view changes
+  // Note: This is now handled manually in navigation functions to prevent conflicts
+  /*
+  useEffect(() => {
+    if (services.length === 0) return; // Wait for services to load
+    
+    const currentPath = window.location.pathname;
+    if (currentPath !== '/book') return; // Only handle /book path
+    
+    // Update URL based on current view and selected service
+    const params = new URLSearchParams();
+    
+    if (currentView === 'services') {
+      // For services view, just go to /book with no parameters
+      if (window.location.search !== '') {
+        navigate('/book', { replace: true });
+      }
+    } else if (currentView === 'details' && selectedService) {
+      params.set('view', 'details');
+      params.set('serviceId', selectedService.id.toString());
+      const newUrl = `/book?${params.toString()}`;
+      if (window.location.pathname + window.location.search !== newUrl) {
+        navigate(newUrl, { replace: true });
+      }
+    } else if (currentView === 'booking' && selectedService) {
+      params.set('view', 'booking');
+      params.set('serviceId', selectedService.id.toString());
+      
+      // Add form data to URL for persistence
+      if (formData.scheduledDate) params.set('date', formData.scheduledDate);
+      if (formData.scheduledTime) params.set('time', formData.scheduledTime);
+      if (formData.address) params.set('address', formData.address);
+      if (formData.city) params.set('city', formData.city);
+      if (formData.state) params.set('state', formData.state);
+      if (formData.zipCode) params.set('zipCode', formData.zipCode);
+      if (formData.specialInstructions) params.set('instructions', formData.specialInstructions);
+      if (formData.latitude) params.set('lat', formData.latitude.toString());
+      if (formData.longitude) params.set('lng', formData.longitude.toString());
+      if (formData.locationMethod) params.set('locationMethod', formData.locationMethod);
+      
+      const newUrl = `/book?${params.toString()}`;
+      if (window.location.pathname + window.location.search !== newUrl) {
+        navigate(newUrl, { replace: true });
+      }
+    }
+  }, [currentView, selectedService, formData, services.length, navigate]);
+  */
+
   // Helper function to get form data from URL parameters
   const getFormDataFromURL = () => {
     const urlFormData = {
-      scheduledDate: searchParams.get('date') || "",
-      scheduledTime: searchParams.get('time') || "",
-      address: searchParams.get('address') || "",
-      city: searchParams.get('city') || "",
-      state: searchParams.get('state') || "",
-      zipCode: searchParams.get('zipCode') || "",
-      specialInstructions: searchParams.get('instructions') || "",
-      latitude: searchParams.get('lat') ? parseFloat(searchParams.get('lat')) : null,
-      longitude: searchParams.get('lng') ? parseFloat(searchParams.get('lng')) : null,
-      locationMethod: searchParams.get('locationMethod') || "gps",
+      scheduledDate: searchParams.get("date") || "",
+      scheduledTime: searchParams.get("time") || "",
+      address: searchParams.get("address") || "",
+      city: searchParams.get("city") || "",
+      state: searchParams.get("state") || "",
+      zipCode: searchParams.get("zipCode") || "",
+      specialInstructions: searchParams.get("instructions") || "",
+      latitude: searchParams.get("lat")
+        ? parseFloat(searchParams.get("lat"))
+        : null,
+      longitude: searchParams.get("lng")
+        ? parseFloat(searchParams.get("lng"))
+        : null,
+      locationMethod: searchParams.get("locationMethod") || "gps",
     };
     return urlFormData;
   };
 
   // Helper function to update URL parameters
+  // Note: Commenting out as we now handle URL updates manually in navigation functions
+  /*
   const updateURLParams = (newFormData) => {
     const params = new URLSearchParams(searchParams);
 
     // Update form data parameters
-    if (newFormData.scheduledDate) params.set('date', newFormData.scheduledDate);
-    else params.delete('date');
+    if (newFormData.scheduledDate)
+      params.set("date", newFormData.scheduledDate);
+    else params.delete("date");
 
-    if (newFormData.scheduledTime) params.set('time', newFormData.scheduledTime);
-    else params.delete('time');
+    if (newFormData.scheduledTime)
+      params.set("time", newFormData.scheduledTime);
+    else params.delete("time");
 
-    if (newFormData.address) params.set('address', newFormData.address);
-    else params.delete('address');
+    if (newFormData.address) params.set("address", newFormData.address);
+    else params.delete("address");
 
-    if (newFormData.city) params.set('city', newFormData.city);
-    else params.delete('city');
+    if (newFormData.city) params.set("city", newFormData.city);
+    else params.delete("city");
 
-    if (newFormData.state) params.set('state', newFormData.state);
-    else params.delete('state');
+    if (newFormData.state) params.set("state", newFormData.state);
+    else params.delete("state");
 
-    if (newFormData.zipCode) params.set('zipCode', newFormData.zipCode);
-    else params.delete('zipCode');
+    if (newFormData.zipCode) params.set("zipCode", newFormData.zipCode);
+    else params.delete("zipCode");
 
-    if (newFormData.specialInstructions) params.set('instructions', newFormData.specialInstructions);
-    else params.delete('instructions');
+    if (newFormData.specialInstructions)
+      params.set("instructions", newFormData.specialInstructions);
+    else params.delete("instructions");
 
-    if (newFormData.latitude) params.set('lat', newFormData.latitude.toString());
-    else params.delete('lat');
+    if (newFormData.latitude)
+      params.set("lat", newFormData.latitude.toString());
+    else params.delete("lat");
 
-    if (newFormData.longitude) params.set('lng', newFormData.longitude.toString());
-    else params.delete('lng');
+    if (newFormData.longitude)
+      params.set("lng", newFormData.longitude.toString());
+    else params.delete("lng");
 
-    if (newFormData.locationMethod) params.set('locationMethod', newFormData.locationMethod);
-    else params.delete('locationMethod');
+    if (newFormData.locationMethod)
+      params.set("locationMethod", newFormData.locationMethod);
+    else params.delete("locationMethod");
 
     // Update current view
-    if (currentView !== 'services') params.set('view', currentView);
-    else params.delete('view');
+    if (currentView !== "services") params.set("view", currentView);
+    else params.delete("view");
 
     // Update selected service
-    if (selectedService) params.set('serviceId', selectedService.id.toString());
-    else params.delete('serviceId');
+    if (selectedService) params.set("serviceId", selectedService.id.toString());
+    else params.delete("serviceId");
 
     setSearchParams(params, { replace: true });
   };
+  */
 
   useEffect(() => {
     // Only initialize form data from URL parameters if we're in booking view
     // This prevents old form data from persisting when selecting a new service
-    const viewFromURL = searchParams.get('view');
-    if (viewFromURL === 'booking') {
+    const viewFromURL = searchParams.get("view");
+    if (viewFromURL === "booking") {
       const urlFormData = getFormDataFromURL();
       setFormData(urlFormData);
     }
 
     // Initialize current view from URL
-    if (viewFromURL && ['services', 'details', 'booking', 'confirmation'].includes(viewFromURL)) {
+    if (
+      viewFromURL &&
+      ["services", "details", "booking", "confirmation"].includes(viewFromURL)
+    ) {
       setCurrentView(viewFromURL);
-    } else if (serviceId || searchParams.get('serviceId')) {
-      setCurrentView('details');
+    } else if (serviceId || searchParams.get("serviceId")) {
+      setCurrentView("details");
     }
 
     fetchServices();
   }, [serviceId]);
 
   // Update URL parameters whenever state changes, but only for booking view
+  // Note: Commenting out as we now handle URL updates manually in navigation functions
+  /*
   useEffect(() => {
-    if (services.length > 0 && currentView === 'booking') {
+    if (services.length > 0 && currentView === "booking") {
       // Only update URL with form data when in booking view
       updateURLParams(formData);
     }
   }, [formData, currentView, selectedService, services.length]);
+  */
 
   const fetchServices = async () => {
     try {
@@ -148,9 +325,11 @@ const BookService = () => {
       setServices(servicesData);
 
       // Find and select service from URL parameters (either from route param or search param)
-      const targetServiceId = serviceId || searchParams.get('serviceId');
+      const targetServiceId = serviceId || searchParams.get("serviceId");
       if (targetServiceId) {
-        const service = servicesData.find(s => s.id === parseInt(targetServiceId));
+        const service = servicesData.find(
+          (s) => s.id === parseInt(targetServiceId)
+        );
         if (service) {
           setSelectedService(service);
         }
@@ -171,7 +350,7 @@ const BookService = () => {
     let newFormData;
 
     // Handle special location object from BookingForm
-    if (name === 'location' && typeof value === 'object') {
+    if (name === "location" && typeof value === "object") {
       newFormData = {
         ...formData,
         latitude: value.latitude,
@@ -187,7 +366,8 @@ const BookService = () => {
     setFormData(newFormData);
 
     // Update URL parameters with new form data
-    updateURLParams(newFormData);
+    // Note: Commenting out as we now handle URL updates manually in navigation functions
+    // updateURLParams(newFormData);
 
     if (errors[name]) {
       setErrors((prev) => ({
@@ -215,13 +395,13 @@ const BookService = () => {
       };
 
       // Add location data based on method
-      if (dataToSubmit.locationMethod === 'gps') {
+      if (dataToSubmit.locationMethod === "gps") {
         bookingData.latitude = dataToSubmit.latitude;
         bookingData.longitude = dataToSubmit.longitude;
         bookingData.address = dataToSubmit.address;
         bookingData.city = dataToSubmit.city;
         bookingData.state = dataToSubmit.state;
-      } else if (dataToSubmit.locationMethod === 'postal') {
+      } else if (dataToSubmit.locationMethod === "postal") {
         bookingData.address = dataToSubmit.address;
         bookingData.city = dataToSubmit.city;
         bookingData.state = dataToSubmit.state;
@@ -237,8 +417,15 @@ const BookService = () => {
         throw new Error("Invalid booking response - missing booking ID");
       }
 
-      setCurrentView('confirmation');
+      setCurrentView("confirmation");
       toast.success("Booking created successfully!");
+
+      // Scroll to top when showing confirmation
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }, 100);
 
       // Navigate to payment after a short delay
       setTimeout(() => {
@@ -259,7 +446,7 @@ const BookService = () => {
   // Event handlers for navigation between views
   const handleServiceSelect = (service) => {
     setSelectedService(service);
-    setCurrentView('details');
+    setCurrentView("details");
 
     // Clear form data when selecting a new service
     const cleanFormData = {
@@ -279,36 +466,52 @@ const BookService = () => {
 
     // Update URL to reflect the selected service and view, clear all other params
     const params = new URLSearchParams();
-    params.set('serviceId', service.id.toString());
-    params.set('view', 'details');
-    setSearchParams(params, { replace: true });
+    params.set("serviceId", service.id.toString());
+    params.set("view", "details");
+    navigate(`/book?${params.toString()}`);
+
+    // Scroll to top when selecting a service
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 100);
   };
 
   const handleBookNow = () => {
-    setCurrentView('booking');
+    setCurrentView("booking");
 
     // When going to booking view, update URL with current form data
     const params = new URLSearchParams();
-    params.set('serviceId', selectedService.id.toString());
-    params.set('view', 'booking');
+    params.set("serviceId", selectedService.id.toString());
+    params.set("view", "booking");
 
     // Add form data to URL parameters for persistence
-    if (formData.scheduledDate) params.set('date', formData.scheduledDate);
-    if (formData.scheduledTime) params.set('time', formData.scheduledTime);
-    if (formData.address) params.set('address', formData.address);
-    if (formData.city) params.set('city', formData.city);
-    if (formData.state) params.set('state', formData.state);
-    if (formData.zipCode) params.set('zipCode', formData.zipCode);
-    if (formData.specialInstructions) params.set('instructions', formData.specialInstructions);
-    if (formData.latitude) params.set('lat', formData.latitude.toString());
-    if (formData.longitude) params.set('lng', formData.longitude.toString());
-    if (formData.locationMethod) params.set('locationMethod', formData.locationMethod);
+    if (formData.scheduledDate) params.set("date", formData.scheduledDate);
+    if (formData.scheduledTime) params.set("time", formData.scheduledTime);
+    if (formData.address) params.set("address", formData.address);
+    if (formData.city) params.set("city", formData.city);
+    if (formData.state) params.set("state", formData.state);
+    if (formData.zipCode) params.set("zipCode", formData.zipCode);
+    if (formData.specialInstructions)
+      params.set("instructions", formData.specialInstructions);
+    if (formData.latitude) params.set("lat", formData.latitude.toString());
+    if (formData.longitude) params.set("lng", formData.longitude.toString());
+    if (formData.locationMethod)
+      params.set("locationMethod", formData.locationMethod);
 
-    setSearchParams(params, { replace: true });
+    navigate(`/book?${params.toString()}`);
+
+    // Scroll to top when going to booking form
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 100);
   };
 
   const handleBackToServices = () => {
-    setCurrentView('services');
+    setCurrentView("services");
     setSelectedService(null);
 
     // Clear form data when going back to services
@@ -327,26 +530,40 @@ const BookService = () => {
     setFormData(cleanFormData);
     setErrors({});
 
-    // Clear all URL parameters when going back to services
-    setSearchParams({}, { replace: true });
+    // Navigate to /book instead of clearing URL parameters completely
+    navigate("/book", { replace: true });
+
+    // Scroll to top when going back to services
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 100);
   };
 
   const handleBackToDetails = () => {
-    setCurrentView('details');
+    setCurrentView("details");
 
     // When going back to details from booking, clear form data URL parameters
     // but keep the form data in state for when they return to booking
     const params = new URLSearchParams();
-    params.set('serviceId', selectedService.id.toString());
-    params.set('view', 'details');
-    setSearchParams(params, { replace: true });
+    params.set("serviceId", selectedService.id.toString());
+    params.set("view", "details");
+    navigate(`/book?${params.toString()}`);
+
+    // Scroll to top when going back to details
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 100);
   };
 
   // Main render function
   return (
     <div className="bg-gradient-to-br from-gray-50 to-cyan-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-2 sm:px-1 lg:px-3 py-2">
-        {currentView === 'services' && (
+        {currentView === "services" && (
           <ServiceSearch
             services={services}
             loading={loading}
@@ -356,7 +573,7 @@ const BookService = () => {
           />
         )}
 
-        {currentView === 'details' && selectedService && (
+        {currentView === "details" && selectedService && (
           <ServiceDetails
             service={selectedService}
             onBack={handleBackToServices}
@@ -364,7 +581,7 @@ const BookService = () => {
           />
         )}
 
-        {currentView === 'booking' && selectedService && (
+        {currentView === "booking" && selectedService && (
           <BookingForm
             service={selectedService}
             formData={formData}
@@ -376,7 +593,7 @@ const BookService = () => {
           />
         )}
 
-        {currentView === 'confirmation' && <BookingConfirmation />}
+        {currentView === "confirmation" && <BookingConfirmation />}
       </div>
     </div>
   );

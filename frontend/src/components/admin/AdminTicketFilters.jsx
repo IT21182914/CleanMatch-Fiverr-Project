@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { AlertCircle, Clock, ChevronDown, Filter } from "lucide-react";
+import { AlertCircle, Clock, ChevronDown, Filter, Zap, UserX, Calendar } from "lucide-react";
 
 const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
-  console.log("🔍 AdminTicketFilters rendered with filters:", filters);
+  console.log("AdminTicketFilters rendered with filters:", filters);
 
   // Mobile filter toggle state
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -68,7 +68,7 @@ const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
   ];
 
   const handleFilterChange = (key, value) => {
-    console.log(`🎛️ Filter change: ${key} = ${value}`);
+    console.log(`Filter change: ${key} = ${value}`);
     onFilterChange({ [key]: value });
     // Auto-close mobile filters after selection on mobile
     if (window.innerWidth < 768) {
@@ -160,7 +160,7 @@ const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
               <select
                 value={filters.status}
                 onChange={(e) => {
-                  console.log("🚨 Status dropdown changed to:", e.target.value);
+                  console.log("Status dropdown changed to:", e.target.value);
                   handleFilterChange("status", e.target.value);
                 }}
                 className="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm"
@@ -290,7 +290,7 @@ const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                <span>⚡</span>
+                <Zap className="w-3 h-3" />
                 <span className="hidden sm:inline">Urgent</span>
                 <span className="sm:hidden">Urgent</span>
                 <span>({stats?.general?.urgent_tickets || 0})</span>
@@ -304,7 +304,7 @@ const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                <span>👤</span>
+                <UserX className="w-3 h-3" />
                 <span className="hidden sm:inline">Unassigned</span>
                 <span className="sm:hidden">Unassigned</span>
                 <span>({stats?.general?.unassigned_tickets || 0})</span>
@@ -334,7 +334,7 @@ const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
                   }}
                   className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-red-100 text-red-800 border border-red-200 animate-pulse min-h-[32px] sm:min-h-[36px] flex items-center gap-1"
                 >
-                  <span>⏰</span>
+                  <Clock className="w-3 h-3" />
                   <span className="hidden sm:inline">Overdue Response</span>
                   <span className="sm:hidden">Overdue</span>
                   <span>({stats.sla.overdue_first_response})</span>
@@ -350,7 +350,7 @@ const AdminTicketFilters = ({ filters, onFilterChange, stats, adminUsers }) => {
                   }}
                   className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-orange-100 text-orange-800 border border-orange-200 animate-pulse min-h-[32px] sm:min-h-[36px] flex items-center gap-1"
                 >
-                  <span>📅</span>
+                  <Calendar className="w-3 h-3" />
                   <span className="hidden sm:inline">Overdue Resolution</span>
                   <span className="sm:hidden">Resolution</span>
                   <span>({stats.sla.overdue_resolution})</span>

@@ -39,6 +39,16 @@ const {
   resolveTicket,
   closeTicket,
 } = require("../controllers/adminController");
+
+// Admin Reviews Controller (separate from the disabled review system)
+const {
+  getCleaners,
+  createAdminReview,
+  getAdminReviews,
+  updateAdminReview,
+  deleteAdminReview,
+  getAdminReviewStats,
+} = require("../controllers/adminReviewsController");
 const router = express.Router();
 
 // @route   GET /api/admin/dashboard
@@ -107,26 +117,51 @@ router.get("/analytics/revenue", auth, authorize("admin"), getRevenueAnalytics);
 // router.get("/reviews", auth, authorize("admin"), getReviews);
 
 // @route   DELETE /api/admin/reviews/:id
-// @desc    Delete review - DISABLED  
+// @desc    Delete review - DISABLED
 // @access  Private (Admin only)
 // router.delete("/reviews/:id", auth, authorize("admin"), deleteReview);
 
-// Placeholder routes to prevent 404 errors
-router.get("/reviews", auth, authorize("admin"), (req, res) => {
-  res.json({
-    success: false,
-    error: "Admin review feature is disabled",
-    reviews: [],
-    pagination: { page: 1, limit: 20, total: 0, pages: 0 }
-  });
-});
+// ============= NEW ADMIN REVIEWS SYSTEM (SEPARATE FROM DISABLED SYSTEM) =============
 
-router.delete("/reviews/:id", auth, authorize("admin"), (req, res) => {
-  res.json({
-    success: false,
-    error: "Admin review feature is disabled"
-  });
-});
+// @route   GET /api/admin/reviews/cleaners
+// @desc    Get all cleaners for dropdown selection
+// @access  Private (Admin only)
+router.get(
+  "/reviews/cleaners",
+  (req, res, next) => {
+    console.log("🔍 Admin cleaners route hit!");
+    console.log("Headers:", req.headers.authorization);
+    next();
+  },
+  auth,
+  authorize("admin"),
+  getCleaners
+);
+
+// @route   GET /api/admin/reviews/stats
+// @desc    Get admin review statistics
+// @access  Private (Admin only)
+router.get("/reviews/stats", auth, authorize("admin"), getAdminReviewStats);
+
+// @route   GET /api/admin/reviews
+// @desc    Get all admin reviews with pagination
+// @access  Private (Admin only)
+router.get("/reviews", auth, authorize("admin"), getAdminReviews);
+
+// @route   POST /api/admin/reviews
+// @desc    Create a new admin review
+// @access  Private (Admin only)
+router.post("/reviews", auth, authorize("admin"), createAdminReview);
+
+// @route   PUT /api/admin/reviews/:id
+// @desc    Update an admin review
+// @access  Private (Admin only)
+router.put("/reviews/:id", auth, authorize("admin"), updateAdminReview);
+
+// @route   DELETE /api/admin/reviews/:id
+// @desc    Delete an admin review
+// @access  Private (Admin only)
+router.delete("/reviews/:id", auth, authorize("admin"), deleteAdminReview);
 
 // @route   GET /api/admin/users-with-membership
 // @desc    Get all users with membership status

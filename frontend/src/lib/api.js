@@ -168,7 +168,7 @@ export const userAPI = {
   changePassword: (data) => enhancedApi.put("/users/change-password", data),
   getUserBookings: (params) => enhancedApi.get("/users/bookings", { params }),
   getUserReviews: (params) => enhancedApi.get("/users/reviews", { params }),
-  getNearbyCleaners: (query) => 
+  getNearbyCleaners: (query) =>
     enhancedApi.get(`users/nearby-cleaners${query}`),
 };
 
@@ -280,6 +280,15 @@ export const adminAPI = {
   // Review management
   getReviews: (params) => enhancedApi.get("/admin/reviews", { params }),
   deleteReview: (id) => enhancedApi.delete(`/admin/reviews/${id}`),
+
+  // Admin Reviews Management (separate system)
+  getCleaners: () => enhancedApi.get("/admin/reviews/cleaners"),
+  getAdminReviewStats: () => enhancedApi.get("/admin/reviews/stats"),
+  getAdminReviews: (params) => enhancedApi.get("/admin/reviews", { params }),
+  createAdminReview: (data) => enhancedApi.post("/admin/reviews", data),
+  updateAdminReview: (id, data) =>
+    enhancedApi.put(`/admin/reviews/${id}`, data),
+  deleteAdminReview: (id) => enhancedApi.delete(`/admin/reviews/${id}`),
 
   // Freelancer management
   getPendingFreelancers: (params) =>

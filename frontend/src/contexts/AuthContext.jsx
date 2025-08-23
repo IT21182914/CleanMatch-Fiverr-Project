@@ -12,8 +12,10 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = () => {
       try {
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-        const userData = localStorage.getItem("user") || sessionStorage.getItem("user");
+        const token =
+          localStorage.getItem("token") || sessionStorage.getItem("token");
+        const userData =
+          localStorage.getItem("user") || sessionStorage.getItem("user");
 
         if (token && userData) {
           setUser(JSON.parse(userData));
@@ -33,20 +35,27 @@ const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       console.log("🚀 Starting login process...");
-      console.log("API URL:", import.meta.env.VITE_API_URL || "http://localhost:5000/api");
-      console.log("Credentials being sent:", { email: credentials.email, hasPassword: !!credentials.password, rememberMe: credentials.rememberMe });
-      
+      console.log(
+        "API URL:",
+        import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+      );
+      console.log("Credentials being sent:", {
+        email: credentials.email,
+        hasPassword: !!credentials.password,
+        rememberMe: credentials.rememberMe,
+      });
+
       const response = await authAPI.login(credentials);
       console.log("✅ Login response received:", response.data);
-      
+
       const { token, refreshToken, user: userData } = response.data;
 
       // Store in localStorage or sessionStorage based on rememberMe
       const storage = credentials.rememberMe ? localStorage : sessionStorage;
-      
+
       storage.setItem("token", token);
       storage.setItem("user", JSON.stringify(userData));
-      
+
       if (refreshToken) {
         storage.setItem("refreshToken", refreshToken);
       }
@@ -69,12 +78,22 @@ const AuthProvider = ({ children }) => {
 
       // Provide more specific error messages
       let errorMessage = parsedError.message;
-      if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network Error')) {
-        errorMessage = "Network connection failed. Please check your internet connection and try again.";
-      } else if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
-        errorMessage = "Unable to connect to server. Please ensure the backend server is running.";
+      if (
+        error.code === "NETWORK_ERROR" ||
+        error.message?.includes("Network Error")
+      ) {
+        errorMessage =
+          "Network connection failed. Please check your internet connection and try again.";
+      } else if (
+        error.code === "ECONNREFUSED" ||
+        error.message?.includes("ECONNREFUSED")
+      ) {
+        errorMessage =
+          "Unable to connect to server. Please ensure the backend server is running.";
       } else if (parsedError.statusCode === 400) {
-        errorMessage = parsedError.message || "Invalid login credentials. Please check your email and password.";
+        errorMessage =
+          parsedError.message ||
+          "Invalid login credentials. Please check your email and password.";
       }
 
       console.error("❌ Final error message:", errorMessage);
@@ -89,14 +108,17 @@ const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      console.log("Attempting registration with API URL:", import.meta.env.VITE_API_URL || "http://localhost:5000/api");
+      console.log(
+        "Attempting registration with API URL:",
+        import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+      );
       const response = await authAPI.register(userData);
       const { token, refreshToken, user: newUser } = response.data;
 
       // Store in localStorage by default for registration (user likely wants to stay logged in)
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(newUser));
-      
+
       if (refreshToken) {
         localStorage.setItem("refreshToken", refreshToken);
       }
@@ -119,10 +141,18 @@ const AuthProvider = ({ children }) => {
 
       // Provide more specific error messages
       let errorMessage = parsedError.message;
-      if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network Error')) {
-        errorMessage = "Network connection failed. Please check your internet connection and try again.";
-      } else if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
-        errorMessage = "Unable to connect to server. Please ensure the backend server is running.";
+      if (
+        error.code === "NETWORK_ERROR" ||
+        error.message?.includes("Network Error")
+      ) {
+        errorMessage =
+          "Network connection failed. Please check your internet connection and try again.";
+      } else if (
+        error.code === "ECONNREFUSED" ||
+        error.message?.includes("ECONNREFUSED")
+      ) {
+        errorMessage =
+          "Unable to connect to server. Please ensure the backend server is running.";
       }
 
       return {
@@ -143,7 +173,7 @@ const AuthProvider = ({ children }) => {
       sessionStorage.removeItem("token");
       sessionStorage.removeItem("user");
       sessionStorage.removeItem("refreshToken");
-      
+
       setUser(null);
       setIsAuthenticated(false);
       return { success: true };
@@ -168,6 +198,38 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+  const getToken = () => {
+    try {
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
+      if (!token) {
+        console.warn("No token found in storage");
+        return null;
+      }
+
+      // Check if token is expired
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const currentTime = Math.floor(Date.now() / 1000);
+
+        if (payload.exp && payload.exp < currentTime) {
+          console.warn("Token has expired, logging out");
+          logout();
+          return null;
+        }
+
+        return token;
+      } catch (parseError) {
+        console.error("Error parsing token:", parseError);
+        logout();
+        return null;
+      }
+    } catch (error) {
+      console.error("Error getting token:", error);
+      return null;
+    }
+  };
+
   const value = {
     user,
     isAuthenticated,
@@ -176,6 +238,7 @@ const AuthProvider = ({ children }) => {
     register,
     logout,
     updateUser,
+    getToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
