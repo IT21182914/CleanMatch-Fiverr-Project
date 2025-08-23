@@ -306,6 +306,7 @@ const BookService = () => {
       setLoading(true);
       setServiceError(null);
 
+      // Fetch all services (backend now defaults to limit=50)
       const response = await servicesAPI.getAll();
       let servicesData = [];
       if (response.data?.data) {
