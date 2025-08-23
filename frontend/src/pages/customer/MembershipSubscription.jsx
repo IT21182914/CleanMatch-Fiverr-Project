@@ -21,6 +21,7 @@ import PaymentForm from "../../components/payment/PaymentForm";
 import { membershipAPI } from "../../lib/api";
 import { formatCurrency } from "../../lib/utils";
 import { useToast } from "../../hooks/useToast";
+import { useMembership } from "../../hooks/useMembership";
 
 const MembershipSubscription = () => {
   const [plans, setPlans] = useState({});
@@ -33,6 +34,7 @@ const MembershipSubscription = () => {
   const [paymentStep, setPaymentStep] = useState(false);
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const { membership, loading: membershipLoading } = useMembership();
 
   const fetchPlans = useCallback(async () => {
     try {
@@ -54,6 +56,13 @@ const MembershipSubscription = () => {
   useEffect(() => {
     fetchPlans();
   }, [fetchPlans]);
+  
+  // Update selected tier if user has an active membership
+  useEffect(() => {
+    if (membership?.status === "active" && plans[membership.tier]) {
+      setSelectedTier(membership.tier);
+    }
+  }, [membership, plans]);
 
   const handleContinueToPayment = async () => {
     try {
@@ -64,6 +73,33 @@ const MembershipSubscription = () => {
         setError("Please select a membership plan");
         setSubscribing(false);
         return;
+      }
+      
+      // Handle plan selection based on current membership status
+      if (membership?.status === "active") {
+        // Case 1: User is trying to activate the same plan
+        if (membership.tier === selectedTier) {
+          setError("You already have this membership plan active.");
+          setSubscribing(false);
+          return;
+        }
+        
+        // Case 2: User is trying to downgrade from annual to monthly
+        if (membership.tier === "supersaver_year" && selectedTier === "supersaver_month") {
+          setError("You cannot downgrade from annual to monthly plan while your annual plan is active. You may cancel your annual plan and subscribe to monthly after it expires.");
+          setSubscribing(false);
+          return;
+        }
+        
+        // Case 3: User is upgrading from monthly to annual - this is allowed
+        if (membership.tier === "supersaver_month" && selectedTier === "supersaver_year") {
+          // Show a confirmation dialog
+          if (!window.confirm("You are about to upgrade from a monthly to an annual plan. Your current monthly plan will be cancelled. Do you want to continue?")) {
+            setSubscribing(false);
+            return;
+          }
+          // If user confirms, proceed with the upgrade
+        }
       }
 
       const response = await membershipAPI.subscribe({
@@ -88,7 +124,21 @@ const MembershipSubscription = () => {
       setPaymentStep(true);
     } catch (error) {
       console.error("Error creating subscription:", error);
-      setError(error.response?.data?.error || "Failed to create subscription. Please try again.");
+      
+      // Handle specific error messages from backend
+      const errorMessage = error.response?.data?.error || "Failed to create subscription. Please try again.";
+      
+      // Map error messages to more user-friendly versions
+      if (errorMessage.includes("Cannot downgrade")) {
+        setError("You cannot downgrade from annual to monthly plan while your annual plan is active. You may cancel your annual plan and subscribe to monthly after it expires.");
+      } else if (errorMessage.includes("already has this membership tier active")) {
+        setError("You already have this membership plan active.");
+      } else if (errorMessage.includes("already has an active membership")) {
+        setError("You already have an active membership. Please cancel it before subscribing to a different plan.");
+      } else {
+        setError(errorMessage);
+      }
+      
       if (error.response?.data?.details) {
         console.error("Error details:", error.response.data.details);
       }
@@ -161,7 +211,7 @@ const MembershipSubscription = () => {
     }
   };
 
-  if (loading) {
+  if (loading || membershipLoading) {
     return <ModernPageLoader message="Loading membership plans..." />;
   }
 
@@ -279,7 +329,7 @@ const MembershipSubscription = () => {
                     {plan.isRecurring ? "Monthly fee:" : "One-time fee:"}
                   </span>
                   <span className="text-lg font-bold text-blue-600">
-                    {formatCurrency(plan.isRecurring ? plan.monthlyFee : plan.fee || 0)}
+                    ${selectedTier === 'supersaver_month' ? '49' : '499'}
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-0.5">
@@ -319,13 +369,13 @@ const MembershipSubscription = () => {
 
   // Main plan selection view
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="text-center">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
           Choose Your Membership Plan
         </h1>
-        <p className="text-lg text-gray-600 mb-6">
+        <p className="text-lg text-gray-600 mb-4">
           Join CleanMatch and save up to 50% on all cleaning services
         </p>
       </div>
@@ -357,202 +407,149 @@ const MembershipSubscription = () => {
       </div>
       
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {Object.entries(plans).map(([tier, plan]) => (
-          <Card
-            key={tier}
-            className={`relative cursor-pointer transition-all duration-200 hover:shadow-lg border-2 ${selectedTier === tier
-                ? `border-${tier === 'supersaver_month' ? 'blue' : 'green'}-400 ring-2 ring-${tier === 'supersaver_month' ? 'blue' : 'green'}-300`
-                : 'border-gray-200'
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {Object.entries(plans).map(([tier, plan]) => {
+          // Check if this is the user's active membership
+          const isActive = membership?.tier === tier && membership?.status === "active";
+          
+          return (
+            <Card
+              key={tier}
+              className={`relative cursor-pointer transition-all duration-200 hover:shadow-lg border-2 ${
+                isActive 
+                  ? 'border-green-500 ring-2 ring-green-300' 
+                  : selectedTier === tier
+                    ? `border-${tier === 'supersaver_month' ? 'blue' : 'green'}-400 ring-2 ring-${tier === 'supersaver_month' ? 'blue' : 'green'}-300`
+                    : 'border-gray-200'
               }`}
-            onClick={() => setSelectedTier(tier)}
-          >
-            {tier === "premium" && (
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Most Popular
-                </span>
-              </div>
-            )}
-
-            <CardHeader className="text-center">
-              <div className="flex justify-center mb-3">
-                {getTierIcon(tier)}
-              </div>
-              <CardTitle className="text-xl font-bold">
-                {tier === 'supersaver_month' ? 'Monthly Plan' : 'Annual Plan'}
-              </CardTitle>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gray-900 mb-2">
-                  {formatCurrency(tier === 'supersaver_month' ? 49 : 499)}
-                  <span className="text-base font-normal text-gray-600">
-                    {isRecurring ? (tier === 'supersaver_month' ? '/mo' : '/yr') : ' one-time'}
+              onClick={() => {
+                // Only allow selection if:
+                // 1. The plan is not already active
+                // 2. Not downgrading from annual to monthly
+                const isDowngrading = membership?.tier === "supersaver_year" && tier === "supersaver_month" && membership?.status === "active";
+                if (!isActive && !isDowngrading) {
+                  setSelectedTier(tier);
+                }
+              }}
+            >
+              {isActive && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    Current Active Plan
                   </span>
                 </div>
-                <div
-                  className={`inline-flex px-3 py-1 rounded-full text-sm font-medium text-white bg-gradient-to-r ${getTierGradient(
-                    tier
-                  )}`}
-                >
-                  Save {plan.discountPercentage}% on services
-                </div>
-                {plan.badge && (
-                  <div className="mt-2">
-                    <span className="bg-gray-100 px-2 py-1 rounded-md text-xs text-gray-800 font-medium">
-                      {plan.badge}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </CardHeader>
-
-            <CardContent>
-              <ul className="space-y-2">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700 text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-
-            <CardFooter className="pt-0">
-              {selectedTier === tier && (
-                <div
-                  className={`w-full bg-gradient-to-r ${getTierGradient(
-                    tier
-                  )} text-white p-2 rounded-md text-center font-medium text-sm`}
-                >
-                  Selected Plan
+              )}
+              {/* Show upgrade badge for annual plan if user has monthly active */}
+              {tier === "supersaver_year" && membership?.tier === "supersaver_month" && membership?.status === "active" && !isActive && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    Upgrade Available
+                  </span>
                 </div>
               )}
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+              {/* Show locked badge for monthly plan if user has annual active */}
+              {tier === "supersaver_month" && membership?.tier === "supersaver_year" && membership?.status === "active" && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    Not Available
+                  </span>
+                </div>
+              )}
+              {tier === "premium" && !isActive && !membership?.status && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    Most Popular
+                  </span>
+                </div>
+              )}
 
-      {/* Benefits and Trust Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        {/* Benefits */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Membership Benefits
-            </h2>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <div className="bg-blue-100 rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">
-                  <SparklesIcon className="h-4 w-4 text-blue-600" />
+              <CardHeader className="text-center py-3">
+                <div className="flex justify-center mb-2">
+                  {getTierIcon(tier)}
                 </div>
-                <div>
-                  <h3 className="font-medium mb-1">Exclusive Discounts</h3>
-                  <p className="text-sm text-gray-600">
-                    Save up to 50% on every cleaning service with automatic member pricing
-                  </p>
+                <CardTitle className="text-lg font-bold mb-0">
+                  {tier === 'supersaver_month' ? 'Monthly Plan' : 'Annual Plan'}
+                </CardTitle>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900 mb-1">
+                    ${tier === 'supersaver_month' ? '49' : '499'}
+                    <span className="text-sm font-normal text-gray-600">
+                      {isRecurring ? (tier === 'supersaver_month' ? '/mo' : '/yr') : ' one-time'}
+                    </span>
+                  </div>
+                  <div
+                    className={`inline-flex px-2 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r ${getTierGradient(
+                      tier
+                    )}`}
+                  >
+                    Save {plan.discountPercentage}% on services
+                  </div>
                 </div>
-              </li>
-              <li className="flex items-start">
-                <div className="bg-green-100 rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">
-                  <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium mb-1">Priority Service</h3>
-                  <p className="text-sm text-gray-600">
-                    Get first access to booking slots and priority customer support
-                  </p>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <div className="bg-purple-100 rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">
-                  <StarIcon className="h-4 w-4 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium mb-1">Flexible Membership</h3>
-                  <p className="text-sm text-gray-600">
-                    Cancel anytime with no fees. Benefits continue until your billing period ends
-                  </p>
-                </div>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
+              </CardHeader>
 
-        {/* Trust and Security */}
-        <Card className="bg-gradient-to-r from-gray-50 to-gray-100">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Secure Membership
-            </h2>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <div className="bg-green-100 rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">
-                  <FaShieldAlt className="h-4 w-4 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium mb-1">Secure Payment</h3>
-                  <p className="text-sm text-gray-600">
-                    All payments are encrypted and secured with Stripe
-                  </p>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <div className="bg-blue-100 rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">
-                  <CheckCircleIcon className="h-4 w-4 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium mb-1">30-Day Guarantee</h3>
-                  <p className="text-sm text-gray-600">
-                    Try our membership risk-free with our 30-day money-back guarantee
-                  </p>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <div className="bg-indigo-100 rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">
-                  <StarIcon className="h-4 w-4 text-indigo-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium mb-1">Easy Management</h3>
-                  <p className="text-sm text-gray-600">
-                    Update, pause, or cancel your membership anytime from your account dashboard
-                  </p>
-                </div>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
+              <CardContent className="pt-0 pb-2">
+                <ul className="space-y-1">
+                  {plan.features.slice(0, 4).map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <CheckCircleIcon className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700 text-xs">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+
+              <CardFooter className="pt-0">
+                {isActive ? (
+                  <div className="w-full bg-green-500 text-white p-2 rounded-md text-center font-medium text-xs">
+                    Already Active
+                  </div>
+                ) : membership?.tier === "supersaver_year" && tier === "supersaver_month" && membership?.status === "active" ? (
+                  <div className="w-full bg-gray-500 text-white p-2 rounded-md text-center font-medium text-xs">
+                    Cannot Downgrade
+                  </div>
+                ) : membership?.tier === "supersaver_month" && tier === "supersaver_year" && membership?.status === "active" ? (
+                  <div className="w-full bg-blue-500 text-white p-2 rounded-md text-center font-medium text-xs">
+                    Upgrade Available
+                  </div>
+                ) : selectedTier === tier && (
+                  <div
+                    className={`w-full bg-gradient-to-r ${getTierGradient(
+                      tier
+                    )} text-white p-2 rounded-md text-center font-medium text-xs`}
+                  >
+                    Selected Plan
+                  </div>
+                )}
+              </CardFooter>
+            </Card>
+          );
+        })}
       </div>
 
       {/* CTA */}
-      <div className="text-center mt-8 pb-10">
+      <div className="text-center mt-6 pb-6">
         <Button
           onClick={handleContinueToPayment}
           loading={subscribing}
-          className="px-8 py-3 text-lg"
-          size="lg"
+          disabled={
+            (membership?.tier === selectedTier && membership?.status === "active") || 
+            (membership?.tier === "supersaver_year" && selectedTier === "supersaver_month" && membership?.status === "active")
+          }
+          className="px-6 py-2"
+          size="md"
         >
-          {`Continue with ${selectedTier === 'supersaver_month' ? 'Monthly' : 'Annual'} Plan - 
-          ${formatCurrency(selectedTier === 'supersaver_month' ? 49 : 499)}
-          ${isRecurring 
-            ? (selectedTier === 'supersaver_month' ? '/month' : '/year') 
-            : ' one-time'}`
+          {membership?.tier === selectedTier && membership?.status === "active" 
+            ? "Already Subscribed" 
+            : membership?.tier === "supersaver_year" && selectedTier === "supersaver_month" && membership?.status === "active"
+              ? "Cannot Downgrade to Monthly"
+              : membership?.tier === "supersaver_month" && selectedTier === "supersaver_year" && membership?.status === "active"
+                ? `Upgrade to Annual Plan - $499` 
+                : `Continue with ${selectedTier === 'supersaver_month' ? 'Monthly' : 'Annual'} Plan - $${selectedTier === 'supersaver_month' ? '49' : '499'}`
           }
         </Button>
-        <p className="text-sm text-gray-500 mt-4">
+        <p className="text-xs text-gray-500 mt-3">
           No setup fees • {isRecurring ? 'Cancel anytime' : 'No auto-renewal'} • 30-day money-back guarantee
         </p>
-        <div className="mt-8 border-t border-gray-200 pt-6">
-          <p className="text-sm text-gray-600 mb-2">Looking for more flexibility?</p>
-          <a 
-            href="/customer/custom-membership" 
-            className="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center"
-          >
-            <span>Create your own custom membership</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </a>
-        </div>
       </div>
     </div>
   );

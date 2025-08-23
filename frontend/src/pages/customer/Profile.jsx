@@ -415,7 +415,10 @@ const Profile = () => {
       </Card>
 
       {/* Membership */}
-      <MembershipCard />
+      <div>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Your Membership</h2>
+        <MembershipCard />
+      </div>
 
       {/* Account Information */}
       <Card>

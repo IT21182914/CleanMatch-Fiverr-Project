@@ -104,10 +104,28 @@ const subscribeToMembership = async (req, res) => {
     );
 
     if (existingMembership.rows.length > 0) {
-      return res.status(400).json({
-        success: false,
-        error: "User already has an active membership",
-      });
+      const currentTier = existingMembership.rows[0].tier;
+      
+      // Allow upgrade from monthly to yearly plan, but not downgrade
+      if (currentTier === "supersaver_month" && tier === "supersaver_year") {
+        // Allow upgrade - we'll cancel the old subscription later in this function
+        console.log("Upgrading user from monthly to yearly plan");
+      } else if (currentTier === "supersaver_year" && tier === "supersaver_month") {
+        return res.status(400).json({
+          success: false,
+          error: "Cannot downgrade from annual to monthly plan while annual plan is active",
+        });
+      } else if (currentTier === tier) {
+        return res.status(400).json({
+          success: false,
+          error: "User already has this membership tier active",
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: "User already has an active membership",
+        });
+      }
     }
 
     // Get user details
@@ -128,6 +146,33 @@ const subscribeToMembership = async (req, res) => {
 
     const plan = MEMBERSHIP_PLANS[tier];
     let stripePayment, membershipResult;
+    
+    // Handle case where user is upgrading from monthly to annual plan
+    if (existingMembership?.rows?.length > 0 && 
+        existingMembership.rows[0].tier === "supersaver_month" && 
+        tier === "supersaver_year") {
+      
+      // Cancel the current monthly subscription in Stripe
+      const currentSubscriptionId = existingMembership.rows[0].stripe_subscription_id;
+      try {
+        await stripe.subscriptions.cancel(currentSubscriptionId, {
+          prorate: true,
+          invoice_now: false
+        });
+        
+        // Mark the old subscription as cancelled in our database
+        await query(
+          `UPDATE memberships 
+           SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP,
+           cancellation_reason = 'Upgraded to annual plan'
+           WHERE id = $1`,
+          [existingMembership.rows[0].id]
+        );
+      } catch (cancelError) {
+        console.error("Error cancelling previous subscription during upgrade:", cancelError);
+        // Continue with the upgrade even if there was an issue cancelling the old subscription
+      }
+    }
     
     // Get appropriate price ID based on the recurring flag
     const priceId = isRecurring ? plan.stripePriceIds.recurring : plan.stripePriceIds.oneTime;
@@ -339,33 +384,61 @@ const cancelMembership = async (req, res) => {
 
     const membership = membershipResult.rows[0];
 
-    // Update subscription in Stripe
-    const updatedSubscription = await stripe.subscriptions.update(
-      membership.stripe_subscription_id,
-      {
-        cancel_at_period_end: cancelAtPeriodEnd,
-        metadata: {
-          cancellation_reason: reason || "User requested cancellation",
-        },
-      }
-    );
+    // Check if this is a recurring or one-time membership
+    const isRecurring = membership.auto_renewal;
 
-    // Update database
-    await query(
-      `UPDATE memberships 
-       SET cancel_at_period_end = $1, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $2`,
-      [cancelAtPeriodEnd, membership.id]
-    );
+    if (isRecurring) {
+      // For recurring subscriptions, update in Stripe
+      try {
+        const updatedSubscription = await stripe.subscriptions.update(
+          membership.stripe_subscription_id,
+          {
+            cancel_at_period_end: cancelAtPeriodEnd,
+            metadata: {
+              cancellation_reason: reason || "User requested cancellation",
+            },
+          }
+        );
+
+        // Update database
+        await query(
+          `UPDATE memberships 
+          SET cancel_at_period_end = $1, updated_at = CURRENT_TIMESTAMP, cancellation_reason = $3
+          WHERE id = $2`,
+          [cancelAtPeriodEnd, membership.id, reason || "User requested cancellation"]
+        );
+      } catch (stripeError) {
+        console.error("Error updating Stripe subscription:", stripeError);
+        
+        // If the subscription doesn't exist in Stripe anymore, still update our database
+        if (stripeError.code === 'resource_missing') {
+          await query(
+            `UPDATE memberships 
+            SET cancel_at_period_end = true, updated_at = CURRENT_TIMESTAMP, cancellation_reason = $2
+            WHERE id = $1`,
+            [membership.id, reason || "User requested cancellation"]
+          );
+        } else {
+          throw stripeError; // Re-throw if it's a different error
+        }
+      }
+    } else {
+      // For one-time memberships, just update our database - no refunds as per requirements
+      await query(
+        `UPDATE memberships 
+        SET cancel_at_period_end = true, updated_at = CURRENT_TIMESTAMP, cancellation_reason = $2
+        WHERE id = $1`,
+        [membership.id, reason || "User requested cancellation"]
+      );
+    }
 
     res.json({
       success: true,
-      message: cancelAtPeriodEnd
-        ? "Membership will cancel at the end of the current period"
-        : "Membership cancellation removed",
+      message: "Membership will cancel at the end of the current period. No refunds will be issued.",
       membership: {
         ...membership,
-        cancel_at_period_end: cancelAtPeriodEnd,
+        cancel_at_period_end: true,
+        cancellation_reason: reason || "User requested cancellation"
       },
     });
   } catch (error) {
