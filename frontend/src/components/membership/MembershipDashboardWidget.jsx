@@ -122,14 +122,22 @@ const MembershipDashboardWidget = ({ className = "" }) => {
         })}
       </div>
 
-      {/* CTA Button */}
-      <div className="relative z-10">
+      {/* CTA Buttons */}
+      <div className="relative z-10 space-y-3">
         <button
           onClick={handleUpgrade}
           className="w-full bg-white hover:bg-gray-50 text-[#2BA8CD] font-bold py-4 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg flex items-center justify-center group"
         >
           <span className="text-lg">Start Saving Today</span>
           <ArrowRightIcon className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+        </button>
+        
+        <button
+          onClick={() => navigate("/customer/custom-membership")}
+          className="w-full bg-transparent border border-white/30 hover:bg-white/10 text-white font-medium py-2 px-6 rounded-xl transition-all duration-300 flex items-center justify-center group"
+        >
+          <span>Create Custom Membership</span>
+          <ArrowRightIcon className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
         </button>
       </div>
 

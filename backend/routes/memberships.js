@@ -10,6 +10,7 @@ const {
   calculateMembershipPricing,
   getMembershipAnalytics,
   getAllMemberships,
+  activateMembership,
 } = require("../controllers/membershipController");
 
 const router = express.Router();
@@ -43,6 +44,11 @@ router.put("/reactivate", auth, authorize("customer"), reactivateMembership);
 // @desc    Update membership payment method
 // @access  Private (Customers only)
 router.put("/payment-method", auth, authorize("customer"), updatePaymentMethod);
+
+// @route   PUT /api/memberships/activate
+// @desc    Activate membership after successful payment
+// @access  Private (Customers only)
+router.put("/activate", auth, authorize("customer"), activateMembership);
 
 // @route   POST /api/memberships/calculate-pricing
 // @desc    Calculate pricing with membership discount

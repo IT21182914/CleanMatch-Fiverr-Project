@@ -211,6 +211,7 @@ app.use("/api/services", serviceRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/memberships", membershipRoutes);
+app.use("/api/dynamic-pricing", require("./routes/dynamic-pricing"));
 app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/offers", offersRoutes);

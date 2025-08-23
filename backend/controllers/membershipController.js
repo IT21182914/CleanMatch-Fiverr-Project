@@ -2,27 +2,62 @@ const { query } = require("../config/database");
 const {
   createSubscription,
   createStripeCustomer,
+  createOneTimePayment,
   stripe,
 } = require("../utils/stripe");
 
-// CleanMatch membership plans configuration - SuperSaver only
+// CleanMatch membership plans configuration
 const MEMBERSHIP_PLANS = {
-  supersaver: {
+  // Monthly Plans
+  supersaver_month: {
     name: "SuperSaver Monthly",
-    monthlyFee: 59.0,
+    monthlyFee: 49.0,
+    fee: 49.0,
+    duration: 30, // days
     discountPercentage: 50.0,
-    stripePriceId: process.env.STRIPE_SUPERSAVER_PRICE_ID,
     features: [
       "50% discount on all cleaning services",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
       "Flexible scheduling",
-      "Money-back guarantee",
+      "30-day access",
     ],
     popular: true,
     tagline: "Save 50% on every service",
     badge: "Most Popular",
+    canBeRecurring: true,
+    recurringInterval: 'month',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_SUPERSAVER_PRICE_ID_RECURRENT_MONTH,
+      oneTime: process.env.STRIPE_SUPERSAVER_PRICE_ID_ONE_TIME_MONTH
+    }
+  },
+  
+  // Annual Plans
+  supersaver_year: {
+    name: "SuperSaver Annual",
+    monthlyFee: 499.0 / 12, // For display purposes
+    fee: 499.0,
+    duration: 365, // days
+    discountPercentage: 50.0,
+    features: [
+      "50% discount on all cleaning services",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "365-day access",
+      "Best value"
+    ],
+    tagline: "Save 50% on every service for a full year",
+    badge: "Best Value",
+    canBeRecurring: true,
+    recurringInterval: 'year',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_SUPERSAVER_PRICE_ID_RECURRENT_YEAR,
+      oneTime: process.env.STRIPE_SUPERSAVER_PRICE_ID_ONE_TIME_YEAR
+    }
   },
 };
 
@@ -53,7 +88,7 @@ const getMembershipPlans = async (req, res) => {
  */
 const subscribeToMembership = async (req, res) => {
   try {
-    const { tier = "supersaver", paymentMethodId } = req.body;
+    const { tier = "supersaver_month", paymentMethodId, isRecurring = false } = req.body;
 
     if (!MEMBERSHIP_PLANS[tier]) {
       return res.status(400).json({
@@ -92,48 +127,119 @@ const subscribeToMembership = async (req, res) => {
     }
 
     const plan = MEMBERSHIP_PLANS[tier];
-
-    // Create Stripe subscription
-    const subscription = await createSubscription({
-      customerId: stripeCustomerId,
-      priceId: plan.stripePriceId,
-      userId: req.user.id,
-      paymentMethodId,
-    });
-
-    // Create membership record in database
-    const membershipResult = await query(
-      `INSERT INTO memberships (
-        user_id, plan_name, tier, monthly_fee, discount_percentage,
-        stripe_subscription_id, status, start_date, current_period_start, 
-        current_period_end
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [
-        req.user.id,
-        plan.name,
-        tier,
-        plan.monthlyFee,
-        plan.discountPercentage,
-        subscription.id,
-        subscription.status,
-        new Date(),
-        new Date(subscription.current_period_start * 1000),
-        new Date(subscription.current_period_end * 1000),
-      ]
-    );
-
-    res.status(201).json({
-      success: true,
-      membership: membershipResult.rows[0],
-      subscription_id: subscription.id,
-      client_secret: subscription.latest_invoice?.payment_intent?.client_secret,
-      status: subscription.status,
-    });
+    let stripePayment, membershipResult;
+    
+    // Get appropriate price ID based on the recurring flag
+    const priceId = isRecurring ? plan.stripePriceIds.recurring : plan.stripePriceIds.oneTime;
+    
+    // Handle different payment types based on isRecurring parameter
+    if (isRecurring) {
+      // Create Stripe subscription for recurring plans
+      const subscription = await createSubscription({
+        customerId: stripeCustomerId,
+        priceId: priceId,
+        userId: req.user.id,
+        paymentMethodId,
+      });
+      
+      stripePayment = subscription;
+      
+      // Create membership record in database for recurring plan
+      membershipResult = await query(
+        `INSERT INTO memberships (
+          user_id, plan_name, tier, monthly_fee, discount_percentage,
+          stripe_subscription_id, status, start_date, current_period_start, 
+          current_period_end, auto_renewal
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+        [
+          req.user.id,
+          plan.name + (tier.includes('year') ? ' (Annual)' : ' (Monthly)'),
+          tier,
+          plan.monthlyFee,
+          plan.discountPercentage,
+          subscription.id,
+          'active',
+          new Date(),
+          new Date(subscription.current_period_start * 1000),
+          new Date(subscription.current_period_end * 1000),
+          true // Auto renewal is true for recurring plans
+        ]
+      );
+      
+      res.status(201).json({
+        success: true,
+        membership: membershipResult.rows[0],
+        subscription_id: subscription.id,
+        client_secret: subscription.latest_invoice?.payment_intent?.client_secret,
+        status: subscription.status,
+        paymentType: 'recurring',
+        isRecurring: true
+      });
+      
+    } else {
+      // Create one-time payment for non-recurring plans
+      const paymentIntent = await createOneTimePayment({
+        customerId: stripeCustomerId,
+        amount: plan.fee,
+        userId: req.user.id,
+        description: `CleanMatch ${plan.name} ${tier.includes('year') ? 'Annual' : 'Monthly'} Membership (One-time)`,
+        metadata: {
+          tier: tier,
+          user_id: req.user.id,
+          isRecurring: false
+        }
+      });
+      
+      stripePayment = paymentIntent;
+      
+      // Calculate period end date (current date + duration days)
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + plan.duration);
+      
+      // Create membership record in database for one-time plan
+      // We're using stripe_subscription_id to store the payment intent ID for one-time payments
+      membershipResult = await query(
+        `INSERT INTO memberships (
+          user_id, plan_name, tier, monthly_fee, discount_percentage,
+          stripe_subscription_id, status, start_date, current_period_start, 
+          current_period_end, auto_renewal, cancel_at_period_end
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+        [
+          req.user.id,
+          plan.name + (tier.includes('year') ? ' (Annual)' : ' (Monthly)') + ' (One-time)',
+          tier,
+          plan.fee,
+          plan.discountPercentage,
+          paymentIntent.id,
+          'active',
+          startDate,
+          startDate,
+          endDate,
+          false,
+          true  // One-time memberships will cancel at period end automatically
+        ]
+      );
+      
+      res.status(201).json({
+        success: true,
+        membership: membershipResult.rows[0],
+        payment_intent_id: paymentIntent.id,
+        client_secret: paymentIntent.client_secret,
+        status: paymentIntent.status,
+        paymentType: 'one-time',
+        isRecurring: false,
+        // Include these fields to maintain compatibility with subscription responses
+        subscription_id: paymentIntent.id
+      });
+    }
+    
   } catch (error) {
     console.error("Subscribe to membership error:", error);
     res.status(500).json({
       success: false,
       error: "Server error creating membership subscription",
+      details: error.message
     });
   }
 };
@@ -617,6 +723,75 @@ const getAllMemberships = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Activate membership after successful payment
+ * @route   PUT /api/memberships/activate
+ * @access  Private (Customers only)
+ */
+const activateMembership = async (req, res) => {
+  try {
+    const { tier = "supersaver" } = req.body;
+    
+    // Find the most recent membership with pending status for the user
+    const membershipResult = await query(
+      `SELECT * FROM memberships 
+       WHERE user_id = $1 AND tier = $2
+       ORDER BY created_at DESC LIMIT 1`,
+      [req.user.id, tier]
+    );
+
+    if (membershipResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "No membership found to activate",
+      });
+    }
+
+    const membership = membershipResult.rows[0];
+    
+    // Update the membership status to active
+    await query(
+      `UPDATE memberships 
+       SET status = 'active', updated_at = CURRENT_TIMESTAMP
+       WHERE id = $1`,
+      [membership.id]
+    );
+
+    // Check if there is a Stripe subscription ID
+    if (membership.stripe_subscription_id) {
+      // Verify subscription status in Stripe
+      const subscription = await stripe.subscriptions.retrieve(
+        membership.stripe_subscription_id
+      );
+      
+      if (subscription.status === 'incomplete') {
+        // Update the subscription status in Stripe if needed
+        await stripe.subscriptions.update(membership.stripe_subscription_id, {
+          metadata: {
+            payment_verified: 'true',
+            activated_at: new Date().toISOString()
+          }
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      message: "Membership activated successfully",
+      membership: {
+        ...membership,
+        status: 'active'
+      }
+    });
+  } catch (error) {
+    console.error("Activate membership error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error activating membership",
+    });
+  }
+};
+
 module.exports = {
   getMembershipPlans,
   subscribeToMembership,
@@ -628,5 +803,6 @@ module.exports = {
   recordMembershipUsage,
   getMembershipAnalytics,
   getAllMemberships,
+  activateMembership,
   MEMBERSHIP_PLANS,
 };

@@ -99,6 +99,36 @@ const createSubscription = async (subscriptionData) => {
 };
 
 /**
+ * Create one-time payment for membership
+ * @param {Object} paymentData - Payment data
+ * @returns {Object} Payment intent object
+ */
+const createOneTimePayment = async (paymentData) => {
+  try {
+    const { customerId, amount, userId, description, metadata = {} } = paymentData;
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      customer: customerId,
+      amount: amount * 100, // Convert to cents
+      currency: 'usd',
+      payment_method_types: ['card'],
+      capture_method: 'automatic',
+      description: description || 'One-time membership payment',
+      metadata: {
+        user_id: userId.toString(),
+        type: 'one_time_membership',
+        ...metadata
+      }
+    });
+
+    return paymentIntent;
+  } catch (error) {
+    console.error("Error creating one-time payment:", error);
+    throw error;
+  }
+};
+
+/**
  * Handle successful payment
  * @param {string} paymentIntentId - Stripe payment intent ID
  * @returns {boolean} Success status
@@ -108,13 +138,34 @@ const handleSuccessfulPayment = async (paymentIntentId) => {
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
     if (paymentIntent.status === "succeeded") {
+      // Check if this is a booking payment
       const bookingId = paymentIntent.metadata.booking_id;
-
-      // Update booking payment status
-      await query(
-        "UPDATE bookings SET payment_status = $1, stripe_payment_intent_id = $2 WHERE id = $3",
-        ["paid", paymentIntentId, bookingId]
-      );
+      if (bookingId) {
+        // Update booking payment status
+        await query(
+          "UPDATE bookings SET payment_status = $1, stripe_payment_intent_id = $2 WHERE id = $3",
+          ["paid", paymentIntentId, bookingId]
+        );
+      }
+      
+      // Check if this is a one-time membership payment
+      const userId = paymentIntent.metadata.user_id;
+      const tier = paymentIntent.metadata.tier;
+      
+      if (userId && tier && paymentIntent.description?.includes("Membership")) {
+        console.log(`Processing one-time membership payment for user ${userId}, tier: ${tier}`);
+        
+        // Update membership status to active if it was in trialing state
+        // Note: We're using stripe_subscription_id to store payment intent IDs for one-time payments
+        const membershipResult = await query(
+          "UPDATE memberships SET status = $1 WHERE stripe_subscription_id = $2 AND status = $3 RETURNING *",
+          ["active", paymentIntentId, "trialing"]
+        );
+        
+        if (membershipResult.rows.length > 0) {
+          console.log(`Successfully activated membership: ${membershipResult.rows[0].id}`);
+        }
+      }
 
       return true;
     }
@@ -310,13 +361,23 @@ const handleSubscriptionPayment = async (invoice) => {
       `💳 Processing successful subscription payment for user ${userId}`
     );
 
+    // Get the membership to activate
+    const membershipResult = await query(
+      `SELECT * FROM memberships WHERE stripe_subscription_id = $1`,
+      [subscription.id]
+    );
+    
+    if (membershipResult.rows.length === 0) {
+      console.error(`⚠️ No membership found for subscription ${subscription.id}`);
+      return;
+    }
+    
     // Update memberships table
     await query(
       `UPDATE memberships 
-       SET status = $1, current_period_start = $2, current_period_end = $3, updated_at = CURRENT_TIMESTAMP
-       WHERE stripe_subscription_id = $4`,
+       SET status = 'active', current_period_start = $1, current_period_end = $2, updated_at = CURRENT_TIMESTAMP
+       WHERE stripe_subscription_id = $3`,
       [
-        subscription.status,
         new Date(subscription.current_period_start * 1000),
         new Date(subscription.current_period_end * 1000),
         subscription.id,
@@ -517,6 +578,7 @@ module.exports = {
   createStripeCustomer,
   createPaymentIntent,
   createSubscription,
+  createOneTimePayment,
   handleSuccessfulPayment,
   processRefund,
   createConnectAccount,
