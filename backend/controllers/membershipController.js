@@ -144,6 +144,13 @@ const subscribeToMembership = async (req, res) => {
       
       stripePayment = subscription;
       
+      // Set initial status - Stripe subscriptions usually start as 'incomplete'
+      // until the first payment is confirmed
+      let status = 'unpaid';
+      if (subscription.status === 'active') {
+        status = 'active';
+      }
+      
       // Create membership record in database for recurring plan
       membershipResult = await query(
         `INSERT INTO memberships (
@@ -158,7 +165,7 @@ const subscribeToMembership = async (req, res) => {
           plan.monthlyFee,
           plan.discountPercentage,
           subscription.id,
-          'active',
+          status,
           new Date(),
           new Date(subscription.current_period_start * 1000),
           new Date(subscription.current_period_end * 1000),
@@ -166,15 +173,23 @@ const subscribeToMembership = async (req, res) => {
         ]
       );
       
-      res.status(201).json({
+      // Prepare client response
+      const responseData = {
         success: true,
         membership: membershipResult.rows[0],
         subscription_id: subscription.id,
-        client_secret: subscription.latest_invoice?.payment_intent?.client_secret,
         status: subscription.status,
         paymentType: 'recurring',
         isRecurring: true
-      });
+      };
+      
+      // Add client secret if available for payment confirmation
+      if (subscription.latest_invoice?.payment_intent?.client_secret) {
+        responseData.client_secret = subscription.latest_invoice.payment_intent.client_secret;
+        responseData.payment_intent_id = subscription.latest_invoice.payment_intent.id;
+      }
+      
+      res.status(201).json(responseData);
       
     } else {
       // Create one-time payment for non-recurring plans
@@ -186,7 +201,8 @@ const subscribeToMembership = async (req, res) => {
         metadata: {
           tier: tier,
           user_id: req.user.id,
-          isRecurring: false
+          isRecurring: false,
+          membership_type: 'one-time'
         }
       });
       
@@ -196,6 +212,12 @@ const subscribeToMembership = async (req, res) => {
       const startDate = new Date();
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + plan.duration);
+      
+      // Set initial status based on Stripe payment intent status
+      let status = 'unpaid';
+      if (paymentIntent.status === 'succeeded') {
+        status = 'active';
+      }
       
       // Create membership record in database for one-time plan
       // We're using stripe_subscription_id to store the payment intent ID for one-time payments
@@ -212,7 +234,7 @@ const subscribeToMembership = async (req, res) => {
           plan.fee,
           plan.discountPercentage,
           paymentIntent.id,
-          'active',
+          status,
           startDate,
           startDate,
           endDate,
@@ -730,12 +752,12 @@ const getAllMemberships = async (req, res) => {
  */
 const activateMembership = async (req, res) => {
   try {
-    const { tier = "supersaver" } = req.body;
+    const { tier = "supersaver_month" } = req.body;
     
     // Find the most recent membership with pending status for the user
     const membershipResult = await query(
       `SELECT * FROM memberships 
-       WHERE user_id = $1 AND tier = $2
+       WHERE user_id = $1 AND tier = $2 AND status = 'unpaid'
        ORDER BY created_at DESC LIMIT 1`,
       [req.user.id, tier]
     );
@@ -743,7 +765,7 @@ const activateMembership = async (req, res) => {
     if (membershipResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: "No membership found to activate",
+        error: "No pending membership found to activate",
       });
     }
 
@@ -757,21 +779,41 @@ const activateMembership = async (req, res) => {
       [membership.id]
     );
 
-    // Check if there is a Stripe subscription ID
-    if (membership.stripe_subscription_id) {
-      // Verify subscription status in Stripe
-      const subscription = await stripe.subscriptions.retrieve(
-        membership.stripe_subscription_id
-      );
-      
-      if (subscription.status === 'incomplete') {
-        // Update the subscription status in Stripe if needed
-        await stripe.subscriptions.update(membership.stripe_subscription_id, {
-          metadata: {
-            payment_verified: 'true',
-            activated_at: new Date().toISOString()
-          }
-        });
+    // Check if auto_renewal is true, indicating it's a subscription
+    if (membership.auto_renewal) {
+      try {
+        // Verify subscription status in Stripe
+        const subscription = await stripe.subscriptions.retrieve(
+          membership.stripe_subscription_id
+        );
+        
+        if (subscription && subscription.status === 'incomplete') {
+          // Update the subscription status in Stripe if needed
+          await stripe.subscriptions.update(membership.stripe_subscription_id, {
+            metadata: {
+              payment_verified: 'true',
+              activated_at: new Date().toISOString()
+            }
+          });
+        }
+      } catch (stripeError) {
+        // Log the error but don't fail the activation
+        console.warn("Warning: Could not update subscription in Stripe:", stripeError.message);
+      }
+    } else {
+      // For one-time payments, we need to check the payment intent instead
+      try {
+        // Check payment intent status
+        const paymentIntent = await stripe.paymentIntents.retrieve(
+          membership.stripe_subscription_id // This contains payment intent ID for one-time payments
+        );
+        
+        if (paymentIntent && paymentIntent.status !== 'succeeded') {
+          console.warn(`Payment intent status is ${paymentIntent.status}, not 'succeeded'. Membership activated anyway.`);
+        }
+      } catch (stripeError) {
+        // Log the error but don't fail the activation
+        console.warn("Warning: Could not verify payment intent in Stripe:", stripeError.message);
       }
     }
 
@@ -788,6 +830,7 @@ const activateMembership = async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Server error activating membership",
+      details: error.message
     });
   }
 };

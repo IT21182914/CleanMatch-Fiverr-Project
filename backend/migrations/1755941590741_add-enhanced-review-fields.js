@@ -9,7 +9,8 @@ exports.shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-    pgm.alterColumn('bookings', 'zip_code', { notNull: false });
+  // Implementation for updating membership tiers and stripe integration
+  // Add your migration code here
 };
 
 /**
@@ -18,5 +19,5 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
-    pgm.alterColumn('bookings', 'zip_code', { notNull: true });
+  // Revert any changes made in the up function
 };

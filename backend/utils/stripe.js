@@ -147,23 +147,37 @@ const handleSuccessfulPayment = async (paymentIntentId) => {
           ["paid", paymentIntentId, bookingId]
         );
       }
-      
+
       // Check if this is a one-time membership payment
       const userId = paymentIntent.metadata.user_id;
       const tier = paymentIntent.metadata.tier;
-      
+
       if (userId && tier && paymentIntent.description?.includes("Membership")) {
         console.log(`Processing one-time membership payment for user ${userId}, tier: ${tier}`);
-        
-        // Update membership status to active if it was in trialing state
+
+        // Update membership status to active for any membership with this payment intent ID
         // Note: We're using stripe_subscription_id to store payment intent IDs for one-time payments
         const membershipResult = await query(
           "UPDATE memberships SET status = $1 WHERE stripe_subscription_id = $2 AND status = $3 RETURNING *",
-          ["active", paymentIntentId, "trialing"]
+          ["active", paymentIntentId, "unpaid"]
         );
-        
+
         if (membershipResult.rows.length > 0) {
           console.log(`Successfully activated membership: ${membershipResult.rows[0].id}`);
+
+          // Create success notification
+          await query(
+            `INSERT INTO notifications (user_id, title, message, type)
+             VALUES ($1, $2, $3, $4)`,
+            [
+              userId,
+              "Membership Activated",
+              "Your membership payment was processed successfully. Your benefits are now active!",
+              "membership_activated",
+            ]
+          );
+        } else {
+          console.log(`No pending membership found for payment intent: ${paymentIntentId}`);
         }
       }
 
@@ -366,12 +380,12 @@ const handleSubscriptionPayment = async (invoice) => {
       `SELECT * FROM memberships WHERE stripe_subscription_id = $1`,
       [subscription.id]
     );
-    
+
     if (membershipResult.rows.length === 0) {
       console.error(`⚠️ No membership found for subscription ${subscription.id}`);
       return;
     }
-    
+
     // Update memberships table
     await query(
       `UPDATE memberships 
