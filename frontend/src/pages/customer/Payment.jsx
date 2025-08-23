@@ -23,37 +23,65 @@ const Payment = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchBookingAndCreatePaymentIntent = async () => {
+    const fetchBookingDetails = async () => {
       try {
+        // Only fetch the booking without creating a payment intent
         const bookingResponse = await bookingsAPI.getById(bookingId);
         const bookingData =
           bookingResponse.data.data ||
           bookingResponse.data.booking ||
           bookingResponse.data;
-        setBooking(bookingData);
 
         console.log("Fetched Booking Data:", bookingData);
-
-        const paymentResponse = await paymentsAPI.createPaymentIntent(bookingId);
-
-        const clientSecret =
-          paymentResponse.data.client_secret ||
-          paymentResponse.data.data?.clientSecret ||
-          paymentResponse.data.data?.client_secret;
-
-        if (!clientSecret) throw new Error("Failed to get payment client secret");
-
-        setClientSecret(clientSecret);
+        setBooking(bookingData);
       } catch (error) {
-        console.error("Error fetching booking or creating payment intent:", error);
-        setError("Failed to load payment information. Please try again.");
+        console.error("Error fetching booking:", error);
+        setError("Failed to load booking information. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
-    if (bookingId) fetchBookingAndCreatePaymentIntent();
+    if (bookingId) fetchBookingDetails();
   }, [bookingId]);
+
+  const createPaymentIntent = async () => {
+    setLoading(true);
+    try {
+      // Create payment intent which may update booking with membership discounts
+      const paymentResponse = await paymentsAPI.createPaymentIntent(bookingId);
+
+      const clientSecret =
+        paymentResponse.data.client_secret ||
+        paymentResponse.data.data?.clientSecret ||
+        paymentResponse.data.data?.client_secret;
+
+      if (!clientSecret) throw new Error("Failed to get payment client secret");
+
+      setClientSecret(clientSecret);
+
+      // Fetch the updated booking after payment intent creation
+      const bookingResponse = await bookingsAPI.getById(bookingId);
+      const bookingData =
+        bookingResponse.data.data ||
+        bookingResponse.data.booking ||
+        bookingResponse.data;
+
+      console.log("Fetched Updated Booking Data (after payment intent creation):", bookingData);
+      setBooking(bookingData);
+
+      // Check for membership discount information from the payment intent response
+      if (paymentResponse.data.membership_discount_applied) {
+        console.log("Membership discount applied:", paymentResponse.data);
+      }
+
+    } catch (error) {
+      console.error("Error creating payment intent:", error);
+      setError("Failed to create payment. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePaymentSuccess = () => {
     bookingsAPI.updatePaymentStatus(bookingId, "paid")
@@ -210,15 +238,124 @@ const Payment = () => {
               </div>
             )}
 
-            {/* Total Amount */}
-            <div className="border-t pt-2 mt-3">
+            {/* Pricing Breakdown */}
+            <div className="border-t pt-2 mt-3 space-y-2">
+              {/* Service Rate */}
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-900">Total:</span>
-                <span className="text-lg font-bold text-blue-600">
-                  {formatCurrency(booking.totalAmount || booking.total_amount || 0)}
+                <span className="text-sm text-gray-700">Service Rate:</span>
+                <span className="text-sm text-gray-700">
+                  {formatCurrency(booking.pricing_breakdown?.hourly_rate || booking.service?.basePrice || 0)} per hour
                 </span>
               </div>
-              <p className="text-xs text-gray-500 mt-0.5">Includes all fees and taxes</p>
+
+              {/* Duration */}
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-700">Duration:</span>
+                <span className="text-sm text-gray-700">
+                  {booking.durationHours || booking.duration_hours || booking.pricing_breakdown?.hours || 0} hours
+                </span>
+              </div>
+
+              {/* Original Price (Rate * Hours) */}
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-700">Original Price:</span>
+                <span className="text-sm text-gray-700">
+                  {formatCurrency(
+                    (booking.pricing_breakdown?.hourly_rate * (booking.durationHours || booking.duration_hours || booking.pricing_breakdown?.hours || 0)) ||
+                    (booking.pricing_breakdown?.base_amount * 2) ||
+                    booking.totalAmount ||
+                    booking.total_amount || 0
+                  )}
+                </span>
+              </div>
+
+              {/* Membership Discount - Show for both original membership and after-booking activation */}
+              {(booking.pricing_breakdown?.membership_discount > 0 || booking.hasMembership) && (
+                <>
+                  {/* Membership activated after booking creation - special notice */}
+                  {booking.hasMembership && !booking.pricing_breakdown?.membership_discount && (
+                    <div className="bg-green-50 p-2 rounded border border-green-200 mb-2">
+                      <p className="text-sm text-green-800 font-medium">
+                        Your membership discount will be applied at checkout!
+                      </p>
+                      <p className="text-xs text-green-700 mt-1">
+                        You activated a membership after this booking was created. Your 50% discount will be applied when you make payment.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-green-700 flex items-center">
+                      <svg className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Membership Discount (50%):
+                    </span>
+                    <span className="text-sm font-medium text-green-700">
+                      -{formatCurrency(
+                        booking.pricing_breakdown?.membership_discount
+                          ? (booking.pricing_breakdown.membership_discount * (booking.durationHours || booking.duration_hours || booking.pricing_breakdown?.hours || 0))
+                          : ((booking.totalAmount || booking.total_amount || 0) / 2)
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-green-700">Discounted Rate:</span>
+                    <span className="text-sm font-medium text-green-700">
+                      {formatCurrency(
+                        booking.pricing_breakdown?.discounted_hourly_rate ||
+                        (booking.pricing_breakdown?.hourly_rate / 2) ||
+                        ((booking.service?.basePrice || 0) / 2)
+                      )} per hour
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {/* Total Amount */}
+              <div className="flex justify-between items-center pt-1 border-t border-gray-100">
+                <span className="text-sm font-medium text-gray-900">Total:</span>
+                <div className="text-right">
+                  {/* Show original price with strikethrough if membership was activated after booking */}
+                  {booking.hasMembership && !booking.pricing_breakdown?.membership_discount && (
+                    <div className="text-sm text-gray-500 line-through mb-1">
+                      {formatCurrency(booking.totalAmount || booking.total_amount || 0)}
+                    </div>
+                  )}
+
+                  {/* Show current price */}
+                  <span className="text-lg font-bold text-blue-600">
+                    {booking.hasMembership && !booking.pricing_breakdown?.membership_discount ?
+                      // Calculate 50% discount if membership was activated after booking
+                      formatCurrency((booking.totalAmount || booking.total_amount || 0) / 2) :
+                      // Otherwise show the standard total
+                      formatCurrency(booking.totalAmount || booking.total_amount || 0)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Membership Promotion - Only show if no membership */}
+              {!(booking.pricing_breakdown?.membership_discount > 0 || booking.hasMembership) && (
+                <div className="mt-2 bg-amber-50 p-2 rounded border border-amber-200">
+                  <p className="text-sm text-amber-800">
+                    <span className="font-medium">Save 50% on this booking</span> with a CleanMatch membership!
+                  </p>
+                  <div className="mt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      color="amber"
+                      className="text-xs"
+                      onClick={() => navigate("/customer/membership")}
+                    >
+                      View Membership Options
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <p className="text-xs text-gray-500">Includes all fees and taxes</p>
             </div>
           </CardContent>
         </Card>
@@ -230,7 +367,26 @@ const Payment = () => {
             <h4 className="text-sm font-medium text-blue-900">Payment Details</h4>
           </CardHeader>
           <CardContent className="pt-2">
-            {clientSecret && (
+            {!clientSecret ? (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-600 mb-4">
+                  Click the button below to proceed with payment. Your membership discount will be applied if eligible.
+                </p>
+                <Button
+                  onClick={createPaymentIntent}
+                  loading={loading}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  {loading ? "Processing..." : "Make Payment"}
+                </Button>
+                {booking.hasMembership && !booking.pricing_breakdown?.membership_discount && (
+                  <p className="mt-3 text-xs text-green-600">
+                    Your 50% membership discount will be applied when you make payment!
+                  </p>
+                )}
+              </div>
+            ) : (
               <Elements options={options} stripe={stripePromise}>
                 <PaymentForm
                   bookingId={bookingId}

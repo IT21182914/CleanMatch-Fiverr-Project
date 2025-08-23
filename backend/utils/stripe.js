@@ -45,13 +45,21 @@ const createPaymentIntent = async (bookingData) => {
   try {
     const { amount, customerId, bookingId, description } = bookingData;
 
+    console.log(`Creating payment intent for amount: ${amount} (will be converted to cents for Stripe)`);
+
+    // Ensure we're passing the correct amount to Stripe (in cents)
+    const amountInCents = Math.round(parseFloat(amount) * 100);
+    
+    console.log(`Amount in cents for Stripe: ${amountInCents}`);
+
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
+      amount: amountInCents, // Already converted to cents
       currency: "usd",
       customer: customerId,
       metadata: {
         booking_id: bookingId.toString(),
         type: "booking_payment",
+        original_amount: amount.toString(), // Store original amount for reference
       },
       description: description || "CleanMatch Service Booking",
       automatic_payment_methods: {
@@ -146,6 +154,64 @@ const handleSuccessfulPayment = async (paymentIntentId) => {
           "UPDATE bookings SET payment_status = $1, stripe_payment_intent_id = $2 WHERE id = $3",
           ["paid", paymentIntentId, bookingId]
         );
+
+        // Check if user has active membership and record usage if necessary
+        try {
+          // Get booking with customer and membership details
+          const bookingResult = await query(
+            `SELECT b.*, s.base_price, b.duration_hours, m.id as membership_id
+             FROM bookings b
+             JOIN services s ON b.service_id = s.id
+             LEFT JOIN memberships m ON b.customer_id = m.user_id 
+                                     AND m.status = 'active' 
+                                     AND m.current_period_end > NOW()
+             WHERE b.id = $1`,
+            [bookingId]
+          );
+
+          if (bookingResult.rows.length > 0) {
+            const booking = bookingResult.rows[0];
+
+            if (booking.membership_id) {
+              // Calculate original amount
+              const baseAmount = parseFloat(booking.base_price);
+              const originalAmount = baseAmount * booking.duration_hours;
+              const discountedAmount = originalAmount / 2; // 50% discount
+
+              // Check if membership usage already exists
+              const usageResult = await query(
+                "SELECT id FROM membership_usage WHERE booking_id = $1",
+                [bookingId]
+              );
+
+              // Only record usage if it hasn't been recorded yet and discount isn't already applied
+              if (usageResult.rows.length === 0 && !booking.membership_discount_applied) {
+                // Update the booking with the discounted amount
+                await query(
+                  `UPDATE bookings 
+                   SET total_amount = $1, 
+                       membership_discount_applied = true,
+                       updated_at = CURRENT_TIMESTAMP 
+                   WHERE id = $2`,
+                  [discountedAmount, bookingId]
+                );
+                console.log(`Webhook: Updated booking #${bookingId} with membership discount. New total: ${discountedAmount}`);
+                const { recordMembershipUsage } = require("../controllers/membershipController");
+                const usageRecorded = await recordMembershipUsage(
+                  booking.membership_id,
+                  bookingId,
+                  originalAmount,
+                  discountedAmount
+                );
+
+                console.log(`Webhook: Membership usage ${usageRecorded ? 'recorded' : 'failed to record'} for booking ${bookingId}`);
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error checking/recording membership usage during webhook:", error);
+          // Continue processing - membership usage recording is not critical
+        }
       }
 
       // Check if this is a one-time membership payment

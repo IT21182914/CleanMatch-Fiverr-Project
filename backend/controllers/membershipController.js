@@ -33,7 +33,7 @@ const MEMBERSHIP_PLANS = {
       oneTime: process.env.STRIPE_SUPERSAVER_PRICE_ID_ONE_TIME_MONTH
     }
   },
-  
+
   // Annual Plans
   supersaver_year: {
     name: "SuperSaver Annual",
@@ -105,7 +105,7 @@ const subscribeToMembership = async (req, res) => {
 
     if (existingMembership.rows.length > 0) {
       const currentTier = existingMembership.rows[0].tier;
-      
+
       // Allow upgrade from monthly to yearly plan, but not downgrade
       if (currentTier === "supersaver_month" && tier === "supersaver_year") {
         // Allow upgrade - we'll cancel the old subscription later in this function
@@ -146,12 +146,12 @@ const subscribeToMembership = async (req, res) => {
 
     const plan = MEMBERSHIP_PLANS[tier];
     let stripePayment, membershipResult;
-    
+
     // Handle case where user is upgrading from monthly to annual plan
-    if (existingMembership?.rows?.length > 0 && 
-        existingMembership.rows[0].tier === "supersaver_month" && 
-        tier === "supersaver_year") {
-      
+    if (existingMembership?.rows?.length > 0 &&
+      existingMembership.rows[0].tier === "supersaver_month" &&
+      tier === "supersaver_year") {
+
       // Cancel the current monthly subscription in Stripe
       const currentSubscriptionId = existingMembership.rows[0].stripe_subscription_id;
       try {
@@ -159,7 +159,7 @@ const subscribeToMembership = async (req, res) => {
           prorate: true,
           invoice_now: false
         });
-        
+
         // Mark the old subscription as cancelled in our database
         await query(
           `UPDATE memberships 
@@ -173,10 +173,10 @@ const subscribeToMembership = async (req, res) => {
         // Continue with the upgrade even if there was an issue cancelling the old subscription
       }
     }
-    
+
     // Get appropriate price ID based on the recurring flag
     const priceId = isRecurring ? plan.stripePriceIds.recurring : plan.stripePriceIds.oneTime;
-    
+
     // Handle different payment types based on isRecurring parameter
     if (isRecurring) {
       // Create Stripe subscription for recurring plans
@@ -186,16 +186,16 @@ const subscribeToMembership = async (req, res) => {
         userId: req.user.id,
         paymentMethodId,
       });
-      
+
       stripePayment = subscription;
-      
+
       // Set initial status - Stripe subscriptions usually start as 'incomplete'
       // until the first payment is confirmed
       let status = 'unpaid';
       if (subscription.status === 'active') {
         status = 'active';
       }
-      
+
       // Create membership record in database for recurring plan
       membershipResult = await query(
         `INSERT INTO memberships (
@@ -217,7 +217,7 @@ const subscribeToMembership = async (req, res) => {
           true // Auto renewal is true for recurring plans
         ]
       );
-      
+
       // Prepare client response
       const responseData = {
         success: true,
@@ -227,15 +227,15 @@ const subscribeToMembership = async (req, res) => {
         paymentType: 'recurring',
         isRecurring: true
       };
-      
+
       // Add client secret if available for payment confirmation
       if (subscription.latest_invoice?.payment_intent?.client_secret) {
         responseData.client_secret = subscription.latest_invoice.payment_intent.client_secret;
         responseData.payment_intent_id = subscription.latest_invoice.payment_intent.id;
       }
-      
+
       res.status(201).json(responseData);
-      
+
     } else {
       // Create one-time payment for non-recurring plans
       const paymentIntent = await createOneTimePayment({
@@ -250,20 +250,20 @@ const subscribeToMembership = async (req, res) => {
           membership_type: 'one-time'
         }
       });
-      
+
       stripePayment = paymentIntent;
-      
+
       // Calculate period end date (current date + duration days)
       const startDate = new Date();
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + plan.duration);
-      
+
       // Set initial status based on Stripe payment intent status
       let status = 'unpaid';
       if (paymentIntent.status === 'succeeded') {
         status = 'active';
       }
-      
+
       // Create membership record in database for one-time plan
       // We're using stripe_subscription_id to store the payment intent ID for one-time payments
       membershipResult = await query(
@@ -287,7 +287,7 @@ const subscribeToMembership = async (req, res) => {
           true  // One-time memberships will cancel at period end automatically
         ]
       );
-      
+
       res.status(201).json({
         success: true,
         membership: membershipResult.rows[0],
@@ -300,7 +300,7 @@ const subscribeToMembership = async (req, res) => {
         subscription_id: paymentIntent.id
       });
     }
-    
+
   } catch (error) {
     console.error("Subscribe to membership error:", error);
     res.status(500).json({
@@ -409,7 +409,7 @@ const cancelMembership = async (req, res) => {
         );
       } catch (stripeError) {
         console.error("Error updating Stripe subscription:", stripeError);
-        
+
         // If the subscription doesn't exist in Stripe anymore, still update our database
         if (stripeError.code === 'resource_missing') {
           await query(
@@ -645,6 +645,38 @@ const recordMembershipUsage = async (
   discountedAmount
 ) => {
   try {
+    // First verify both membership and booking exist to avoid foreign key errors
+    const membershipCheck = await query(
+      "SELECT id FROM memberships WHERE id = $1",
+      [membershipId]
+    );
+
+    if (membershipCheck.rows.length === 0) {
+      console.error(`Membership ID ${membershipId} not found. Cannot record usage.`);
+      return false;
+    }
+
+    const bookingCheck = await query(
+      "SELECT id FROM bookings WHERE id = $1",
+      [bookingId]
+    );
+
+    if (bookingCheck.rows.length === 0) {
+      console.error(`Booking ID ${bookingId} not found. Cannot record membership usage.`);
+      return false;
+    }
+
+    // Check if a record already exists for this booking and membership
+    const existingRecord = await query(
+      "SELECT id FROM membership_usage WHERE booking_id = $1",
+      [bookingId]
+    );
+
+    if (existingRecord.rows.length > 0) {
+      console.log(`Membership usage for booking ${bookingId} already recorded. Skipping.`);
+      return true;
+    }
+
     const discountApplied = originalAmount - discountedAmount;
 
     await query(
@@ -663,7 +695,9 @@ const recordMembershipUsage = async (
     return true;
   } catch (error) {
     console.error("Record membership usage error:", error);
-    throw error;
+    // Log detailed error but don't throw - we don't want to disrupt the booking process
+    console.error(`Failed to record membership usage for membership ${membershipId} and booking ${bookingId}:`, error.message);
+    return false;
   }
 };
 
@@ -826,7 +860,7 @@ const getAllMemberships = async (req, res) => {
 const activateMembership = async (req, res) => {
   try {
     const { tier = "supersaver_month" } = req.body;
-    
+
     // Find the most recent membership with pending status for the user
     const membershipResult = await query(
       `SELECT * FROM memberships 
@@ -843,7 +877,7 @@ const activateMembership = async (req, res) => {
     }
 
     const membership = membershipResult.rows[0];
-    
+
     // Update the membership status to active
     await query(
       `UPDATE memberships 
@@ -859,7 +893,7 @@ const activateMembership = async (req, res) => {
         const subscription = await stripe.subscriptions.retrieve(
           membership.stripe_subscription_id
         );
-        
+
         if (subscription && subscription.status === 'incomplete') {
           // Update the subscription status in Stripe if needed
           await stripe.subscriptions.update(membership.stripe_subscription_id, {
@@ -880,7 +914,7 @@ const activateMembership = async (req, res) => {
         const paymentIntent = await stripe.paymentIntents.retrieve(
           membership.stripe_subscription_id // This contains payment intent ID for one-time payments
         );
-        
+
         if (paymentIntent && paymentIntent.status !== 'succeeded') {
           console.warn(`Payment intent status is ${paymentIntent.status}, not 'succeeded'. Membership activated anyway.`);
         }

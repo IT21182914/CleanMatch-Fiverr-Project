@@ -158,8 +158,7 @@ const ServiceSearch = ({
                         {filteredServices.length === services.length ? (
                             `Showing all ${services.length} services`
                         ) : (
-                            `Found ${filteredServices.length} service${filteredServices.length !== 1 ? 's' : ''} ${
-                                searchTerm ? `matching "${searchTerm}"` : ''
+                            `Found ${filteredServices.length} service${filteredServices.length !== 1 ? 's' : ''} ${searchTerm ? `matching "${searchTerm}"` : ''
                             } ${selectedCategory !== 'all' ? `in ${selectedCategory}` : ''}`
                         )}
                         {filteredServices.length > servicesPerPage && (
@@ -282,9 +281,9 @@ const ServiceSearch = ({
                                 {[...Array(totalPages)].map((_, index) => {
                                     const page = index + 1;
                                     const isCurrentPage = page === currentPage;
-                                    const shouldShow = 
-                                        page === 1 || 
-                                        page === totalPages || 
+                                    const shouldShow =
+                                        page === 1 ||
+                                        page === totalPages ||
                                         (page >= currentPage - 1 && page <= currentPage + 1);
 
                                     if (!shouldShow) {

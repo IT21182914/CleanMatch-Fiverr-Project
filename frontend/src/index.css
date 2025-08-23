@@ -36,10 +36,13 @@ body {
 }
 
 
+/* Remove this conflicting rule or make it more specific */
+/*
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
+*/
 
 /* Enhanced navbar button animations */
 .navbar-button {

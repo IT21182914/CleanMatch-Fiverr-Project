@@ -59,7 +59,7 @@ app.use(compression());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 500, // limit each IP to 500 requests per windowMs
   message: {
     error: "Too many requests from this IP, please try again later.",
     retryAfter: "15 minutes",
@@ -72,7 +72,7 @@ app.use("/api/", limiter);
 // Stricter rate limiting for auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // limit each IP to 50 auth requests per windowMs (increased for testing)
+  max: 100, // limit each IP to 100 auth requests per windowMs (increased for testing)
   message: {
     error: "Too many authentication attempts, please try again later.",
     retryAfter: "15 minutes",
@@ -123,7 +123,10 @@ app.use(
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    exposedHeaders: ["Content-Length", "Content-Type", "Authorization"],
+    optionsSuccessStatus: 200,
+    preflightContinue: false,
   })
 );
 
@@ -217,6 +220,9 @@ const {
   getPublicAdminReviews,
 } = require("./controllers/adminReviewsController");
 app.get("/api/admin-reviews/public", getPublicAdminReviews);
+
+// Handle OPTIONS requests properly (for CORS preflight)
+app.options("*", cors());
 
 // API routes
 app.use("/api/auth", authRoutes);

@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const { auth, authorize } = require("../middleware/auth");
 const {
   getMembershipPlans,
@@ -28,6 +29,8 @@ router.post("/subscribe", auth, authorize("customer"), subscribeToMembership);
 // @route   GET /api/memberships/current
 // @desc    Get user's current membership
 // @access  Private (Customers only)
+// Handle preflight requests for this specific route
+router.options("/current", cors());
 router.get("/current", auth, authorize("customer"), getCurrentMembership);
 
 // @route   PUT /api/memberships/cancel

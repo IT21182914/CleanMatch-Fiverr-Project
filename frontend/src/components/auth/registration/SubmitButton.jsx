@@ -58,7 +58,7 @@ const SubmitButton = ({ membershipIntent, loading }) => {
       type="submit"
       variant="primary"
       size="lg"
-      className="w-full flex justify-center py-2.5 sm:py-3 text-sm sm:text-base font-semibold"
+      className="w-full flex justify-center py-2.5 sm:py-3 text-sm sm:text-base font-semibold cursor-pointer"
       loading={loading}
       loadingVariant="spinner"
       loadingText="Creating your account..."
