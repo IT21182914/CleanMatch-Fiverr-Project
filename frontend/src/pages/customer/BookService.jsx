@@ -290,17 +290,6 @@ const BookService = () => {
     fetchServices();
   }, [serviceId]);
 
-  // Update URL parameters whenever state changes, but only for booking view
-  // Note: Commenting out as we now handle URL updates manually in navigation functions
-  /*
-  useEffect(() => {
-    if (services.length > 0 && currentView === "booking") {
-      // Only update URL with form data when in booking view
-      updateURLParams(formData);
-    }
-  }, [formData, currentView, selectedService, services.length]);
-  */
-
   const fetchServices = async () => {
     try {
       setLoading(true);
