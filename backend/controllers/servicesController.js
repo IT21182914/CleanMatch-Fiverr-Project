@@ -7,7 +7,7 @@ const { query } = require("../config/database");
  */
 const getServices = async (req, res) => {
   try {
-    const { category, page = 1, limit = 20 } = req.query;
+    const { category, page = 1, limit = 50 } = req.query;
     const offset = (page - 1) * limit;
 
     let whereClause = "WHERE is_active = true";

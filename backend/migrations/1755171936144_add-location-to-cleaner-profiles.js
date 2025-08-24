@@ -1,14 +1,14 @@
 /**
  * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
  */
-export const shorthands = undefined;
+exports.shorthands = undefined;
 
 /**
  * @param pgm {import('node-pg-migrate').MigrationBuilder}
  * @param run {() => void | undefined}
  * @returns {Promise<void> | void}
  */
-export const up = (pgm) => {
+exports.up = (pgm) => {
     pgm.addColumns('cleaner_profiles', {
         current_latitude: { type: 'decimal(10,8)' },
         current_longitude: { type: 'decimal(11,8)' },
@@ -34,7 +34,7 @@ export const up = (pgm) => {
  * @param run {() => void | undefined}
  * @returns {Promise<void> | void}
  */
-export const down = (pgm) => {
+exports.down = (pgm) => {
     pgm.dropIndex(
         'cleaner_profiles',
         ['current_latitude', 'current_longitude', 'is_available', 'last_location_update'],

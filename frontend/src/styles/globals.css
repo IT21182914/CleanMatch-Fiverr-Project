@@ -226,7 +226,8 @@ article {
   font-family: var(--font-secondary);
 }
 
-h1 {
+/* Make this more specific so Tailwind can override it */
+.default-h1, h1:not([class*="text-"]) {
   font-size: 2rem;        /* Reduced from 3rem (48px) to 2rem (32px) */
   font-weight: var(--font-bold);
   letter-spacing: -0.025em;

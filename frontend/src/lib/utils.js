@@ -5,10 +5,15 @@ export function cn(...inputs) {
 }
 
 export function formatCurrency(amount) {
+  // Convert string to number if needed and ensure we have a valid number
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-  }).format(amount / 100); // Stripe uses cents
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(numAmount);
 }
 
 export function formatDate(date) {
@@ -42,7 +47,6 @@ export function formatDateTime(date) {
     minute: "2-digit",
     hour12: true
   }).format(dateObj);
-  console.log("Formatted Date:", s);
   return s;
 }
 
@@ -63,7 +67,6 @@ export function formatDateTimeLocal(date) {
     hour12: true,
     timeZoneName: "short"
   }).format(dateObj);
-  console.log("Formatted Date (Local):", s);
   return s;
 }
 

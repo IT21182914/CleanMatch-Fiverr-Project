@@ -180,22 +180,6 @@ const createBooking = async (req, res) => {
 
     const booking = bookingResult.rows[0];
 
-    // Record membership usage if membership was applied
-    if (membershipId && membershipDiscount > 0) {
-      try {
-        await recordMembershipUsage(
-          membershipId,
-          booking.id,
-          membershipDiscount * durationHours,
-          totalAmount
-        );
-      } catch (error) {
-        console.error("Error recording membership usage:", error);
-        // Continue with booking creation even if usage recording fails
-      }
-    }
-
-
     let assignedCleaner = null;
     let assignmentResult = null;
 
@@ -243,28 +227,23 @@ const createBooking = async (req, res) => {
       }
     }
 
-    // Create Stripe customer if needed and payment intent
+    // Create Stripe customer if needed (but don't create payment intent yet)
     try {
-
       const stripeCustomerId = await createStripeCustomer(user);
 
-      const paymentIntent = await createPaymentIntent({
-        amount: totalAmount,
-        customerId: stripeCustomerId,
-        bookingId: booking.id,
-        description: `CleanMatch - ${service.name} booking`,
-      });
+      // Update user with Stripe customer ID if needed
+      if (!user.stripe_customer_id) {
+        await client.query(
+          "UPDATE users SET stripe_customer_id = $1 WHERE id = $2",
+          [stripeCustomerId, req.user.id]
+        );
+      }
 
-      await client.query(
-        "UPDATE bookings SET stripe_payment_intent_id = $1 WHERE id = $2",
-        [paymentIntent.id, booking.id]
-      );
+      console.log(`Created/retrieved Stripe customer ID for user ${req.user.id}: ${stripeCustomerId}`);
 
-      booking.stripe_payment_intent_id = paymentIntent.id;
-      booking.client_secret = paymentIntent.client_secret;
     } catch (error) {
-      console.error("Payment intent creation error:", error);
-      // Continue without payment intent - can be created later
+      console.error("Stripe customer creation error:", error);
+      // Continue without Stripe customer ID - it can be created later during payment
     }
 
     await client.query("COMMIT");
@@ -278,28 +257,10 @@ const createBooking = async (req, res) => {
         pricing_breakdown: {
           base_amount: Math.round(baseAmount * 100) / 100,
           membership_discount: Math.round(membershipDiscount * 100) / 100,
-          // offer_discount: Math.round(offerDiscount * 100) / 100,
-          // total_amount: Math.round(totalAmount * 100) / 100,
-          // applied_offer: appliedOffer
-          //   ? {
-          //     id: appliedOffer.id,
-          //     name: appliedOffer.name,
-          //     type: appliedOffer.offer_type,
-          //     discount_type: appliedOffer.discount_type,
-          //     discount_value: appliedOffer.discount_value,
-          //   }
-          //   : null,
         },
-        // assigned_cleaner: assignedCleaner
-        //   ? {
-        //     id: assignedCleaner.id,
-        //     name: `${assignedCleaner.first_name} ${assignedCleaner.last_name}`,
-        //     rating: assignedCleaner.rating,
-        //     hourly_rate: assignedCleaner.hourly_rate,
-        //   }
-        //   : null,
       },
     });
+    
   } catch (error) {
     await client.query("ROLLBACK");
     console.error("Create booking error:", error);
@@ -323,17 +284,19 @@ const getBookingById = async (req, res) => {
 
     const bookingResult = await query(
       `SELECT 
-        b.*, s.name as service_name, s.category as service_category,
+        b.*, s.name as service_name, s.category as service_category, s.base_price as service_base_price,
         customer.first_name as customer_first_name, customer.last_name as customer_last_name,
         customer.email as customer_email, customer.phone as customer_phone,
         cleaner.first_name as cleaner_first_name, cleaner.last_name as cleaner_last_name,
         cleaner.email as cleaner_email, cleaner.phone as cleaner_phone,
-        cp.rating as cleaner_rating, cp.hourly_rate as cleaner_hourly_rate
+        cp.rating as cleaner_rating, cp.hourly_rate as cleaner_hourly_rate,
+        m.id as membership_id, m.status as membership_status
        FROM bookings b
        JOIN services s ON b.service_id = s.id
        JOIN users customer ON b.customer_id = customer.id
        LEFT JOIN users cleaner ON b.cleaner_id = cleaner.id
        LEFT JOIN cleaner_profiles cp ON cleaner.id = cp.user_id
+       LEFT JOIN memberships m ON customer.id = m.user_id AND m.status = 'active' AND m.current_period_end > NOW()
        WHERE b.id = $1`,
       [id]
     );
@@ -366,6 +329,34 @@ const getBookingById = async (req, res) => {
     // Combine booking_date and booking_time into a single datetime
     const combinedDateTime = combineDateTime(booking.booking_date, booking.booking_time);
 
+    // Calculate pricing breakdown
+    let baseAmount = 0;
+    let membershipDiscount = 0;
+    let calculatedTotalAmount = 0;
+    const hasMembership = booking.membership_id !== null && booking.membership_status === 'active';
+
+    try {
+      baseAmount = parseFloat(booking.service_base_price);
+      const durationHours = parseFloat(booking.duration_hours);
+
+      // Calculate original full price (base_amount * duration)
+      const originalFullPrice = baseAmount * durationHours;
+
+      // If user has active membership, they get 50% discount
+      if (hasMembership) {
+        membershipDiscount = baseAmount / 2.0;
+        // Calculate the discounted total - only pay half of base amount
+        calculatedTotalAmount = membershipDiscount * durationHours;
+      } else {
+        // No membership, pay full amount
+        calculatedTotalAmount = originalFullPrice;
+      }
+    } catch (error) {
+      console.error("Error calculating pricing breakdown:", error);
+      // Fallback to the stored amount in case of calculation error
+      calculatedTotalAmount = parseFloat(booking.total_amount);
+    }
+
     const formattedBooking = {
       id: booking.id,
       customerId: booking.customer_id,
@@ -374,7 +365,10 @@ const getBookingById = async (req, res) => {
       bookingDate: combinedDateTime,
       bookingTime: booking.booking_time,
       durationHours: booking.duration_hours,
-      totalAmount: booking.total_amount,
+      // If user has a membership now, use the calculated discounted amount
+      // otherwise, use the stored amount from the database
+      totalAmount: hasMembership ? calculatedTotalAmount : booking.total_amount,
+      originalTotalAmount: booking.total_amount, // Keep the original for reference
       status: booking.status,
       paymentStatus: booking.payment_status,
       address: booking.address,
@@ -387,6 +381,7 @@ const getBookingById = async (req, res) => {
       service: {
         name: booking.service_name,
         category: booking.service_category,
+        basePrice: booking.service_base_price
       },
       customer: {
         firstName: booking.customer_first_name,
@@ -404,6 +399,19 @@ const getBookingById = async (req, res) => {
           hourlyRate: booking.cleaner_hourly_rate,
         }
         : null,
+      pricing_breakdown: {
+        base_amount: Math.round(baseAmount * 100) / 100,
+        membership_discount: Math.round(membershipDiscount * 100) / 100,
+        hours: booking.duration_hours,
+        hourly_rate: baseAmount,
+        discounted_hourly_rate: hasMembership ? baseAmount - membershipDiscount : baseAmount,
+        original_total: Math.round(parseFloat(booking.total_amount) * 100) / 100,
+        calculated_total: Math.round(calculatedTotalAmount * 100) / 100,
+        discount_applied: hasMembership,
+        discount_percentage: hasMembership ? 50 : 0
+      },
+      hasMembership: hasMembership,
+      membershipAppliedAfterBooking: hasMembership && (calculatedTotalAmount !== parseFloat(booking.total_amount))
     };
 
     res.json({
@@ -562,7 +570,73 @@ const updateBookingPaymentStatus = async (req, res) => {
       });
     }
 
-    // Update booking status
+    // Check for active membership if payment status is being set to paid
+    if (paymentStatus === 'paid') {
+      // Get membership information
+      const membershipResult = await query(`
+        SELECT m.id, m.status
+        FROM memberships m
+        WHERE m.user_id = $1 
+        AND m.status = 'active' 
+        AND m.current_period_end > NOW()
+      `, [booking.customer_id]);
+
+      const hasMembership = membershipResult.rows.length > 0;
+
+      if (hasMembership && !booking.membership_discount_applied) {
+        try {
+          // Get service details to calculate discount
+          const serviceResult = await query(`
+            SELECT base_price FROM services WHERE id = $1
+          `, [booking.service_id]);
+
+          if (serviceResult.rows.length > 0) {
+            const basePrice = parseFloat(serviceResult.rows[0].base_price);
+            const durationHours = parseFloat(booking.duration_hours);
+            const originalAmount = parseFloat(booking.total_amount);
+
+            // Calculate discounted amount (50% discount)
+            const membershipDiscount = basePrice / 2.0;
+            const discountedAmount = membershipDiscount * durationHours;
+
+            // Update booking with discounted amount and mark membership as applied
+            await query(`
+              UPDATE bookings 
+              SET payment_status = $1, 
+                  total_amount = $2,
+                  membership_discount_applied = true,
+                  updated_at = CURRENT_TIMESTAMP 
+              WHERE id = $3
+            `, [paymentStatus, discountedAmount, id]);
+
+            // Record membership usage
+            const { recordMembershipUsage } = require("./membershipController");
+            await recordMembershipUsage(
+              membershipResult.rows[0].id,
+              booking.id,
+              originalAmount,
+              discountedAmount
+            );
+
+            console.log(`Membership discount applied during payment status update. Original amount: ${originalAmount}, Discounted: ${discountedAmount}`);
+
+            res.json({
+              success: true,
+              message: `Booking payment status updated to ${paymentStatus} with membership discount applied`,
+              originalAmount,
+              discountedAmount,
+              membershipApplied: true
+            });
+            return;
+          }
+        } catch (error) {
+          console.error("Error applying membership discount:", error);
+          // Fall through to standard update if discount calculation fails
+        }
+      }
+    }
+
+    // Standard update without membership discount
     await query(
       "UPDATE bookings SET payment_status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
       [paymentStatus, id]

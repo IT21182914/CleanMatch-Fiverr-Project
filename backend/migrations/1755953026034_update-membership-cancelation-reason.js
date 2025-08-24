@@ -9,7 +9,16 @@ exports.shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-    pgm.alterColumn('bookings', 'zip_code', { notNull: false });
+    pgm.addColumns('memberships', {
+        cancellation_reason: {
+            type: 'text',
+            notNull: false,
+            default: null,
+            comment: 'Reason provided by the user for cancelling their membership'
+        }
+    }, {
+        ifNotExists: true
+    });
 };
 
 /**
@@ -18,5 +27,7 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
-    pgm.alterColumn('bookings', 'zip_code', { notNull: true });
+    pgm.dropColumn('memberships', 'cancellation_reason', {
+        ifExists: true
+    });
 };

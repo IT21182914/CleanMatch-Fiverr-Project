@@ -322,6 +322,7 @@ export const membershipAPI = {
 
   // Customer endpoints
   subscribe: (data) => enhancedApi.post("/memberships/subscribe", data),
+  activateMembership: (tier) => enhancedApi.put("/memberships/activate", { tier }),
   getCurrentMembership: () => enhancedApi.get("/memberships/current"),
   cancelMembership: (data) => enhancedApi.put("/memberships/cancel", data),
   reactivateMembership: () => enhancedApi.put("/memberships/reactivate"),

@@ -199,7 +199,7 @@ const Login = () => {
             <div>
               <Button
                 type="submit"
-                className="w-full flex justify-center py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-white rounded-lg"
+                className="w-full flex justify-center py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-white rounded-lg cursor-pointer"
                 style={{ backgroundColor: "#6ED1EA" }}
                 loading={loading}
                 loadingVariant="dots"
@@ -233,7 +233,7 @@ const Login = () => {
             <div className="mt-4 sm:mt-6">
               <Link
                 to="/register"
-                className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200"
+                className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white -100 text-sm font-medium !text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200"
                 style={{ "--tw-ring-color": "#6ED1EA" }}
               >
                 Create your account

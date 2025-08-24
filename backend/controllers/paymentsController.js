@@ -20,12 +20,15 @@ const createBookingPaymentIntent = async (req, res) => {
   try {
     const { bookingId } = req.body;
 
-    // Get booking details
+    // Get booking details including membership and service base price information
     const bookingResult = await query(
-      `SELECT b.*, s.name as service_name, u.stripe_customer_id
+      `SELECT b.*, s.name as service_name, s.base_price as service_base_price, 
+       u.stripe_customer_id, 
+       m.id as membership_id, m.status as membership_status
        FROM bookings b
        JOIN services s ON b.service_id = s.id
        JOIN users u ON b.customer_id = u.id
+       LEFT JOIN memberships m ON b.customer_id = m.user_id AND m.status = 'active' AND m.current_period_end > NOW()
        WHERE b.id = $1 AND b.customer_id = $2`,
       [bookingId, req.user.id]
     );
@@ -39,21 +42,6 @@ const createBookingPaymentIntent = async (req, res) => {
 
     const booking = bookingResult.rows[0];
 
-    // Check if booking already has a payment intent
-    if (booking.stripe_payment_intent_id) {
-      const existingPaymentIntent = await stripe.paymentIntents.retrieve(
-        booking.stripe_payment_intent_id
-      );
-
-      if (existingPaymentIntent.status !== "canceled") {
-        return res.json({
-          success: true,
-          client_secret: existingPaymentIntent.client_secret,
-          payment_intent_id: existingPaymentIntent.id,
-        });
-      }
-    }
-
     // Create Stripe customer if needed
     let stripeCustomerId = booking.stripe_customer_id;
     if (!stripeCustomerId) {
@@ -63,25 +51,190 @@ const createBookingPaymentIntent = async (req, res) => {
       stripeCustomerId = await createStripeCustomer(userResult.rows[0]);
     }
 
-    // Create payment intent
-    const paymentIntent = await createPaymentIntent({
-      amount: booking.total_amount,
-      customerId: stripeCustomerId,
-      bookingId: booking.id,
-      description: `CleanMatch - ${booking.service_name} booking`,
+    // Check if user has active membership and calculate amounts
+    let paymentAmount = booking.total_amount;
+    const hasMembership = booking.membership_id !== null && booking.membership_status === 'active';
+
+    // Calculate discounted amount if user has membership
+    let discountedAmount = paymentAmount;
+    if (hasMembership) {
+      try {
+        const baseAmount = parseFloat(booking.service_base_price);
+        const durationHours = parseFloat(booking.duration_hours);
+
+        // Apply 50% discount for membership users
+        const membershipDiscount = baseAmount / 2.0;
+        discountedAmount = membershipDiscount * durationHours;
+
+        console.log(`Membership detected for booking #${booking.id}. Original amount: ${booking.total_amount}, Discounted amount: ${discountedAmount}`);
+      } catch (error) {
+        console.error("Error calculating discounted price:", error);
+        // Fallback to original amount if calculation fails
+        discountedAmount = paymentAmount;
+      }
+    }
+
+    // Check if booking already has a payment intent
+    let shouldCreateNewIntent = true;
+
+    if (booking.stripe_payment_intent_id) {
+      try {
+        const existingPaymentIntent = await stripe.paymentIntents.retrieve(
+          booking.stripe_payment_intent_id
+        );
+
+        if (existingPaymentIntent.status !== "canceled") {
+          // Case 1: Existing intent with discount already applied & user still has membership
+          if (booking.membership_discount_applied === true && hasMembership) {
+            console.log(`Using existing payment intent with discount already applied for booking #${booking.id}`);
+            return res.json({
+              success: true,
+              client_secret: existingPaymentIntent.client_secret,
+              payment_intent_id: existingPaymentIntent.id,
+              membership_discount_applied: true,
+              membership_id: booking.membership_id
+            });
+          }
+
+          // Case 2: Existing intent without discount & user now has membership
+          // Cancel old intent and create new one with discount
+          else if (booking.membership_discount_applied === false && hasMembership) {
+            console.log(`Canceling existing payment intent and creating new one with discount for booking #${booking.id}`);
+            // Cancel the existing intent
+            await stripe.paymentIntents.cancel(existingPaymentIntent.id);
+            // Use discounted amount for new intent
+            paymentAmount = discountedAmount;
+            shouldCreateNewIntent = true;
+          }
+
+          // Case 3: Existing intent & no membership status change
+          // Use the existing payment intent (no membership or had membership and still has it)
+          else if ((booking.membership_discount_applied === false && !hasMembership) ||
+            (booking.membership_discount_applied === true && hasMembership)) {
+            console.log(`Using existing payment intent for booking #${booking.id} with consistent membership status`);
+            return res.json({
+              success: true,
+              client_secret: existingPaymentIntent.client_secret,
+              payment_intent_id: existingPaymentIntent.id,
+              membership_discount_applied: booking.membership_discount_applied,
+              membership_id: booking.membership_id
+            });
+          }
+
+          // Case 4: User had membership but lost it - create new intent without discount
+          else if (booking.membership_discount_applied === true && !hasMembership) {
+            console.log(`User lost membership - canceling discounted intent and creating full-price intent for booking #${booking.id}`);
+            await stripe.paymentIntents.cancel(existingPaymentIntent.id);
+            paymentAmount = booking.total_amount; // Use full amount
+            shouldCreateNewIntent = true;
+          }
+        } else {
+          console.log(`Existing payment intent for booking #${booking.id} is already canceled. Creating a new one.`);
+          // Apply membership discount if applicable
+          if (hasMembership) {
+            paymentAmount = discountedAmount;
+          }
+          shouldCreateNewIntent = true;
+        }
+      } catch (error) {
+        console.error(`Error retrieving or processing existing payment intent for booking #${booking.id}:`, error);
+        // Continue to create a new payment intent
+        if (hasMembership) {
+          paymentAmount = discountedAmount;
+        }
+        shouldCreateNewIntent = true;
+      }
+    } else {
+      // No existing payment intent - apply discount if user has membership
+      if (hasMembership) {
+        paymentAmount = discountedAmount;
+      }
+      shouldCreateNewIntent = true;
+    }
+
+    // Create new payment intent if needed
+    if (shouldCreateNewIntent) {
+      // Create payment intent with possibly discounted amount
+      const paymentIntent = await createPaymentIntent({
+        amount: paymentAmount,
+        customerId: stripeCustomerId,
+        bookingId: booking.id,
+        description: `CleanMatch - ${booking.service_name} booking${hasMembership ? ' (Membership Discount Applied)' : ''}`,
+      });
+
+      // Update booking with payment intent ID
+      await query(
+        "UPDATE bookings SET stripe_payment_intent_id = $1 WHERE id = $2",
+        [paymentIntent.id, booking.id]
+      );
+
+      // If membership discount is applied, update booking and record usage
+      if (hasMembership && paymentAmount < booking.total_amount) {
+        try {
+          // Update the booking to reflect the new discounted amount
+          await query(
+            `UPDATE bookings 
+             SET total_amount = $1, 
+                 membership_discount_applied = true,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE id = $2`,
+            [paymentAmount, booking.id]
+          );
+          console.log(`Updated booking #${booking.id} with membership discounted amount: ${paymentAmount}`);
+
+          // Record membership usage
+          const { recordMembershipUsage } = require("./membershipController");
+          const usageRecorded = await recordMembershipUsage(
+            booking.membership_id,
+            booking.id,
+            booking.total_amount,
+            paymentAmount
+          );
+
+          if (!usageRecorded) {
+            console.log(`Membership usage not recorded for booking ${booking.id} during payment. Will try again later.`);
+          } else {
+            console.log(`Successfully recorded membership usage for booking ${booking.id} during payment.`);
+          }
+        } catch (error) {
+          console.error("Error updating booking or recording membership usage during payment:", error);
+          // Continue with payment - updating booking and recording usage is not critical to complete payment
+        }
+      } else if (!hasMembership && booking.membership_discount_applied) {
+        // User lost membership - update booking to remove discount flag
+        try {
+          await query(
+            `UPDATE bookings 
+             SET membership_discount_applied = false,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE id = $1`,
+            [booking.id]
+          );
+          console.log(`Updated booking #${booking.id} to remove membership discount flag`);
+        } catch (error) {
+          console.error("Error updating booking to remove discount flag:", error);
+        }
+      }
+
+      // Return the new payment intent info
+      return res.json({
+        success: true,
+        client_secret: paymentIntent.client_secret,
+        payment_intent_id: paymentIntent.id,
+        original_amount: booking.total_amount,
+        final_amount: paymentAmount,
+        membership_discount_applied: hasMembership,
+        membership_id: booking.membership_id
+      });
+    }
+
+    // This should never happen if the code is working correctly,
+    // but added as a fallback to prevent hanging requests
+    return res.status(500).json({
+      success: false,
+      error: "Failed to create payment intent. Please try again."
     });
 
-    // Update booking with payment intent ID
-    await query(
-      "UPDATE bookings SET stripe_payment_intent_id = $1 WHERE id = $2",
-      [paymentIntent.id, booking.id]
-    );
-
-    res.json({
-      success: true,
-      client_secret: paymentIntent.client_secret,
-      payment_intent_id: paymentIntent.id,
-    });
   } catch (error) {
     console.error("Create payment intent error:", error);
     res.status(500).json({

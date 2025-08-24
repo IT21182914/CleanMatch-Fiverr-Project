@@ -34,8 +34,6 @@ const BookService = () => {
   const { serviceId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  console.log(setSearchParams);
-
   // Scroll to top when view changes
   useEffect(() => {
     // Multiple scroll-to-top approaches for maximum compatibility
@@ -144,54 +142,6 @@ const BookService = () => {
     };
   }, [services, navigate]);
 
-  // Update browser history when view changes
-  // Note: This is now handled manually in navigation functions to prevent conflicts
-  /*
-  useEffect(() => {
-    if (services.length === 0) return; // Wait for services to load
-    
-    const currentPath = window.location.pathname;
-    if (currentPath !== '/book') return; // Only handle /book path
-    
-    // Update URL based on current view and selected service
-    const params = new URLSearchParams();
-    
-    if (currentView === 'services') {
-      // For services view, just go to /book with no parameters
-      if (window.location.search !== '') {
-        navigate('/book', { replace: true });
-      }
-    } else if (currentView === 'details' && selectedService) {
-      params.set('view', 'details');
-      params.set('serviceId', selectedService.id.toString());
-      const newUrl = `/book?${params.toString()}`;
-      if (window.location.pathname + window.location.search !== newUrl) {
-        navigate(newUrl, { replace: true });
-      }
-    } else if (currentView === 'booking' && selectedService) {
-      params.set('view', 'booking');
-      params.set('serviceId', selectedService.id.toString());
-      
-      // Add form data to URL for persistence
-      if (formData.scheduledDate) params.set('date', formData.scheduledDate);
-      if (formData.scheduledTime) params.set('time', formData.scheduledTime);
-      if (formData.address) params.set('address', formData.address);
-      if (formData.city) params.set('city', formData.city);
-      if (formData.state) params.set('state', formData.state);
-      if (formData.zipCode) params.set('zipCode', formData.zipCode);
-      if (formData.specialInstructions) params.set('instructions', formData.specialInstructions);
-      if (formData.latitude) params.set('lat', formData.latitude.toString());
-      if (formData.longitude) params.set('lng', formData.longitude.toString());
-      if (formData.locationMethod) params.set('locationMethod', formData.locationMethod);
-      
-      const newUrl = `/book?${params.toString()}`;
-      if (window.location.pathname + window.location.search !== newUrl) {
-        navigate(newUrl, { replace: true });
-      }
-    }
-  }, [currentView, selectedService, formData, services.length, navigate]);
-  */
-
   // Helper function to get form data from URL parameters
   const getFormDataFromURL = () => {
     const urlFormData = {
@@ -212,61 +162,6 @@ const BookService = () => {
     };
     return urlFormData;
   };
-
-  // Helper function to update URL parameters
-  // Note: Commenting out as we now handle URL updates manually in navigation functions
-  /*
-  const updateURLParams = (newFormData) => {
-    const params = new URLSearchParams(searchParams);
-
-    // Update form data parameters
-    if (newFormData.scheduledDate)
-      params.set("date", newFormData.scheduledDate);
-    else params.delete("date");
-
-    if (newFormData.scheduledTime)
-      params.set("time", newFormData.scheduledTime);
-    else params.delete("time");
-
-    if (newFormData.address) params.set("address", newFormData.address);
-    else params.delete("address");
-
-    if (newFormData.city) params.set("city", newFormData.city);
-    else params.delete("city");
-
-    if (newFormData.state) params.set("state", newFormData.state);
-    else params.delete("state");
-
-    if (newFormData.zipCode) params.set("zipCode", newFormData.zipCode);
-    else params.delete("zipCode");
-
-    if (newFormData.specialInstructions)
-      params.set("instructions", newFormData.specialInstructions);
-    else params.delete("instructions");
-
-    if (newFormData.latitude)
-      params.set("lat", newFormData.latitude.toString());
-    else params.delete("lat");
-
-    if (newFormData.longitude)
-      params.set("lng", newFormData.longitude.toString());
-    else params.delete("lng");
-
-    if (newFormData.locationMethod)
-      params.set("locationMethod", newFormData.locationMethod);
-    else params.delete("locationMethod");
-
-    // Update current view
-    if (currentView !== "services") params.set("view", currentView);
-    else params.delete("view");
-
-    // Update selected service
-    if (selectedService) params.set("serviceId", selectedService.id.toString());
-    else params.delete("serviceId");
-
-    setSearchParams(params, { replace: true });
-  };
-  */
 
   useEffect(() => {
     // Only initialize form data from URL parameters if we're in booking view
@@ -290,22 +185,12 @@ const BookService = () => {
     fetchServices();
   }, [serviceId]);
 
-  // Update URL parameters whenever state changes, but only for booking view
-  // Note: Commenting out as we now handle URL updates manually in navigation functions
-  /*
-  useEffect(() => {
-    if (services.length > 0 && currentView === "booking") {
-      // Only update URL with form data when in booking view
-      updateURLParams(formData);
-    }
-  }, [formData, currentView, selectedService, services.length]);
-  */
-
   const fetchServices = async () => {
     try {
       setLoading(true);
       setServiceError(null);
 
+      // Fetch all services (backend now defaults to limit=50)
       const response = await servicesAPI.getAll();
       let servicesData = [];
       if (response.data?.data) {

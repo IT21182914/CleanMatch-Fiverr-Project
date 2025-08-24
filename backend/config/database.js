@@ -658,43 +658,56 @@ const createTables = async () => {
     `);
 
     // Create membership status view for quick membership checks
-    await pool.query(`
-      CREATE OR REPLACE VIEW user_membership_status AS
-      SELECT 
-        u.id as user_id,
-        u.first_name,
-        u.last_name,
-        u.email,
-        u.role,
-        u.is_active as user_active,
-        m.id as membership_id,
-        m.tier,
-        m.plan_name,
-        m.monthly_fee,
-        m.discount_percentage,
-        m.status as membership_status,
-        m.start_date as membership_start,
-        m.current_period_end,
-        m.cancel_at_period_end,
-        CASE 
-          WHEN m.id IS NULL THEN false
-          WHEN m.status = 'active' AND m.current_period_end > NOW() THEN true
-          WHEN m.status = 'trialing' AND (m.trial_end IS NULL OR m.trial_end > NOW()) THEN true
-          ELSE false
-        END as is_member_active,
-        CASE 
-          WHEN m.id IS NULL THEN 'none'
-          WHEN m.status = 'active' AND m.current_period_end > NOW() THEN 'active'
-          WHEN m.status = 'trialing' AND (m.trial_end IS NULL OR m.trial_end > NOW()) THEN 'trialing'
-          WHEN m.status = 'active' AND m.current_period_end <= NOW() THEN 'expired'
-          ELSE m.status
-        END as effective_status,
-        (SELECT COUNT(*) FROM membership_usage mu WHERE mu.membership_id = m.id) as usage_count,
-        (SELECT COALESCE(SUM(discount_applied), 0) FROM membership_usage mu WHERE mu.membership_id = m.id) as total_savings
-      FROM users u
-      LEFT JOIN memberships m ON u.id = m.user_id AND u.role = 'customer'
-      WHERE u.role IN ('customer', 'admin', 'cleaner')
+    // First check if the view exists to avoid conflicts with migrations
+    const viewCheckResult = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public'
+        AND table_name = 'user_membership_status'
+      ) as exists;
     `);
+    
+    const viewExists = viewCheckResult.rows[0].exists;
+    
+    if (!viewExists) {
+      await pool.query(`
+        CREATE VIEW user_membership_status AS
+        SELECT 
+          u.id as user_id,
+          u.first_name,
+          u.last_name,
+          u.email,
+          u.role,
+          u.is_active as user_active,
+          m.id as membership_id,
+          m.tier,
+          m.plan_name,
+          m.monthly_fee,
+          m.discount_percentage,
+          m.status as membership_status,
+          m.start_date as membership_start,
+          m.current_period_end,
+          m.cancel_at_period_end,
+          CASE 
+            WHEN m.id IS NULL THEN false
+            WHEN m.status = 'active' AND m.current_period_end > NOW() THEN true
+            WHEN m.status = 'trialing' AND (m.trial_end IS NULL OR m.trial_end > NOW()) THEN true
+            ELSE false
+          END as is_member_active,
+          CASE 
+            WHEN m.id IS NULL THEN 'none'
+            WHEN m.status = 'active' AND m.current_period_end > NOW() THEN 'active'
+            WHEN m.status = 'trialing' AND (m.trial_end IS NULL OR m.trial_end > NOW()) THEN 'trialing'
+            WHEN m.status = 'active' AND m.current_period_end <= NOW() THEN 'expired'
+            ELSE m.status
+          END as effective_status,
+          (SELECT COUNT(*) FROM membership_usage mu WHERE mu.membership_id = m.id) as usage_count,
+          (SELECT COALESCE(SUM(discount_applied), 0) FROM membership_usage mu WHERE mu.membership_id = m.id) as total_savings
+        FROM users u
+        LEFT JOIN memberships m ON u.id = m.user_id AND u.role = 'customer'
+        WHERE u.role IN ('customer', 'admin', 'cleaner')
+      `);
+    }
 
     // Create trigger function to update tickets updated_at timestamp
     await pool.query(`

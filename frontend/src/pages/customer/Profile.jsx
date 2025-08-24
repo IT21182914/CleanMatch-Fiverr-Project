@@ -234,7 +234,7 @@ const Profile = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
+        <h1 className="text-sm font-bold text-gray-900">Profile Settings</h1>
         <p className="mt-2 text-gray-600">
           Manage your personal information and account settings.
         </p>
@@ -415,7 +415,10 @@ const Profile = () => {
       </Card>
 
       {/* Membership */}
-      <MembershipCard />
+      <div>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Your Membership</h2>
+        <MembershipCard />
+      </div>
 
       {/* Account Information */}
       <Card>

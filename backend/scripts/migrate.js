@@ -25,13 +25,12 @@ function makeUrl() {
     DATABASE_NAME,
     DATABASE_USER,
     DATABASE_PASSWORD = "",
-    PGSSLMODE = "require", // Supabase needs SSL
+    PGSSLMODE = "disable", // Disable SSL for local development
   } = process.env;
   if (DATABASE_URL) {
     // Add SSL parameter to existing URL
     const url = new URL(DATABASE_URL);
-    url.searchParams.set("sslmode", "require");
-    url.searchParams.set("ssl", "true");
+    url.searchParams.set("sslmode", "disable");
     return url.toString();
   }
   if (!DATABASE_HOST || !DATABASE_NAME || !DATABASE_USER) {
@@ -39,7 +38,7 @@ function makeUrl() {
   }
   return `postgres://${encodeURIComponent(DATABASE_USER)}:${encodeURIComponent(
     DATABASE_PASSWORD
-  )}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?sslmode=require&ssl=true`;
+  )}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?sslmode=disable`;
 }
 
 (async () => {

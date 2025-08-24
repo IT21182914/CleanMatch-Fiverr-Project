@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const { auth, authorize } = require("../middleware/auth");
 const {
   getMembershipPlans,
@@ -10,6 +11,7 @@ const {
   calculateMembershipPricing,
   getMembershipAnalytics,
   getAllMemberships,
+  activateMembership,
 } = require("../controllers/membershipController");
 
 const router = express.Router();
@@ -27,6 +29,8 @@ router.post("/subscribe", auth, authorize("customer"), subscribeToMembership);
 // @route   GET /api/memberships/current
 // @desc    Get user's current membership
 // @access  Private (Customers only)
+// Handle preflight requests for this specific route
+router.options("/current", cors());
 router.get("/current", auth, authorize("customer"), getCurrentMembership);
 
 // @route   PUT /api/memberships/cancel
@@ -43,6 +47,11 @@ router.put("/reactivate", auth, authorize("customer"), reactivateMembership);
 // @desc    Update membership payment method
 // @access  Private (Customers only)
 router.put("/payment-method", auth, authorize("customer"), updatePaymentMethod);
+
+// @route   PUT /api/memberships/activate
+// @desc    Activate membership after successful payment
+// @access  Private (Customers only)
+router.put("/activate", auth, authorize("customer"), activateMembership);
 
 // @route   POST /api/memberships/calculate-pricing
 // @desc    Calculate pricing with membership discount

@@ -1,15 +1,20 @@
 /**
  * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
  */
-exports.shorthands = undefined;
+export const shorthands = undefined;
 
 /**
  * @param pgm {import('node-pg-migrate').MigrationBuilder}
  * @param run {() => void | undefined}
  * @returns {Promise<void> | void}
  */
-exports.up = (pgm) => {
-    pgm.alterColumn('bookings', 'zip_code', { notNull: false });
+export const up = (pgm) => {
+    pgm.addColumn('bookings', {
+        membership_discount_applied: {
+            type: 'boolean',
+            default: false
+        }
+    });
 };
 
 /**
@@ -17,6 +22,7 @@ exports.up = (pgm) => {
  * @param run {() => void | undefined}
  * @returns {Promise<void> | void}
  */
-exports.down = (pgm) => {
-    pgm.alterColumn('bookings', 'zip_code', { notNull: true });
+export const down = (pgm) => {
+    pgm.dropColumn('bookings', 'membership_discount_applied');
 };
+
