@@ -265,7 +265,7 @@ const CustomerBookings = () => {
                   <Button
                     size="sm"
                     onClick={() => navigate(`/customer/review/${booking.id}`)}
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-none hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="bg-gradient-to-r from-cyan-500 to-teal-600 text-white border-none hover:from-cyan-600 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                   >
                     Leave Review
                   </Button>
