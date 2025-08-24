@@ -198,8 +198,13 @@ const serviceSchema = Joi.object({
 
 // Review validation
 const reviewSchema = Joi.object({
+  bookingId: Joi.number().integer().positive().required(),
   rating: Joi.number().integer().min(1).max(5).required(),
-  comment: Joi.string().max(500),
+  comment: Joi.string().max(500).optional(),
+  serviceQuality: Joi.number().integer().min(1).max(5).optional(),
+  punctuality: Joi.number().integer().min(1).max(5).optional(),
+  communication: Joi.number().integer().min(1).max(5).optional(),
+  wouldRecommend: Joi.boolean().optional(),
 });
 
 // Admin review validation schemas

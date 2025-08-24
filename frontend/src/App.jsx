@@ -45,6 +45,7 @@ const CustomerTicketDetails = React.lazy(() =>
 const CleanerSelection = React.lazy(() =>
   import("./pages/customer/CleanerSelection")
 );
+const LeaveReview = React.lazy(() => import("./pages/customer/LeaveReview"));
 
 // Cleaner pages
 const CleanerJobs = React.lazy(() => import("./pages/cleaner/Jobs"));
@@ -166,6 +167,15 @@ function App() {
                     element={
                       <ProtectedRoute requiredRole="customer">
                         <BookingDetails />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/customer/review/:bookingId"
+                    element={
+                      <ProtectedRoute requiredRole="customer">
+                        <LeaveReview />
                       </ProtectedRoute>
                     }
                   />

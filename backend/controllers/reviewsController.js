@@ -7,7 +7,15 @@ const { query } = require("../config/database");
  */
 const createReview = async (req, res) => {
   try {
-    const { bookingId, rating, comment } = req.body;
+    const {
+      bookingId,
+      rating,
+      comment,
+      serviceQuality,
+      punctuality,
+      communication,
+      wouldRecommend,
+    } = req.body;
 
     if (!bookingId || !rating) {
       return res.status(400).json({
@@ -21,6 +29,17 @@ const createReview = async (req, res) => {
         success: false,
         error: "Rating must be between 1 and 5",
       });
+    }
+
+    // Validate detailed ratings if provided
+    const detailedRatings = [serviceQuality, punctuality, communication];
+    for (const detailedRating of detailedRatings) {
+      if (detailedRating && (detailedRating < 1 || detailedRating > 5)) {
+        return res.status(400).json({
+          success: false,
+          error: "All ratings must be between 1 and 5",
+        });
+      }
     }
 
     // Verify booking exists and is completed
@@ -62,14 +81,18 @@ const createReview = async (req, res) => {
 
     // Create the review
     const reviewResult = await query(
-      `INSERT INTO reviews (booking_id, customer_id, cleaner_id, rating, comment, is_admin_created)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      `INSERT INTO reviews (booking_id, customer_id, cleaner_id, rating, comment, service_quality, punctuality, communication, would_recommend, is_admin_created)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
       [
         bookingId,
         req.user.id,
         booking.cleaner_id,
         rating,
         comment || null,
+        serviceQuality || null,
+        punctuality || null,
+        communication || null,
+        wouldRecommend !== undefined ? wouldRecommend : null,
         false,
       ]
     );
@@ -409,7 +432,7 @@ const updateCleanerRating = async (cleanerId) => {
     const reviewCount = parseInt(ratingResult.rows[0].review_count) || 0;
 
     await query(
-      "UPDATE users SET rating = $1, review_count = $2 WHERE id = $3",
+      "UPDATE cleaner_profiles SET rating = $1, total_jobs = $2 WHERE user_id = $3",
       [avgRating, reviewCount, cleanerId]
     );
   } catch (error) {

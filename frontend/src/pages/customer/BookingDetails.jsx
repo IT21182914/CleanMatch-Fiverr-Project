@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import {
@@ -75,7 +75,7 @@ const BookingDetails = () => {
 
   useEffect(() => {
     fetchBookingDetails();
-  }, [id]);
+  }, [fetchBookingDetails]);
 
   // Handle success messages from redirects
   useEffect(() => {
@@ -100,7 +100,7 @@ const BookingDetails = () => {
     }
   }, [location, navigate, id]);
 
-  const fetchBookingDetails = async () => {
+  const fetchBookingDetails = useCallback(async () => {
     try {
       console.log(`Fetching booking details for ID: ${id}`);
       setLoading(true);
@@ -122,7 +122,7 @@ const BookingDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
 
   const handlePayment = () => {
     navigate(`/payment/${booking.id}`);
@@ -540,6 +540,7 @@ const BookingDetails = () => {
                 {isCompleted && !booking.review && (
                   <Button
                     variant="outline"
+                    onClick={() => navigate(`/customer/review/${booking.id}`)}
                     className="w-full text-sm bg-gradient-to-r from-blue-500 to-purple-600 text-white border-none hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl py-3"
                   >
                     Leave Review

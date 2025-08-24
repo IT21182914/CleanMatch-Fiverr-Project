@@ -36,19 +36,19 @@ router.get("/cleaner/:cleanerId", getCleanerReviews);
 router.post(
   "/",
   auth,
-  authorize(["customer"]),
+  authorize("customer"),
   validate(reviewSchema),
   createReview
 );
-router.get("/my-reviews", auth, authorize(["customer"]), getMyReviews);
+router.get("/my-reviews", auth, authorize("customer"), getMyReviews);
 router.get(
   "/can-review/:bookingId",
   auth,
-  authorize(["customer"]),
+  authorize("customer"),
   canReviewBooking
 );
-router.put("/:id", auth, authorize(["customer"]), updateReview);
-router.delete("/:id", auth, authorize(["customer"]), deleteReview);
+router.put("/:id", auth, authorize("customer"), updateReview);
+router.delete("/:id", auth, authorize("customer"), deleteReview);
 
 // Admin routes (protected) - DISABLED
 // router.get("/admin/all", auth, authorize("admin"), getAllReviews);
@@ -105,11 +105,11 @@ router.get("/admin/dashboard", auth, authorize("admin"), (req, res) => {
         customer_reviews: 0,
         visible_reviews: 0,
         hidden_reviews: 0,
-        average_rating: 0
+        average_rating: 0,
       },
       recentActions: [],
-      topAdminReviewedCleaners: []
-    }
+      topAdminReviewedCleaners: [],
+    },
   });
 });
 
