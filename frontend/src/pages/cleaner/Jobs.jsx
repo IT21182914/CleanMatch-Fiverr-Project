@@ -51,7 +51,14 @@ const Jobs = () => {
   const handleAcceptJob = async (jobId) => {
     try {
       setUpdating((prev) => ({ ...prev, [jobId]: true }));
-      await bookingsAPI.updateStatus(jobId, "confirmed");
+      const job = jobs.find((j) => j.id === jobId);
+
+      // Use appropriate API based on job status
+      if (job.status === "pending_cleaner_response") {
+        await bookingsAPI.acceptBooking(jobId);
+      } else {
+        await bookingsAPI.updateStatus(jobId, "confirmed");
+      }
 
       // Update job in local state
       setJobs((prev) =>
@@ -69,14 +76,24 @@ const Jobs = () => {
   const handleRejectJob = async (jobId) => {
     try {
       setUpdating((prev) => ({ ...prev, [jobId]: true }));
-      await bookingsAPI.updateStatus(jobId, "cancelled");
+      const job = jobs.find((j) => j.id === jobId);
 
-      // Update job in local state
-      setJobs((prev) =>
-        prev.map((job) =>
-          job.id === jobId ? { ...job, status: "cancelled" } : job
-        )
-      );
+      // Use appropriate API based on job status
+      if (job.status === "pending_cleaner_response") {
+        await bookingsAPI.rejectBooking(jobId, "Unable to take this booking");
+
+        // Remove job from local state as it's no longer assigned to this cleaner
+        setJobs((prev) => prev.filter((job) => job.id !== jobId));
+      } else {
+        await bookingsAPI.updateStatus(jobId, "cancelled");
+
+        // Update job in local state
+        setJobs((prev) =>
+          prev.map((job) =>
+            job.id === jobId ? { ...job, status: "cancelled" } : job
+          )
+        );
+      }
     } catch (error) {
       console.error("Error rejecting job:", error);
     } finally {
@@ -120,12 +137,18 @@ const Jobs = () => {
 
   const filteredJobs = jobs.filter((job) => {
     if (filter === "all") return true;
+    if (filter === "pending")
+      return (
+        job.status === "pending" || job.status === "pending_cleaner_response"
+      );
     return job.status === filter;
   });
 
   const statusCounts = {
     all: jobs.length,
-    pending: jobs.filter((j) => j.status === "pending").length,
+    pending: jobs.filter(
+      (j) => j.status === "pending" || j.status === "pending_cleaner_response"
+    ).length,
     confirmed: jobs.filter((j) => j.status === "confirmed").length,
     in_progress: jobs.filter((j) => j.status === "in_progress").length,
     completed: jobs.filter((j) => j.status === "completed").length,
@@ -135,7 +158,7 @@ const Jobs = () => {
   const getJobActions = (job) => {
     const actions = [];
 
-    if (job.status === "pending") {
+    if (job.status === "pending" || job.status === "pending_cleaner_response") {
       actions.push(
         <Button
           key="accept"

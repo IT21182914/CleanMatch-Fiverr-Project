@@ -111,7 +111,7 @@ const createApiMethod = (method) => {
         case "get":
           return api.get(url, config);
         case "post":
-          return api.post(url, data, config);
+          return api.post(url, data === null ? {} : data, config);
         case "put":
           return api.put(url, data, config);
         case "patch":
@@ -194,6 +194,9 @@ export const bookingsAPI = {
   getById: (id) => enhancedApi.get(`/bookings/${id}`),
   updateStatus: (id, status) =>
     enhancedApi.put(`/bookings/${id}/status`, { status }),
+  acceptBooking: (id) => enhancedApi.post(`/bookings/${id}/accept`),
+  rejectBooking: (id, reason) =>
+    enhancedApi.post(`/bookings/${id}/reject`, { reason }),
   updatePaymentStatus: (id, paymentStatus) =>
     enhancedApi.put(`/bookings/${id}/payment-status`, { paymentStatus }),
   assignCleaner: (id, cleanerId) =>
@@ -207,10 +210,6 @@ export const bookingsAPI = {
   // AI-Enhanced ZIP Code Matching
   getZipBasedRecommendations: (searchData) =>
     enhancedApi.post("/bookings/recommendations-by-zip", searchData),
-  acceptBooking: (id) =>
-    enhancedApi.put(`/bookings/${id}/status`, { status: "confirmed" }),
-  rejectBooking: (id) =>
-    enhancedApi.put(`/bookings/${id}/status`, { status: "cancelled" }),
   addReview: (id, review) => enhancedApi.post(`/bookings/${id}/review`, review),
 };
 
@@ -322,7 +321,8 @@ export const membershipAPI = {
 
   // Customer endpoints
   subscribe: (data) => enhancedApi.post("/memberships/subscribe", data),
-  activateMembership: (tier) => enhancedApi.put("/memberships/activate", { tier }),
+  activateMembership: (tier) =>
+    enhancedApi.put("/memberships/activate", { tier }),
   getCurrentMembership: () => enhancedApi.get("/memberships/current"),
   cancelMembership: (data) => enhancedApi.put("/memberships/cancel", data),
   reactivateMembership: () => enhancedApi.put("/memberships/reactivate"),

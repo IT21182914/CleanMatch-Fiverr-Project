@@ -9,6 +9,8 @@ const {
   createBooking,
   getBookingById,
   updateBookingStatus,
+  acceptBookingRequest,
+  rejectBookingRequest,
   updateBookingPaymentStatus,
   assignCleanerToBooking,
   getCleanerRecommendationsForBooking,
@@ -40,6 +42,16 @@ router.get("/:id", auth, getBookingById);
 // @desc    Update booking status
 // @access  Private
 router.put("/:id/status", auth, updateBookingStatus);
+
+// @route   POST /api/bookings/:id/accept
+// @desc    Accept booking request (Cleaner only)
+// @access  Private (Cleaner only)
+router.post("/:id/accept", auth, authorize("cleaner"), acceptBookingRequest);
+
+// @route   POST /api/bookings/:id/reject
+// @desc    Reject booking request (Cleaner only)
+// @access  Private (Cleaner only)
+router.post("/:id/reject", auth, authorize("cleaner"), rejectBookingRequest);
 
 // @route   PUT /api/bookings/:id/payment_status
 // @desc    Update booking payment status

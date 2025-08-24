@@ -183,13 +183,17 @@ const BookingDetails = () => {
   const isPending =
     booking.paymentStatus === "pending" || booking.payment_status === "pending";
   const hasAssignedCleaner = booking.cleaner || booking.assigned_cleaner;
+  const isPendingCleanerResponse =
+    booking.status === "pending_cleaner_response";
   const canSelectCleaner =
     isPaid &&
     !hasAssignedCleaner &&
     (booking.status === "confirmed" || booking.status === "pending");
   const canCancel =
-    (booking.status === "pending" || booking.status === "confirmed") &&
-    !hasAssignedCleaner;
+    (booking.status === "pending" ||
+      booking.status === "confirmed" ||
+      booking.status === "pending_cleaner_response") &&
+    (!hasAssignedCleaner || isPendingCleanerResponse);
   const canPay =
     isPending &&
     (booking.status === "pending" || booking.status === "confirmed");
@@ -250,9 +254,12 @@ const BookingDetails = () => {
                         "Complete your payment to proceed with the booking."}
                       {canSelectCleaner &&
                         "Your payment is complete. Select a cleaner to start your service."}
+                      {isPendingCleanerResponse &&
+                        "Your request has been sent to the cleaner. They will respond shortly to confirm or decline your booking."}
                       {canCancel &&
                         !canPay &&
                         !canSelectCleaner &&
+                        !isPendingCleanerResponse &&
                         "You can cancel this booking if needed."}
                     </p>
                   </div>

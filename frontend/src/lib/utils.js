@@ -6,13 +6,13 @@ export function cn(...inputs) {
 
 export function formatCurrency(amount) {
   // Convert string to number if needed and ensure we have a valid number
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
 
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   }).format(numAmount);
 }
 
@@ -45,7 +45,7 @@ export function formatDateTime(date) {
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    hour12: true
+    hour12: true,
   }).format(dateObj);
   return s;
 }
@@ -65,7 +65,7 @@ export function formatDateTimeLocal(date) {
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
-    timeZoneName: "short"
+    timeZoneName: "short",
   }).format(dateObj);
   return s;
 }
@@ -84,12 +84,16 @@ export function formatTime(timeString) {
 }
 
 export function capitalizeFirst(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  if (str === "pending_cleaner_response") {
+    return "Awaiting Cleaner Response";
+  }
+  return str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, " ");
 }
 
 export function getStatusColor(status) {
   const statusColors = {
     pending: "bg-cyan-100 text-cyan-800",
+    pending_cleaner_response: "bg-orange-100 text-orange-800",
     confirmed: "bg-blue-100 text-blue-800",
     in_progress: "bg-indigo-100 text-indigo-800",
     completed: "bg-green-100 text-green-800",

@@ -458,6 +458,7 @@ const updateBookingStatus = async (req, res) => {
 
     const validStatuses = [
       "pending",
+      "pending_cleaner_response",
       "confirmed",
       "in_progress",
       "completed",
@@ -499,10 +500,13 @@ const updateBookingStatus = async (req, res) => {
       req.user.role === "cleaner" &&
       booking.cleaner_id === req.user.id
     ) {
-      // Cleaners can update to confirmed, in_progress, or completed
-      hasPermission = ["confirmed", "in_progress", "completed"].includes(
-        status
-      );
+      // Cleaners can update to confirmed, in_progress, completed, or reject by cancelling
+      hasPermission = [
+        "confirmed",
+        "in_progress",
+        "completed",
+        "cancelled",
+      ].includes(status);
     }
 
     if (!hasPermission) {
@@ -518,6 +522,101 @@ const updateBookingStatus = async (req, res) => {
       [status, id]
     );
 
+    // Handle notifications for specific status changes
+    if (
+      status === "confirmed" &&
+      req.user.role === "cleaner" &&
+      booking.status === "pending_cleaner_response"
+    ) {
+      // Cleaner accepted the booking request
+      const customerResult = await query(
+        "SELECT first_name, last_name FROM users WHERE id = $1",
+        [booking.customer_id]
+      );
+
+      if (customerResult.rows.length > 0) {
+        const customer = customerResult.rows[0];
+
+        // Get cleaner info
+        const cleanerResult = await query(
+          "SELECT first_name, last_name FROM users WHERE id = $1",
+          [req.user.id]
+        );
+
+        if (cleanerResult.rows.length > 0) {
+          const cleaner = cleanerResult.rows[0];
+
+          // Notify customer that cleaner accepted
+          await query(
+            `INSERT INTO notifications (user_id, title, message, type, metadata)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [
+              booking.customer_id,
+              "Booking Confirmed!",
+              `Great news! ${cleaner.first_name} ${cleaner.last_name} has accepted your booking request for ${booking.booking_date} at ${booking.booking_time}.`,
+              "booking_confirmed",
+              JSON.stringify({
+                bookingId: id,
+                cleanerId: req.user.id,
+                cleanerName: `${cleaner.first_name} ${cleaner.last_name}`,
+                bookingDate: booking.booking_date,
+                bookingTime: booking.booking_time,
+              }),
+            ]
+          );
+        }
+      }
+    } else if (
+      status === "cancelled" &&
+      req.user.role === "cleaner" &&
+      booking.status === "pending_cleaner_response"
+    ) {
+      // Cleaner rejected the booking request
+      const customerResult = await query(
+        "SELECT first_name, last_name FROM users WHERE id = $1",
+        [booking.customer_id]
+      );
+
+      if (customerResult.rows.length > 0) {
+        const customer = customerResult.rows[0];
+
+        // Get cleaner info
+        const cleanerResult = await query(
+          "SELECT first_name, last_name FROM users WHERE id = $1",
+          [req.user.id]
+        );
+
+        if (cleanerResult.rows.length > 0) {
+          const cleaner = cleanerResult.rows[0];
+
+          // Reset booking to allow customer to select another cleaner
+          await query(
+            "UPDATE bookings SET cleaner_id = NULL, status = 'pending', updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+            [id]
+          );
+
+          // Notify customer that cleaner declined
+          await query(
+            `INSERT INTO notifications (user_id, title, message, type, metadata)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [
+              booking.customer_id,
+              "Booking Request Declined",
+              `${cleaner.first_name} ${cleaner.last_name} is unable to accept your booking request for ${booking.booking_date} at ${booking.booking_time}. Please select another cleaner.`,
+              "booking_declined",
+              JSON.stringify({
+                bookingId: id,
+                cleanerId: req.user.id,
+                cleanerName: `${cleaner.first_name} ${cleaner.last_name}`,
+                bookingDate: booking.booking_date,
+                bookingTime: booking.booking_time,
+              }),
+            ]
+          );
+        }
+      }
+    }
+
     res.json({
       success: true,
       message: `Booking status updated to ${status}`,
@@ -527,6 +626,193 @@ const updateBookingStatus = async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Server error updating booking status",
+    });
+  }
+};
+
+/**
+ * @desc    Accept booking request (Cleaner only)
+ * @route   POST /api/bookings/:id/accept
+ * @access  Private (Cleaner only)
+ */
+const acceptBookingRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Get booking details
+    const bookingResult = await query("SELECT * FROM bookings WHERE id = $1", [
+      id,
+    ]);
+
+    if (bookingResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Booking not found",
+      });
+    }
+
+    const booking = bookingResult.rows[0];
+
+    // Check permissions - only assigned cleaner can accept
+    if (req.user.role !== "cleaner" || booking.cleaner_id !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: "Access denied for this booking",
+      });
+    }
+
+    // Check if booking is in correct status
+    if (booking.status !== "pending_cleaner_response") {
+      return res.status(400).json({
+        success: false,
+        error: "Booking is not awaiting cleaner response",
+        currentStatus: booking.status,
+      });
+    }
+
+    // Update booking to confirmed
+    await query(
+      "UPDATE bookings SET status = 'confirmed', updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+      [id]
+    );
+
+    // Get cleaner info for notification
+    const cleanerResult = await query(
+      "SELECT first_name, last_name FROM users WHERE id = $1",
+      [req.user.id]
+    );
+
+    if (cleanerResult.rows.length > 0) {
+      const cleaner = cleanerResult.rows[0];
+
+      // Notify customer that cleaner accepted
+      await query(
+        `INSERT INTO notifications (user_id, title, message, type, metadata)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [
+          booking.customer_id,
+          "Booking Confirmed!",
+          `Great news! ${cleaner.first_name} ${cleaner.last_name} has accepted your booking request for ${booking.booking_date} at ${booking.booking_time}.`,
+          "booking_confirmed",
+          JSON.stringify({
+            bookingId: id,
+            cleanerId: req.user.id,
+            cleanerName: `${cleaner.first_name} ${cleaner.last_name}`,
+            bookingDate: booking.booking_date,
+            bookingTime: booking.booking_time,
+          }),
+        ]
+      );
+    }
+
+    res.json({
+      success: true,
+      message: "Booking request accepted successfully",
+      booking: {
+        id: booking.id,
+        status: "confirmed",
+      },
+    });
+  } catch (error) {
+    console.error("Accept booking request error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error accepting booking request",
+    });
+  }
+};
+
+/**
+ * @desc    Reject booking request (Cleaner only)
+ * @route   POST /api/bookings/:id/reject
+ * @access  Private (Cleaner only)
+ */
+const rejectBookingRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    // Get booking details
+    const bookingResult = await query("SELECT * FROM bookings WHERE id = $1", [
+      id,
+    ]);
+
+    if (bookingResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Booking not found",
+      });
+    }
+
+    const booking = bookingResult.rows[0];
+
+    // Check permissions - only assigned cleaner can reject
+    if (req.user.role !== "cleaner" || booking.cleaner_id !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: "Access denied for this booking",
+      });
+    }
+
+    // Check if booking is in correct status
+    if (booking.status !== "pending_cleaner_response") {
+      return res.status(400).json({
+        success: false,
+        error: "Booking is not awaiting cleaner response",
+        currentStatus: booking.status,
+      });
+    }
+
+    // Get cleaner info for notification
+    const cleanerResult = await query(
+      "SELECT first_name, last_name FROM users WHERE id = $1",
+      [req.user.id]
+    );
+
+    if (cleanerResult.rows.length > 0) {
+      const cleaner = cleanerResult.rows[0];
+
+      // Reset booking to allow customer to select another cleaner
+      await query(
+        "UPDATE bookings SET cleaner_id = NULL, status = 'pending', updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+        [id]
+      );
+
+      // Notify customer that cleaner declined
+      await query(
+        `INSERT INTO notifications (user_id, title, message, type, metadata)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [
+          booking.customer_id,
+          "Booking Request Declined",
+          `${cleaner.first_name} ${cleaner.last_name} is unable to accept your booking request for ${booking.booking_date} at ${booking.booking_time}. Please select another cleaner.`,
+          "booking_declined",
+          JSON.stringify({
+            bookingId: id,
+            cleanerId: req.user.id,
+            cleanerName: `${cleaner.first_name} ${cleaner.last_name}`,
+            bookingDate: booking.booking_date,
+            bookingTime: booking.booking_time,
+            reason: reason || "Not specified",
+          }),
+        ]
+      );
+    }
+
+    res.json({
+      success: true,
+      message: "Booking request rejected successfully",
+      booking: {
+        id: booking.id,
+        status: "pending",
+        cleaner_id: null,
+      },
+    });
+  } catch (error) {
+    console.error("Reject booking request error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error rejecting booking request",
     });
   }
 };
@@ -810,6 +1096,8 @@ const assignCleanerToBooking = async (req, res) => {
          updated_at = CURRENT_TIMESTAMP 
          WHERE id = $3`;
 
+    const updateStatus =
+      req.user.role === "admin" ? "confirmed" : "pending_cleaner_response";
     const updateParams =
       req.user.role === "admin"
         ? [
@@ -818,7 +1106,7 @@ const assignCleanerToBooking = async (req, res) => {
             id,
             overrideReason || "Manual admin assignment",
           ]
-        : [cleanerId, "confirmed", id];
+        : [cleanerId, updateStatus, id];
 
     await client.query(updateQuery, updateParams);
 
@@ -830,20 +1118,23 @@ const assignCleanerToBooking = async (req, res) => {
     const customer = customerResult.rows[0];
 
     // Notify new cleaner
+    const cleanerNotificationTitle =
+      req.user.role === "admin"
+        ? "New Booking Assignment"
+        : "New Booking Request";
+    const cleanerNotificationMessage =
+      req.user.role === "admin"
+        ? `You have been manually assigned by admin to a cleaning job for ${booking.booking_date} at ${booking.booking_time}.`
+        : `You have received a new booking request for ${booking.booking_date} at ${booking.booking_time}. Please accept or reject this request.`;
+
     await client.query(
       `INSERT INTO notifications (user_id, title, message, type, metadata)
        VALUES ($1, $2, $3, $4, $5)`,
       [
         cleanerId,
-        "New Booking Assignment",
-        `You have been ${
-          req.user.role === "admin"
-            ? "manually assigned by admin to"
-            : "assigned to"
-        } a cleaning job for ${booking.booking_date} at ${
-          booking.booking_time
-        }.`,
-        "new_assignment",
+        cleanerNotificationTitle,
+        cleanerNotificationMessage,
+        req.user.role === "admin" ? "new_assignment" : "booking_request",
         JSON.stringify({
           bookingId: id,
           customerName: `${customer.first_name} ${customer.last_name}`,
@@ -856,18 +1147,27 @@ const assignCleanerToBooking = async (req, res) => {
 
     // Notify customer about assignment change
     if (oldCleanerId !== cleanerId) {
-      const notificationMessage = oldCleanerId
-        ? `Your cleaner has been updated to ${cleaner.first_name} ${cleaner.last_name} for your booking on ${booking.booking_date}.`
-        : `Great news! ${cleaner.first_name} ${cleaner.last_name} has been assigned to your booking on ${booking.booking_date}.`;
+      const customerNotificationMessage =
+        req.user.role === "admin"
+          ? oldCleanerId
+            ? `Your cleaner has been updated to ${cleaner.first_name} ${cleaner.last_name} for your booking on ${booking.booking_date}.`
+            : `Great news! ${cleaner.first_name} ${cleaner.last_name} has been assigned to your booking on ${booking.booking_date}.`
+          : `Your cleaning request has been sent to ${cleaner.first_name} ${cleaner.last_name}. They will respond shortly to confirm or decline your booking for ${booking.booking_date}.`;
 
       await client.query(
         `INSERT INTO notifications (user_id, title, message, type, metadata)
          VALUES ($1, $2, $3, $4, $5)`,
         [
           booking.customer_id,
-          oldCleanerId ? "Cleaner Updated" : "Cleaner Assigned",
-          notificationMessage,
-          "booking_updated",
+          req.user.role === "admin"
+            ? oldCleanerId
+              ? "Cleaner Updated"
+              : "Cleaner Assigned"
+            : "Cleaner Request Sent",
+          customerNotificationMessage,
+          req.user.role === "admin"
+            ? "booking_updated"
+            : "booking_request_sent",
           JSON.stringify({
             bookingId: id,
             cleanerId,
@@ -1710,6 +2010,8 @@ module.exports = {
   createBooking,
   getBookingById,
   updateBookingStatus,
+  acceptBookingRequest,
+  rejectBookingRequest,
   updateBookingPaymentStatus,
   assignCleanerToBooking,
   getCleanerRecommendationsForBooking,

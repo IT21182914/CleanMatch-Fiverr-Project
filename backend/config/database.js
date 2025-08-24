@@ -198,7 +198,7 @@ const createTables = async () => {
         booking_time TIME NOT NULL,
         duration_hours INTEGER NOT NULL,
         total_amount DECIMAL(10, 2) NOT NULL,
-        status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'in_progress', 'completed', 'cancelled')),
+        status VARCHAR(30) DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'pending_cleaner_response', 'in_progress', 'completed', 'cancelled')),
         special_instructions TEXT,
         address TEXT NOT NULL,
         city VARCHAR(100) NOT NULL,
@@ -208,6 +208,9 @@ const createTables = async () => {
         longitude DECIMAL(11, 8),
         payment_status VARCHAR(20) DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'failed', 'refunded')),
         stripe_payment_intent_id VARCHAR(255),
+        assigned_at TIMESTAMP,
+        assigned_by_admin BOOLEAN DEFAULT FALSE,
+        admin_override_reason TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -666,9 +669,9 @@ const createTables = async () => {
         AND table_name = 'user_membership_status'
       ) as exists;
     `);
-    
+
     const viewExists = viewCheckResult.rows[0].exists;
-    
+
     if (!viewExists) {
       await pool.query(`
         CREATE VIEW user_membership_status AS
@@ -771,6 +774,46 @@ const createTables = async () => {
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_admin_reviews_is_visible ON admin_reviews(is_visible);
     `);
+
+    // Add missing columns to bookings table if they don't exist
+    try {
+      await pool.query(`
+        ALTER TABLE bookings 
+        ADD COLUMN IF NOT EXISTS assigned_at TIMESTAMP,
+        ADD COLUMN IF NOT EXISTS assigned_by_admin BOOLEAN DEFAULT FALSE,
+        ADD COLUMN IF NOT EXISTS admin_override_reason TEXT
+      `);
+    } catch (error) {
+      console.log(
+        "Note: Columns may already exist or other constraint issue:",
+        error.message
+      );
+    }
+
+    // Update status constraint to include new status
+    try {
+      await pool.query(`
+        ALTER TABLE bookings 
+        DROP CONSTRAINT IF EXISTS bookings_status_check
+      `);
+      await pool.query(`
+        ALTER TABLE bookings 
+        ADD CONSTRAINT bookings_status_check 
+        CHECK (status IN ('pending', 'confirmed', 'pending_cleaner_response', 'in_progress', 'completed', 'cancelled'))
+      `);
+    } catch (error) {
+      console.log("Note: Status constraint update issue:", error.message);
+    }
+
+    // Also extend the status column length if needed
+    try {
+      await pool.query(`
+        ALTER TABLE bookings 
+        ALTER COLUMN status TYPE VARCHAR(30)
+      `);
+    } catch (error) {
+      console.log("Note: Status column type update issue:", error.message);
+    }
 
     console.log("✅ Database tables created/verified successfully");
   } catch (error) {
