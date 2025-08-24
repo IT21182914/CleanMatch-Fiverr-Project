@@ -73,6 +73,30 @@ const BookingDetails = () => {
     setTimeout(scrollToTop, 50);
   }, []);
 
+  const fetchBookingDetails = useCallback(async () => {
+    try {
+      console.log(`Fetching booking details for ID: ${id}`);
+      setLoading(true);
+      const response = await bookingsAPI.getById(id);
+      if (response.data.success) {
+        console.log(
+          "Booking details fetched successfully:",
+          response.data.data
+        );
+        setBooking(response.data.data);
+      } else {
+        toast.error("Failed to load booking details");
+        navigate("/customer/bookings");
+      }
+    } catch (error) {
+      console.error("Error fetching booking details:", error);
+      toast.error("Failed to load booking details");
+      navigate("/customer/bookings");
+    } finally {
+      setLoading(false);
+    }
+  }, [id, navigate]);
+
   useEffect(() => {
     fetchBookingDetails();
   }, [fetchBookingDetails]);
@@ -99,30 +123,6 @@ const BookingDetails = () => {
       navigate(location.pathname, { replace: true });
     }
   }, [location, navigate, id]);
-
-  const fetchBookingDetails = useCallback(async () => {
-    try {
-      console.log(`Fetching booking details for ID: ${id}`);
-      setLoading(true);
-      const response = await bookingsAPI.getById(id);
-      if (response.data.success) {
-        console.log(
-          "Booking details fetched successfully:",
-          response.data.data
-        );
-        setBooking(response.data.data);
-      } else {
-        toast.error("Failed to load booking details");
-        navigate("/customer/bookings");
-      }
-    } catch (error) {
-      console.error("Error fetching booking details:", error);
-      toast.error("Failed to load booking details");
-      navigate("/customer/bookings");
-    } finally {
-      setLoading(false);
-    }
-  }, [id, navigate]);
 
   const handlePayment = () => {
     navigate(`/payment/${booking.id}`);
@@ -544,6 +544,19 @@ const BookingDetails = () => {
                     className="w-full text-sm bg-gradient-to-r from-blue-500 to-purple-600 text-white border-none hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl py-3"
                   >
                     Leave Review
+                  </Button>
+                )}
+
+                {isCompleted && booking.review && (
+                  <Button
+                    variant="outline"
+                    disabled
+                    className="w-full text-sm bg-gradient-to-r from-green-500 to-green-600 text-white border-none cursor-not-allowed opacity-75 py-3"
+                    title={`You reviewed this on ${new Date(
+                      booking.review.createdAt
+                    ).toLocaleDateString()}`}
+                  >
+                    ✓ Already Reviewed
                   </Button>
                 )}
 

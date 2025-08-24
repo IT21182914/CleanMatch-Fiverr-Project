@@ -25,8 +25,8 @@ const combineDateTime = (bookingDate, bookingTime) => {
   if (bookingDate instanceof Date) {
     // Extract date in YYYY-MM-DD format
     const year = bookingDate.getFullYear();
-    const month = (bookingDate.getMonth() + 1).toString().padStart(2, '0');
-    const day = bookingDate.getDate().toString().padStart(2, '0');
+    const month = (bookingDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = bookingDate.getDate().toString().padStart(2, "0");
     dateStr = `${year}-${month}-${day}`;
   } else {
     // Assume it's already a string in YYYY-MM-DD format
@@ -69,12 +69,12 @@ const createBooking = async (req, res) => {
     let finalLongitude = null;
     let finalPostalCode = null;
 
-    if (locationMethod === 'gps') {
+    if (locationMethod === "gps") {
       // For GPS method
       finalLatitude = latitude;
       finalLongitude = longitude;
       finalPostalCode = null;
-    } else if (locationMethod === 'postal') {
+    } else if (locationMethod === "postal") {
       // For postal method
       finalPostalCode = postalCode;
       finalLatitude = null;
@@ -174,7 +174,7 @@ const createBooking = async (req, res) => {
         finalPostalCode,
         finalLatitude,
         finalLongitude,
-        locationMethod
+        locationMethod,
       ]
     );
 
@@ -239,8 +239,9 @@ const createBooking = async (req, res) => {
         );
       }
 
-      console.log(`Created/retrieved Stripe customer ID for user ${req.user.id}: ${stripeCustomerId}`);
-
+      console.log(
+        `Created/retrieved Stripe customer ID for user ${req.user.id}: ${stripeCustomerId}`
+      );
     } catch (error) {
       console.error("Stripe customer creation error:", error);
       // Continue without Stripe customer ID - it can be created later during payment
@@ -260,7 +261,6 @@ const createBooking = async (req, res) => {
         },
       },
     });
-    
   } catch (error) {
     await client.query("ROLLBACK");
     console.error("Create booking error:", error);
@@ -290,13 +290,15 @@ const getBookingById = async (req, res) => {
         cleaner.first_name as cleaner_first_name, cleaner.last_name as cleaner_last_name,
         cleaner.email as cleaner_email, cleaner.phone as cleaner_phone,
         cp.rating as cleaner_rating, cp.hourly_rate as cleaner_hourly_rate,
-        m.id as membership_id, m.status as membership_status
+        m.id as membership_id, m.status as membership_status,
+        r.id as review_id, r.rating as review_rating, r.comment as review_comment, r.created_at as review_created_at
        FROM bookings b
        JOIN services s ON b.service_id = s.id
        JOIN users customer ON b.customer_id = customer.id
        LEFT JOIN users cleaner ON b.cleaner_id = cleaner.id
        LEFT JOIN cleaner_profiles cp ON cleaner.id = cp.user_id
        LEFT JOIN memberships m ON customer.id = m.user_id AND m.status = 'active' AND m.current_period_end > NOW()
+       LEFT JOIN reviews r ON b.id = r.booking_id AND r.customer_id = b.customer_id
        WHERE b.id = $1`,
       [id]
     );
@@ -327,13 +329,17 @@ const getBookingById = async (req, res) => {
 
     // Format the response with better structure
     // Combine booking_date and booking_time into a single datetime
-    const combinedDateTime = combineDateTime(booking.booking_date, booking.booking_time);
+    const combinedDateTime = combineDateTime(
+      booking.booking_date,
+      booking.booking_time
+    );
 
     // Calculate pricing breakdown
     let baseAmount = 0;
     let membershipDiscount = 0;
     let calculatedTotalAmount = 0;
-    const hasMembership = booking.membership_id !== null && booking.membership_status === 'active';
+    const hasMembership =
+      booking.membership_id !== null && booking.membership_status === "active";
 
     try {
       baseAmount = parseFloat(booking.service_base_price);
@@ -381,7 +387,7 @@ const getBookingById = async (req, res) => {
       service: {
         name: booking.service_name,
         category: booking.service_category,
-        basePrice: booking.service_base_price
+        basePrice: booking.service_base_price,
       },
       customer: {
         firstName: booking.customer_first_name,
@@ -391,27 +397,40 @@ const getBookingById = async (req, res) => {
       },
       cleaner: booking.cleaner_id
         ? {
-          firstName: booking.cleaner_first_name,
-          lastName: booking.cleaner_last_name,
-          email: booking.cleaner_email,
-          phone: booking.cleaner_phone,
-          rating: booking.cleaner_rating,
-          hourlyRate: booking.cleaner_hourly_rate,
-        }
+            firstName: booking.cleaner_first_name,
+            lastName: booking.cleaner_last_name,
+            email: booking.cleaner_email,
+            phone: booking.cleaner_phone,
+            rating: booking.cleaner_rating,
+            hourlyRate: booking.cleaner_hourly_rate,
+          }
         : null,
       pricing_breakdown: {
         base_amount: Math.round(baseAmount * 100) / 100,
         membership_discount: Math.round(membershipDiscount * 100) / 100,
         hours: booking.duration_hours,
         hourly_rate: baseAmount,
-        discounted_hourly_rate: hasMembership ? baseAmount - membershipDiscount : baseAmount,
-        original_total: Math.round(parseFloat(booking.total_amount) * 100) / 100,
+        discounted_hourly_rate: hasMembership
+          ? baseAmount - membershipDiscount
+          : baseAmount,
+        original_total:
+          Math.round(parseFloat(booking.total_amount) * 100) / 100,
         calculated_total: Math.round(calculatedTotalAmount * 100) / 100,
         discount_applied: hasMembership,
-        discount_percentage: hasMembership ? 50 : 0
+        discount_percentage: hasMembership ? 50 : 0,
       },
       hasMembership: hasMembership,
-      membershipAppliedAfterBooking: hasMembership && (calculatedTotalAmount !== parseFloat(booking.total_amount))
+      membershipAppliedAfterBooking:
+        hasMembership &&
+        calculatedTotalAmount !== parseFloat(booking.total_amount),
+      review: booking.review_id
+        ? {
+            id: booking.review_id,
+            rating: booking.review_rating,
+            comment: booking.review_comment,
+            createdAt: booking.review_created_at,
+          }
+        : null,
     };
 
     res.json({
@@ -512,8 +531,6 @@ const updateBookingStatus = async (req, res) => {
   }
 };
 
-
-
 /**
  * @desc    Update booking payment status
  * @route   PUT /api/bookings/:id/payment-status
@@ -525,10 +542,7 @@ const updateBookingPaymentStatus = async (req, res) => {
     const { paymentStatus } = req.body;
     console.log("Payment status update request:", paymentStatus);
 
-    const validStatuses = [
-      "pending",
-      "paid"
-    ];
+    const validStatuses = ["pending", "paid"];
 
     if (!validStatuses.includes(paymentStatus)) {
       return res.status(400).json({
@@ -571,24 +585,30 @@ const updateBookingPaymentStatus = async (req, res) => {
     }
 
     // Check for active membership if payment status is being set to paid
-    if (paymentStatus === 'paid') {
+    if (paymentStatus === "paid") {
       // Get membership information
-      const membershipResult = await query(`
+      const membershipResult = await query(
+        `
         SELECT m.id, m.status
         FROM memberships m
         WHERE m.user_id = $1 
         AND m.status = 'active' 
         AND m.current_period_end > NOW()
-      `, [booking.customer_id]);
+      `,
+        [booking.customer_id]
+      );
 
       const hasMembership = membershipResult.rows.length > 0;
 
       if (hasMembership && !booking.membership_discount_applied) {
         try {
           // Get service details to calculate discount
-          const serviceResult = await query(`
+          const serviceResult = await query(
+            `
             SELECT base_price FROM services WHERE id = $1
-          `, [booking.service_id]);
+          `,
+            [booking.service_id]
+          );
 
           if (serviceResult.rows.length > 0) {
             const basePrice = parseFloat(serviceResult.rows[0].base_price);
@@ -600,14 +620,17 @@ const updateBookingPaymentStatus = async (req, res) => {
             const discountedAmount = membershipDiscount * durationHours;
 
             // Update booking with discounted amount and mark membership as applied
-            await query(`
+            await query(
+              `
               UPDATE bookings 
               SET payment_status = $1, 
                   total_amount = $2,
                   membership_discount_applied = true,
                   updated_at = CURRENT_TIMESTAMP 
               WHERE id = $3
-            `, [paymentStatus, discountedAmount, id]);
+            `,
+              [paymentStatus, discountedAmount, id]
+            );
 
             // Record membership usage
             const { recordMembershipUsage } = require("./membershipController");
@@ -618,14 +641,16 @@ const updateBookingPaymentStatus = async (req, res) => {
               discountedAmount
             );
 
-            console.log(`Membership discount applied during payment status update. Original amount: ${originalAmount}, Discounted: ${discountedAmount}`);
+            console.log(
+              `Membership discount applied during payment status update. Original amount: ${originalAmount}, Discounted: ${discountedAmount}`
+            );
 
             res.json({
               success: true,
               message: `Booking payment status updated to ${paymentStatus} with membership discount applied`,
               originalAmount,
               discountedAmount,
-              membershipApplied: true
+              membershipApplied: true,
             });
             return;
           }
@@ -655,7 +680,6 @@ const updateBookingPaymentStatus = async (req, res) => {
   }
 };
 
-
 /**
  * @desc    Manually assign cleaner to booking (Admin override)
  * @route   POST /api/bookings/:id/assign
@@ -668,7 +692,7 @@ const assignCleanerToBooking = async (req, res) => {
     await client.query("BEGIN");
 
     const { id } = req.params;
-    console.log("bodyyou", req.body)
+    console.log("bodyyou", req.body);
     const { cleanerId, overrideReason } = req.body;
 
     // Get booking details
@@ -789,11 +813,11 @@ const assignCleanerToBooking = async (req, res) => {
     const updateParams =
       req.user.role === "admin"
         ? [
-          cleanerId,
-          "confirmed",
-          id,
-          overrideReason || "Manual admin assignment",
-        ]
+            cleanerId,
+            "confirmed",
+            id,
+            overrideReason || "Manual admin assignment",
+          ]
         : [cleanerId, "confirmed", id];
 
     await client.query(updateQuery, updateParams);
@@ -812,10 +836,12 @@ const assignCleanerToBooking = async (req, res) => {
       [
         cleanerId,
         "New Booking Assignment",
-        `You have been ${req.user.role === "admin"
-          ? "manually assigned by admin to"
-          : "assigned to"
-        } a cleaning job for ${booking.booking_date} at ${booking.booking_time
+        `You have been ${
+          req.user.role === "admin"
+            ? "manually assigned by admin to"
+            : "assigned to"
+        } a cleaning job for ${booking.booking_date} at ${
+          booking.booking_time
         }.`,
         "new_assignment",
         JSON.stringify({
@@ -981,10 +1007,10 @@ const getCleanerRecommendationsForBooking = async (req, res) => {
           cleaner.zip_priority === 1
             ? "exact"
             : cleaner.zip_priority === 2
-              ? "area"
-              : cleaner.zip_priority === 3
-                ? "region"
-                : "distant",
+            ? "area"
+            : cleaner.zip_priority === 3
+            ? "region"
+            : "distant",
         priorityScore: cleaner.priorityScore,
         availability: {
           isAvailable: cleaner.is_available,
@@ -1428,8 +1454,8 @@ const getBookingAssignmentStatus = async (req, res) => {
             cleaner.zip_priority === 1
               ? "exact"
               : cleaner.zip_priority === 2
-                ? "area"
-                : "distant",
+              ? "area"
+              : "distant",
           currentJobs: cleaner.current_active_jobs || 0,
         }));
       } catch (error) {
@@ -1452,12 +1478,12 @@ const getBookingAssignmentStatus = async (req, res) => {
         },
         cleaner: booking.cleaner_id
           ? {
-            id: booking.cleaner_id,
-            name: `${booking.cleaner_first_name} ${booking.cleaner_last_name}`,
-            phone: booking.cleaner_phone,
-            rating: booking.cleaner_rating || 0,
-            totalJobs: booking.cleaner_total_jobs || 0,
-          }
+              id: booking.cleaner_id,
+              name: `${booking.cleaner_first_name} ${booking.cleaner_last_name}`,
+              phone: booking.cleaner_phone,
+              rating: booking.cleaner_rating || 0,
+              totalJobs: booking.cleaner_total_jobs || 0,
+            }
           : null,
         location: {
           address: booking.address,
@@ -1520,10 +1546,7 @@ const getNearbyCleanersForBooking = async (req, res) => {
     const booking = bookingResult.rows[0];
 
     // Check if user has access to this booking
-    if (
-      req.user.role !== "admin" &&
-      booking.customer_id !== req.user.id
-    ) {
+    if (req.user.role !== "admin" && booking.customer_id !== req.user.id) {
       return res.status(403).json({
         success: false,
         error: "Access denied to this booking",
@@ -1548,7 +1571,8 @@ const getNearbyCleanersForBooking = async (req, res) => {
       // For now, return error
       return res.status(400).json({
         success: false,
-        error: "Location coordinates are required. Please provide latitude and longitude.",
+        error:
+          "Location coordinates are required. Please provide latitude and longitude.",
       });
     }
 
@@ -1598,10 +1622,14 @@ const getNearbyCleanersForBooking = async (req, res) => {
       LIMIT 20
     `;
 
-    const cleanersResult = await query(cleanersQuery, [searchLat, searchLng, radiusKm]);
+    const cleanersResult = await query(cleanersQuery, [
+      searchLat,
+      searchLng,
+      radiusKm,
+    ]);
 
     // Transform the data
-    const availableCleaners = cleanersResult.rows.map(cleaner => ({
+    const availableCleaners = cleanersResult.rows.map((cleaner) => ({
       id: cleaner.user_id,
       firstName: cleaner.first_name,
       lastName: cleaner.last_name,
@@ -1616,7 +1644,9 @@ const getNearbyCleanersForBooking = async (req, res) => {
       certifications: cleaner.certifications,
       cleaningServices: cleaner.cleaning_services,
       distanceKm: parseFloat(cleaner.distance_km).toFixed(2),
-      minutesSinceLastUpdate: Math.round(cleaner.minutes_since_last_update || 0),
+      minutesSinceLastUpdate: Math.round(
+        cleaner.minutes_since_last_update || 0
+      ),
       isOnline: cleaner.minutes_since_last_update <= 3,
       location: {
         latitude: cleaner.current_latitude,
@@ -1632,7 +1662,10 @@ const getNearbyCleanersForBooking = async (req, res) => {
           id: booking.id,
           serviceName: booking.service_name,
           serviceCategory: booking.service_category,
-          bookingDate: combineDateTime(booking.booking_date, booking.booking_time),
+          bookingDate: combineDateTime(
+            booking.booking_date,
+            booking.booking_time
+          ),
           bookingTime: booking.booking_time,
           durationHours: booking.duration_hours,
           totalAmount: booking.total_amount,
@@ -1651,15 +1684,19 @@ const getNearbyCleanersForBooking = async (req, res) => {
       },
       stats: {
         totalFound: availableCleaners.length,
-        within5km: availableCleaners.filter(c => parseFloat(c.distanceKm) <= 5).length,
-        within10km: availableCleaners.filter(c => parseFloat(c.distanceKm) <= 10).length,
-        onlineNow: availableCleaners.filter(c => c.isOnline).length,
+        within5km: availableCleaners.filter(
+          (c) => parseFloat(c.distanceKm) <= 5
+        ).length,
+        within10km: availableCleaners.filter(
+          (c) => parseFloat(c.distanceKm) <= 10
+        ).length,
+        onlineNow: availableCleaners.filter((c) => c.isOnline).length,
       },
-      message: availableCleaners.length > 0
-        ? `Found ${availableCleaners.length} available cleaners for your booking`
-        : "No cleaners currently available in this area",
+      message:
+        availableCleaners.length > 0
+          ? `Found ${availableCleaners.length} available cleaners for your booking`
+          : "No cleaners currently available in this area",
     });
-
   } catch (error) {
     console.error("Get nearby cleaners for booking error:", error);
     res.status(500).json({

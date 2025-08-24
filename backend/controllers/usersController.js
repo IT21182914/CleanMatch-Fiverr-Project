@@ -344,11 +344,13 @@ const getUserBookings = async (req, res) => {
         customer.first_name as customer_first_name, customer.last_name as customer_last_name,
         customer.email as customer_email, customer.phone as customer_phone,
         cleaner.first_name as cleaner_first_name, cleaner.last_name as cleaner_last_name,
-        cleaner.email as cleaner_email, cleaner.phone as cleaner_phone
+        cleaner.email as cleaner_email, cleaner.phone as cleaner_phone,
+        r.id as review_id, r.rating as review_rating, r.comment as review_comment, r.created_at as review_created_at
       FROM bookings b
       JOIN services s ON b.service_id = s.id
       JOIN users customer ON b.customer_id = customer.id
       LEFT JOIN users cleaner ON b.cleaner_id = cleaner.id
+      LEFT JOIN reviews r ON b.id = r.booking_id AND r.customer_id = b.customer_id
       ${whereClause}
       ORDER BY b.created_at DESC
       LIMIT $${paramCount} OFFSET $${paramCount + 1}
@@ -397,11 +399,19 @@ const getUserBookings = async (req, res) => {
       },
       cleaner: booking.cleaner_first_name
         ? {
-          firstName: booking.cleaner_first_name,
-          lastName: booking.cleaner_last_name,
-          email: booking.cleaner_email,
-          phone: booking.cleaner_phone,
-        }
+            firstName: booking.cleaner_first_name,
+            lastName: booking.cleaner_last_name,
+            email: booking.cleaner_email,
+            phone: booking.cleaner_phone,
+          }
+        : null,
+      review: booking.review_id
+        ? {
+            id: booking.review_id,
+            rating: booking.review_rating,
+            comment: booking.review_comment,
+            createdAt: booking.review_created_at,
+          }
         : null,
     }));
 
@@ -444,7 +454,8 @@ const updateCleanerAvailability = async (req, res) => {
     if (isAvailable && (!latitude || !longitude)) {
       return res.status(400).json({
         success: false,
-        error: "Location (latitude and longitude) is required when setting availability to true",
+        error:
+          "Location (latitude and longitude) is required when setting availability to true",
       });
     }
 
@@ -465,7 +476,6 @@ const updateCleanerAvailability = async (req, res) => {
       values.push(longitude);
 
       updateFields.push(`last_location_update = CURRENT_TIMESTAMP`);
-
     }
 
     // Always update last_active when availability changes
@@ -498,10 +508,14 @@ const updateCleanerAvailability = async (req, res) => {
 
     res.json({
       success: true,
-      message: `Availability ${isAvailable ? "enabled" : "disabled"} successfully`,
+      message: `Availability ${
+        isAvailable ? "enabled" : "disabled"
+      } successfully`,
       data: {
         isAvailable: result.rows[0].is_available,
-        locationUpdated: isAvailable ? !!result.rows[0].last_location_update : false,
+        locationUpdated: isAvailable
+          ? !!result.rows[0].last_location_update
+          : false,
         lastLocationUpdate: result.rows[0].last_location_update,
       },
     });
@@ -586,7 +600,14 @@ const getUserReviews = async (req, res) => {
  */
 const getNearbyCleaners = async (req, res) => {
   try {
-    const { latitude, longitude, zipCode, radius = 20, serviceType, minRating = 0 } = req.query;
+    const {
+      latitude,
+      longitude,
+      zipCode,
+      radius = 20,
+      serviceType,
+      minRating = 0,
+    } = req.query;
 
     let customerLat, customerLng, searchMethod, geocodedAddress;
 
@@ -609,7 +630,8 @@ const getNearbyCleaners = async (req, res) => {
       if (!isZipCode(zipCode)) {
         return res.status(400).json({
           success: false,
-          error: "Invalid zipcode format. Please provide a valid US zipcode (e.g., 07094) or Canadian postal code.",
+          error:
+            "Invalid zipcode format. Please provide a valid US zipcode (e.g., 07094) or Canadian postal code.",
         });
       }
 
@@ -622,13 +644,16 @@ const getNearbyCleaners = async (req, res) => {
         geocodedAddress = geocodeResult.formattedAddress;
         searchMethod = "geocoded";
 
-        console.log(`Geocoded ${zipCode} to coordinates: ${customerLat}, ${customerLng}`);
+        console.log(
+          `Geocoded ${zipCode} to coordinates: ${customerLat}, ${customerLng}`
+        );
       } catch (geocodeError) {
         console.error("Geocoding error:", geocodeError.message);
         return res.status(400).json({
           success: false,
           error: `Unable to geocode zipcode: ${geocodeError.message}`,
-          details: "Please check the zipcode or provide latitude and longitude instead.",
+          details:
+            "Please check the zipcode or provide latitude and longitude instead.",
         });
       }
     }
@@ -639,8 +664,8 @@ const getNearbyCleaners = async (req, res) => {
         error: "Either latitude & longitude OR zipcode is required",
         examples: {
           coordinates: "?latitude=40.7128&longitude=-74.0060&radius=20",
-          zipcode: "?zipCode=07094&radius=20"
-        }
+          zipcode: "?zipCode=07094&radius=20",
+        },
       });
     }
 
@@ -723,7 +748,7 @@ const getNearbyCleaners = async (req, res) => {
     const result = await query(baseQuery, queryParams);
 
     // Transform the data for frontend
-    const nearbyCleaners = result.rows.map(cleaner => ({
+    const nearbyCleaners = result.rows.map((cleaner) => ({
       id: cleaner.user_id,
       firstName: cleaner.first_name,
       lastName: cleaner.last_name,
@@ -738,7 +763,9 @@ const getNearbyCleaners = async (req, res) => {
       serviceRadius: cleaner.service_radius,
       certifications: cleaner.certifications,
       distanceKm: parseFloat(cleaner.distance_km).toFixed(2),
-      minutesSinceLastUpdate: Math.round(cleaner.minutes_since_last_update || 0),
+      minutesSinceLastUpdate: Math.round(
+        cleaner.minutes_since_last_update || 0
+      ),
       isOnline: cleaner.minutes_since_last_update <= 3,
       location: {
         latitude: cleaner.current_latitude,
@@ -749,9 +776,12 @@ const getNearbyCleaners = async (req, res) => {
 
     // Get count by distance ranges for analytics
     const distanceStats = {
-      within5km: nearbyCleaners.filter(c => parseFloat(c.distanceKm) <= 5).length,
-      within10km: nearbyCleaners.filter(c => parseFloat(c.distanceKm) <= 10).length,
-      within20km: nearbyCleaners.filter(c => parseFloat(c.distanceKm) <= 20).length,
+      within5km: nearbyCleaners.filter((c) => parseFloat(c.distanceKm) <= 5)
+        .length,
+      within10km: nearbyCleaners.filter((c) => parseFloat(c.distanceKm) <= 10)
+        .length,
+      within20km: nearbyCleaners.filter((c) => parseFloat(c.distanceKm) <= 20)
+        .length,
       total: nearbyCleaners.length,
     };
 
@@ -767,15 +797,15 @@ const getNearbyCleaners = async (req, res) => {
         searchMethod, // "coordinates" or "geocoded"
         ...(searchMethod === "geocoded" && {
           originalZipCode: zipCode,
-          geocodedAddress: geocodedAddress
-        })
+          geocodedAddress: geocodedAddress,
+        }),
       },
       stats: distanceStats,
-      message: nearbyCleaners.length > 0
-        ? `Found ${nearbyCleaners.length} available cleaners within ${radiusKm}km`
-        : `No cleaners available within ${radiusKm}km radius`,
+      message:
+        nearbyCleaners.length > 0
+          ? `Found ${nearbyCleaners.length} available cleaners within ${radiusKm}km`
+          : `No cleaners available within ${radiusKm}km radius`,
     });
-
   } catch (error) {
     console.error("Get nearby cleaners error:", error);
     res.status(500).json({
@@ -816,11 +846,11 @@ const getOnlineCleanersStats = async (req, res) => {
         averageRating: parseFloat(stats.average_rating) || 0,
         highRatedCleaners: parseInt(stats.high_rated_count) || 0,
         experiencedCleaners: parseInt(stats.experienced_count) || 0,
-        mostRecentUpdateMinutes: parseFloat(stats.most_recent_update_minutes) || 0,
+        mostRecentUpdateMinutes:
+          parseFloat(stats.most_recent_update_minutes) || 0,
       },
       message: `${stats.total_online || 0} cleaners are currently online`,
     });
-
   } catch (error) {
     console.error("Get online stats error:", error);
     res.status(500).json({

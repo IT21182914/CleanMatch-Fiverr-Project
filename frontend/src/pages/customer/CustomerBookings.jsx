@@ -258,14 +258,30 @@ const CustomerBookings = () => {
                 </Button>
               )}
 
-            {booking.status === "completed" && !booking.review && (
-              <Button
-                size="sm"
-                onClick={() => navigate(`/customer/review/${booking.id}`)}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-none hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                Leave Review
-              </Button>
+            {/* Review buttons */}
+            {booking.status === "completed" && (
+              <>
+                {!booking.review ? (
+                  <Button
+                    size="sm"
+                    onClick={() => navigate(`/customer/review/${booking.id}`)}
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-none hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    Leave Review
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    disabled
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white border-none cursor-not-allowed opacity-75"
+                    title={`You reviewed this on ${new Date(
+                      booking.review.createdAt
+                    ).toLocaleDateString()}`}
+                  >
+                    ✓ Reviewed
+                  </Button>
+                )}
+              </>
             )}
 
             {/* Cancel button for pending bookings or confirmed bookings without cleaner */}
