@@ -405,59 +405,6 @@ const CleanerEarnings = () => {
           <div className="mt-3 text-sm text-gray-600">
             Showing results for: <strong>{earnings.summary.period}</strong>
           </div>
-          <div className="mt-3">
-            <Button
-              onClick={async () => {
-                console.log("Manual filter test - changing month to August");
-                try {
-                  console.log("Making direct axios call with parameters...");
-                  const token =
-                    localStorage.getItem("token") ||
-                    sessionStorage.getItem("token");
-                  const response = await fetch(
-                    `${
-                      import.meta.env.VITE_API_URL ||
-                      "http://localhost:5000/api"
-                    }/admin/cleaners/earnings?month=8&year=2025&sortBy=name&sortOrder=asc&_t=${Date.now()}`,
-                    {
-                      method: "GET",
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                      },
-                    }
-                  );
-                  console.log("Direct API response status:", response.status);
-                  const result = await response.json();
-                  console.log("Direct API response data:", result);
-                } catch (error) {
-                  console.error("Direct API call error:", error);
-                }
-              }}
-              className="mr-2"
-            >
-              Test Direct API Call
-            </Button>
-            <Button
-              onClick={() => {
-                console.log(
-                  "Manual filter test using adminAPI with parameters"
-                );
-                handleFilterChange("month", "8");
-              }}
-              className="mr-2"
-            >
-              Test AdminAPI Call
-            </Button>
-            <Button
-              onClick={() => {
-                console.log("Manual search test - searching for 'test'");
-                handleFilterChange("search", "test" + Date.now());
-              }}
-            >
-              Test Search
-            </Button>
-          </div>
         </CardContent>
       </Card>
 
