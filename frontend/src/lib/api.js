@@ -312,6 +312,19 @@ export const adminAPI = {
   grantUserMembership: (userId, membershipData) =>
     enhancedApi.post(`/admin/memberships/${userId}/grant`, membershipData),
   getMembershipAnalytics: () => enhancedApi.get("/admin/membership-analytics"),
+
+  // Cleaner earnings tracking
+  getCleanerEarnings: (params) =>
+    enhancedApi.get("/admin/cleaners/earnings", { params }),
+  getCleanerEarningsDetails: (cleanerId, params) =>
+    enhancedApi.get(`/admin/cleaners/${cleanerId}/earnings`, { params }),
+  getCleanerTransactionDetails: (cleanerId, params) =>
+    enhancedApi.get(`/admin/cleaners/${cleanerId}/transactions`, { params }),
+  getEarningsAnalytics: (params) =>
+    enhancedApi.get("/admin/analytics/earnings", { params }),
+
+  // Generic get method for custom requests
+  get: (url, config) => enhancedApi.get(url, config),
 };
 
 // Membership API endpoints

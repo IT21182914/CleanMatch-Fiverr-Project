@@ -28,6 +28,11 @@ const {
   grantUserMembership,
   getMembershipAnalytics,
   getAssignmentMetrics,
+  // Cleaner earnings tracking
+  getCleanerEarnings,
+  getCleanerEarningsDetails,
+  getCleanerTransactionDetails,
+  getEarningsAnalytics,
   // Ticket management functions
   getAdminTickets,
   getTicketDetails,
@@ -110,6 +115,41 @@ router.get("/payments", auth, authorize("admin"), getPayments);
 // @desc    Get revenue analytics
 // @access  Private (Admin only)
 router.get("/analytics/revenue", auth, authorize("admin"), getRevenueAnalytics);
+
+// @route   GET /api/admin/cleaners/earnings
+// @desc    Get cleaner earnings analytics
+// @access  Private (Admin only)
+router.get("/cleaners/earnings", auth, authorize("admin"), getCleanerEarnings);
+
+// @route   GET /api/admin/cleaners/:id/earnings
+// @desc    Get individual cleaner earnings details
+// @access  Private (Admin only)
+router.get(
+  "/cleaners/:id/earnings",
+  auth,
+  authorize("admin"),
+  getCleanerEarningsDetails
+);
+
+// @route   GET /api/admin/cleaners/:id/transactions
+// @desc    Get cleaner transaction details for monthly payouts
+// @access  Private (Admin only)
+router.get(
+  "/cleaners/:id/transactions",
+  auth,
+  authorize("admin"),
+  getCleanerTransactionDetails
+);
+
+// @route   GET /api/admin/analytics/earnings
+// @desc    Get earnings analytics summary
+// @access  Private (Admin only)
+router.get(
+  "/analytics/earnings",
+  auth,
+  authorize("admin"),
+  getEarningsAnalytics
+);
 
 // @route   GET /api/admin/reviews
 // @desc    Get all reviews for moderation - DISABLED

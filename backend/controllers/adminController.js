@@ -674,6 +674,692 @@ const getPayments = async (req, res) => {
 };
 
 /**
+ * @desc    Get cleaner earnings analytics with real payment tracking
+ * @route   GET /api/admin/cleaners/earnings
+ * @access  Private (Admin only)
+ */
+const getCleanerEarnings = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      month,
+      year = new Date().getFullYear(),
+      search,
+      sortBy = "monthly_earnings",
+      sortOrder = "desc",
+    } = req.query;
+
+    const offset = (page - 1) * limit;
+
+    let whereConditions = ["u.role = 'cleaner'", "u.is_active = true"];
+    let queryParams = [];
+    let paramCount = 0;
+
+    // Add search functionality
+    if (search) {
+      paramCount++;
+      whereConditions.push(
+        `(u.first_name ILIKE $${paramCount} OR u.last_name ILIKE $${paramCount} OR u.email ILIKE $${paramCount})`
+      );
+      queryParams.push(`%${search}%`);
+    }
+
+    // Build date filter for specific month/year - using payment creation date instead of booking date
+    let dateFilter = "";
+    if (month) {
+      paramCount++;
+      const monthParamIndex = paramCount;
+      paramCount++;
+      const yearParamIndex = paramCount;
+
+      dateFilter = `AND EXTRACT(MONTH FROM b.updated_at) = $${monthParamIndex} AND EXTRACT(YEAR FROM b.updated_at) = $${yearParamIndex} AND b.payment_status = 'paid'`;
+      queryParams.push(parseInt(month));
+      queryParams.push(parseInt(year));
+    } else {
+      // Default to current year if no month specified
+      paramCount++;
+      const yearParamIndex = paramCount;
+
+      dateFilter = `AND EXTRACT(YEAR FROM b.updated_at) = $${yearParamIndex} AND b.payment_status = 'paid'`;
+      queryParams.push(parseInt(year));
+    }
+
+    const whereClause = whereConditions.join(" AND ");
+
+    // Validate sort fields
+    const validSortFields = [
+      "monthly_earnings",
+      "total_jobs",
+      "avg_rating",
+      "name",
+      "pending_payout",
+    ];
+    const sortField = validSortFields.includes(sortBy)
+      ? sortBy
+      : "monthly_earnings";
+    const order = sortOrder.toLowerCase() === "asc" ? "ASC" : "DESC";
+
+    // Add LIMIT and OFFSET parameters
+    paramCount++;
+    const limitParamIndex = paramCount;
+    paramCount++;
+    const offsetParamIndex = paramCount;
+
+    const cleanersEarningsQuery = `
+      WITH cleaner_earnings AS (
+        SELECT 
+          u.id,
+          u.first_name,
+          u.last_name,
+          u.email,
+          u.phone,
+          cp.rating as avg_rating,
+          cp.total_jobs as lifetime_jobs,
+          cp.hourly_rate,
+          cp.stripe_account_id,
+          -- Current period earnings (based on actual paid transactions)
+          COALESCE(SUM(CASE 
+            WHEN b.status = 'completed' AND b.payment_status = 'paid' AND b.stripe_payment_intent_id IS NOT NULL THEN b.total_amount 
+            ELSE 0 
+          END), 0) as monthly_earnings,
+          -- Count of paid jobs in the period
+          COUNT(CASE 
+            WHEN b.status = 'completed' AND b.payment_status = 'paid' AND b.stripe_payment_intent_id IS NOT NULL THEN 1 
+          END) as period_completed_jobs,
+          -- Pending payout (completed but not yet transferred to cleaner)
+          COALESCE(SUM(CASE 
+            WHEN b.status = 'completed' AND b.payment_status = 'paid' AND b.stripe_payment_intent_id IS NOT NULL THEN b.total_amount 
+            ELSE 0 
+          END), 0) as pending_payout,
+          -- Total hours worked in period
+          COALESCE(SUM(CASE 
+            WHEN b.status = 'completed' AND b.payment_status = 'paid' AND b.stripe_payment_intent_id IS NOT NULL THEN b.duration_hours 
+            ELSE 0 
+          END), 0) as hours_worked,
+          -- Array of transaction IDs for reference
+          ARRAY_AGG(
+            CASE WHEN b.stripe_payment_intent_id IS NOT NULL AND b.payment_status = 'paid' 
+                 THEN b.stripe_payment_intent_id 
+                 ELSE NULL 
+            END
+          ) FILTER (WHERE b.stripe_payment_intent_id IS NOT NULL AND b.payment_status = 'paid') as transaction_ids,
+          -- Most recent payment date
+          MAX(CASE 
+            WHEN b.payment_status = 'paid' AND b.stripe_payment_intent_id IS NOT NULL THEN b.updated_at 
+          END) as last_payment_date
+        FROM users u
+        JOIN cleaner_profiles cp ON u.id = cp.user_id
+        LEFT JOIN bookings b ON u.id = b.cleaner_id ${dateFilter}
+        WHERE ${whereClause}
+        GROUP BY u.id, u.first_name, u.last_name, u.email, u.phone, cp.rating, cp.total_jobs, cp.hourly_rate, cp.stripe_account_id
+      )
+      SELECT *,
+        (ce.first_name || ' ' || ce.last_name) as name,
+        CASE 
+          WHEN ce.hours_worked > 0 THEN ROUND(ce.monthly_earnings / ce.hours_worked, 2)
+          ELSE 0 
+        END as avg_hourly_earned,
+        CASE 
+          WHEN ce.transaction_ids IS NOT NULL THEN ARRAY_LENGTH(ce.transaction_ids, 1)
+          ELSE 0
+        END as total_transactions
+      FROM cleaner_earnings ce
+      ORDER BY ${sortField === "name" ? "name" : sortField} ${order}
+      LIMIT $${limitParamIndex} OFFSET $${offsetParamIndex}
+    `;
+
+    queryParams.push(parseInt(limit));
+    queryParams.push(offset);
+
+    console.log("Query params:", queryParams);
+    console.log("Param count:", paramCount);
+    console.log("Date filter:", dateFilter);
+    console.log("WHERE clause:", whereClause);
+    // Restart trigger
+
+    const cleanersResult = await query(cleanersEarningsQuery, queryParams);
+
+    // Get total count for pagination - use the same parameters except limit and offset
+    const totalCountQuery = `
+      SELECT COUNT(DISTINCT u.id) as total
+      FROM users u
+      JOIN cleaner_profiles cp ON u.id = cp.user_id
+      LEFT JOIN bookings b ON u.id = b.cleaner_id ${dateFilter}
+      WHERE ${whereClause}
+    `;
+
+    const countParams = queryParams.slice(0, queryParams.length - 2); // Remove limit and offset
+    const totalResult = await query(totalCountQuery, countParams);
+    const totalCleaners = parseInt(totalResult.rows[0].total);
+
+    // Calculate summary statistics with transaction tracking
+    const summaryQuery = `
+      SELECT 
+        COUNT(DISTINCT u.id) as total_active_cleaners,
+        COALESCE(SUM(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' AND b.stripe_payment_intent_id IS NOT NULL THEN b.total_amount 
+          ELSE 0 
+        END), 0) as total_earnings,
+        COALESCE(AVG(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' AND b.stripe_payment_intent_id IS NOT NULL THEN b.total_amount 
+        END), 0) as avg_job_value,
+        COUNT(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' AND b.stripe_payment_intent_id IS NOT NULL THEN 1 
+        END) as total_completed_jobs,
+        COUNT(DISTINCT CASE 
+          WHEN b.payment_status = 'paid' AND b.stripe_payment_intent_id IS NOT NULL THEN b.stripe_payment_intent_id
+        END) as total_transactions
+      FROM users u
+      JOIN cleaner_profiles cp ON u.id = cp.user_id
+      LEFT JOIN bookings b ON u.id = b.cleaner_id ${dateFilter}
+      WHERE ${whereClause}
+    `;
+
+    const summaryResult = await query(summaryQuery, countParams);
+    const summary = summaryResult.rows[0];
+
+    res.json({
+      success: true,
+      data: {
+        cleaners: cleanersResult.rows,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(totalCleaners / limit),
+          totalCleaners,
+          hasMore: page * limit < totalCleaners,
+        },
+        summary: {
+          totalActiveCleaners: parseInt(summary.total_active_cleaners),
+          totalEarnings: parseFloat(summary.total_earnings),
+          avgJobValue: parseFloat(summary.avg_job_value),
+          totalCompletedJobs: parseInt(summary.total_completed_jobs),
+          totalTransactions: parseInt(summary.total_transactions),
+          period: month ? `${month}/${year}` : `Year ${year}`,
+        },
+        filters: {
+          month: month ? parseInt(month) : null,
+          year: parseInt(year),
+          search: search || null,
+          sortBy: sortField,
+          sortOrder: order,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Get cleaner earnings error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving cleaner earnings",
+    });
+  }
+};
+
+/**
+ * @desc    Get individual cleaner earnings details
+ * @route   GET /api/admin/cleaners/:id/earnings
+ * @access  Private (Admin only)
+ */
+const getCleanerEarningsDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { year = new Date().getFullYear(), includeBookings = "true" } =
+      req.query;
+
+    // Get cleaner basic info
+    const cleanerResult = await query(
+      `
+      SELECT 
+        u.id, u.first_name, u.last_name, u.email, u.phone, u.created_at,
+        cp.rating, cp.total_jobs, cp.hourly_rate, cp.experience_years,
+        cp.stripe_account_id, cp.background_check_status
+      FROM users u
+      JOIN cleaner_profiles cp ON u.id = cp.user_id
+      WHERE u.id = $1 AND u.role = 'cleaner' AND u.is_active = true
+    `,
+      [id]
+    );
+
+    if (cleanerResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Cleaner not found",
+      });
+    }
+
+    const cleaner = cleanerResult.rows[0];
+
+    // Get monthly earnings breakdown for the year
+    const monthlyEarningsQuery = `
+      SELECT 
+        EXTRACT(MONTH FROM b.booking_date) as month,
+        COUNT(CASE WHEN b.status = 'completed' AND b.payment_status = 'paid' THEN 1 END) as completed_jobs,
+        COALESCE(SUM(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' THEN b.total_amount 
+          ELSE 0 
+        END), 0) as earnings,
+        COALESCE(SUM(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' THEN b.duration_hours 
+          ELSE 0 
+        END), 0) as hours_worked,
+        COALESCE(SUM(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' THEN b.total_amount 
+          ELSE 0 
+        END), 0) as pending_payout
+      FROM bookings b
+      WHERE b.cleaner_id = $1 
+        AND EXTRACT(YEAR FROM b.booking_date) = $2
+      GROUP BY EXTRACT(MONTH FROM b.booking_date)
+      ORDER BY month
+    `;
+
+    const monthlyResult = await query(monthlyEarningsQuery, [
+      id,
+      parseInt(year),
+    ]);
+
+    // Create array for all 12 months with default values
+    const monthlyBreakdown = Array.from({ length: 12 }, (_, index) => {
+      const monthData = monthlyResult.rows.find(
+        (row) => parseInt(row.month) === index + 1
+      );
+      return {
+        month: index + 1,
+        monthName: new Date(2000, index).toLocaleString("default", {
+          month: "long",
+        }),
+        completedJobs: monthData ? parseInt(monthData.completed_jobs) : 0,
+        earnings: monthData ? parseFloat(monthData.earnings) : 0,
+        hoursWorked: monthData ? parseFloat(monthData.hours_worked) : 0,
+        pendingPayout: monthData ? parseFloat(monthData.pending_payout) : 0,
+        avgHourlyRate:
+          monthData && monthData.hours_worked > 0
+            ? parseFloat(
+                (
+                  parseFloat(monthData.earnings) /
+                  parseFloat(monthData.hours_worked)
+                ).toFixed(2)
+              )
+            : 0,
+      };
+    });
+
+    // Get year totals
+    const yearTotalsQuery = `
+      SELECT 
+        COUNT(CASE WHEN status = 'completed' AND payment_status = 'paid' THEN 1 END) as total_completed_jobs,
+        COALESCE(SUM(CASE 
+          WHEN status = 'completed' AND payment_status = 'paid' THEN total_amount 
+          ELSE 0 
+        END), 0) as total_earnings,
+        COALESCE(SUM(CASE 
+          WHEN status = 'completed' AND payment_status = 'paid' THEN duration_hours 
+          ELSE 0 
+        END), 0) as total_hours_worked,
+        COALESCE(SUM(CASE 
+          WHEN status = 'completed' AND payment_status = 'paid' THEN total_amount 
+          ELSE 0 
+        END), 0) as total_pending_payout
+      FROM bookings 
+      WHERE cleaner_id = $1 
+        AND EXTRACT(YEAR FROM booking_date) = $2
+    `;
+
+    const totalsResult = await query(yearTotalsQuery, [id, parseInt(year)]);
+    const yearTotals = totalsResult.rows[0];
+
+    let recentBookings = [];
+    if (includeBookings === "true") {
+      // Get recent bookings with details
+      const bookingsQuery = `
+        SELECT 
+          b.id, b.booking_date, b.booking_time, b.duration_hours, 
+          b.total_amount, b.status, b.payment_status, b.transferred_at,
+          b.address, b.city, b.state,
+          s.name as service_name,
+          u.first_name as customer_first_name, u.last_name as customer_last_name
+        FROM bookings b
+        JOIN services s ON b.service_id = s.id
+        JOIN users u ON b.customer_id = u.id
+        WHERE b.cleaner_id = $1 
+          AND EXTRACT(YEAR FROM b.booking_date) = $2
+        ORDER BY b.booking_date DESC, b.booking_time DESC
+        LIMIT 50
+      `;
+
+      const bookingsResult = await query(bookingsQuery, [id, parseInt(year)]);
+      recentBookings = bookingsResult.rows;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        cleaner: {
+          ...cleaner,
+          name: `${cleaner.first_name} ${cleaner.last_name}`,
+          canReceivePayments: !!cleaner.stripe_account_id,
+        },
+        earnings: {
+          year: parseInt(year),
+          monthlyBreakdown,
+          yearTotals: {
+            completedJobs: parseInt(yearTotals.total_completed_jobs),
+            totalEarnings: parseFloat(yearTotals.total_earnings),
+            totalHoursWorked: parseFloat(yearTotals.total_hours_worked),
+            totalPendingPayout: parseFloat(yearTotals.total_pending_payout),
+            avgHourlyEarned:
+              yearTotals.total_hours_worked > 0
+                ? parseFloat(
+                    (
+                      parseFloat(yearTotals.total_earnings) /
+                      parseFloat(yearTotals.total_hours_worked)
+                    ).toFixed(2)
+                  )
+                : 0,
+          },
+        },
+        recentBookings: includeBookings === "true" ? recentBookings : [],
+      },
+    });
+  } catch (error) {
+    console.error("Get cleaner earnings details error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving cleaner earnings details",
+    });
+  }
+};
+
+/**
+ * @desc    Get earnings analytics summary
+ * @route   GET /api/admin/analytics/earnings
+ * @access  Private (Admin only)
+ */
+const getEarningsAnalytics = async (req, res) => {
+  try {
+    const { period = "12months", compareYear } = req.query;
+
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+
+    // Get monthly earnings data for current year
+    const monthlyDataQuery = `
+      SELECT 
+        EXTRACT(MONTH FROM b.booking_date) as month,
+        EXTRACT(YEAR FROM b.booking_date) as year,
+        COUNT(DISTINCT b.cleaner_id) as active_cleaners,
+        COUNT(CASE WHEN b.status = 'completed' AND b.payment_status = 'paid' THEN 1 END) as completed_jobs,
+        COALESCE(SUM(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' THEN b.total_amount 
+          ELSE 0 
+        END), 0) as total_earnings,
+        COALESCE(AVG(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' THEN b.total_amount 
+        END), 0) as avg_job_value
+      FROM bookings b
+      JOIN users u ON b.cleaner_id = u.id
+      WHERE u.role = 'cleaner' 
+        AND b.booking_date >= DATE_TRUNC('year', CURRENT_DATE)
+      GROUP BY EXTRACT(MONTH FROM b.booking_date), EXTRACT(YEAR FROM b.booking_date)
+      ORDER BY year, month
+    `;
+
+    const monthlyData = await query(monthlyDataQuery);
+
+    // Get top earning cleaners
+    const topEarnersQuery = `
+      SELECT 
+        u.id,
+        u.first_name || ' ' || u.last_name as name,
+        cp.rating,
+        COUNT(CASE WHEN b.status = 'completed' AND b.payment_status = 'paid' THEN 1 END) as completed_jobs,
+        COALESCE(SUM(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' THEN b.total_amount 
+          ELSE 0 
+        END), 0) as total_earnings
+      FROM users u
+      JOIN cleaner_profiles cp ON u.id = cp.user_id
+      LEFT JOIN bookings b ON u.id = b.cleaner_id 
+        AND EXTRACT(YEAR FROM b.booking_date) = $1
+      WHERE u.role = 'cleaner' AND u.is_active = true
+      GROUP BY u.id, u.first_name, u.last_name, cp.rating
+      HAVING SUM(CASE WHEN b.status = 'completed' AND b.payment_status = 'paid' THEN b.total_amount ELSE 0 END) > 0
+      ORDER BY total_earnings DESC
+      LIMIT 10
+    `;
+
+    const topEarners = await query(topEarnersQuery, [currentYear]);
+
+    // Get overall statistics
+    const overallStatsQuery = `
+      SELECT 
+        COUNT(DISTINCT u.id) as total_active_cleaners,
+        COALESCE(SUM(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' 
+            AND EXTRACT(MONTH FROM b.booking_date) = $1 
+            AND EXTRACT(YEAR FROM b.booking_date) = $2 
+          THEN b.total_amount 
+          ELSE 0 
+        END), 0) as current_month_earnings,
+        COALESCE(SUM(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' 
+            AND EXTRACT(YEAR FROM b.booking_date) = $2 
+          THEN b.total_amount 
+          ELSE 0 
+        END), 0) as year_to_date_earnings,
+        COALESCE(SUM(CASE 
+          WHEN b.status = 'completed' AND b.payment_status = 'paid' AND b.transferred_at IS NULL 
+          THEN b.total_amount 
+          ELSE 0 
+        END), 0) as total_pending_payouts
+      FROM users u
+      JOIN cleaner_profiles cp ON u.id = cp.user_id
+      LEFT JOIN bookings b ON u.id = b.cleaner_id
+      WHERE u.role = 'cleaner' AND u.is_active = true
+    `;
+
+    const overallStats = await query(overallStatsQuery, [
+      currentMonth,
+      currentYear,
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        period: period,
+        monthlyData: monthlyData.rows,
+        topEarners: topEarners.rows,
+        overallStats: overallStats.rows[0],
+        generatedAt: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error("Get earnings analytics error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving earnings analytics",
+    });
+  }
+};
+
+/**
+ * @desc    Get cleaner transaction details for monthly payouts
+ * @route   GET /api/admin/cleaners/:id/transactions
+ * @access  Private (Admin only)
+ */
+const getCleanerTransactionDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      month = new Date().getMonth() + 1,
+      year = new Date().getFullYear(),
+      status = "paid",
+    } = req.query;
+
+    // Verify cleaner exists
+    const cleanerCheck = await query(
+      `SELECT u.first_name, u.last_name, cp.stripe_account_id 
+       FROM users u 
+       JOIN cleaner_profiles cp ON u.id = cp.user_id 
+       WHERE u.id = $1 AND u.role = 'cleaner'`,
+      [id]
+    );
+
+    if (cleanerCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Cleaner not found",
+      });
+    }
+
+    const cleaner = cleanerCheck.rows[0];
+
+    // Get all paid transactions for the specified month
+    const transactionsQuery = `
+      SELECT 
+        b.id as booking_id,
+        b.stripe_payment_intent_id as transaction_id,
+        b.total_amount,
+        b.booking_date,
+        b.booking_time,
+        b.duration_hours,
+        b.status as booking_status,
+        b.payment_status,
+        b.updated_at as payment_date,
+        b.address,
+        b.city,
+        b.state,
+        s.name as service_name,
+        s.category as service_category,
+        customer.first_name as customer_first_name,
+        customer.last_name as customer_last_name,
+        customer.email as customer_email,
+        -- Check if this has membership discount applied
+        b.membership_discount_applied,
+        mu.discount_applied as membership_discount_amount
+      FROM bookings b
+      JOIN services s ON b.service_id = s.id
+      JOIN users customer ON b.customer_id = customer.id
+      LEFT JOIN membership_usage mu ON b.id = mu.booking_id
+      WHERE b.cleaner_id = $1 
+        AND b.payment_status = $2
+        AND b.stripe_payment_intent_id IS NOT NULL
+        AND EXTRACT(MONTH FROM b.updated_at) = $3
+        AND EXTRACT(YEAR FROM b.updated_at) = $4
+        AND b.status = 'completed'
+      ORDER BY b.updated_at DESC
+    `;
+
+    const transactionsResult = await query(transactionsQuery, [
+      id,
+      status,
+      parseInt(month),
+      parseInt(year),
+    ]);
+
+    // Calculate totals for the month
+    const totalAmount = transactionsResult.rows.reduce(
+      (sum, tx) => sum + parseFloat(tx.total_amount),
+      0
+    );
+    const totalHours = transactionsResult.rows.reduce(
+      (sum, tx) => sum + parseFloat(tx.duration_hours),
+      0
+    );
+    const totalJobs = transactionsResult.rows.length;
+
+    // Group transactions by service type
+    const serviceBreakdown = transactionsResult.rows.reduce((acc, tx) => {
+      const serviceName = tx.service_name;
+      if (!acc[serviceName]) {
+        acc[serviceName] = {
+          count: 0,
+          totalAmount: 0,
+          totalHours: 0,
+        };
+      }
+      acc[serviceName].count++;
+      acc[serviceName].totalAmount += parseFloat(tx.total_amount);
+      acc[serviceName].totalHours += parseFloat(tx.duration_hours);
+      return acc;
+    }, {});
+
+    res.json({
+      success: true,
+      data: {
+        cleaner: {
+          id,
+          name: `${cleaner.first_name} ${cleaner.last_name}`,
+          stripeAccountId: cleaner.stripe_account_id,
+          canReceivePayment: !!cleaner.stripe_account_id,
+        },
+        period: {
+          month: parseInt(month),
+          year: parseInt(year),
+          monthName: new Date(year, month - 1).toLocaleString("default", {
+            month: "long",
+          }),
+        },
+        summary: {
+          totalJobs,
+          totalAmount: parseFloat(totalAmount.toFixed(2)),
+          totalHours: parseFloat(totalHours.toFixed(2)),
+          averageJobValue:
+            totalJobs > 0
+              ? parseFloat((totalAmount / totalJobs).toFixed(2))
+              : 0,
+          averageHourlyRate:
+            totalHours > 0
+              ? parseFloat((totalAmount / totalHours).toFixed(2))
+              : 0,
+        },
+        transactions: transactionsResult.rows.map((tx) => ({
+          bookingId: tx.booking_id,
+          transactionId: tx.transaction_id,
+          amount: parseFloat(tx.total_amount),
+          serviceType: tx.service_name,
+          serviceCategory: tx.service_category,
+          bookingDate: tx.booking_date,
+          bookingTime: tx.booking_time,
+          duration: parseFloat(tx.duration_hours),
+          paymentDate: tx.payment_date,
+          customer: {
+            name: `${tx.customer_first_name} ${tx.customer_last_name}`,
+            email: tx.customer_email,
+          },
+          location: {
+            address: tx.address,
+            city: tx.city,
+            state: tx.state,
+          },
+          membershipDiscountApplied: tx.membership_discount_applied || false,
+          membershipDiscountAmount: tx.membership_discount_amount
+            ? parseFloat(tx.membership_discount_amount)
+            : 0,
+        })),
+        serviceBreakdown: Object.entries(serviceBreakdown).map(
+          ([name, data]) => ({
+            serviceName: name,
+            count: data.count,
+            totalAmount: parseFloat(data.totalAmount.toFixed(2)),
+            totalHours: parseFloat(data.totalHours.toFixed(2)),
+            averageAmount: parseFloat(
+              (data.totalAmount / data.count).toFixed(2)
+            ),
+          })
+        ),
+      },
+    });
+  } catch (error) {
+    console.error("Get cleaner transaction details error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving transaction details",
+    });
+  }
+};
+
+/**
  * @desc    Get revenue analytics
  * @route   GET /api/admin/analytics/revenue
  * @access  Private (Admin only)
@@ -2587,6 +3273,11 @@ module.exports = {
   grantUserMembership,
   getMembershipAnalytics,
   getAssignmentMetrics,
+  // Cleaner earnings tracking
+  getCleanerEarnings,
+  getCleanerEarningsDetails,
+  getCleanerTransactionDetails,
+  getEarningsAnalytics,
   // Ticket management functions
   getAdminTickets,
   getTicketDetails,

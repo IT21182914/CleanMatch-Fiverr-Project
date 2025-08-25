@@ -318,6 +318,24 @@ const AdminDashboard = () => {
               </div>
             </Link>
 
+            <Link to="/admin/cleaners/earnings">
+              <div className="relative rounded-lg border border-gray-300 bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div>
+                  <span className="rounded-lg inline-flex p-2 sm:p-3 bg-emerald-50 text-emerald-600">
+                    <CurrencyDollarIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </span>
+                </div>
+                <div className="mt-3 sm:mt-4">
+                  <h3 className="text-base sm:text-lg font-medium text-gray-900">
+                    Cleaner Earnings
+                  </h3>
+                  <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500">
+                    Track monthly earnings for all cleaners
+                  </p>
+                </div>
+              </div>
+            </Link>
+
             <Link to="/admin/trust">
               <div className="relative rounded-lg border border-gray-300 bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div>

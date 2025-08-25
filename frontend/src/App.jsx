@@ -67,6 +67,9 @@ const AdminPayments = React.lazy(() => import("./pages/admin/Payments"));
 const AdminMemberships = React.lazy(() =>
   import("./pages/admin/AdminMemberships")
 );
+const AdminCleanerEarnings = React.lazy(() =>
+  import("./pages/admin/CleanerEarnings")
+);
 const AdminTickets = React.lazy(() =>
   import("./components/admin/AdminTicketManagement")
 );
@@ -331,6 +334,15 @@ function App() {
                     element={
                       <ProtectedRoute requiredRole="admin">
                         <AdminMemberships />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/admin/cleaners/earnings"
+                    element={
+                      <ProtectedRoute requiredRole="admin">
+                        <AdminCleanerEarnings />
                       </ProtectedRoute>
                     }
                   />
