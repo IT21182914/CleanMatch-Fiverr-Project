@@ -39,6 +39,13 @@ const CleanerEarnings = () => {
     page: 1,
     limit: 20,
   });
+  const [searchInput, setSearchInput] = useState(""); // Separate state for search input
+
+  // Keep searchInput in sync when search filter is changed programmatically
+  useEffect(() => {
+    setSearchInput(filters.search);
+  }, [filters.search]);
+
   const [selectedCleaner, setSelectedCleaner] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [cleanerDetails, setCleanerDetails] = useState(null);
@@ -96,6 +103,19 @@ const CleanerEarnings = () => {
 
     fetchEarnings();
   }, [filters]);
+
+  // Debounced search effect
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      setFilters((prev) => ({
+        ...prev,
+        search: searchInput,
+        page: 1, // Reset to page 1 when searching
+      }));
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchInput]);
 
   const fetchCleanerDetails = async (cleanerId) => {
     try {
@@ -374,8 +394,8 @@ const CleanerEarnings = () => {
                 <input
                   type="text"
                   placeholder="Search cleaners..."
-                  value={filters.search}
-                  onChange={(e) => handleFilterChange("search", e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
