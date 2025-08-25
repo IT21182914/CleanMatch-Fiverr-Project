@@ -1116,6 +1116,103 @@ const logAdminReviewAction = async (
   }
 };
 
+/**
+ * @desc    Get combined public reviews for homepage (customer + admin reviews)
+ * @route   GET /api/reviews/public
+ * @access  Public
+ */
+const getPublicReviews = async (req, res) => {
+  try {
+    const { limit = 50, featured = false } = req.query;
+
+    // Get both customer and admin reviews in one combined query
+    const combinedQuery = `
+      (
+        SELECT 
+          r.id,
+          r.rating,
+          r.comment,
+          r.created_at,
+          'customer' as review_type,
+          customer.first_name as reviewer_first_name,
+          customer.last_name as reviewer_last_name,
+          CONCAT(customer.first_name, ' ', customer.last_name) as reviewer_name,
+          CONCAT(cleaner.first_name, ' ', cleaner.last_name) as cleaner_name,
+          COALESCE(s.name, 'Cleaning Service') as service_type,
+          r.is_featured,
+          r.is_visible
+        FROM reviews r
+        JOIN users customer ON r.customer_id = customer.id
+        JOIN users cleaner ON r.cleaner_id = cleaner.id
+        LEFT JOIN bookings b ON r.booking_id = b.id
+        LEFT JOIN services s ON b.service_id = s.id
+        WHERE r.is_visible = true
+      )
+      UNION ALL
+      (
+        SELECT 
+          ar.id,
+          ar.rating,
+          ar.review_text as comment,
+          ar.created_at,
+          'admin' as review_type,
+          'Admin' as reviewer_first_name,
+          'Review' as reviewer_last_name,
+          'Admin Review' as reviewer_name,
+          CONCAT(cleaner.first_name, ' ', cleaner.last_name) as cleaner_name,
+          'Professional Service' as service_type,
+          true as is_featured,
+          ar.is_visible
+        FROM admin_reviews ar
+        JOIN users cleaner ON ar.cleaner_id = cleaner.id
+        WHERE ar.is_visible = true
+      )
+      ORDER BY 
+        ${featured === 'true' ? 'is_featured DESC, ' : ''}
+        created_at DESC
+      LIMIT $1
+    `;
+
+    const reviewsResult = await query(combinedQuery, [parseInt(limit)]);
+
+    // Get total count of all visible reviews
+    const countQuery = `
+      SELECT 
+        (SELECT COUNT(*) FROM reviews WHERE is_visible = true) +
+        (SELECT COUNT(*) FROM admin_reviews WHERE is_visible = true) as total
+    `;
+    const countResult = await query(countQuery);
+    const total = parseInt(countResult.rows[0].total);
+
+    res.json({
+      success: true,
+      reviews: reviewsResult.rows.map(row => ({
+        id: row.id,
+        rating: row.rating,
+        comment: row.comment,
+        reviewer_name: row.reviewer_name,
+        reviewer_first_name: row.reviewer_first_name,
+        reviewer_last_name: row.reviewer_last_name,
+        cleaner_name: row.cleaner_name,
+        service_type: row.service_type,
+        review_type: row.review_type,
+        is_admin_review: row.review_type === 'admin',
+        created_at: row.created_at,
+        is_featured: row.is_featured
+      })),
+      total,
+      message: `${reviewsResult.rows.length} reviews loaded`
+    });
+
+  } catch (error) {
+    console.error("Get public reviews error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving public reviews"
+    });
+  }
+};
+
 module.exports = {
   createReview,
   getCleanerReviews,
@@ -1125,6 +1222,7 @@ module.exports = {
   deleteReview,
   updateCleanerRating,
   getAllReviews,
+  getPublicReviews,
   toggleReviewVisibility,
   // Admin review functions are disabled
   // adminDeleteReview,

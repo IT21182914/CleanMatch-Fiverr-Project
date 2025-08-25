@@ -7,6 +7,7 @@ const {
   updateReview,
   deleteReview,
   getAllReviews,
+  getPublicReviews,
   toggleReviewVisibility,
   // Admin functions are disabled:
   // adminDeleteReview,
@@ -29,6 +30,7 @@ const {
 const router = express.Router();
 
 // Public routes
+router.get("/public", getPublicReviews); // Public endpoint for homepage combined reviews
 router.get("/", getAllReviews); // Public endpoint to get all reviews
 router.get("/cleaner/:cleanerId", getCleanerReviews);
 

@@ -10,7 +10,7 @@ const TestimonialsSection = () => {
   const [visibleCount, setVisibleCount] = useState(3);
 
   const fetchReviews = useCallback(async () => {
-    // Comprehensive testimonials dataset - 20 reviews
+    // Comprehensive testimonials dataset - 20 reviews (fallback)
     const fallbackData = [
       {
         name: "Sarah Johnson",
@@ -197,75 +197,47 @@ const TestimonialsSection = () => {
     try {
       setLoading(true);
 
-      // Fetch both regular reviews and admin reviews
-      const [reviewsResponse, adminReviewsResponse] = await Promise.all([
-        fetch("http://localhost:5000/api/reviews?limit=15&featured=true", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }),
-        fetch("http://localhost:5000/api/admin-reviews/public?limit=10", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }),
-      ]);
+      // Fetch combined reviews (customer + admin) from the new public API
+      const response = await fetch(`http://localhost:5000/api/reviews/public?limit=50&featured=false`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       let allApiReviews = [];
 
-      if (reviewsResponse.ok) {
-        const reviewsData = await reviewsResponse.json();
-        const transformedReviews =
-          reviewsData.reviews?.map((review) => ({
-            name:
-              review.customer_name ||
-              review.reviewer_name ||
-              "Anonymous Customer",
-            role: review.is_admin_review
-              ? "Verified Customer"
-              : "Verified Customer",
-            content: review.comment,
-            rating: review.rating,
-            verified: true,
-            service: review.service_type || "Cleaning Service",
-            isAdminReview: review.is_admin_review || false,
-          })) || [];
+      if (response.ok) {
+        const data = await response.json();
+        const transformedReviews = data.reviews?.map((review) => ({
+          name: review.reviewer_name || "Anonymous Customer",
+          role: review.review_type === 'admin' ? "Professional Review" : "Verified Customer",
+          content: review.comment,
+          rating: review.rating,
+          verified: true,
+          service: review.service_type || "Cleaning Service",
+          cleaner_name: review.cleaner_name,
+          review_type: review.review_type,
+          isAdminReview: review.review_type === 'admin',
+        })) || [];
 
-        allApiReviews.push(...transformedReviews);
+        allApiReviews = transformedReviews;
+        console.log(`📊 Loaded ${allApiReviews.length} dynamic reviews from API`);
       }
 
-      if (adminReviewsResponse.ok) {
-        const adminReviewsData = await adminReviewsResponse.json();
-        const transformedAdminReviews =
-          adminReviewsData.reviews?.map((review) => ({
-            name: "Anonymous Customer", // Admin reviews don't store customer names
-            role: "Verified Customer",
-            content: review.review_text,
-            rating: review.rating,
-            verified: true,
-            service: `Service for ${review.cleaner_name}`,
-            isAdminReview: true,
-          })) || [];
-
-        allApiReviews.push(...transformedAdminReviews);
-      }
-
+      // Combine API reviews with fallback testimonials 
+      let combinedTestimonials;
       if (allApiReviews.length > 0) {
-        // Combine API reviews with fallback testimonials up to 20 total
-        const combinedTestimonials = [...allApiReviews, ...fallbackData].slice(
-          0,
-          20
-        );
-
-        setAllTestimonials(combinedTestimonials);
-        setDisplayedTestimonials(combinedTestimonials.slice(0, 3));
+        // Use all API reviews first, then add fallback data to reach a good total
+        combinedTestimonials = [...allApiReviews, ...fallbackData];
       } else {
         console.warn("Failed to fetch reviews, using fallback testimonials");
-        setAllTestimonials(fallbackData);
-        setDisplayedTestimonials(fallbackData.slice(0, 3));
+        combinedTestimonials = fallbackData;
       }
+
+      setAllTestimonials(combinedTestimonials);
+      setDisplayedTestimonials(combinedTestimonials.slice(0, 3));
+
     } catch (error) {
       console.error("Error fetching reviews:", error);
       setAllTestimonials(fallbackData);
@@ -368,16 +340,25 @@ const TestimonialsSection = () => {
                       <div className="flex items-center space-x-1.5 xs:space-x-2">
                         {testimonial.verified && (
                           <span className="text-xs bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white px-2 xs:px-3 py-0.5 xs:py-1 rounded-full font-semibold">
-                            Verified
+                            {testimonial.isAdminReview ? "Pro Review" : "Verified"}
                           </span>
                         )}
-                        <span className="text-xs bg-[#E0F6FD] text-[#2BA8CD] px-2 xs:px-3 py-0.5 xs:py-1 rounded-full font-medium">
+                        <span className={`text-xs px-2 xs:px-3 py-0.5 xs:py-1 rounded-full font-medium ${
+                          testimonial.isAdminReview 
+                            ? "bg-purple-100 text-purple-700" 
+                            : "bg-[#E0F6FD] text-[#2BA8CD]"
+                        }`}>
                           {testimonial.service}
                         </span>
                       </div>
                     </div>
                     <p className="text-slate-700 mb-6 xs:mb-8 flex-grow italic text-base xs:text-lg leading-relaxed">
                       "{testimonial.content}"
+                      {testimonial.cleaner_name && (
+                        <span className="block mt-3 text-sm text-slate-500 not-italic">
+                          Service by: <strong>{testimonial.cleaner_name}</strong>
+                        </span>
+                      )}
                     </p>
                     <div className="flex items-center">
                       <div className="w-10 xs:w-12 h-10 xs:h-12 bg-gradient-to-br from-[#4EC6E5] to-[#2BA8CD] rounded-lg xs:rounded-xl flex items-center justify-center text-white font-bold mr-3 xs:mr-4">
