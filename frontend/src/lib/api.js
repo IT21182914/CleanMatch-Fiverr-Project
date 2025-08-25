@@ -314,8 +314,38 @@ export const adminAPI = {
   getMembershipAnalytics: () => enhancedApi.get("/admin/membership-analytics"),
 
   // Cleaner earnings tracking
-  getCleanerEarnings: (params) =>
-    enhancedApi.get("/admin/cleaners/earnings", { params }),
+  getCleanerEarnings: async (params) => {
+    console.log("🔍 AdminAPI - getCleanerEarnings called with params:", params);
+
+    // Use direct axios call to bypass potential enhancedApi issues with parameters
+    try {
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const queryString = new URLSearchParams(params).toString();
+      const url = `/admin/cleaners/earnings?${queryString}`;
+
+      console.log("🔍 AdminAPI - Making direct request to:", url);
+      console.log("🔍 AdminAPI - With token:", token.substring(0, 20) + "...");
+
+      const response = await api.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("🔍 AdminAPI - Direct request successful:", response.data);
+      return response;
+    } catch (error) {
+      console.error("🔍 AdminAPI - Direct request failed:", error);
+      // Fallback to enhancedApi
+      return enhancedApi.get("/admin/cleaners/earnings", { params });
+    }
+  },
   getCleanerEarningsDetails: (cleanerId, params) =>
     enhancedApi.get(`/admin/cleaners/${cleanerId}/earnings`, { params }),
   getCleanerTransactionDetails: (cleanerId, params) =>

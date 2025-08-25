@@ -680,6 +680,8 @@ const getPayments = async (req, res) => {
  */
 const getCleanerEarnings = async (req, res) => {
   try {
+    console.log("🔍 Backend - Raw req.query:", req.query); // Debug logging
+
     const {
       page = 1,
       limit = 20,
@@ -689,6 +691,17 @@ const getCleanerEarnings = async (req, res) => {
       sortBy = "monthly_earnings",
       sortOrder = "desc",
     } = req.query;
+
+    console.log("🔍 Backend - Parsed parameters:", {
+      // Debug logging
+      page,
+      limit,
+      month,
+      year,
+      search,
+      sortBy,
+      sortOrder,
+    });
 
     const offset = (page - 1) * limit;
 

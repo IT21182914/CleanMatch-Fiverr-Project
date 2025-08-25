@@ -53,11 +53,37 @@ const CleanerEarnings = () => {
         setLoading(true);
         const queryParams = {};
 
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== "" && value !== null && value !== undefined) {
-            queryParams[key] = value;
-          }
-        });
+        // Always include basic pagination and default filters
+        queryParams.page = filters.page;
+        queryParams.limit = filters.limit;
+        queryParams.year = filters.year;
+        queryParams.sortBy = filters.sortBy;
+        queryParams.sortOrder = filters.sortOrder;
+
+        // Include month even if empty (backend will handle empty as "all year")
+        queryParams.month = filters.month;
+
+        // Include search even if empty (backend will handle empty properly)
+        queryParams.search = filters.search;
+
+        // Add timestamp to bypass cache
+        queryParams._t = Date.now();
+
+        console.log("Frontend - Current filters state:", filters);
+        console.log("Frontend - Sending to API:", queryParams);
+
+        // Test direct axios call to verify parameters are being sent
+        console.log("Frontend - Making direct test call with fetch...");
+        try {
+          await fetch(
+            `http://localhost:5000/api/admin/cleaners/earnings?${new URLSearchParams(
+              queryParams
+            )}`
+          );
+          console.log("Frontend - Direct fetch test successful");
+        } catch (testError) {
+          console.log("Frontend - Direct fetch test failed:", testError);
+        }
 
         const response = await adminAPI.getCleanerEarnings(queryParams);
         setEarnings(response.data.data);
@@ -109,11 +135,18 @@ const CleanerEarnings = () => {
   };
 
   const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value,
-      page: key !== "page" ? 1 : value, // Reset to page 1 when changing other filters
-    }));
+    console.log(`Filter changed: ${key} = ${value}`); // Debug logging
+    console.log(`Current filters before change:`, filters); // Debug logging
+
+    setFilters((prev) => {
+      const newFilters = {
+        ...prev,
+        [key]: value,
+        page: key !== "page" ? 1 : value, // Reset to page 1 when changing other filters
+      };
+      console.log(`New filters after change:`, newFilters); // Debug logging
+      return newFilters;
+    });
   };
 
   const handleViewDetails = (cleaner) => {
@@ -273,65 +306,77 @@ const CleanerEarnings = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Month
               </label>
-              <Select
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={filters.month}
                 onChange={(e) => handleFilterChange("month", e.target.value)}
-                options={months}
-              />
+              >
+                {months.map((month) => (
+                  <option key={month.value} value={month.value}>
+                    {month.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Year
               </label>
-              <Select
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={filters.year.toString()}
                 onChange={(e) =>
                   handleFilterChange("year", parseInt(e.target.value))
                 }
-                options={years}
-              />
+              >
+                {years.map((year) => (
+                  <option key={year.value} value={year.value}>
+                    {year.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Sort By
               </label>
-              <Select
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={filters.sortBy}
                 onChange={(e) => handleFilterChange("sortBy", e.target.value)}
-                options={[
-                  { value: "monthly_earnings", label: "Earnings" },
-                  { value: "name", label: "Name" },
-                  { value: "total_jobs", label: "Jobs Count" },
-                  { value: "avg_rating", label: "Rating" },
-                ]}
-              />
+              >
+                <option value="monthly_earnings">Earnings</option>
+                <option value="name">Name</option>
+                <option value="total_jobs">Jobs Count</option>
+                <option value="avg_rating">Rating</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Order
               </label>
-              <Select
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={filters.sortOrder}
                 onChange={(e) =>
                   handleFilterChange("sortOrder", e.target.value)
                 }
-                options={[
-                  { value: "desc", label: "High to Low" },
-                  { value: "asc", label: "Low to High" },
-                ]}
-              />
+              >
+                <option value="desc">High to Low</option>
+                <option value="asc">Low to High</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Search
               </label>
               <div className="relative">
-                <Input
+                <input
                   type="text"
                   placeholder="Search cleaners..."
                   value={filters.search}
                   onChange={(e) => handleFilterChange("search", e.target.value)}
-                  className="pl-10"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               </div>
@@ -339,6 +384,59 @@ const CleanerEarnings = () => {
           </div>
           <div className="mt-3 text-sm text-gray-600">
             Showing results for: <strong>{earnings.summary.period}</strong>
+          </div>
+          <div className="mt-3">
+            <Button
+              onClick={async () => {
+                console.log("Manual filter test - changing month to August");
+                try {
+                  console.log("Making direct axios call with parameters...");
+                  const token =
+                    localStorage.getItem("token") ||
+                    sessionStorage.getItem("token");
+                  const response = await fetch(
+                    `${
+                      import.meta.env.VITE_API_URL ||
+                      "http://localhost:5000/api"
+                    }/admin/cleaners/earnings?month=8&year=2025&sortBy=name&sortOrder=asc&_t=${Date.now()}`,
+                    {
+                      method: "GET",
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                      },
+                    }
+                  );
+                  console.log("Direct API response status:", response.status);
+                  const result = await response.json();
+                  console.log("Direct API response data:", result);
+                } catch (error) {
+                  console.error("Direct API call error:", error);
+                }
+              }}
+              className="mr-2"
+            >
+              Test Direct API Call
+            </Button>
+            <Button
+              onClick={() => {
+                console.log(
+                  "Manual filter test using adminAPI with parameters"
+                );
+                handleFilterChange("month", "8");
+              }}
+              className="mr-2"
+            >
+              Test AdminAPI Call
+            </Button>
+            <Button
+              onClick={() => {
+                console.log("Manual search test - searching for 'test'");
+                handleFilterChange("search", "test" + Date.now());
+              }}
+            >
+              Test Search
+            </Button>
           </div>
         </CardContent>
       </Card>
