@@ -217,6 +217,7 @@ const TestimonialsSection = () => {
           verified: true,
           service: review.service_type || "Cleaning Service",
           cleaner_name: review.cleaner_name,
+          cleaner_rating: review.cleaner_rating || 0,
           review_type: review.review_type,
           isAdminReview: review.review_type === 'admin',
         })) || [];
@@ -357,6 +358,27 @@ const TestimonialsSection = () => {
                       {testimonial.cleaner_name && (
                         <span className="block mt-3 text-sm text-slate-500 not-italic">
                           Service by: <strong>{testimonial.cleaner_name}</strong>
+                          {testimonial.cleaner_rating > 0 && (
+                            <span className="ml-2 inline-flex items-center">
+                              <span className="flex">
+                                {[...Array(5)].map((_, i) => (
+                                  <StarIcon
+                                    key={i}
+                                    className={`h-3 w-3 ${
+                                      i < Math.floor(testimonial.cleaner_rating)
+                                        ? 'text-yellow-400 fill-yellow-400'
+                                        : i < testimonial.cleaner_rating
+                                        ? 'text-yellow-400 fill-yellow-200'
+                                        : 'text-gray-300'
+                                    }`}
+                                  />
+                                ))}
+                              </span>
+                              <span className="ml-1 text-xs font-medium">
+                                ({testimonial.cleaner_rating.toFixed(1)})
+                              </span>
+                            </span>
+                          )}
                         </span>
                       )}
                     </p>

@@ -20,8 +20,8 @@ async function testPublicReviewsAPI() {
       data.reviews.forEach((review, index) => {
         console.log(`${index + 1}. ${review.review_type.toUpperCase()} REVIEW`);
         console.log(`   👤 Reviewer: ${review.reviewer_name}`);
-        console.log(`   🧹 For Cleaner: ${review.cleaner_name}`);
-        console.log(`   ⭐ Rating: ${review.rating}/5`);
+        console.log(`   🧹 For Cleaner: ${review.cleaner_name} (⭐ ${review.cleaner_rating}/5)`);
+        console.log(`   ⭐ Review Rating: ${review.rating}/5`);
         console.log(`   🏷️ Service: ${review.service_type}`);
         console.log(`   💬 Comment: ${review.comment ? review.comment.substring(0, 80) + '...' : 'No comment'}`);
         console.log(`   📅 Date: ${new Date(review.created_at).toLocaleDateString()}`);

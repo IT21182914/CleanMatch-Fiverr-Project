@@ -1138,12 +1138,14 @@ const getPublicReviews = async (req, res) => {
           customer.last_name as reviewer_last_name,
           CONCAT(customer.first_name, ' ', customer.last_name) as reviewer_name,
           CONCAT(cleaner.first_name, ' ', cleaner.last_name) as cleaner_name,
+          COALESCE(cp.rating, 0) as cleaner_rating,
           COALESCE(s.name, 'Cleaning Service') as service_type,
           r.is_featured,
           r.is_visible
         FROM reviews r
         JOIN users customer ON r.customer_id = customer.id
         JOIN users cleaner ON r.cleaner_id = cleaner.id
+        LEFT JOIN cleaner_profiles cp ON cleaner.id = cp.user_id
         LEFT JOIN bookings b ON r.booking_id = b.id
         LEFT JOIN services s ON b.service_id = s.id
         WHERE r.is_visible = true
@@ -1160,11 +1162,13 @@ const getPublicReviews = async (req, res) => {
           'Review' as reviewer_last_name,
           'Admin Review' as reviewer_name,
           CONCAT(cleaner.first_name, ' ', cleaner.last_name) as cleaner_name,
+          COALESCE(cp.rating, 0) as cleaner_rating,
           'Professional Service' as service_type,
           true as is_featured,
           ar.is_visible
         FROM admin_reviews ar
         JOIN users cleaner ON ar.cleaner_id = cleaner.id
+        LEFT JOIN cleaner_profiles cp ON cleaner.id = cp.user_id
         WHERE ar.is_visible = true
       )
       ORDER BY 
@@ -1194,6 +1198,7 @@ const getPublicReviews = async (req, res) => {
         reviewer_first_name: row.reviewer_first_name,
         reviewer_last_name: row.reviewer_last_name,
         cleaner_name: row.cleaner_name,
+        cleaner_rating: parseFloat(row.cleaner_rating) || 0,
         service_type: row.service_type,
         review_type: row.review_type,
         is_admin_review: row.review_type === 'admin',
