@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   CalendarIcon,
   MagnifyingGlassIcon,
@@ -27,6 +27,7 @@ import {
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     status: "",
     paymentStatus: "",
@@ -41,14 +42,25 @@ const Bookings = () => {
     limit: 20,
   });
 
+  // Debounced search effect
   useEffect(() => {
-    fetchBookings();
-  }, [filters]);
+    const timeoutId = setTimeout(() => {
+      setFilters((prev) => ({
+        ...prev,
+        search: searchTerm,
+        page: 1,
+      }));
+    }, 500);
 
-  const fetchBookings = async () => {
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
+      console.log("Fetching bookings with filters:", filters);
       const response = await adminAPI.getBookings(filters);
+      console.log("Bookings API response:", response.data);
       setBookings(response.data.bookings);
       setPagination(response.data.pagination);
     } catch (error) {
@@ -56,7 +68,11 @@ const Bookings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
 
   const handleFilterChange = (name, value) => {
     setFilters((prev) => ({
@@ -187,8 +203,8 @@ const Bookings = () => {
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search bookings..."
-                value={filters.search}
-                onChange={(e) => handleFilterChange("search", e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
@@ -199,6 +215,9 @@ const Bookings = () => {
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>
+              <option value="pending_cleaner_response">
+                Pending Cleaner Response
+              </option>
               <option value="confirmed">Confirmed</option>
               <option value="in_progress">In Progress</option>
               <option value="completed">Completed</option>
@@ -220,15 +239,16 @@ const Bookings = () => {
 
             <Button
               variant="outline"
-              onClick={() =>
+              onClick={() => {
+                setSearchTerm("");
                 setFilters({
                   status: "",
                   paymentStatus: "",
                   search: "",
                   page: 1,
                   limit: 20,
-                })
-              }
+                });
+              }}
             >
               Clear Filters
             </Button>

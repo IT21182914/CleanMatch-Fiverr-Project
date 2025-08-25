@@ -233,7 +233,10 @@ const Users = () => {
                 {/* Mobile loading cards */}
                 <div className="space-y-3 p-4">
                   {[...Array(3)].map((_, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-4 animate-pulse">
+                    <div
+                      key={index}
+                      className="bg-gray-50 rounded-lg p-4 animate-pulse"
+                    >
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
                         <div className="flex-1 space-y-2">
@@ -295,13 +298,18 @@ const Users = () => {
               <div className="block sm:hidden">
                 <div className="space-y-3 p-4">
                   {users.map((user) => (
-                    <div key={user.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                    <div
+                      key={user.id}
+                      className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+                    >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center space-x-3 flex-1 min-w-0">
                           <div className="flex-shrink-0">
                             <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                               <span className="text-sm font-medium text-blue-600">
-                                {getInitials(`${user.first_name} ${user.last_name}`)}
+                                {getInitials(
+                                  `${user.first_name} ${user.last_name}`
+                                )}
                               </span>
                             </div>
                           </div>
@@ -319,7 +327,7 @@ const Users = () => {
                             )}
                           </div>
                         </div>
-                        
+
                         {/* Mobile action button */}
                         <div className="flex-shrink-0 ml-3">
                           {user.is_active ? (
@@ -345,31 +353,40 @@ const Users = () => {
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Mobile: Role, Status, and Join date */}
                       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleBadgeColor(user.role)}`}>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleBadgeColor(
+                            user.role
+                          )}`}
+                        >
                           {capitalizeFirst(user.role)}
                         </span>
-                        
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          user.is_active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                        }`}>
+
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                            user.is_active
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
                           {user.is_active ? "Active" : "Inactive"}
                         </span>
-                        
+
                         {user.is_verified && (
                           <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-600 bg-green-50 rounded-full">
                             <CheckCircleIcon className="h-3 w-3 mr-1" />
                             Verified
                           </span>
                         )}
-                        
+
                         <span className="text-gray-500 ml-auto">
-                          {formatDateTime(user.created_at).split(' ')[0]} {/* Show just date on mobile */}
+                          {formatDateTime(user.created_at).split(" ")[0]}{" "}
+                          {/* Show just date on mobile */}
                         </span>
                       </div>
-                      
+
                       {/* Mobile: Cleaner rating */}
                       {user.role === "cleaner" && user.rating && (
                         <div className="mt-2 flex items-center text-xs text-gray-500">
@@ -412,7 +429,9 @@ const Users = () => {
                             <div className="flex-shrink-0 h-8 w-8 lg:h-10 lg:w-10">
                               <div className="h-8 w-8 lg:h-10 lg:w-10 rounded-full bg-blue-100 flex items-center justify-center">
                                 <span className="text-xs lg:text-sm font-medium text-blue-600">
-                                  {getInitials(`${user.first_name} ${user.last_name}`)}
+                                  {getInitials(
+                                    `${user.first_name} ${user.last_name}`
+                                  )}
                                 </span>
                               </div>
                             </div>
@@ -433,7 +452,11 @@ const Users = () => {
                         </td>
 
                         <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeColor(user.role)}`}>
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeColor(
+                              user.role
+                            )}`}
+                          >
                             {capitalizeFirst(user.role)}
                           </span>
                           {user.role === "cleaner" && user.rating && (
@@ -445,15 +468,21 @@ const Users = () => {
                         </td>
 
                         <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            user.is_active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                          }`}>
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              user.is_active
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
                             {user.is_active ? "Active" : "Inactive"}
                           </span>
                           {user.is_verified && (
                             <div className="flex items-center mt-1">
                               <CheckCircleIcon className="h-4 w-4 text-green-500 mr-1" />
-                              <span className="text-xs text-green-600">Verified</span>
+                              <span className="text-xs text-green-600">
+                                Verified
+                              </span>
                             </div>
                           )}
                         </td>
@@ -469,7 +498,9 @@ const Users = () => {
                                 variant="outline"
                                 size="sm"
                                 loading={updating[user.id]}
-                                onClick={() => handleStatusUpdate(user.id, false)}
+                                onClick={() =>
+                                  handleStatusUpdate(user.id, false)
+                                }
                                 className="text-red-600 border-red-300 hover:bg-red-50"
                               >
                                 <XCircleIcon className="h-4 w-4" />
@@ -479,7 +510,9 @@ const Users = () => {
                                 variant="outline"
                                 size="sm"
                                 loading={updating[user.id]}
-                                onClick={() => handleStatusUpdate(user.id, true)}
+                                onClick={() =>
+                                  handleStatusUpdate(user.id, true)
+                                }
                                 className="text-green-600 border-green-300 hover:bg-green-50"
                               >
                                 <CheckCircleIcon className="h-4 w-4" />
@@ -562,7 +595,8 @@ const Users = () => {
                     if (
                       page === 1 ||
                       page === pagination.pages ||
-                      (page >= pagination.page - 1 && page <= pagination.page + 1) // Reduced range for mobile
+                      (page >= pagination.page - 1 &&
+                        page <= pagination.page + 1) // Reduced range for mobile
                     ) {
                       return (
                         <Button

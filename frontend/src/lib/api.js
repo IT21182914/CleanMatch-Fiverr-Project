@@ -276,7 +276,21 @@ export const adminAPI = {
     enhancedApi.put(`/admin/users/${userId}/status`, data),
 
   // Booking management
-  getBookings: (params) => enhancedApi.get("/admin/bookings", { params }),
+  getBookings: (params) => {
+    console.log("adminAPI.getBookings called with params:", params);
+
+    // Filter out empty values like we do for users
+    const cleanParams = Object.fromEntries(
+      Object.entries(params || {}).filter(
+        ([, value]) => value !== "" && value !== null && value !== undefined
+      )
+    );
+
+    console.log("Filtered params for bookings:", cleanParams);
+
+    // Use direct axios call to ensure params are sent correctly
+    return api.get("/admin/bookings", { params: cleanParams });
+  },
   assignCleaner: (bookingId, cleanerId) =>
     enhancedApi.post(`/admin/bookings/${bookingId}/assign`, { cleanerId }),
 

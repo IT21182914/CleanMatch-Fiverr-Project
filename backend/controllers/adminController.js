@@ -310,24 +310,37 @@ const updateUserStatus = async (req, res) => {
  */
 const getBookings = async (req, res) => {
   try {
+    console.log("getBookings called with query params:", req.query);
+
     const { status, paymentStatus, page = 1, limit = 20, search } = req.query;
     const offset = (page - 1) * limit;
+
+    console.log("Parsed filter values:", {
+      status,
+      paymentStatus,
+      search,
+      page,
+      limit,
+    });
 
     let whereConditions = [];
     let queryParams = [];
     let paramCount = 1;
 
     if (status) {
+      console.log("Adding status filter:", status);
       whereConditions.push(`b.status = $${paramCount++}`);
       queryParams.push(status);
     }
 
     if (paymentStatus) {
+      console.log("Adding paymentStatus filter:", paymentStatus);
       whereConditions.push(`b.payment_status = $${paramCount++}`);
       queryParams.push(paymentStatus);
     }
 
     if (search) {
+      console.log("Adding search filter:", search);
       whereConditions.push(`(
         customer.first_name ILIKE $${paramCount} OR 
         customer.last_name ILIKE $${paramCount} OR 
@@ -344,6 +357,9 @@ const getBookings = async (req, res) => {
       whereConditions.length > 0
         ? `WHERE ${whereConditions.join(" AND ")}`
         : "";
+
+    console.log("Final WHERE clause:", whereClause);
+    console.log("Query parameters:", queryParams);
 
     const bookingsQuery = `
       SELECT 
