@@ -48,8 +48,14 @@ export const useFormSubmission = (
 
         const result = await register(registrationData);
         if (result.success) {
-          // Check if user came here with membership intent
-          if (membershipIntent && redirectTo) {
+          // Check for redirect path from service booking first
+          const redirectPath = sessionStorage.getItem("redirectAfterLogin");
+          if (redirectPath) {
+            sessionStorage.removeItem("redirectAfterLogin");
+            sessionStorage.removeItem("servicePageBeforeLogin");
+            navigate(redirectPath, { replace: true });
+          } else if (membershipIntent && redirectTo) {
+            // Check if user came here with membership intent
             navigate(redirectTo, {
               state: {
                 selectedTier: "supersaver",
@@ -254,7 +260,15 @@ export const useFormSubmission = (
 
           if (result.success) {
             console.log("✅ Basic cleaner registration successful");
-            navigate("/dashboard");
+            // Check for redirect path from service booking first
+            const redirectPath = sessionStorage.getItem("redirectAfterLogin");
+            if (redirectPath) {
+              sessionStorage.removeItem("redirectAfterLogin");
+              sessionStorage.removeItem("servicePageBeforeLogin");
+              navigate(redirectPath, { replace: true });
+            } else {
+              navigate("/dashboard");
+            }
           } else {
             console.error("❌ Cleaner registration failed:", result.error);
 

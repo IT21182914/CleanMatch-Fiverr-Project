@@ -35,6 +35,8 @@ import {
 import { allServices } from "../data/services";
 import { getServiceImage } from "../utils/serviceImages";
 import ServiceImage from "../components/ui/ServiceImage";
+import LoginRequiredModal from "../components/ui/LoginRequiredModal";
+import { useAuth } from "../hooks/useAuth";
 
 // Import individual service components
 import Service1 from "../components/services/Service1";
@@ -91,9 +93,11 @@ import Service50 from "../components/services/Service50";
 const ServiceDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [service, setService] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     // Multiple scroll-to-top approaches to ensure it works
@@ -181,6 +185,13 @@ const ServiceDetails = () => {
   }
 
   const handleBookNow = () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    // If authenticated, proceed with booking
     navigate("/customer/book-service", {
       state: {
         selectedService: service,
@@ -570,6 +581,12 @@ const ServiceDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Login Required Modal */}
+      <LoginRequiredModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </div>
   );
 };

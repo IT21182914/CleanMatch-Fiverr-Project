@@ -68,7 +68,15 @@ const Login = () => {
     try {
       const result = await login(formData);
       if (result.success) {
-        navigate(from, { replace: true });
+        // Check for redirect path from service booking
+        const redirectPath = sessionStorage.getItem("redirectAfterLogin");
+        if (redirectPath) {
+          sessionStorage.removeItem("redirectAfterLogin");
+          sessionStorage.removeItem("servicePageBeforeLogin");
+          navigate(redirectPath, { replace: true });
+        } else {
+          navigate(from, { replace: true });
+        }
       } else {
         setErrors({ general: result.error });
       }
