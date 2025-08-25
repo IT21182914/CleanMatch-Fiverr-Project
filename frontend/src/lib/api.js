@@ -248,7 +248,29 @@ export const adminAPI = {
   getSystemStats: () => enhancedApi.get("/admin/dashboard"),
 
   // User management
-  getUsers: (params) => enhancedApi.get("/admin/users", { params }),
+  getUsers: (params) => {
+    console.log("📤 AdminAPI.getUsers called with params:", params);
+    console.log("📤 Params stringified:", JSON.stringify(params));
+
+    // Filter out empty string values but keep meaningful ones
+    const cleanParams = {};
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && value !== "") {
+          cleanParams[key] = value;
+          console.log(`📤 Adding param: ${key} = "${value}"`);
+        } else {
+          console.log(`📤 Skipping empty param: ${key} = "${value}"`);
+        }
+      });
+    }
+
+    console.log("📤 Clean params to send:", cleanParams);
+    console.log("📤 URL will be: /admin/users with params:", cleanParams);
+
+    // Use direct axios call to ensure params are sent correctly
+    return api.get("/admin/users", { params: cleanParams });
+  },
   getAdmins: () => enhancedApi.get("/admin/users/admins"),
   updateUserStatus: (userId, data) =>
     enhancedApi.put(`/admin/users/${userId}/status`, data),

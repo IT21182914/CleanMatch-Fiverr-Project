@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   UsersIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
-  EyeIcon,
   CheckCircleIcon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
@@ -24,6 +23,7 @@ const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState({});
+  const [searchInput, setSearchInput] = useState(""); // For immediate UI updates
   const [filters, setFilters] = useState({
     role: "",
     status: "",
@@ -38,30 +38,57 @@ const Users = () => {
     limit: 20,
   });
 
-  useEffect(() => {
-    fetchUsers();
-  }, [filters]);
+  const handleFilterChange = useCallback((name, value) => {
+    console.log(`🎯 Filter change: ${name} = "${value}"`); // Debug log
+    setFilters((prev) => {
+      const newFilters = {
+        ...prev,
+        [name]: value,
+        page: 1, // Reset to first page when filtering
+      };
+      console.log("🎯 New filters state:", newFilters); // Debug log
+      return newFilters;
+    });
+  }, []);
 
-  const fetchUsers = async () => {
+  // Debounce search input
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      handleFilterChange("search", searchInput);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [searchInput, handleFilterChange]);
+
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
+      console.log("🔍 Fetching users with filters:", filters); // Debug log
+      console.log(
+        "🔍 Filter values - role:",
+        filters.role,
+        "status:",
+        filters.status,
+        "search:",
+        filters.search
+      );
+
       const response = await adminAPI.getUsers(filters);
+      console.log("📊 API Response:", response.data); // Debug log
+      console.log("📊 Users returned:", response.data.users?.length);
+      console.log("📊 First few users:", response.data.users?.slice(0, 3));
+
       setUsers(response.data.users);
       setPagination(response.data.pagination);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("❌ Error fetching users:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
-  const handleFilterChange = (name, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-      page: 1, // Reset to first page when filtering
-    }));
-  };
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleStatusUpdate = async (userId, isActive) => {
     try {
@@ -117,50 +144,60 @@ const Users = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search users..."
-                value={filters.search}
-                onChange={(e) => handleFilterChange("search", e.target.value)}
-                className="pl-10"
-              />
+          <div className="space-y-4">
+            {/* Main filters */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search users..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              <Select
+                value={filters.role}
+                onChange={(e) => {
+                  console.log("🎯 Role select changed to:", e.target.value);
+                  handleFilterChange("role", e.target.value);
+                }}
+              >
+                <option value="">All Roles</option>
+                <option value="customer">Customers</option>
+                <option value="cleaner">Cleaners</option>
+                <option value="admin">Admins</option>
+              </Select>
+
+              <Select
+                value={filters.status}
+                onChange={(e) => {
+                  console.log("🎯 Status select changed to:", e.target.value);
+                  handleFilterChange("status", e.target.value);
+                }}
+              >
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </Select>
+
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearchInput("");
+                  setFilters({
+                    role: "",
+                    status: "",
+                    search: "",
+                    page: 1,
+                    limit: 20,
+                  });
+                }}
+              >
+                Clear Filters
+              </Button>
             </div>
-
-            <Select
-              value={filters.role}
-              onChange={(e) => handleFilterChange("role", e.target.value)}
-            >
-              <option value="">All Roles</option>
-              <option value="customer">Customers</option>
-              <option value="cleaner">Cleaners</option>
-              <option value="admin">Admins</option>
-            </Select>
-
-            <Select
-              value={filters.status}
-              onChange={(e) => handleFilterChange("status", e.target.value)}
-            >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </Select>
-
-            <Button
-              variant="outline"
-              onClick={() =>
-                setFilters({
-                  role: "",
-                  status: "",
-                  search: "",
-                  page: 1,
-                  limit: 20,
-                })
-              }
-            >
-              Clear Filters
-            </Button>
           </div>
         </CardContent>
       </Card>
@@ -311,10 +348,6 @@ const Users = () => {
 
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm">
-                            <EyeIcon className="h-4 w-4" />
-                          </Button>
-
                           {user.is_active ? (
                             <Button
                               variant="outline"
