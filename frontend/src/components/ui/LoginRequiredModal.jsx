@@ -34,27 +34,109 @@ const LoginRequiredModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Light modern layered backdrop with animated elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/80 via-[#4EC6E5]/20 to-cyan-50/90 backdrop-blur-3xl"></div>
+      {/* Clean & Fresh backdrop perfect for cleaning service */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sky-50/95 via-blue-50/85 to-cyan-100/90 backdrop-blur-3xl"></div>
 
-      {/* Animated gradient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-[#4EC6E5]/15 to-[#2BA8CD]/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-l from-[#2BA8CD]/18 to-[#4EC6E5]/12 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      {/* Floating cleaning bubbles effect - More visible */}
+      <div className="absolute top-20 left-16 w-40 h-40 bg-gradient-to-br from-[#4EC6E5]/60 to-white/70 rounded-full blur-3xl animate-bounce opacity-80"></div>
+      <div className="absolute top-32 right-20 w-32 h-32 bg-gradient-to-br from-[#2BA8CD]/55 to-white/65 rounded-full blur-2xl animate-pulse delay-500 opacity-75"></div>
+      <div className="absolute bottom-40 left-32 w-28 h-28 bg-gradient-to-br from-cyan-300/50 to-white/60 rounded-full blur-xl animate-bounce delay-1000 opacity-70"></div>
+      <div className="absolute bottom-20 right-32 w-36 h-36 bg-gradient-to-br from-[#4EC6E5]/50 to-sky-200/60 rounded-full blur-2xl animate-pulse delay-1500 opacity-75"></div>
+      <div className="absolute top-1/2 left-20 w-24 h-24 bg-gradient-to-br from-blue-200/55 to-white/70 rounded-full blur-xl animate-bounce delay-2000 opacity-70"></div>
 
-      {/* Light glass morphism overlay */}
-      <div className="absolute inset-0 backdrop-blur-2xl bg-gradient-to-br from-white/20 via-cyan-50/30 to-white/15"></div>
-
-      {/* Subtle grid pattern overlay */}
+      {/* Additional floating bubbles with different animations - More visible */}
       <div
-        className="absolute inset-0 opacity-15"
+        className="absolute top-16 left-1/2 w-20 h-20 bg-gradient-to-br from-white/60 to-[#4EC6E5]/50 rounded-full blur-lg animate-spin opacity-70"
+        style={{ animationDuration: "15s" }}
+      ></div>
+      <div
+        className="absolute bottom-16 right-1/2 w-16 h-16 bg-gradient-to-br from-cyan-200/55 to-white/60 rounded-full blur-md animate-bounce opacity-75"
+        style={{ animationDelay: "2.5s" }}
+      ></div>
+      <div
+        className="absolute top-1/3 left-1/4 w-12 h-12 bg-gradient-to-br from-[#2BA8CD]/50 to-white/55 rounded-full blur-sm animate-pulse opacity-80"
+        style={{ animationDelay: "3s" }}
+      ></div>
+
+      {/* Floating cleaning icons/shapes - More visible */}
+      <div
+        className="absolute top-12 right-1/4 w-8 h-8 bg-[#4EC6E5]/70 rounded-sm blur-sm animate-bounce rotate-45 opacity-60"
+        style={{ animationDelay: "1s", animationDuration: "3s" }}
+      ></div>
+      <div
+        className="absolute bottom-12 left-1/3 w-6 h-12 bg-cyan-300/60 rounded-full blur-sm animate-pulse opacity-70"
+        style={{ animationDelay: "1.8s" }}
+      ></div>
+      <div
+        className="absolute top-1/4 right-12 w-10 h-4 bg-white/70 rounded-full blur-sm animate-bounce opacity-65"
+        style={{ animationDelay: "2.2s" }}
+      ></div>
+
+      {/* Sparkle/shine effects for cleanliness - Brighter */}
+      <div className="absolute top-24 right-16 w-4 h-4 bg-white/95 rounded-full animate-ping delay-300 opacity-90"></div>
+      <div className="absolute bottom-32 left-24 w-3 h-3 bg-[#4EC6E5]/80 rounded-full animate-ping delay-700 opacity-85"></div>
+      <div className="absolute top-1/3 right-1/3 w-5 h-5 bg-cyan-300/70 rounded-full animate-ping delay-1100 opacity-80"></div>
+      <div className="absolute bottom-1/3 right-20 w-3 h-3 bg-white/90 rounded-full animate-ping delay-1400 opacity-85"></div>
+
+      {/* More sparkle effects - Brighter and more visible */}
+      <div
+        className="absolute top-8 left-1/3 w-2 h-2 bg-white/95 rounded-full animate-ping opacity-90"
+        style={{ animationDelay: "0.2s" }}
+      ></div>
+      <div
+        className="absolute bottom-8 right-1/4 w-3 h-3 bg-[#4EC6E5]/85 rounded-full animate-ping opacity-90"
+        style={{ animationDelay: "2.8s" }}
+      ></div>
+      <div
+        className="absolute top-2/3 left-8 w-2.5 h-2.5 bg-cyan-400/80 rounded-full animate-ping opacity-85"
+        style={{ animationDelay: "1.6s" }}
+      ></div>
+      <div
+        className="absolute bottom-1/4 left-1/2 w-2 h-2 bg-white/95 rounded-full animate-ping opacity-90"
+        style={{ animationDelay: "3.2s" }}
+      ></div>
+
+      {/* Animated wave effects - More visible */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -top-32 left-0 w-full h-64 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-y-3 animate-pulse opacity-40"
+          style={{ animationDuration: "8s" }}
+        ></div>
+        <div
+          className="absolute -bottom-32 right-0 w-full h-48 bg-gradient-to-l from-transparent via-[#4EC6E5]/20 to-transparent -skew-y-2 animate-pulse opacity-35"
+          style={{ animationDuration: "12s", animationDelay: "2s" }}
+        ></div>
+      </div>
+
+      {/* Floating particles - More visible */}
+      <div
+        className="absolute top-20 left-8 w-2 h-2 bg-[#4EC6E5]/70 rounded-full animate-bounce opacity-80"
+        style={{ animationDuration: "4s", animationDelay: "1s" }}
+      ></div>
+      <div
+        className="absolute bottom-24 right-8 w-1.5 h-1.5 bg-white/85 rounded-full animate-bounce opacity-75"
+        style={{ animationDuration: "5s", animationDelay: "2.5s" }}
+      ></div>
+      <div
+        className="absolute top-1/2 right-4 w-2 h-2 bg-cyan-300/60 rounded-full animate-bounce opacity-70"
+        style={{ animationDuration: "3.5s", animationDelay: "0.8s" }}
+      ></div>
+
+      {/* Clean glass morphism overlay */}
+      <div className="absolute inset-0 backdrop-blur-2xl bg-gradient-to-br from-white/30 via-sky-50/20 to-cyan-50/25"></div>
+
+      {/* Subtle cleaning-themed pattern */}
+      <div
+        className="absolute inset-0 opacity-8"
         style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(78, 198, 229, 0.4) 1px, transparent 0)`,
-          backgroundSize: "32px 32px",
+          backgroundImage: `radial-gradient(circle at 4px 4px, rgba(78, 198, 229, 0.3) 1px, transparent 0), 
+                           radial-gradient(circle at 20px 20px, rgba(255, 255, 255, 0.4) 0.5px, transparent 0)`,
+          backgroundSize: "40px 40px, 60px 60px",
         }}
       ></div>
 
-      {/* Final light blur layer for depth */}
-      <div className="absolute inset-0 backdrop-blur-xl bg-white/10"></div>
+      {/* Final pristine overlay */}
+      <div className="absolute inset-0 backdrop-blur-lg bg-white/8"></div>
 
       {/* Modal content */}
       <div className="relative bg-white/98 backdrop-blur-lg rounded-3xl shadow-2xl max-w-lg w-full mx-4 animate-in fade-in zoom-in-95 duration-500 ease-out border border-white/40 overflow-hidden">
