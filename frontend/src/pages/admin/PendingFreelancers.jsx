@@ -209,20 +209,29 @@ const PendingFreelancers = () => {
       });
       setImageError(true);
       setLoading(false);
-      
+
       // Try to fetch the URL to get more specific error information
       if (fullDocumentUrl) {
         fetch(fullDocumentUrl)
-          .then(response => {
+          .then((response) => {
             if (!response.ok) {
-              return response.json().then(errorData => {
-                setDebugInfo(`HTTP ${response.status}: ${errorData.message || response.statusText}`);
-              }).catch(() => {
-                setDebugInfo(`HTTP ${response.status}: ${response.statusText}`);
-              });
+              return response
+                .json()
+                .then((errorData) => {
+                  setDebugInfo(
+                    `HTTP ${response.status}: ${
+                      errorData.message || response.statusText
+                    }`
+                  );
+                })
+                .catch(() => {
+                  setDebugInfo(
+                    `HTTP ${response.status}: ${response.statusText}`
+                  );
+                });
             }
           })
-          .catch(error => {
+          .catch((error) => {
             setDebugInfo(`Network error: ${error.message}`);
           });
       } else {

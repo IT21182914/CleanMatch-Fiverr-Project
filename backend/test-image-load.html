@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Image Test</title>
+</head>
+<body>
+    <h1>Document Image Test</h1>
+    
+    <h2>Direct Image Tag</h2>
+    <img id="testImage" src="https://vywkpkvvcqibfoskbnga.supabase.co/storage/v1/object/public/id-proofs/user-62/id-front/9215ad81-3846-4792-99e5-ba2f509684ab.png" alt="Test Document" 
+         style="max-width: 300px; border: 2px solid #ccc;" 
+         onload="console.log('Image loaded successfully')"
+         onerror="console.error('Image failed to load')" />
+    
+    <h2>URL Information</h2>
+    <p><strong>URL:</strong> <a href="https://vywkpkvvcqibfoskbnga.supabase.co/storage/v1/object/public/id-proofs/user-62/id-front/9215ad81-3846-4792-99e5-ba2f509684ab.png" target="_blank">https://vywkpkvvcqibfoskbnga.supabase.co/storage/v1/object/public/id-proofs/user-62/id-front/9215ad81-3846-4792-99e5-ba2f509684ab.png</a></p>
+    
+    <h2>JavaScript Test</h2>
+    <button onclick="testImageLoad()">Test Image Load with JavaScript</button>
+    <div id="result"></div>
+    
+    <script>
+        function testImageLoad() {
+            const resultDiv = document.getElementById('result');
+            const img = new Image();
+            
+            img.onload = function() {
+                resultDiv.innerHTML = '<p style="color: green;">✅ Image loaded successfully via JavaScript</p>';
+                console.log('Image dimensions:', img.width, 'x', img.height);
+            };
+            
+            img.onerror = function(e) {
+                resultDiv.innerHTML = '<p style="color: red;">❌ Image failed to load via JavaScript</p>';
+                console.error('Image load error:', e);
+            };
+            
+            img.src = 'https://vywkpkvvcqibfoskbnga.supabase.co/storage/v1/object/public/id-proofs/user-62/id-front/9215ad81-3846-4792-99e5-ba2f509684ab.png';
+        }
+        
+        // Test on page load
+        window.onload = function() {
+            console.log('Testing image load...');
+            testImageLoad();
+        };
+    </script>
+</body>
+</html>
+    
