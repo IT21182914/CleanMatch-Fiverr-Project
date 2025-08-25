@@ -36,7 +36,7 @@ const LoginRequiredModal = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Blurred backdrop */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#4EC6E5]/20 via-[#2BA8CD]/30 to-slate-900/40 backdrop-blur-md"></div>
-      
+
       {/* Modal content */}
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 animate-in fade-in zoom-in-95 duration-300 border border-white/20">
         {/* Close button */}
