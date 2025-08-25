@@ -53,6 +53,9 @@ const CleanerEarnings = () => {
   const [showTransactions, setShowTransactions] = useState(false);
   const [transactionDetails, setTransactionDetails] = useState(null);
   const [transactionLoading, setTransactionLoading] = useState(false);
+  const [showReviews, setShowReviews] = useState(false);
+  const [cleanerReviews, setCleanerReviews] = useState(null);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   useEffect(() => {
     const fetchEarnings = async () => {
@@ -154,6 +157,21 @@ const CleanerEarnings = () => {
     }
   };
 
+  const fetchCleanerReviews = async (cleanerId) => {
+    try {
+      setReviewsLoading(true);
+      const response = await adminAPI.getCleanerReviews(cleanerId, {
+        limit: 10, // Show recent 10 reviews
+        page: 1
+      });
+      setCleanerReviews(response.data);
+    } catch (error) {
+      console.error("Error fetching cleaner reviews:", error);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
   const handleFilterChange = (key, value) => {
     console.log(`Filter changed: ${key} = ${value}`); // Debug logging
     console.log(`Current filters before change:`, filters); // Debug logging
@@ -179,6 +197,12 @@ const CleanerEarnings = () => {
     setSelectedCleaner(cleaner);
     setShowTransactions(true);
     fetchTransactionDetails(cleaner.id, month, filters.year);
+  };
+
+  const handleViewReviews = (cleaner) => {
+    setSelectedCleaner(cleaner);
+    setShowReviews(true);
+    fetchCleanerReviews(cleaner.id);
   };
 
   const handleSort = (field) => {
@@ -525,6 +549,14 @@ const CleanerEarnings = () => {
                               <CurrencyDollarIcon className="h-4 w-4 mr-2" />
                               Transactions
                             </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleViewReviews(cleaner)}
+                              className="text-green-600 hover:text-green-700"
+                            >
+                              ⭐ Reviews
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -611,6 +643,19 @@ const CleanerEarnings = () => {
             setShowTransactions(false);
             setSelectedCleaner(null);
             setTransactionDetails(null);
+          }}
+        />
+      )}
+
+      {/* Reviews Modal */}
+      {showReviews && selectedCleaner && (
+        <ReviewsModal
+          reviewsData={cleanerReviews}
+          loading={reviewsLoading}
+          onClose={() => {
+            setShowReviews(false);
+            setSelectedCleaner(null);
+            setCleanerReviews(null);
           }}
         />
       )}
@@ -1112,6 +1157,199 @@ const TransactionDetailsModal = ({ transactionDetails, loading, onClose }) => {
                   </h3>
                   <p className="mt-1 text-sm text-gray-500">
                     No completed, paid transactions for this period.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ReviewsModal = ({ reviewsData, loading, onClose }) => {
+  if (loading || !reviewsData) {
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+          <div className="mt-3">
+            <LoadingCard />
+            <div className="text-center mt-4">
+              <Button variant="outline" onClick={onClose}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const { cleaner: cleanerInfo, reviews, summary, ratingBreakdown } = reviewsData.data;
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div className="relative top-10 mx-auto p-5 border w-11/12 md:w-5/6 lg:w-4/5 shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex justify-between items-start border-b pb-4">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900">
+                Reviews - {cleanerInfo.name}
+              </h3>
+              <p className="text-gray-600">{cleanerInfo.email}</p>
+              <div className="mt-2 flex items-center space-x-4">
+                <span className="text-lg font-semibold text-yellow-600">
+                  ⭐ {cleanerInfo.averageRating ? cleanerInfo.averageRating.toFixed(1) : 'N/A'}
+                </span>
+                <span className="text-sm text-gray-500">
+                  ({summary.totalCombinedReviews} total reviews)
+                </span>
+              </div>
+            </div>
+            <Button variant="outline" onClick={onClose}>
+              ✕ Close
+            </Button>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {summary.totalCustomerReviews}
+                  </div>
+                  <div className="text-sm text-gray-600">Customer Reviews</div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {summary.totalAdminReviews}
+                  </div>
+                  <div className="text-sm text-gray-600">Admin Reviews</div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {summary.totalCombinedReviews}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Reviews</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Rating Breakdown */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Rating Breakdown</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {[5, 4, 3, 2, 1].map(rating => (
+                  <div key={rating} className="flex items-center space-x-3">
+                    <span className="text-sm font-medium w-8">{rating}★</span>
+                    <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-yellow-400 h-2 rounded-full"
+                        style={{
+                          width: summary.totalCombinedReviews > 0 
+                            ? `${(ratingBreakdown[rating]?.total || 0) / summary.totalCombinedReviews * 100}%`
+                            : '0%'
+                        }}
+                      ></div>
+                    </div>
+                    <span className="text-sm text-gray-600 w-16">
+                      {ratingBreakdown[rating]?.total || 0} reviews
+                    </span>
+                    <div className="text-xs text-gray-500 space-x-1">
+                      <span className="text-blue-600">C: {ratingBreakdown[rating]?.customer || 0}</span>
+                      <span className="text-green-600">A: {ratingBreakdown[rating]?.admin || 0}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Reviews List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Reviews</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {reviews.length > 0 ? (
+                <div className="space-y-4">
+                  {reviews.map((review, index) => (
+                    <div
+                      key={`${review.reviewType}-${review.id}-${index}`}
+                      className="border-l-4 border-gray-200 pl-4 py-3"
+                      style={{
+                        borderLeftColor: review.reviewType === 'admin' ? '#10b981' : '#3b82f6'
+                      }}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center space-x-3">
+                          <span className="font-medium text-gray-900">
+                            {review.reviewerName}
+                          </span>
+                          <span
+                            className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                              review.reviewType === 'admin'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-blue-100 text-blue-800'
+                            }`}
+                          >
+                            {review.reviewType === 'admin' ? 'Admin Review' : 'Customer Review'}
+                          </span>
+                          <div className="flex items-center">
+                            {[1, 2, 3, 4, 5].map(star => (
+                              <span
+                                key={star}
+                                className={`text-sm ${
+                                  star <= review.rating ? 'text-yellow-400' : 'text-gray-300'
+                                }`}
+                              >
+                                ★
+                              </span>
+                            ))}
+                            <span className="ml-1 text-sm text-gray-600">
+                              ({review.rating}/5)
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {formatDateTime(review.createdAt).split(' ')[0]}
+                        </span>
+                      </div>
+                      
+                      {review.comment && (
+                        <p className="text-gray-700 text-sm mb-2">{review.comment}</p>
+                      )}
+                      
+                      {review.serviceType && (
+                        <div className="text-xs text-gray-500">
+                          Service: {review.serviceType}
+                          {review.serviceCategory && ` - ${review.serviceCategory}`}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 text-lg">
+                    No reviews found for this cleaner.
                   </p>
                 </div>
               )}

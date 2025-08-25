@@ -3268,6 +3268,237 @@ const closeTicket = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get combined customer and admin reviews for a specific cleaner
+ * @route   GET /api/admin/cleaners/:id/reviews
+ * @access  Private (Admin only)
+ */
+const getCleanerReviews = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { page = 1, limit = 10, type = 'all' } = req.query;
+    const offset = (page - 1) * limit;
+
+    // Verify cleaner exists
+    const cleanerCheck = await query(
+      `SELECT u.first_name, u.last_name, u.email, cp.rating, cp.total_jobs 
+       FROM users u 
+       JOIN cleaner_profiles cp ON u.id = cp.user_id 
+       WHERE u.id = $1 AND u.role = 'cleaner'`,
+      [id]
+    );
+
+    if (cleanerCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Cleaner not found"
+      });
+    }
+
+    const cleaner = cleanerCheck.rows[0];
+
+    // Get combined reviews using UNION to merge customer and admin reviews
+    let reviewQuery = ``;
+    let countQuery = ``;
+    let queryParams = [id];
+
+    if (type === 'customer') {
+      // Only customer reviews
+      reviewQuery = `
+        SELECT 
+          r.id,
+          r.rating,
+          r.comment,
+          r.created_at,
+          'customer' as review_type,
+          u.first_name as reviewer_name,
+          u.email as reviewer_email,
+          COALESCE(b.service_type, 'N/A') as service_type,
+          COALESCE(b.service_category, 'N/A') as service_category
+        FROM reviews r
+        JOIN users u ON r.customer_id = u.id
+        LEFT JOIN bookings b ON r.booking_id = b.id
+        WHERE r.cleaner_id = $1
+        ORDER BY r.created_at DESC
+        LIMIT $2 OFFSET $3
+      `;
+      
+      countQuery = `
+        SELECT COUNT(*) as total
+        FROM reviews r
+        WHERE r.cleaner_id = $1
+      `;
+      
+      queryParams.push(limit, offset);
+    } else if (type === 'admin') {
+      // Only admin reviews
+      reviewQuery = `
+        SELECT 
+          ar.id,
+          ar.rating,
+          ar.review_text as comment,
+          ar.created_at,
+          'admin' as review_type,
+          'Admin' as reviewer_name,
+          'admin@cleanmatch.com' as reviewer_email,
+          'N/A' as service_category,
+          'Admin Review' as service_type
+        FROM admin_reviews ar
+        WHERE ar.cleaner_id = $1
+        ORDER BY ar.created_at DESC
+        LIMIT $2 OFFSET $3
+      `;
+      
+      countQuery = `
+        SELECT COUNT(*) as total
+        FROM admin_reviews ar
+        WHERE ar.cleaner_id = $1
+      `;
+      
+      queryParams.push(limit, offset);
+    } else {
+      // Combined reviews (default)
+      reviewQuery = `
+        (
+          SELECT 
+            r.id,
+            r.rating,
+            r.comment,
+            r.created_at,
+            'customer' as review_type,
+            u.first_name as reviewer_name,
+            u.email as reviewer_email,
+            COALESCE(b.service_type, 'N/A') as service_type,
+            COALESCE(b.service_category, 'N/A') as service_category
+          FROM reviews r
+          JOIN users u ON r.customer_id = u.id
+          LEFT JOIN bookings b ON r.booking_id = b.id
+          WHERE r.cleaner_id = $1
+        )
+        UNION ALL
+        (
+          SELECT 
+            ar.id,
+            ar.rating,
+            ar.review_text as comment,
+            ar.created_at,
+            'admin' as review_type,
+            'Admin' as reviewer_name,
+            'admin@cleanmatch.com' as reviewer_email,
+            'N/A' as service_type,
+            'Admin Review' as service_category
+          FROM admin_reviews ar
+          WHERE ar.cleaner_id = $1
+        )
+        ORDER BY created_at DESC
+        LIMIT $2 OFFSET $3
+      `;
+      
+      countQuery = `
+        SELECT 
+          (SELECT COUNT(*) FROM reviews WHERE cleaner_id = $1) + 
+          (SELECT COUNT(*) FROM admin_reviews WHERE cleaner_id = $1) as total
+      `;
+      
+      queryParams.push(limit, offset);
+    }
+
+    // Get reviews
+    const reviewsResult = await query(reviewQuery, queryParams);
+    const countResult = await query(countQuery, [id]);
+
+    const totalReviews = parseInt(countResult.rows[0].total);
+    const totalPages = Math.ceil(totalReviews / limit);
+
+    // Get rating breakdown
+    const ratingBreakdownQuery = `
+      SELECT 
+        rating,
+        COUNT(*) as count,
+        'customer' as type
+      FROM reviews 
+      WHERE cleaner_id = $1 
+      GROUP BY rating
+      UNION ALL
+      SELECT 
+        rating,
+        COUNT(*) as count,
+        'admin' as type
+      FROM admin_reviews 
+      WHERE cleaner_id = $1 
+      GROUP BY rating
+      ORDER BY rating DESC
+    `;
+
+    const ratingBreakdownResult = await query(ratingBreakdownQuery, [id]);
+
+    // Process rating breakdown
+    const breakdown = {};
+    let customerTotal = 0, adminTotal = 0;
+    
+    for (let i = 1; i <= 5; i++) {
+      breakdown[i] = { customer: 0, admin: 0, total: 0 };
+    }
+
+    ratingBreakdownResult.rows.forEach(row => {
+      const rating = row.rating;
+      const count = parseInt(row.count);
+      
+      breakdown[rating][row.type] = count;
+      breakdown[rating].total += count;
+      
+      if (row.type === 'customer') customerTotal += count;
+      if (row.type === 'admin') adminTotal += count;
+    });
+
+    res.json({
+      success: true,
+      data: {
+        cleaner: {
+          id: parseInt(id),
+          name: `${cleaner.first_name} ${cleaner.last_name}`,
+          email: cleaner.email,
+          averageRating: cleaner.rating ? parseFloat(cleaner.rating) : null,
+          totalJobs: cleaner.total_jobs || 0
+        },
+        reviews: reviewsResult.rows.map(row => ({
+          id: row.id,
+          rating: row.rating,
+          comment: row.comment,
+          reviewType: row.review_type,
+          reviewerName: row.reviewer_name,
+          reviewerEmail: row.reviewer_email,
+          serviceType: row.service_type,
+          serviceCategory: row.service_category,
+          createdAt: row.created_at
+        })),
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages,
+          totalReviews,
+          limit: parseInt(limit),
+          hasNext: page < totalPages,
+          hasPrev: page > 1
+        },
+        summary: {
+          totalCustomerReviews: customerTotal,
+          totalAdminReviews: adminTotal,
+          totalCombinedReviews: customerTotal + adminTotal,
+          averageRating: cleaner.rating ? parseFloat(cleaner.rating) : null
+        },
+        ratingBreakdown: breakdown
+      }
+    });
+
+  } catch (error) {
+    console.error("Get cleaner reviews error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error retrieving cleaner reviews"
+    });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getAdminUsers,
@@ -3291,6 +3522,7 @@ module.exports = {
   getCleanerEarningsDetails,
   getCleanerTransactionDetails,
   getEarningsAnalytics,
+  getCleanerReviews,
   // Ticket management functions
   getAdminTickets,
   getTicketDetails,

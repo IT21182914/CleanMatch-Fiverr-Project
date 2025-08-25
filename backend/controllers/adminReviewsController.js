@@ -105,6 +105,10 @@ const createAdminReview = async (req, res) => {
 
     const review = reviewResult.rows[0];
 
+    // Update cleaner's combined rating (customer + admin reviews)
+    const { updateCleanerRating } = require("./reviewsController");
+    await updateCleanerRating(cleanerId);
+
     // Get admin and cleaner names for response
     const detailsResult = await query(
       `SELECT 
@@ -252,6 +256,10 @@ const updateAdminReview = async (req, res) => {
       [rating, reviewText, isVisible, id]
     );
 
+    // Update cleaner's combined rating (customer + admin reviews)
+    const { updateCleanerRating } = require("./reviewsController");
+    await updateCleanerRating(existingReview.rows[0].cleaner_id);
+
     // Get updated review with names
     const detailsResult = await query(
       `SELECT 
@@ -303,6 +311,10 @@ const deleteAdminReview = async (req, res) => {
 
     // Delete the review
     await query("DELETE FROM admin_reviews WHERE id = $1", [id]);
+
+    // Update cleaner's combined rating (customer + admin reviews)
+    const { updateCleanerRating } = require("./reviewsController");
+    await updateCleanerRating(existingReview.rows[0].cleaner_id);
 
     res.json({
       success: true,

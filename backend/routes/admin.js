@@ -33,6 +33,7 @@ const {
   getCleanerEarningsDetails,
   getCleanerTransactionDetails,
   getEarningsAnalytics,
+  getCleanerReviews,
   // Ticket management functions
   getAdminTickets,
   getTicketDetails,
@@ -139,6 +140,16 @@ router.get(
   auth,
   authorize("admin"),
   getCleanerTransactionDetails
+);
+
+// @route   GET /api/admin/cleaners/:id/reviews
+// @desc    Get combined customer and admin reviews for a specific cleaner
+// @access  Private (Admin only)
+router.get(
+  "/cleaners/:id/reviews",
+  auth,
+  authorize("admin"),
+  getCleanerReviews
 );
 
 // @route   GET /api/admin/analytics/earnings

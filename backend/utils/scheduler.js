@@ -121,7 +121,7 @@ const sendBookingReminders = async () => {
 };
 
 /**
- * Update cleaner ratings based on recent reviews
+ * Update cleaner ratings based on recent reviews (both customer and admin reviews)
  */
 const updateCleanerRatings = async () => {
   try {
@@ -130,22 +130,35 @@ const updateCleanerRatings = async () => {
     const updateQuery = `
       UPDATE cleaner_profiles 
       SET rating = subquery.avg_rating,
-          total_jobs = subquery.total_jobs
+          total_jobs = subquery.total_review_count
       FROM (
         SELECT 
           cp.user_id,
-          COALESCE(AVG(r.rating), 0) as avg_rating,
-          COUNT(DISTINCT b.id) as total_jobs
+          COALESCE(AVG(combined_reviews.rating), 0) as avg_rating,
+          COUNT(combined_reviews.rating) as total_review_count
         FROM cleaner_profiles cp
-        LEFT JOIN bookings b ON cp.user_id = b.cleaner_id AND b.status = 'completed'
-        LEFT JOIN reviews r ON b.id = r.booking_id AND r.reviewee_id = cp.user_id
+        LEFT JOIN (
+          -- Customer reviews
+          SELECT cleaner_id, rating
+          FROM reviews 
+          WHERE is_visible = true
+          
+          UNION ALL
+          
+          -- Admin reviews
+          SELECT cleaner_id, rating
+          FROM admin_reviews 
+          WHERE is_visible = true
+        ) as combined_reviews ON cp.user_id = combined_reviews.cleaner_id
         GROUP BY cp.user_id
       ) as subquery
       WHERE cleaner_profiles.user_id = subquery.user_id
     `;
 
     const result = await query(updateQuery);
-    console.log(`✅ Updated ratings for ${result.rowCount} cleaners`);
+    console.log(
+      `✅ Updated combined ratings (customer + admin) for ${result.rowCount} cleaners`
+    );
   } catch (error) {
     console.error("❌ Error in cleaner ratings update job:", error);
   }

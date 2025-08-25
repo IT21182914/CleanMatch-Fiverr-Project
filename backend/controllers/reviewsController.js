@@ -125,12 +125,13 @@ const getCleanerReviews = async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
     const offset = (page - 1) * limit;
 
-    // Get reviews with customer info
+    // Get reviews with customer info (customer reviews only for now)
     const reviewsResult = await query(
       `SELECT r.*, 
               u.first_name || ' ' || u.last_name as customer_name,
               u.first_name as customer_first_name,
-              s.name as service_name
+              s.name as service_name,
+              'customer' as review_type
        FROM reviews r
        JOIN users u ON r.customer_id = u.id
        JOIN bookings b ON r.booking_id = b.id
@@ -141,13 +142,13 @@ const getCleanerReviews = async (req, res) => {
       [cleanerId, limit, offset]
     );
 
-    // Get total count
+    // Get total count of customer reviews
     const countResult = await query(
       "SELECT COUNT(*) as total FROM reviews WHERE cleaner_id = $1 AND is_visible = true",
       [cleanerId]
     );
 
-    // Get average rating and stats
+    // Get combined average rating and stats (customer + admin reviews)
     const statsResult = await query(
       `SELECT 
          AVG(rating)::DECIMAL(3,2) as average_rating,
@@ -157,8 +158,17 @@ const getCleanerReviews = async (req, res) => {
          COUNT(CASE WHEN rating = 3 THEN 1 END) as three_star,
          COUNT(CASE WHEN rating = 2 THEN 1 END) as two_star,
          COUNT(CASE WHEN rating = 1 THEN 1 END) as one_star
-       FROM reviews 
-       WHERE cleaner_id = $1 AND is_visible = true`,
+       FROM (
+         -- Customer reviews
+         SELECT rating FROM reviews 
+         WHERE cleaner_id = $1 AND is_visible = true
+         
+         UNION ALL
+         
+         -- Admin reviews
+         SELECT rating FROM admin_reviews 
+         WHERE cleaner_id = $1 AND is_visible = true
+       ) as combined_reviews`,
       [cleanerId]
     );
 
@@ -418,22 +428,48 @@ const deleteReview = async (req, res) => {
 
 /**
  * Update cleaner's average rating in users table
+ * Now includes both customer reviews AND admin reviews for dynamic calculation
  */
 const updateCleanerRating = async (cleanerId) => {
   try {
+    // Get combined ratings from both customer reviews and admin reviews
     const ratingResult = await query(
-      `SELECT AVG(rating)::DECIMAL(3,2) as avg_rating, COUNT(*) as review_count
-       FROM reviews 
-       WHERE cleaner_id = $1 AND is_visible = true`,
+      `SELECT 
+        AVG(combined_rating)::DECIMAL(3,2) as avg_rating, 
+        COUNT(*) as total_review_count,
+        SUM(CASE WHEN review_type = 'customer' THEN 1 ELSE 0 END) as customer_reviews,
+        SUM(CASE WHEN review_type = 'admin' THEN 1 ELSE 0 END) as admin_reviews
+       FROM (
+         -- Customer reviews
+         SELECT rating as combined_rating, 'customer' as review_type
+         FROM reviews 
+         WHERE cleaner_id = $1 AND is_visible = true
+         
+         UNION ALL
+         
+         -- Admin reviews
+         SELECT rating as combined_rating, 'admin' as review_type
+         FROM admin_reviews 
+         WHERE cleaner_id = $1 AND is_visible = true
+       ) AS combined_reviews`,
       [cleanerId]
     );
 
     const avgRating = parseFloat(ratingResult.rows[0].avg_rating) || 0;
-    const reviewCount = parseInt(ratingResult.rows[0].review_count) || 0;
+    const totalReviewCount =
+      parseInt(ratingResult.rows[0].total_review_count) || 0;
+    const customerReviews =
+      parseInt(ratingResult.rows[0].customer_reviews) || 0;
+    const adminReviews = parseInt(ratingResult.rows[0].admin_reviews) || 0;
 
+    // Update cleaner profile with combined rating
     await query(
       "UPDATE cleaner_profiles SET rating = $1, total_jobs = $2 WHERE user_id = $3",
-      [avgRating, reviewCount, cleanerId]
+      [avgRating, totalReviewCount, cleanerId]
+    );
+
+    console.log(
+      `✅ Updated cleaner ${cleanerId} rating: ${avgRating} (${customerReviews} customer + ${adminReviews} admin reviews = ${totalReviewCount} total)`
     );
   } catch (error) {
     console.error("Error updating cleaner rating:", error);

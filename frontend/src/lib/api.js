@@ -353,6 +353,10 @@ export const adminAPI = {
   getEarningsAnalytics: (params) =>
     enhancedApi.get("/admin/analytics/earnings", { params }),
 
+  // Cleaner reviews (combined customer + admin reviews)
+  getCleanerReviews: (cleanerId, params) =>
+    enhancedApi.get(`/admin/cleaners/${cleanerId}/reviews`, { params }),
+
   // Generic get method for custom requests
   get: (url, config) => enhancedApi.get(url, config),
 };
