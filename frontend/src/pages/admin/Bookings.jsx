@@ -6,6 +6,7 @@ import {
   EyeIcon,
   UserPlusIcon,
   CurrencyDollarIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import {
   Card,
@@ -41,6 +42,14 @@ const Bookings = () => {
     total: 0,
     limit: 20,
   });
+
+  // Cleaner assignment modal state
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [availableCleaners, setAvailableCleaners] = useState([]);
+  const [loadingCleaners, setLoadingCleaners] = useState(false);
+  const [selectedCleaner, setSelectedCleaner] = useState("");
+  const [assigning, setAssigning] = useState(false);
 
   // Debounced search effect
   useEffect(() => {
@@ -84,6 +93,61 @@ const Bookings = () => {
 
   const handlePageChange = (page) => {
     setFilters((prev) => ({ ...prev, page }));
+  };
+
+  // Handle cleaner assignment
+  const openAssignModal = async (booking) => {
+    setSelectedBooking(booking);
+    setSelectedCleaner("");
+    setAssignModalOpen(true);
+    await fetchAvailableCleaners();
+  };
+
+  const fetchAvailableCleaners = async () => {
+    try {
+      setLoadingCleaners(true);
+      // Get all active cleaners
+      const response = await adminAPI.getUsers({
+        role: "cleaner",
+        status: "active",
+        limit: 100,
+      });
+      setAvailableCleaners(response.data.users);
+    } catch (error) {
+      console.error("Error fetching cleaners:", error);
+    } finally {
+      setLoadingCleaners(false);
+    }
+  };
+
+  const handleAssignCleaner = async () => {
+    if (!selectedCleaner || !selectedBooking) return;
+
+    try {
+      setAssigning(true);
+      await adminAPI.assignCleaner(selectedBooking.id, selectedCleaner);
+
+      // Refresh bookings
+      await fetchBookings();
+
+      // Close modal
+      setAssignModalOpen(false);
+
+      // Show success message (you can add a toast notification here)
+      const action = selectedBooking.cleaner_first_name
+        ? "reassigned"
+        : "assigned";
+      console.log(`Cleaner ${action} successfully!`);
+
+      // Reset state
+      setSelectedBooking(null);
+      setSelectedCleaner("");
+    } catch (error) {
+      console.error("Error assigning cleaner:", error);
+      // Show error message (you can add a toast notification here)
+    } finally {
+      setAssigning(false);
+    }
   };
 
   const getPaymentStatusBadge = (status) => {
@@ -379,15 +443,35 @@ const Bookings = () => {
                             <div className="text-sm text-gray-500">
                               {booking.cleaner_email}
                             </div>
+                            {/* Allow admin to reassign cleaner for non-completed bookings */}
+                            {booking.status !== "completed" && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="mt-1 text-blue-600 hover:text-blue-800"
+                                onClick={() => openAssignModal(booking)}
+                                title="Reassign cleaner"
+                              >
+                                <UserPlusIcon className="h-3 w-3 mr-1" />
+                                Reassign
+                              </Button>
+                            )}
                           </div>
                         ) : (
                           <div className="flex items-center">
                             <span className="text-sm text-gray-500">
                               Unassigned
                             </span>
-                            <Button variant="ghost" size="sm" className="ml-2">
-                              <UserPlusIcon className="h-4 w-4" />
-                            </Button>
+                            {booking.status !== "completed" && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="ml-2"
+                                onClick={() => openAssignModal(booking)}
+                              >
+                                <UserPlusIcon className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         )}
                       </td>
@@ -427,21 +511,28 @@ const Bookings = () => {
                             <EyeIcon className="h-4 w-4" />
                           </Button>
 
+                          {/* Show assign button for non-completed bookings without cleaner */}
                           {!booking.cleaner_first_name &&
-                            booking.status === "pending" && (
-                              <Button variant="outline" size="sm">
+                            booking.status !== "completed" && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openAssignModal(booking)}
+                              >
                                 <UserPlusIcon className="h-4 w-4" />
                               </Button>
                             )}
 
-                          {booking.payment_status === "paid" &&
-                            booking.status === "completed" && (
+                          {/* Show reassign button for non-completed bookings with cleaner */}
+                          {booking.cleaner_first_name &&
+                            booking.status !== "completed" && (
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="text-red-600"
+                                onClick={() => openAssignModal(booking)}
+                                title="Reassign cleaner"
                               >
-                                Refund
+                                <UserPlusIcon className="h-4 w-4" />
                               </Button>
                             )}
                         </div>
@@ -527,6 +618,140 @@ const Bookings = () => {
                   Next
                 </Button>
               </nav>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cleaner Assignment Modal */}
+      {assignModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">
+                {selectedBooking?.cleaner_first_name ? "Reassign" : "Assign"}{" "}
+                Cleaner to Booking #{selectedBooking?.id}
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setAssignModalOpen(false);
+                  setSelectedBooking(null);
+                  setSelectedCleaner("");
+                }}
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <div className="mb-4">
+              <div className="text-sm text-gray-600 mb-2">
+                <p>
+                  <strong>Service:</strong> {selectedBooking?.service_name}
+                </p>
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {selectedBooking &&
+                    formatDateTime(selectedBooking.booking_date)}{" "}
+                  - {selectedBooking?.booking_time}
+                </p>
+                <p>
+                  <strong>Duration:</strong> {selectedBooking?.duration_hours}h
+                </p>
+                <p>
+                  <strong>Location:</strong> {selectedBooking?.address},{" "}
+                  {selectedBooking?.city}, {selectedBooking?.state}
+                </p>
+                <p>
+                  <strong>Customer:</strong>{" "}
+                  {selectedBooking?.customer_first_name}{" "}
+                  {selectedBooking?.customer_last_name}
+                </p>
+                {selectedBooking?.cleaner_first_name && (
+                  <p>
+                    <strong>Currently Assigned:</strong>{" "}
+                    {selectedBooking.cleaner_first_name}{" "}
+                    {selectedBooking.cleaner_last_name} (
+                    {selectedBooking.cleaner_email})
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Cleaner
+              </label>
+
+              {selectedBooking?.cleaner_first_name && (
+                <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-sm text-yellow-800">
+                    ⚠️ This will reassign the booking from the current cleaner
+                    to the selected cleaner.
+                  </p>
+                </div>
+              )}
+
+              {loadingCleaners ? (
+                <div className="text-sm text-gray-500">
+                  Loading available cleaners...
+                </div>
+              ) : (
+                <Select
+                  value={selectedCleaner}
+                  onChange={(e) => setSelectedCleaner(e.target.value)}
+                  className="w-full"
+                >
+                  <option value="">Choose a cleaner...</option>
+                  {availableCleaners.map((cleaner) => {
+                    const isCurrentlyAssigned =
+                      selectedBooking?.cleaner_first_name &&
+                      cleaner.id.toString() ===
+                        selectedBooking?.cleaner_id?.toString();
+
+                    return (
+                      <option
+                        key={cleaner.id}
+                        value={cleaner.id}
+                        className={isCurrentlyAssigned ? "bg-yellow-50" : ""}
+                      >
+                        {cleaner.first_name} {cleaner.last_name} -{" "}
+                        {cleaner.email}
+                        {cleaner.rating && ` (${cleaner.rating}⭐)`}
+                        {isCurrentlyAssigned && " (Currently Assigned)"}
+                      </option>
+                    );
+                  })}
+                </Select>
+              )}
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setAssignModalOpen(false);
+                  setSelectedBooking(null);
+                  setSelectedCleaner("");
+                }}
+                disabled={assigning}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleAssignCleaner}
+                disabled={!selectedCleaner || assigning}
+              >
+                {assigning
+                  ? selectedBooking?.cleaner_first_name
+                    ? "Reassigning..."
+                    : "Assigning..."
+                  : selectedBooking?.cleaner_first_name
+                  ? "Reassign Cleaner"
+                  : "Assign Cleaner"}
+              </Button>
             </div>
           </div>
         </div>

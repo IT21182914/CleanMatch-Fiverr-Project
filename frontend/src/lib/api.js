@@ -292,7 +292,7 @@ export const adminAPI = {
     return api.get("/admin/bookings", { params: cleanParams });
   },
   assignCleaner: (bookingId, cleanerId) =>
-    enhancedApi.post(`/admin/bookings/${bookingId}/assign`, { cleanerId }),
+    enhancedApi.post(`/bookings/${bookingId}/assign`, { cleanerId }),
 
   // Cleaner management
   updateCleanerBackgroundCheck: (cleanerId, status) =>

@@ -365,7 +365,7 @@ const getBookings = async (req, res) => {
       SELECT 
         b.id, b.booking_date, b.booking_time, b.duration_hours, b.total_amount,
         b.status, b.payment_status, b.address, b.city, b.state, b.zip_code,
-        b.created_at,
+        b.created_at, b.cleaner_id,
         s.name as service_name, s.category as service_category,
         customer.first_name as customer_first_name, customer.last_name as customer_last_name,
         customer.email as customer_email,
