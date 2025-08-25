@@ -45,14 +45,49 @@ const PendingFreelancers = () => {
   const fetchFreelancers = async () => {
     try {
       setLoading(true);
+      console.log("Fetching pending freelancers...");
+
       const response = await adminAPI.getPendingFreelancers({
         page: pagination.page,
         limit: pagination.limit,
       });
+
+      console.log("Pending freelancers response:", response.data);
+      console.log("Number of freelancers:", response.data.freelancers?.length);
+
+      // Debug document URLs
+      response.data.freelancers?.forEach((freelancer, index) => {
+        console.log(
+          `Freelancer ${index + 1} (${freelancer.first_name} ${
+            freelancer.last_name
+          }) documents:`,
+          {
+            id_front_url: freelancer.id_front_url,
+            id_back_url: freelancer.id_back_url,
+            ssn_front_url: freelancer.ssn_front_url,
+            ssn_back_url: freelancer.ssn_back_url,
+          }
+        );
+      });
+
       setFreelancers(response.data.freelancers);
       setPagination(response.data.pagination);
     } catch (error) {
       console.error("Error fetching pending freelancers:", error);
+      console.error("Error details:", {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+
+      // Set empty array as fallback
+      setFreelancers([]);
+      setPagination({
+        page: 1,
+        pages: 1,
+        total: 0,
+        limit: 20,
+      });
     } finally {
       setLoading(false);
     }
@@ -110,49 +145,109 @@ const PendingFreelancers = () => {
   const DocumentViewer = ({ url, title }) => {
     const [imageError, setImageError] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [debugInfo, setDebugInfo] = useState("");
+    const [fullDocumentUrl, setFullDocumentUrl] = useState("");
+
+    // Debug logging and URL construction in useEffect to avoid infinite renders
+    useEffect(() => {
+      console.log(`DocumentViewer - ${title}:`, { url, title });
+
+      if (!url) {
+        setDebugInfo("No URL provided");
+        return;
+      }
+
+      // Create full URL for document with better URL handling
+      let constructedUrl;
+      try {
+        if (url.startsWith("http")) {
+          constructedUrl = url;
+        } else if (url.startsWith("/")) {
+          constructedUrl = `${
+            import.meta.env.VITE_API_URL || "http://localhost:5000"
+          }${url}`;
+        } else {
+          constructedUrl = `${
+            import.meta.env.VITE_API_URL || "http://localhost:5000"
+          }/uploads/documents/${url}`;
+        }
+
+        setFullDocumentUrl(constructedUrl);
+        setDebugInfo(`URL: ${constructedUrl}`);
+        console.log(`${title} full URL:`, constructedUrl);
+      } catch (error) {
+        console.error(`Error constructing URL for ${title}:`, error);
+        setFullDocumentUrl(url);
+        setDebugInfo(`Error constructing URL: ${error.message}`);
+      }
+    }, [url, title]);
 
     if (!url) {
       return (
-        <div className="border rounded-lg p-2 xs:p-3">
+        <div className="border rounded-lg p-2 xs:p-3 bg-gray-50">
           <h4 className="text-xs xs:text-sm font-medium text-gray-900 mb-2 truncate">
             {title}
           </h4>
-          <div className="w-full h-24 xs:h-28 sm:h-32 bg-gray-100 rounded border flex items-center justify-center">
+          <div className="w-full h-24 xs:h-28 sm:h-32 bg-gray-100 rounded border flex flex-col items-center justify-center">
             <DocumentIcon className="h-6 w-6 xs:h-8 xs:w-8 text-gray-400" />
-            <span className="ml-2 text-xs xs:text-sm text-gray-500">
-              No document
+            <span className="ml-2 text-xs xs:text-sm text-gray-500 text-center mt-1">
+              No document uploaded
             </span>
+          </div>
+          <div className="mt-2">
+            <span className="text-xs text-orange-500">Status: Missing</span>
           </div>
         </div>
       );
     }
 
-    // Create full URL for document
-    const fullDocumentUrl = url.startsWith("http")
-      ? url
-      : `${import.meta.env.VITE_API_URL || "http://localhost:5000"}${url}`;
-
-    const handleImageError = () => {
+    const handleImageError = (e) => {
+      console.error(`Image load error for ${title}:`, {
+        src: e.target?.src,
+        error: e,
+        url: fullDocumentUrl,
+      });
       setImageError(true);
       setLoading(false);
+      
+      // Try to fetch the URL to get more specific error information
+      if (fullDocumentUrl) {
+        fetch(fullDocumentUrl)
+          .then(response => {
+            if (!response.ok) {
+              return response.json().then(errorData => {
+                setDebugInfo(`HTTP ${response.status}: ${errorData.message || response.statusText}`);
+              }).catch(() => {
+                setDebugInfo(`HTTP ${response.status}: ${response.statusText}`);
+              });
+            }
+          })
+          .catch(error => {
+            setDebugInfo(`Network error: ${error.message}`);
+          });
+      } else {
+        setDebugInfo(`Failed to load: No URL available`);
+      }
     };
 
     const handleImageLoad = () => {
+      console.log(`Image loaded successfully for ${title}:`, fullDocumentUrl);
       setLoading(false);
       setImageError(false);
+      setDebugInfo(`Loaded successfully`);
     };
 
     return (
-      <div className="border rounded-lg p-2 xs:p-3">
+      <div className="border rounded-lg p-2 xs:p-3 bg-white">
         <h4 className="text-xs xs:text-sm font-medium text-gray-900 mb-2 truncate">
           {title}
         </h4>
         <div className="relative w-full h-24 xs:h-28 sm:h-32">
           {loading && (
-            <div className="absolute inset-0 bg-gray-100 rounded border flex items-center justify-center">
+            <div className="absolute inset-0 bg-gray-100 rounded border flex flex-col items-center justify-center">
               <div className="animate-spin rounded-full h-4 w-4 xs:h-6 xs:w-6 border-b-2 border-blue-600"></div>
-              <span className="ml-2 text-xs xs:text-sm text-gray-500 hidden xs:inline">
-                Loading...
+              <span className="ml-2 text-xs xs:text-sm text-gray-500 hidden xs:inline mt-1">
+                Loading document...
               </span>
             </div>
           )}
@@ -167,28 +262,57 @@ const PendingFreelancers = () => {
               style={{ display: loading ? "none" : "block" }}
             />
           ) : (
-            <div className="w-full h-24 xs:h-28 sm:h-32 bg-gray-100 rounded border flex items-center justify-center">
-              <DocumentIcon className="h-6 w-6 xs:h-8 xs:w-8 text-gray-400" />
-              <span className="ml-2 text-xs xs:text-sm text-gray-500">
-                Document
+            <div className="w-full h-24 xs:h-28 sm:h-32 bg-red-50 rounded border border-red-200 flex flex-col items-center justify-center">
+              <DocumentIcon className="h-6 w-6 xs:h-8 xs:w-8 text-red-400" />
+              <span className="ml-2 text-xs text-red-600 text-center mt-1">
+                Failed to load
               </span>
             </div>
           )}
         </div>
 
-        <div className="mt-2 flex items-center justify-between">
-          <a
-            href={fullDocumentUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center text-xs xs:text-sm text-blue-600 hover:text-blue-500"
-          >
-            <EyeIcon className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
-            <span className="hidden xs:inline">View Full Size</span>
-            <span className="xs:hidden">View</span>
-          </a>
-          {imageError && (
-            <span className="text-xs text-red-500">Image not available</span>
+        <div className="mt-2 flex flex-col space-y-1">
+          <div className="flex items-center justify-between">
+            <a
+              href={fullDocumentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-xs xs:text-sm text-blue-600 hover:text-blue-500 hover:underline"
+            >
+              <EyeIcon className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
+              <span className="hidden xs:inline">View Full Size</span>
+              <span className="xs:hidden">View</span>
+            </a>
+            {imageError && (
+              <span className="text-xs text-red-500 font-medium">
+                ⚠ Load Error
+              </span>
+            )}
+            {!imageError && !loading && (
+              <span className="text-xs text-green-500 font-medium">
+                ✓ Available
+              </span>
+            )}
+          </div>
+
+          {/* Enhanced debug info for development and error cases */}
+          {(import.meta.env.MODE === "development" || imageError) && (
+            <div className="text-xs break-all">
+              {imageError ? (
+                <div className="text-red-600 bg-red-50 p-1 rounded">
+                  <div className="font-medium">Error Details:</div>
+                  <div>{debugInfo}</div>
+                  {fullDocumentUrl && (
+                    <div className="mt-1">
+                      <div className="font-medium">URL:</div>
+                      <div className="break-all">{fullDocumentUrl}</div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-gray-400">{debugInfo}</div>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -446,41 +570,101 @@ const PendingFreelancers = () => {
                         </td>
 
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center space-x-1">
-                            {freelancer.id_front_url && (
-                              <div
-                                className="w-2 h-2 bg-green-400 rounded-full"
-                                title="ID Front"
-                              ></div>
-                            )}
-                            {freelancer.id_back_url && (
-                              <div
-                                className="w-2 h-2 bg-green-400 rounded-full"
-                                title="ID Back"
-                              ></div>
-                            )}
-                            {freelancer.ssn_front_url && (
-                              <div
-                                className="w-2 h-2 bg-green-400 rounded-full"
-                                title="SSN Front"
-                              ></div>
-                            )}
-                            {freelancer.ssn_back_url && (
-                              <div
-                                className="w-2 h-2 bg-green-400 rounded-full"
-                                title="SSN Back"
-                              ></div>
-                            )}
+                          <div className="flex flex-col space-y-2">
+                            {/* Document Status Indicators */}
+                            <div className="flex items-center space-x-1">
+                              {freelancer.id_front_url ? (
+                                <div className="flex items-center">
+                                  <div
+                                    className="w-2 h-2 bg-green-400 rounded-full"
+                                    title="ID Front - Available"
+                                  ></div>
+                                  <span className="text-xs text-green-600 ml-1">
+                                    ID
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center">
+                                  <div
+                                    className="w-2 h-2 bg-red-400 rounded-full"
+                                    title="ID Front - Missing"
+                                  ></div>
+                                  <span className="text-xs text-red-600 ml-1">
+                                    ID
+                                  </span>
+                                </div>
+                              )}
+
+                              {freelancer.id_back_url ? (
+                                <div className="flex items-center">
+                                  <div
+                                    className="w-2 h-2 bg-green-400 rounded-full"
+                                    title="ID Back - Available"
+                                  ></div>
+                                  <span className="text-xs text-green-600 ml-1">
+                                    Back
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center">
+                                  <div
+                                    className="w-2 h-2 bg-red-400 rounded-full"
+                                    title="ID Back - Missing"
+                                  ></div>
+                                  <span className="text-xs text-red-600 ml-1">
+                                    Back
+                                  </span>
+                                </div>
+                              )}
+
+                              {freelancer.ssn_front_url ? (
+                                <div className="flex items-center">
+                                  <div
+                                    className="w-2 h-2 bg-green-400 rounded-full"
+                                    title="SSN Front - Available"
+                                  ></div>
+                                  <span className="text-xs text-green-600 ml-1">
+                                    SSN
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center">
+                                  <div
+                                    className="w-2 h-2 bg-red-400 rounded-full"
+                                    title="SSN Front - Missing"
+                                  ></div>
+                                  <span className="text-xs text-red-600 ml-1">
+                                    SSN
+                                  </span>
+                                </div>
+                              )}
+
+                              {freelancer.ssn_back_url && (
+                                <div className="flex items-center">
+                                  <div
+                                    className="w-2 h-2 bg-green-400 rounded-full"
+                                    title="SSN Back - Available"
+                                  ></div>
+                                  <span className="text-xs text-green-600 ml-1">
+                                    SSN2
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Document Count Summary */}
+                            <div className="text-xs text-gray-500">
+                              {
+                                [
+                                  freelancer.id_front_url,
+                                  freelancer.id_back_url,
+                                  freelancer.ssn_front_url,
+                                  freelancer.ssn_back_url,
+                                ].filter(Boolean).length
+                              }{" "}
+                              / 4 docs
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            4/4 Documents
-                          </div>
-                          {freelancer.agreement_accepted &&
-                            freelancer.terms_1099_accepted && (
-                              <div className="text-xs text-green-600 mt-1">
-                                ✓ Agreements Signed
-                              </div>
-                            )}
                         </td>
 
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
