@@ -175,18 +175,18 @@ const Bookings = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-5">
         <Card>
-          <CardContent className="flex items-center">
+          <CardContent className="flex items-center p-4 sm:p-6">
             <div className="flex-shrink-0">
-              <CalendarIcon className="h-8 w-8 text-blue-600" />
+              <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
             </div>
-            <div className="ml-5 w-0 flex-1">
+            <div className="ml-3 sm:ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
+                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
                   Total Bookings
                 </dt>
-                <dd className="text-lg font-medium text-gray-900">
+                <dd className="text-base sm:text-lg font-medium text-gray-900">
                   {pagination.total}
                 </dd>
               </dl>
@@ -195,16 +195,16 @@ const Bookings = () => {
         </Card>
 
         <Card>
-          <CardContent className="flex items-center">
+          <CardContent className="flex items-center p-4 sm:p-6">
             <div className="flex-shrink-0">
-              <CalendarIcon className="h-8 w-8 text-yellow-600" />
+              <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600" />
             </div>
-            <div className="ml-5 w-0 flex-1">
+            <div className="ml-3 sm:ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
+                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
                   Pending
                 </dt>
-                <dd className="text-lg font-medium text-gray-900">
+                <dd className="text-base sm:text-lg font-medium text-gray-900">
                   {bookings.filter((b) => b.status === "pending").length}
                 </dd>
               </dl>
@@ -213,16 +213,16 @@ const Bookings = () => {
         </Card>
 
         <Card>
-          <CardContent className="flex items-center">
+          <CardContent className="flex items-center p-4 sm:p-6">
             <div className="flex-shrink-0">
-              <CalendarIcon className="h-8 w-8 text-green-600" />
+              <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
             </div>
-            <div className="ml-5 w-0 flex-1">
+            <div className="ml-3 sm:ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
+                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
                   Completed
                 </dt>
-                <dd className="text-lg font-medium text-gray-900">
+                <dd className="text-base sm:text-lg font-medium text-gray-900">
                   {bookings.filter((b) => b.status === "completed").length}
                 </dd>
               </dl>
@@ -231,16 +231,16 @@ const Bookings = () => {
         </Card>
 
         <Card>
-          <CardContent className="flex items-center">
+          <CardContent className="flex items-center p-4 sm:p-6">
             <div className="flex-shrink-0">
-              <CurrencyDollarIcon className="h-8 w-8 text-emerald-600" />
+              <CurrencyDollarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-emerald-600" />
             </div>
-            <div className="ml-5 w-0 flex-1">
+            <div className="ml-3 sm:ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
+                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
                   Revenue (Paid)
                 </dt>
-                <dd className="text-lg font-medium text-gray-900">
+                <dd className="text-base sm:text-lg font-medium text-gray-900">
                   {formatCurrency(
                     bookings
                       .filter((b) => b.payment_status === "paid")
@@ -262,7 +262,7 @@ const Bookings = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+          <div className="flex flex-col space-y-3 sm:grid sm:grid-cols-4 sm:gap-4 sm:space-y-0">
             <div className="relative">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -332,37 +332,49 @@ const Bookings = () => {
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
-            <div className="overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Booking
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Cleaner
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {[...Array(5)].map((_, index) => (
-                    <LoadingTableRow key={index} columns={6} />
+            <>
+              {/* Mobile Loading Cards */}
+              <div className="block sm:hidden">
+                <div className="space-y-3 p-4">
+                  {[...Array(3)].map((_, index) => (
+                    <LoadingCard key={index} />
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </div>
+              </div>
+
+              {/* Desktop Loading Table */}
+              <div className="hidden sm:block overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Booking
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Customer
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Cleaner
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {[...Array(5)].map((_, index) => (
+                      <LoadingTableRow key={index} columns={6} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           ) : bookings.length === 0 ? (
             <div className="text-center py-12">
               <CalendarIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -376,108 +388,27 @@ const Bookings = () => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Booking
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Cleaner
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+            <>
+              {/* Mobile Card Layout */}
+              <div className="block sm:hidden">
+                <div className="space-y-3 p-4">
                   {bookings.map((booking) => (
-                    <tr key={booking.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
+                    <div
+                      key={booking.id}
+                      className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+                    >
+                      {/* Booking Header */}
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-medium text-gray-900 truncate">
                             #{booking.id} - {booking.service_name}
-                          </div>
-                          <div className="text-sm text-gray-500">
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-1">
                             {formatDateTime(booking.booking_date)} -{" "}
                             {booking.booking_time}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            Duration: {booking.duration_hours}h
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {booking.address}, {booking.city}, {booking.state}
-                          </div>
+                          </p>
                         </div>
-                      </td>
-
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {booking.customer_first_name}{" "}
-                            {booking.customer_last_name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {booking.customer_email}
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {booking.cleaner_first_name ? (
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {booking.cleaner_first_name}{" "}
-                              {booking.cleaner_last_name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {booking.cleaner_email}
-                            </div>
-                            {/* Allow admin to reassign cleaner for non-completed bookings */}
-                            {booking.status !== "completed" && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="mt-1 text-blue-600 hover:text-blue-800"
-                                onClick={() => openAssignModal(booking)}
-                                title="Reassign cleaner"
-                              >
-                                <UserPlusIcon className="h-3 w-3 mr-1" />
-                                Reassign
-                              </Button>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="flex items-center">
-                            <span className="text-sm text-gray-500">
-                              Unassigned
-                            </span>
-                            {booking.status !== "completed" && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="ml-2"
-                                onClick={() => openAssignModal(booking)}
-                              >
-                                <UserPlusIcon className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                      </td>
-
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="space-y-1">
+                        <div className="flex flex-col space-y-1 ml-3">
                           <span
                             className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
                               booking.status
@@ -485,7 +416,6 @@ const Bookings = () => {
                           >
                             {capitalizeFirst(booking.status)}
                           </span>
-                          <br />
                           <span
                             className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPaymentStatusBadge(
                               booking.payment_status
@@ -494,54 +424,272 @@ const Bookings = () => {
                             {capitalizeFirst(booking.payment_status)}
                           </span>
                         </div>
-                      </td>
+                      </div>
 
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {formatCurrency(booking.total_amount)}
+                      {/* Booking Details */}
+                      <div className="space-y-2 mb-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-medium text-gray-500">
+                            Duration:
+                          </span>
+                          <span className="text-xs text-gray-900">
+                            {booking.duration_hours}h
+                          </span>
                         </div>
-                        <div className="text-sm text-gray-500">
-                          Created: {formatDateTime(booking.created_at)}
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-medium text-gray-500">
+                            Amount:
+                          </span>
+                          <span className="text-xs font-medium text-gray-900">
+                            {formatCurrency(booking.total_amount)}
+                          </span>
                         </div>
-                      </td>
+                        <div className="text-xs text-gray-500">
+                          <span className="font-medium">Location:</span>{" "}
+                          {booking.address}, {booking.city}, {booking.state}
+                        </div>
+                      </div>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm">
-                            <EyeIcon className="h-4 w-4" />
-                          </Button>
+                      {/* Customer Info */}
+                      <div className="border-t border-gray-100 pt-3 mb-3">
+                        <div className="flex justify-between items-center">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-gray-500">
+                              Customer
+                            </p>
+                            <p className="text-sm text-gray-900 truncate">
+                              {booking.customer_first_name}{" "}
+                              {booking.customer_last_name}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">
+                              {booking.customer_email}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
 
-                          {/* Show assign button for non-completed bookings without cleaner */}
-                          {!booking.cleaner_first_name &&
-                            booking.status !== "completed" && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => openAssignModal(booking)}
-                              >
-                                <UserPlusIcon className="h-4 w-4" />
-                              </Button>
+                      {/* Cleaner Info */}
+                      <div className="border-t border-gray-100 pt-3 mb-3">
+                        <div className="flex justify-between items-center">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-gray-500">
+                              Cleaner
+                            </p>
+                            {booking.cleaner_first_name ? (
+                              <>
+                                <p className="text-sm text-gray-900 truncate">
+                                  {booking.cleaner_first_name}{" "}
+                                  {booking.cleaner_last_name}
+                                </p>
+                                <p className="text-xs text-gray-500 truncate">
+                                  {booking.cleaner_email}
+                                </p>
+                              </>
+                            ) : (
+                              <p className="text-sm text-gray-500">
+                                Unassigned
+                              </p>
                             )}
-
-                          {/* Show reassign button for non-completed bookings with cleaner */}
-                          {booking.cleaner_first_name &&
-                            booking.status !== "completed" && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => openAssignModal(booking)}
-                                title="Reassign cleaner"
-                              >
-                                <UserPlusIcon className="h-4 w-4" />
-                              </Button>
-                            )}
+                          </div>
+                          {booking.status !== "completed" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openAssignModal(booking)}
+                              className="ml-2 shrink-0"
+                            >
+                              <UserPlusIcon className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
-                      </td>
-                    </tr>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="border-t border-gray-100 pt-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-500">
+                            Created: {formatDateTime(booking.created_at)}
+                          </span>
+                          <div className="flex space-x-2">
+                            <Button variant="ghost" size="sm">
+                              <EyeIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </div>
+              </div>
+
+              {/* Desktop Table Layout */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Booking
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Customer
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Cleaner
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {bookings.map((booking) => (
+                      <tr key={booking.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              #{booking.id} - {booking.service_name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {formatDateTime(booking.booking_date)} -{" "}
+                              {booking.booking_time}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              Duration: {booking.duration_hours}h
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {booking.address}, {booking.city}, {booking.state}
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {booking.customer_first_name}{" "}
+                              {booking.customer_last_name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {booking.customer_email}
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {booking.cleaner_first_name ? (
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {booking.cleaner_first_name}{" "}
+                                {booking.cleaner_last_name}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {booking.cleaner_email}
+                              </div>
+                              {/* Allow admin to reassign cleaner for non-completed bookings */}
+                              {booking.status !== "completed" && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="mt-1 text-blue-600 hover:text-blue-800"
+                                  onClick={() => openAssignModal(booking)}
+                                  title="Reassign cleaner"
+                                >
+                                  <UserPlusIcon className="h-3 w-3 mr-1" />
+                                  Reassign
+                                </Button>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex items-center">
+                              <span className="text-sm text-gray-500">
+                                Unassigned
+                              </span>
+                              {booking.status !== "completed" && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="ml-2"
+                                  onClick={() => openAssignModal(booking)}
+                                >
+                                  <UserPlusIcon className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="space-y-1">
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                                booking.status
+                              )}`}
+                            >
+                              {capitalizeFirst(booking.status)}
+                            </span>
+                            <br />
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPaymentStatusBadge(
+                                booking.payment_status
+                              )}`}
+                            >
+                              {capitalizeFirst(booking.payment_status)}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {formatCurrency(booking.total_amount)}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Created: {formatDateTime(booking.created_at)}
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex items-center space-x-2">
+                            <Button variant="ghost" size="sm">
+                              <EyeIcon className="h-4 w-4" />
+                            </Button>
+
+                            {/* Show assign button for non-completed bookings without cleaner */}
+                            {!booking.cleaner_first_name &&
+                              booking.status !== "completed" && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openAssignModal(booking)}
+                                >
+                                  <UserPlusIcon className="h-4 w-4" />
+                                </Button>
+                              )}
+
+                            {/* Show reassign button for non-completed bookings with cleaner */}
+                            {booking.cleaner_first_name &&
+                              booking.status !== "completed" && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openAssignModal(booking)}
+                                  title="Reassign cleaner"
+                                >
+                                  <UserPlusIcon className="h-4 w-4" />
+                                </Button>
+                              )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -626,7 +774,7 @@ const Bookings = () => {
       {/* Cleaner Assignment Modal */}
       {assignModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
+          <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-gray-900">
                 {selectedBooking?.cleaner_first_name ? "Reassign" : "Assign"}{" "}
@@ -646,7 +794,7 @@ const Bookings = () => {
             </div>
 
             <div className="mb-4">
-              <div className="text-sm text-gray-600 mb-2">
+              <div className="text-sm text-gray-600 space-y-1">
                 <p>
                   <strong>Service:</strong> {selectedBooking?.service_name}
                 </p>
@@ -659,7 +807,7 @@ const Bookings = () => {
                 <p>
                   <strong>Duration:</strong> {selectedBooking?.duration_hours}h
                 </p>
-                <p>
+                <p className="break-words">
                   <strong>Location:</strong> {selectedBooking?.address},{" "}
                   {selectedBooking?.city}, {selectedBooking?.state}
                 </p>
@@ -669,7 +817,7 @@ const Bookings = () => {
                   {selectedBooking?.customer_last_name}
                 </p>
                 {selectedBooking?.cleaner_first_name && (
-                  <p>
+                  <p className="break-words">
                     <strong>Currently Assigned:</strong>{" "}
                     {selectedBooking.cleaner_first_name}{" "}
                     {selectedBooking.cleaner_last_name} (
@@ -727,7 +875,7 @@ const Bookings = () => {
               )}
             </div>
 
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -736,6 +884,7 @@ const Bookings = () => {
                   setSelectedCleaner("");
                 }}
                 disabled={assigning}
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
@@ -743,6 +892,7 @@ const Bookings = () => {
                 variant="primary"
                 onClick={handleAssignCleaner}
                 disabled={!selectedCleaner || assigning}
+                className="w-full sm:w-auto"
               >
                 {assigning
                   ? selectedBooking?.cleaner_first_name
