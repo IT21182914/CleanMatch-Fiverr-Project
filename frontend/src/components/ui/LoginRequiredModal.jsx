@@ -5,13 +5,79 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 
-const LoginRequiredModal = ({ isOpen, onClose }) => {
+const LoginRequiredModal = ({ isOpen, onClose, service }) => {
   const navigate = useNavigate();
+
+  // Map service IDs to booking service IDs (based on user provided mappings)
+  const getBookingServiceId = (serviceId) => {
+    const serviceIdMapping = {
+      1: 70,
+      2: 71,
+      3: 72,
+      4: 73,
+      5: 74,
+      6: 75,
+      7: 76,
+      8: 77,
+      9: 78,
+      10: 79,
+      11: 80,
+      12: 81,
+      13: 82,
+      14: 83,
+      15: 84,
+      16: 85,
+      17: 86,
+      18: 87,
+      19: 88,
+      20: 89,
+      21: 90,
+      22: 91,
+      23: 92,
+      24: 93,
+      25: 94,
+      26: 95,
+      27: 96,
+      28: 97,
+      29: 98,
+      30: 99,
+      31: 100,
+      32: 101,
+      33: 102,
+      34: 103,
+      35: 104,
+      36: 105,
+      37: 106,
+      38: 107,
+      39: 108,
+      40: 109,
+      41: 110,
+      42: 111,
+      43: 112,
+      44: 113,
+      45: 114,
+      46: 115,
+      47: 116,
+      48: 117,
+      49: 118,
+      50: 119,
+    };
+
+    return serviceIdMapping[serviceId] || 70; // Default to 70 if not found
+  };
 
   const handleLoginClick = () => {
     // Store the current service page in sessionStorage to redirect back after login
     const currentPath = window.location.pathname;
-    sessionStorage.setItem("redirectAfterLogin", "/book");
+
+    // Create the booking URL with service-specific parameters
+    let redirectUrl = "/book";
+    if (service) {
+      const bookingServiceId = getBookingServiceId(service.id);
+      redirectUrl = `/book?serviceId=${bookingServiceId}&view=details`;
+    }
+
+    sessionStorage.setItem("redirectAfterLogin", redirectUrl);
     sessionStorage.setItem("servicePageBeforeLogin", currentPath);
 
     // Navigate to login page
@@ -22,7 +88,15 @@ const LoginRequiredModal = ({ isOpen, onClose }) => {
   const handleSignupClick = () => {
     // Store the current service page in sessionStorage to redirect back after signup
     const currentPath = window.location.pathname;
-    sessionStorage.setItem("redirectAfterLogin", "/book");
+
+    // Create the booking URL with service-specific parameters
+    let redirectUrl = "/book";
+    if (service) {
+      const bookingServiceId = getBookingServiceId(service.id);
+      redirectUrl = `/book?serviceId=${bookingServiceId}&view=details`;
+    }
+
+    sessionStorage.setItem("redirectAfterLogin", redirectUrl);
     sessionStorage.setItem("servicePageBeforeLogin", currentPath);
 
     // Navigate to signup page
@@ -171,8 +245,15 @@ const LoginRequiredModal = ({ isOpen, onClose }) => {
 
           {/* Modern message */}
           <p className="text-gray-600 mb-6 sm:mb-8 leading-relaxed text-base sm:text-lg font-light max-w-xs sm:max-w-sm mx-auto">
-            Sign in to access your account and book this premium cleaning
-            service seamlessly.
+            Sign in to access your account and book{" "}
+            {service ? (
+              <span className="font-medium text-[#2BA8CD]">
+                "{service.name}"
+              </span>
+            ) : (
+              "this premium cleaning service"
+            )}{" "}
+            seamlessly.
           </p>
 
           {/* Modern action buttons */}

@@ -99,6 +99,63 @@ const ServiceDetails = () => {
   const [loading, setLoading] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  // Map service IDs to booking service IDs (based on user provided mappings)
+  const getBookingServiceId = (serviceId) => {
+    const serviceIdMapping = {
+      1: 70,
+      2: 71,
+      3: 72,
+      4: 73,
+      5: 74,
+      6: 75,
+      7: 76,
+      8: 77,
+      9: 78,
+      10: 79,
+      11: 80,
+      12: 81,
+      13: 82,
+      14: 83,
+      15: 84,
+      16: 85,
+      17: 86,
+      18: 87,
+      19: 88,
+      20: 89,
+      21: 90,
+      22: 91,
+      23: 92,
+      24: 93,
+      25: 94,
+      26: 95,
+      27: 96,
+      28: 97,
+      29: 98,
+      30: 99,
+      31: 100,
+      32: 101,
+      33: 102,
+      34: 103,
+      35: 104,
+      36: 105,
+      37: 106,
+      38: 107,
+      39: 108,
+      40: 109,
+      41: 110,
+      42: 111,
+      43: 112,
+      44: 113,
+      45: 114,
+      46: 115,
+      47: 116,
+      48: 117,
+      49: 118,
+      50: 119,
+    };
+    return serviceIdMapping[serviceId] || 70;
+  };
+
   useEffect(() => {
     // Multiple scroll-to-top approaches to ensure it works
     window.scrollTo(0, 0);
@@ -192,12 +249,8 @@ const ServiceDetails = () => {
     }
 
     // If authenticated, proceed with booking
-    navigate("/customer/book-service", {
-      state: {
-        selectedService: service,
-        fromServiceDetails: true,
-      },
-    });
+    const bookingServiceId = getBookingServiceId(service.id);
+    navigate(`/book?serviceId=${bookingServiceId}&view=details`);
   };
 
   const handleShare = async () => {
@@ -586,6 +639,7 @@ const ServiceDetails = () => {
       <LoginRequiredModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
+        service={service}
       />
     </div>
   );
