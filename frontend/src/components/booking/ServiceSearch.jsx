@@ -180,11 +180,20 @@ const ServiceSearch = ({
               >
                 <option value="all">All Services ({services.length})</option>
                 <optgroup label="Categories">
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
+                  <optgroup label="Categories">
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Individual Services">
+                    {allServiceNames.map((serviceName) => (
+                      <option key={serviceName} value={serviceName}>
+                        {serviceName}
+                      </option>
+                    ))}
+                  </optgroup>
                 </optgroup>
                 <optgroup label="Individual Services">
                   {allServiceNames.map((serviceName) => (
