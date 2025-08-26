@@ -57,10 +57,21 @@ const ServiceSearch = ({
     }
 
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(
-        (service) =>
-          service.category?.toLowerCase() === selectedCategory.toLowerCase()
+      // If selectedCategory is a service name, filter by that specific service
+      const isServiceName = services.some(
+        (service) => service.name === selectedCategory
       );
+      if (isServiceName) {
+        filtered = filtered.filter(
+          (service) => service.name === selectedCategory
+        );
+      } else {
+        // Otherwise, filter by category as before
+        filtered = filtered.filter(
+          (service) =>
+            service.category?.toLowerCase() === selectedCategory.toLowerCase()
+        );
+      }
     }
 
     setFilteredServices(filtered);
@@ -92,10 +103,13 @@ const ServiceSearch = ({
     }
   };
 
-  // Get unique categories for filtering
+  // Get unique categories and all service names for filtering
   const categories = [
     ...new Set(services.map((service) => service.category).filter(Boolean)),
   ];
+
+  // Get all service names for the dropdown
+  const allServiceNames = services.map((service) => service.name).sort();
 
   // Clear all filters
   const clearFilters = () => {
@@ -156,7 +170,7 @@ const ServiceSearch = ({
               )}
             </div>
 
-            {/* Category Filter */}
+            {/* Category/Service Filter */}
             <div className="relative order-2 sm:w-auto">
               <AdjustmentsHorizontalIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-slate-400" />
               <select
@@ -164,12 +178,21 @@ const ServiceSearch = ({
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full sm:w-auto pl-9 sm:pl-10 pr-8 py-2.5 sm:py-3 border border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#4EC6E5] text-sm appearance-none"
               >
-                <option value="all">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
+                <option value="all">All Services ({services.length})</option>
+                <optgroup label="Categories">
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Individual Services">
+                  {allServiceNames.map((serviceName) => (
+                    <option key={serviceName} value={serviceName}>
+                      {serviceName}
+                    </option>
+                  ))}
+                </optgroup>
               </select>
             </div>
 

@@ -190,8 +190,8 @@ const ServiceDetails = ({ service, onBack, onBookNow }) => {
           {/* Right Column - Booking Panel */}
           <div className="space-y-4 sm:space-y-6">
             {/* Membership Highlight Card */}
-            <div 
-              onClick={() => navigate('/customer/membership')}
+            <div
+              onClick={() => navigate("/customer/membership")}
               className="relative bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 rounded-2xl p-6 sm:p-8 text-white overflow-hidden shadow-2xl cursor-pointer hover:scale-105 transition-all duration-300 hover:shadow-3xl"
             >
               {/* Background Pattern */}
