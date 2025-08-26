@@ -37,11 +37,11 @@ const ServiceSearch = ({
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 640);
     };
-    
+
     checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-    
-    return () => window.removeEventListener('resize', checkIsMobile);
+    window.addEventListener("resize", checkIsMobile);
+
+    return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
   // Filter services based on search and category
@@ -123,7 +123,9 @@ const ServiceSearch = ({
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 flex items-center">
                 <ShieldCheckIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                <span className="text-xs sm:text-sm font-medium">Guaranteed</span>
+                <span className="text-xs sm:text-sm font-medium">
+                  Guaranteed
+                </span>
               </div>
             </div>
           </div>
@@ -282,7 +284,9 @@ const ServiceSearch = ({
                     <div
                       onClick={() => onServiceSelect(service)}
                       className={`block h-full bg-white/80 hover:bg-white rounded-xl sm:rounded-2xl border border-slate-200/60 hover:border-[#4EC6E5]/30 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] sm:hover:scale-105 relative overflow-hidden cursor-pointer ${
-                        currentServices.length === 1 ? "p-6 sm:p-8" : "p-4 sm:p-6"
+                        currentServices.length === 1
+                          ? "p-6 sm:p-8"
+                          : "p-4 sm:p-6"
                       }`}
                     >
                       {/* Background Gradient on Hover */}
@@ -292,9 +296,13 @@ const ServiceSearch = ({
                       <div className="relative z-10 h-full flex flex-col">
                         {/* Service Image Header */}
                         <div className="relative mb-3 sm:mb-4">
-                          <div className={`w-full rounded-lg sm:rounded-xl overflow-hidden ${
-                            currentServices.length === 1 ? "h-56 sm:h-64 lg:h-72" : "h-40 sm:h-48"
-                          }`}>
+                          <div
+                            className={`w-full rounded-lg sm:rounded-xl overflow-hidden ${
+                              currentServices.length === 1
+                                ? "h-56 sm:h-64 lg:h-72"
+                                : "h-40 sm:h-48"
+                            }`}
+                          >
                             <ServiceImage
                               serviceName={service.name}
                               src={getServiceImage(service.name)}
@@ -356,9 +364,10 @@ const ServiceSearch = ({
                               : "text-xs sm:text-sm max-h-12 sm:max-h-16"
                           }`}
                           style={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: currentServices.length === 1 ? 3 : 2,
-                            WebkitBoxOrient: 'vertical'
+                            display: "-webkit-box",
+                            WebkitLineClamp:
+                              currentServices.length === 1 ? 3 : 2,
+                            WebkitBoxOrient: "vertical",
                           }}
                         >
                           {service.description}
@@ -483,14 +492,15 @@ const ServiceSearch = ({
                   {[...Array(totalPages)].map((_, index) => {
                     const page = index + 1;
                     const isCurrentPage = page === currentPage;
-                    
+
                     // Mobile: Show fewer pages, Desktop: Show more
                     const showRange = isMobile ? 1 : 2;
-                    
+
                     const shouldShow =
                       page === 1 ||
                       page === totalPages ||
-                      (page >= currentPage - showRange && page <= currentPage + showRange);
+                      (page >= currentPage - showRange &&
+                        page <= currentPage + showRange);
 
                     if (!shouldShow) {
                       if (
@@ -498,7 +508,10 @@ const ServiceSearch = ({
                         page === currentPage + (showRange + 1)
                       ) {
                         return (
-                          <span key={page} className="px-1 sm:px-2 text-gray-400 text-sm">
+                          <span
+                            key={page}
+                            className="px-1 sm:px-2 text-gray-400 text-sm"
+                          >
                             ...
                           </span>
                         );
