@@ -324,11 +324,22 @@ const BookingForm = ({
                                 fallbackSrc="/services/1/House & Apartment Cleaning.png"
                             />
                         </div>
-                        <div>
+                        <div className="flex-1">
                             <h3 className="font-semibold text-gray-900">{service.name}</h3>
                             <p className="text-lg font-bold text-cyan-600">
                                 {formatCurrency(service.base_price || service.basePrice || service.price)}
                             </p>
+                        </div>
+                        {/* Membership CTA Button */}
+                        <div className="flex flex-col items-end">
+                            <button
+                                type="button"
+                                onClick={() => window.location.href = '/customer/membership'}
+                                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 mb-1"
+                            >
+                                💎 Get 50% OFF
+                            </button>
+                            <span className="text-xs text-gray-500">with membership</span>
                         </div>
                     </div>
                 </CardContent>
