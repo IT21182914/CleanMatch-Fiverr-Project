@@ -14,12 +14,15 @@ import {
   ChatBubbleLeftEllipsisIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
+import { useNavigate } from "react-router-dom";
 import Button from "../ui/Button";
 import { formatCurrency } from "../../lib/utils";
 import { getServiceImage } from "../../utils/serviceImages";
 import ServiceImage from "../ui/ServiceImage";
 
 const ServiceDetails = ({ service, onBack, onBookNow }) => {
+  const navigate = useNavigate();
+
   if (!service) return null;
 
   // Calculate pricing (supports both API services and static services)
@@ -290,17 +293,32 @@ const ServiceDetails = ({ service, onBack, onBookNow }) => {
                   </button>
                 </div>
 
-                {/* Main CTA Button */}
-                <Button
-                  onClick={onBookNow}
-                  className="w-full bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white font-bold py-4 px-6 rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-base sm:text-lg"
-                  size="lg"
-                >
-                  <div className="flex items-center justify-center gap-3">
-                    <SparklesIcon className="h-5 w-5" />
-                    <span>Book with Membership Price</span>
-                  </div>
-                </Button>
+                {/* CTA Buttons */}
+                <div className="space-y-3">
+                  {/* Main Book Now Button */}
+                  <Button
+                    onClick={onBookNow}
+                    className="w-full bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] hover:from-[#3BB8DF] hover:to-[#2293B5] text-white font-bold py-4 px-6 rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-base sm:text-lg"
+                    size="lg"
+                  >
+                    <div className="flex items-center justify-center gap-3">
+                      <SparklesIcon className="h-5 w-5" />
+                      <span>Book Now</span>
+                    </div>
+                  </Button>
+
+                  {/* Get Membership Button */}
+                  <Button
+                    onClick={() => navigate("/customer/membership")}
+                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-sm sm:text-base border-2 border-emerald-400"
+                    size="md"
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <TrophyIcon className="h-4 w-4" />
+                      <span>Get Membership & Save 50%</span>
+                    </div>
+                  </Button>
+                </div>
 
                 {/* Additional Info */}
                 <div className="mt-4">
