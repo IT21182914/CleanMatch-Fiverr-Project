@@ -51,24 +51,44 @@ const Jobs = () => {
   };
 
   const handleAcceptJob = async (jobId, event) => {
-    // Prevent any default behavior and event propagation
+    // Enhanced mobile event handling
     if (event) {
       event.preventDefault();
       event.stopPropagation();
+
+      // Mobile-specific touch event handling
+      if (event.type === "touchend") {
+        event.preventDefault();
+      }
     }
 
-    // Prevent multiple clicks
-    if (accepting[jobId] || declining[jobId]) return;
+    // Prevent multiple clicks/touches - enhanced check
+    if (accepting[jobId] || declining[jobId] || updating[jobId]) {
+      console.log("🚫 Accept button blocked - operation in progress");
+      return;
+    }
+
+    console.log("🔄 Starting accept job process for job:", jobId);
 
     try {
       setAccepting((prev) => ({ ...prev, [jobId]: true }));
       const job = jobs.find((j) => j.id === jobId);
 
+      if (!job) {
+        throw new Error("Job not found");
+      }
+
+      console.log("📝 Job details:", { id: job.id, status: job.status });
+
       // Use appropriate API based on job status
       if (job.status === "pending_cleaner_response") {
-        await bookingsAPI.acceptBooking(jobId);
+        console.log("📡 Calling acceptBooking API...");
+        const response = await bookingsAPI.acceptBooking(jobId);
+        console.log("✅ Accept booking response:", response);
       } else {
-        await bookingsAPI.updateStatus(jobId, "confirmed");
+        console.log("📡 Calling updateStatus API...");
+        const response = await bookingsAPI.updateStatus(jobId, "confirmed");
+        console.log("✅ Update status response:", response);
       }
 
       // Update job in local state
@@ -77,11 +97,24 @@ const Jobs = () => {
           job.id === jobId ? { ...job, status: "confirmed" } : job
         )
       );
+
+      console.log("✅ Job accepted successfully");
     } catch (error) {
-      console.error("Error accepting job:", error);
-      // Optionally show toast notification for error
+      console.error("❌ Error accepting job:", error);
+
+      // Enhanced error logging for mobile debugging
+      console.error("❌ Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: error.config?.url,
+      });
+
+      // Show user-friendly error (you might want to add a toast notification here)
+      alert(`Failed to accept job: ${error.message}`);
     } finally {
       setAccepting((prev) => ({ ...prev, [jobId]: false }));
+      console.log("🔚 Accept job process completed for job:", jobId);
     }
   };
 
@@ -187,10 +220,29 @@ const Jobs = () => {
           size="sm"
           variant="success"
           loading={accepting[job.id]}
-          onClick={(e) => handleAcceptJob(job.id, e)}
-          disabled={declining[job.id]}
+          onClick={(e) => {
+            console.log("🖱️ Accept button clicked (onClick)");
+            handleAcceptJob(job.id, e);
+          }}
+          onTouchStart={(e) => {
+            console.log("👆 Accept button touch start");
+            e.preventDefault();
+          }}
+          onTouchEnd={(e) => {
+            console.log("👆 Accept button touch end");
+            e.preventDefault();
+            e.stopPropagation();
+            handleAcceptJob(job.id, e);
+          }}
+          disabled={declining[job.id] || updating[job.id]}
           className="flex items-center justify-center min-h-[44px] w-full sm:w-auto px-4 py-3 touch-manipulation select-none"
-          style={{ touchAction: "manipulation" }}
+          style={{
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
+            WebkitTouchCallout: "none",
+            WebkitUserSelect: "none",
+            userSelect: "none",
+          }}
         >
           <CheckCircleIcon className="h-4 w-4 mr-1" />
           <span className="text-xs sm:text-sm">Accept</span>
@@ -202,10 +254,29 @@ const Jobs = () => {
           size="sm"
           variant="outline"
           loading={declining[job.id]}
-          onClick={(e) => handleRejectJob(job.id, e)}
-          disabled={accepting[job.id]}
+          onClick={(e) => {
+            console.log("🖱️ Decline button clicked (onClick)");
+            handleRejectJob(job.id, e);
+          }}
+          onTouchStart={(e) => {
+            console.log("👆 Decline button touch start");
+            e.preventDefault();
+          }}
+          onTouchEnd={(e) => {
+            console.log("👆 Decline button touch end");
+            e.preventDefault();
+            e.stopPropagation();
+            handleRejectJob(job.id, e);
+          }}
+          disabled={accepting[job.id] || updating[job.id]}
           className="flex items-center justify-center text-red-600 border-red-300 hover:bg-red-50 min-h-[44px] w-full sm:w-auto px-4 py-3 touch-manipulation select-none"
-          style={{ touchAction: "manipulation" }}
+          style={{
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
+            WebkitTouchCallout: "none",
+            WebkitUserSelect: "none",
+            userSelect: "none",
+          }}
         >
           <XCircleIcon className="h-4 w-4 mr-1" />
           <span className="text-xs sm:text-sm">Decline</span>
@@ -219,9 +290,33 @@ const Jobs = () => {
           key="start"
           size="sm"
           loading={updating[job.id]}
-          onClick={() => handleStartJob(job.id)}
+          onClick={(e) => {
+            console.log("🖱️ Start Job button clicked");
+            if (e) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+            handleStartJob(job.id);
+          }}
+          onTouchStart={(e) => {
+            console.log("👆 Start Job button touch start");
+            e.preventDefault();
+          }}
+          onTouchEnd={(e) => {
+            console.log("👆 Start Job button touch end");
+            e.preventDefault();
+            e.stopPropagation();
+            handleStartJob(job.id);
+          }}
+          disabled={accepting[job.id] || declining[job.id]}
           className="flex items-center justify-center min-h-[44px] w-full sm:w-auto px-4 py-3 touch-manipulation select-none"
-          style={{ touchAction: "manipulation" }}
+          style={{
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
+            WebkitTouchCallout: "none",
+            WebkitUserSelect: "none",
+            userSelect: "none",
+          }}
         >
           <span className="text-xs sm:text-sm">Start Job</span>
         </Button>
@@ -235,9 +330,33 @@ const Jobs = () => {
           size="sm"
           variant="success"
           loading={updating[job.id]}
-          onClick={() => handleCompleteJob(job.id)}
+          onClick={(e) => {
+            console.log("🖱️ Mark Complete button clicked");
+            if (e) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+            handleCompleteJob(job.id);
+          }}
+          onTouchStart={(e) => {
+            console.log("👆 Mark Complete button touch start");
+            e.preventDefault();
+          }}
+          onTouchEnd={(e) => {
+            console.log("👆 Mark Complete button touch end");
+            e.preventDefault();
+            e.stopPropagation();
+            handleCompleteJob(job.id);
+          }}
+          disabled={accepting[job.id] || declining[job.id]}
           className="flex items-center justify-center min-h-[44px] w-full sm:w-auto px-4 py-3 touch-manipulation select-none"
-          style={{ touchAction: "manipulation" }}
+          style={{
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
+            WebkitTouchCallout: "none",
+            WebkitUserSelect: "none",
+            userSelect: "none",
+          }}
         >
           <span className="text-xs sm:text-sm">Mark Complete</span>
         </Button>
