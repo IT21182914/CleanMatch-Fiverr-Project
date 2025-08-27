@@ -4,6 +4,7 @@ const {
   registerSchema,
   loginSchema,
 } = require("../middleware/validation");
+const { auth } = require("../middleware/auth");
 const { uploadDocuments } = require("../utils/supabaseStorage");
 const {
   handleFileUploadError,
@@ -14,6 +15,8 @@ const {
   register,
   registerWithDocuments,
   login,
+  logout,
+  logoutFromAllDevices,
   refreshToken,
   forgotPassword,
   resetPassword,
@@ -35,8 +38,8 @@ router.post("/register", validate(registerSchema), register);
 // @desc    Register a new user with document uploads
 // @access  Public
 router.post(
-  "/register-with-documents", 
-  uploadDocuments, 
+  "/register-with-documents",
+  uploadDocuments,
   handleFileUploadError,
   logFileUpload,
   validateDocuments,
@@ -47,6 +50,16 @@ router.post(
 // @desc    Login user
 // @access  Public
 router.post("/login", validate(loginSchema), login);
+
+// @route   POST /api/auth/logout
+// @desc    Logout user and blacklist current token
+// @access  Private
+router.post("/logout", auth, logout);
+
+// @route   POST /api/auth/logout-all
+// @desc    Logout user from all devices
+// @access  Private
+router.post("/logout-all", auth, logoutFromAllDevices);
 
 // @route   POST /api/auth/refresh
 // @desc    Refresh access token

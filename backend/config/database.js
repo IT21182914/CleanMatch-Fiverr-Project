@@ -815,6 +815,44 @@ const createTables = async () => {
       console.log("Note: Status column type update issue:", error.message);
     }
 
+    // Token blacklist for logout functionality
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS token_blacklist (
+        id SERIAL PRIMARY KEY,
+        token_hash VARCHAR(255) NOT NULL UNIQUE,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        blacklisted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP NOT NULL,
+        reason VARCHAR(50) DEFAULT 'logout' CHECK (reason IN ('logout', 'password_reset', 'account_suspended'))
+      )
+    `);
+
+    // Create index for efficient token lookup
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_token_blacklist_token_hash 
+      ON token_blacklist(token_hash)
+    `);
+
+    // Create index for cleanup queries
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_token_blacklist_expires_at 
+      ON token_blacklist(expires_at)
+    `);
+
+    // Add token_invalidation_date column to users table for mass token invalidation
+    try {
+      await pool.query(`
+        ALTER TABLE users 
+        ADD COLUMN IF NOT EXISTS token_invalidation_date TIMESTAMP,
+        ADD COLUMN IF NOT EXISTS last_logout_at TIMESTAMP
+      `);
+    } catch (error) {
+      console.log(
+        "Note: token management columns may already exist:",
+        error.message
+      );
+    }
+
     console.log("✅ Database tables created/verified successfully");
   } catch (error) {
     console.error("❌ Error creating tables:", error.message);

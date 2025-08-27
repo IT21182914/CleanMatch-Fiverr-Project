@@ -18,6 +18,7 @@ const {
   AuthenticationError,
   ConflictError,
 } = require("../utils/errorUtils");
+const { blacklistToken } = require("../utils/tokenBlacklist");
 
 // Generate JWT token
 const generateToken = (userId) => {
@@ -878,10 +879,108 @@ const checkEmailAvailability = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * @desc    Logout user and blacklist token
+ * @route   POST /api/auth/logout
+ * @access  Private
+ */
+const logout = asyncHandler(async (req, res) => {
+  console.log("🔓 Logout attempt received");
+  console.log("User ID:", req.user?.id);
+
+  const token = req.token; // Token is stored in req by auth middleware
+
+  if (!token) {
+    return res.status(400).json({
+      success: false,
+      error: "No token found in request",
+    });
+  }
+
+  try {
+    // Add token to blacklist
+    const blacklisted = await blacklistToken(token, req.user.id, "logout");
+
+    if (!blacklisted) {
+      console.warn("Failed to blacklist token, but continuing with logout");
+    }
+
+    // Update last login time to current time (for analytics)
+    await dbOperation(
+      () =>
+        query(
+          "UPDATE users SET last_logout_at = CURRENT_TIMESTAMP WHERE id = $1",
+          [req.user.id]
+        ),
+      "Failed to update logout time"
+    );
+
+    console.log("✅ User logged out successfully:", req.user.id);
+
+    res.json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (error) {
+    console.error("Error during logout:", error);
+
+    // Even if there's an error, we should still respond with success
+    // because the client-side token clearing is the primary security measure
+    res.json({
+      success: true,
+      message: "Logout completed (with warnings)",
+    });
+  }
+});
+
+/**
+ * @desc    Logout from all devices (invalidate all tokens)
+ * @route   POST /api/auth/logout-all
+ * @access  Private
+ */
+const logoutFromAllDevices = asyncHandler(async (req, res) => {
+  console.log("🔓 Logout from all devices attempt received");
+  console.log("User ID:", req.user?.id);
+
+  try {
+    // Set token invalidation date to now - this invalidates all tokens issued before this time
+    await dbOperation(
+      () =>
+        query(
+          `UPDATE users SET 
+           token_invalidation_date = CURRENT_TIMESTAMP,
+           last_logout_at = CURRENT_TIMESTAMP 
+           WHERE id = $1`,
+          [req.user.id]
+        ),
+      "Failed to invalidate user tokens"
+    );
+
+    console.log(
+      "✅ User logged out from all devices successfully:",
+      req.user.id
+    );
+
+    res.json({
+      success: true,
+      message: "Successfully logged out from all devices",
+    });
+  } catch (error) {
+    console.error("Error during logout from all devices:", error);
+
+    res.status(500).json({
+      success: false,
+      error: "Failed to logout from all devices",
+    });
+  }
+});
+
 module.exports = {
   register,
   registerWithDocuments,
   login,
+  logout,
+  logoutFromAllDevices,
   refreshToken,
   forgotPassword,
   resetPassword,

@@ -2,6 +2,7 @@ const cron = require("node-cron");
 const { query } = require("../config/database");
 const { sendBookingReminderEmail } = require("./email");
 const { initMembershipScheduler } = require("./membershipScheduler");
+const { cleanupExpiredTokens } = require("./tokenBlacklist");
 
 /**
  * Initialize all cron jobs
@@ -34,6 +35,12 @@ const initializeCronJobs = () => {
 
   // Auto-complete overdue bookings daily at 11 PM
   cron.schedule("0 23 * * *", autoCompleteOverdueBookings, {
+    scheduled: true,
+    timezone: "America/New_York",
+  });
+
+  // Clean up expired blacklisted tokens every hour
+  cron.schedule("0 * * * *", cleanupExpiredTokens, {
     scheduled: true,
     timezone: "America/New_York",
   });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Bars3Icon,
@@ -22,8 +22,28 @@ const TopNavbar = ({
   const { user, isAuthenticated, logout } = useAuth();
   const [notifications] = useState([]);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  // Temporarily commented out - logout dropdown functionality
+  // const [showLogoutMenu, setShowLogoutMenu] = useState(false);
+  // const logoutMenuRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Temporarily disabled - Close user menus when clicking outside
+  useEffect(() => {
+    // const handleClickOutside = (event) => {
+    // Temporarily commented out - logout menu click outside handler
+    // if (
+    //   logoutMenuRef.current &&
+    //   !logoutMenuRef.current.contains(event.target)
+    // ) {
+    //   setShowLogoutMenu(false);
+    // }
+    // };
+    // document.addEventListener("mousedown", handleClickOutside);
+    // return () => {
+    //   document.removeEventListener("mousedown", handleClickOutside);
+    // };
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -31,6 +51,14 @@ const TopNavbar = ({
     setShowUserMenu(false);
     setIsMobileMenuOpen(false);
   };
+
+  // Temporarily commented out - handleLogoutAllDevices function
+  // const handleLogoutAllDevices = () => {
+  //   logout(true); // fromAllDevices = true
+  //   navigate("/");
+  //   setShowUserMenu(false);
+  //   setIsMobileMenuOpen(false);
+  // };
 
   // Public navigation for non-authenticated users
   const publicNavigation = [
@@ -272,13 +300,43 @@ const TopNavbar = ({
                         </div>
                       </div>
 
-                      <button
-                        onClick={handleLogout}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200"
-                      >
-                        <ArrowRightOnRectangleIcon className="h-4 w-4 mr-1" />
-                        Logout
-                      </button>
+                      {/* Desktop Logout Button - Simplified */}
+                      <div className="relative">
+                        <button
+                          onClick={handleLogout}
+                          className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200"
+                        >
+                          <ArrowRightOnRectangleIcon className="h-4 w-4 mr-1" />
+                          Logout
+                        </button>
+
+                        {/* Temporarily hidden - Logout dropdown menu */}
+                        {/* {showLogoutMenu && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50">
+                            <button
+                              onClick={() => {
+                                handleLogout();
+                                setShowLogoutMenu(false);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 flex items-center"
+                            >
+                              <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+                              Logout This Device
+                            </button>
+                            {/* Temporarily hidden - Logout All Devices for desktop * /}
+                            {/* <button
+                              onClick={() => {
+                                handleLogoutAllDevices();
+                                setShowLogoutMenu(false);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-100 transition-all duration-200 flex items-center border-t border-slate-200"
+                            >
+                              <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+                              Logout All Devices
+                            </button> * /}
+                          </div>
+                        )} */}
+                      </div>
                     </div>
 
                     {/* Mobile User Menu - Dropdown */}
@@ -292,7 +350,7 @@ const TopNavbar = ({
                         </div>
                       </button>
 
-                      {/* Mobile User Dropdown */}
+                      {/* Mobile User Dropdown - Simplified */}
                       {showUserMenu && (
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50">
                           <div className="px-4 py-2 border-b border-slate-200">
@@ -304,12 +362,31 @@ const TopNavbar = ({
                             </p>
                           </div>
                           <button
-                            onClick={handleLogout}
+                            onClick={() => {
+                              handleLogout();
+                              setShowUserMenu(false);
+                            }}
                             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 flex items-center"
                           >
                             <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
                             Logout
                           </button>
+                          {/* Temporarily hidden - Logout This Device for mobile */}
+                          {/* <button
+                            onClick={handleLogout}
+                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 flex items-center"
+                          >
+                            <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+                            Logout This Device
+                          </button> */}
+                          {/* Temporarily hidden - Logout All Devices for mobile */}
+                          {/* <button
+                            onClick={handleLogoutAllDevices}
+                            className="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-100 transition-all duration-200 flex items-center border-t border-slate-200"
+                          >
+                            <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+                            Logout All Devices
+                          </button> */}
                         </div>
                       )}
                     </div>

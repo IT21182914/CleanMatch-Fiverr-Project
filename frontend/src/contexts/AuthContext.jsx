@@ -164,8 +164,47 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async (fromAllDevices = false) => {
     try {
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
+
+      // Call logout API if we have a token
+      if (token) {
+        try {
+          const endpoint = fromAllDevices
+            ? "/api/auth/logout-all"
+            : "/api/auth/logout";
+
+          // Get base URL and ensure it doesn't have /api at the end
+          const apiUrl =
+            import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+          const baseUrl = apiUrl.endsWith("/api")
+            ? apiUrl.slice(0, -4)
+            : apiUrl;
+
+          const response = await fetch(`${baseUrl}${endpoint}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          // Even if API call fails, we continue with client-side cleanup
+          if (response.ok) {
+            console.log("✅ Server-side logout successful");
+          } else {
+            console.warn(
+              "⚠️ Server-side logout failed, continuing with client-side cleanup"
+            );
+          }
+        } catch (apiError) {
+          console.warn("⚠️ Logout API call failed:", apiError.message);
+          // Continue with client-side cleanup even if API fails
+        }
+      }
+
       // Clear from both storage types
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -182,6 +221,19 @@ const AuthProvider = ({ children }) => {
       // Force logout even if error occurs
       setUser(null);
       setIsAuthenticated(false);
+
+      // Clear storage even if error occurs
+      try {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("refreshToken");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("refreshToken");
+      } catch (storageError) {
+        console.error("Error clearing storage:", storageError);
+      }
+
       return { success: false, error: "Failed to logout completely" };
     }
   };
