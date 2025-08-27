@@ -31,6 +31,8 @@ const Jobs = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState({});
+  const [accepting, setAccepting] = useState({});
+  const [declining, setDeclining] = useState({});
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
@@ -48,9 +50,18 @@ const Jobs = () => {
     }
   };
 
-  const handleAcceptJob = async (jobId) => {
+  const handleAcceptJob = async (jobId, event) => {
+    // Prevent any default behavior and event propagation
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    // Prevent multiple clicks
+    if (accepting[jobId] || declining[jobId]) return;
+
     try {
-      setUpdating((prev) => ({ ...prev, [jobId]: true }));
+      setAccepting((prev) => ({ ...prev, [jobId]: true }));
       const job = jobs.find((j) => j.id === jobId);
 
       // Use appropriate API based on job status
@@ -68,14 +79,24 @@ const Jobs = () => {
       );
     } catch (error) {
       console.error("Error accepting job:", error);
+      // Optionally show toast notification for error
     } finally {
-      setUpdating((prev) => ({ ...prev, [jobId]: false }));
+      setAccepting((prev) => ({ ...prev, [jobId]: false }));
     }
   };
 
-  const handleRejectJob = async (jobId) => {
+  const handleRejectJob = async (jobId, event) => {
+    // Prevent any default behavior and event propagation
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    // Prevent multiple clicks
+    if (accepting[jobId] || declining[jobId]) return;
+
     try {
-      setUpdating((prev) => ({ ...prev, [jobId]: true }));
+      setDeclining((prev) => ({ ...prev, [jobId]: true }));
       const job = jobs.find((j) => j.id === jobId);
 
       // Use appropriate API based on job status
@@ -96,8 +117,9 @@ const Jobs = () => {
       }
     } catch (error) {
       console.error("Error rejecting job:", error);
+      // Optionally show toast notification for error
     } finally {
-      setUpdating((prev) => ({ ...prev, [jobId]: false }));
+      setDeclining((prev) => ({ ...prev, [jobId]: false }));
     }
   };
 
@@ -164,12 +186,14 @@ const Jobs = () => {
           key="accept"
           size="sm"
           variant="success"
-          loading={updating[job.id]}
-          onClick={() => handleAcceptJob(job.id)}
-          className="flex items-center"
+          loading={accepting[job.id]}
+          onClick={(e) => handleAcceptJob(job.id, e)}
+          disabled={declining[job.id]}
+          className="flex items-center justify-center min-h-[44px] w-full sm:w-auto px-4 py-3 touch-manipulation select-none"
+          style={{ touchAction: "manipulation" }}
         >
           <CheckCircleIcon className="h-4 w-4 mr-1" />
-          Accept
+          <span className="text-xs sm:text-sm">Accept</span>
         </Button>
       );
       actions.push(
@@ -177,12 +201,14 @@ const Jobs = () => {
           key="reject"
           size="sm"
           variant="outline"
-          loading={updating[job.id]}
-          onClick={() => handleRejectJob(job.id)}
-          className="flex items-center text-red-600 border-red-300 hover:bg-red-50"
+          loading={declining[job.id]}
+          onClick={(e) => handleRejectJob(job.id, e)}
+          disabled={accepting[job.id]}
+          className="flex items-center justify-center text-red-600 border-red-300 hover:bg-red-50 min-h-[44px] w-full sm:w-auto px-4 py-3 touch-manipulation select-none"
+          style={{ touchAction: "manipulation" }}
         >
           <XCircleIcon className="h-4 w-4 mr-1" />
-          Decline
+          <span className="text-xs sm:text-sm">Decline</span>
         </Button>
       );
     }
@@ -194,8 +220,10 @@ const Jobs = () => {
           size="sm"
           loading={updating[job.id]}
           onClick={() => handleStartJob(job.id)}
+          className="flex items-center justify-center min-h-[44px] w-full sm:w-auto px-4 py-3 touch-manipulation select-none"
+          style={{ touchAction: "manipulation" }}
         >
-          Start Job
+          <span className="text-xs sm:text-sm">Start Job</span>
         </Button>
       );
     }
@@ -208,8 +236,10 @@ const Jobs = () => {
           variant="success"
           loading={updating[job.id]}
           onClick={() => handleCompleteJob(job.id)}
+          className="flex items-center justify-center min-h-[44px] w-full sm:w-auto px-4 py-3 touch-manipulation select-none"
+          style={{ touchAction: "manipulation" }}
         >
-          Mark Complete
+          <span className="text-xs sm:text-sm">Mark Complete</span>
         </Button>
       );
     }
@@ -219,10 +249,11 @@ const Jobs = () => {
         key="view"
         size="sm"
         variant="ghost"
-        className="flex items-center"
+        className="flex items-center justify-center min-h-[44px] w-full sm:w-auto px-4 py-3 touch-manipulation select-none"
+        style={{ touchAction: "manipulation" }}
       >
         <EyeIcon className="h-4 w-4 mr-1" />
-        View
+        <span className="text-xs sm:text-sm">View</span>
       </Button>
     );
 
@@ -230,201 +261,251 @@ const Jobs = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="md:flex md:items-center md:justify-between">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-            My Jobs
-          </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Manage your cleaning assignments and track your work.
-          </p>
-        </div>
-        <div className="mt-4 flex md:ml-4 md:mt-0">
-          <Link to="/availability">
-            <Button className="inline-flex items-center">
-              <ClockIcon className="h-4 w-4 mr-2" />
-              Update Availability
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {[
-            { key: "all", label: "All Jobs" },
-            { key: "pending", label: "Pending" },
-            { key: "confirmed", label: "Confirmed" },
-            { key: "in_progress", label: "In Progress" },
-            { key: "completed", label: "Completed" },
-            { key: "cancelled", label: "Cancelled" },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setFilter(tab.key)}
-              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                filter === tab.key
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              {tab.label} ({statusCounts[tab.key]})
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Jobs List */}
-      {loading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <LoadingCard key={i} />
-          ))}
-        </div>
-      ) : filteredJobs.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-12">
-            <BriefcaseIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {filter === "all" ? "No jobs yet" : `No ${filter} jobs`}
-            </h3>
-            <p className="text-gray-500 mb-6">
-              {filter === "all"
-                ? "Complete your profile to start receiving job assignments."
-                : `You don't have any ${filter} jobs at the moment.`}
-            </p>
-            {filter === "all" && (
-              <Link to="/profile">
-                <Button>Complete Profile</Button>
+    <div className="min-h-screen bg-gray-50 px-3 py-3 sm:px-4 sm:py-4 md:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto space-y-3 sm:space-y-4 md:space-y-6">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6">
+          <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg font-bold leading-6 text-gray-900 sm:text-xl md:text-2xl lg:text-3xl lg:tracking-tight">
+                My Jobs
+              </h2>
+              <p className="mt-1 text-xs sm:text-sm text-gray-500 max-w-2xl">
+                Manage your cleaning assignments and track your work progress.
+              </p>
+            </div>
+            <div className="flex-shrink-0 w-full sm:w-auto">
+              <Link to="/availability" className="block w-full sm:w-auto">
+                <Button className="inline-flex items-center justify-center w-full sm:w-auto px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium">
+                  <ClockIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                  <span className="hidden xs:inline">Update </span>Availability
+                </Button>
               </Link>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {filteredJobs.map((job) => (
-            <Card key={job.id}>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0">
-                      <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                        <BriefcaseIcon className="h-6 w-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="border-b border-gray-200 px-3 sm:px-4 md:px-6">
+            <nav className="-mb-px flex overflow-x-auto scrollbar-hide">
+              {[
+                { key: "all", label: "All Jobs" },
+                { key: "pending", label: "Pending" },
+                { key: "confirmed", label: "Confirmed" },
+                { key: "in_progress", label: "In Progress" },
+                { key: "completed", label: "Completed" },
+                { key: "cancelled", label: "Cancelled" },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setFilter(tab.key)}
+                  className={`whitespace-nowrap py-2 sm:py-3 px-2 sm:px-3 md:px-4 border-b-2 font-medium text-xs sm:text-sm flex-shrink-0 transition-colors duration-200 ${
+                    filter === tab.key
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">
+                    {tab.label.replace(/\s+/g, "")}
+                  </span>
+                  <span className="ml-1 bg-gray-100 text-gray-600 px-1.5 sm:px-2 py-0.5 rounded-full text-xs leading-tight">
+                    {statusCounts[tab.key]}
+                  </span>
+                </button>
+              ))}
+            </nav>
+          </div>
+        </div>
+
+        {/* Jobs List */}
+        {loading ? (
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg shadow-sm">
+                <LoadingCard />
+              </div>
+            ))}
+          </div>
+        ) : filteredJobs.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-sm">
+            <CardContent className="text-center py-8 sm:py-12 px-4">
+              <BriefcaseIcon className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
+                {filter === "all" ? "No jobs yet" : `No ${filter} jobs`}
+              </h3>
+              <p className="text-sm text-gray-500 mb-4 sm:mb-6 max-w-md mx-auto">
+                {filter === "all"
+                  ? "Complete your profile to start receiving job assignments."
+                  : `You don't have any ${filter} jobs at the moment.`}
+              </p>
+              {filter === "all" && (
+                <Link to="/profile">
+                  <Button className="w-full sm:w-auto">Complete Profile</Button>
+                </Link>
+              )}
+            </CardContent>
+          </div>
+        ) : (
+          <div className="space-y-3 sm:space-y-4">
+            {filteredJobs.map((job) => (
+              <div key={job.id} className="bg-white rounded-lg shadow-sm">
+                <CardContent className="p-3 sm:p-4 md:p-6">
+                  {/* Job Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                    <div className="flex items-start space-x-3 flex-1 min-w-0">
+                      <div className="flex-shrink-0">
+                        <div className="h-9 w-9 sm:h-10 sm:w-10 md:h-12 md:w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                          <BriefcaseIcon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-blue-600" />
+                        </div>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm sm:text-base md:text-lg font-medium text-gray-900 truncate">
+                          {job.service?.name || "Cleaning Service"}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-gray-500">
+                          Job #{job.id}
+                        </p>
                       </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-lg font-medium text-gray-900">
-                        {job.service?.name || "Cleaning Service"}
-                      </h3>
-                      <p className="text-sm text-gray-500">Job #{job.id}</p>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
+                      <span
+                        className={`inline-flex px-2 sm:px-3 py-1 text-xs sm:text-sm font-semibold rounded-full text-center ${getStatusColor(
+                          job.status
+                        )}`}
+                      >
+                        {capitalizeFirst(job.status)}
+                      </span>
+                      <span className="text-sm sm:text-base md:text-lg font-bold text-gray-900 text-right">
+                        {formatCurrency(job.totalAmount || job.total_amount)}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <span
-                      className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(
-                        job.status
-                      )}`}
-                    >
-                      {capitalizeFirst(job.status)}
-                    </span>
-                    <span className="text-lg font-bold text-gray-900">
-                      {formatCurrency(job.totalAmount || job.total_amount)}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <ClockIcon className="h-4 w-4 mr-2" />
-                    {formatDateTime(
-                      job.scheduledDate || job.booking_date
-                    )} at {job.scheduledTime || job.booking_time}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPinIcon className="h-4 w-4 mr-2" />
-                    {job.address}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <UserIcon className="h-4 w-4 mr-2" />
-                    {job.customer?.firstName || job.customer_first_name}{" "}
-                    {job.customer?.lastName || job.customer_last_name}
-                  </div>
-                </div>
-
-                {/* Customer Contact Info */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">
-                    Customer Information
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                    <div className="flex items-center text-gray-600">
-                      <UserIcon className="h-4 w-4 mr-2" />
-                      {job.customer?.firstName || job.customer_first_name}{" "}
-                      {job.customer?.lastName || job.customer_last_name}
+                  {/* Job Details Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 md:mb-6">
+                    <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                      <ClockIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+                      <span className="truncate text-xs sm:text-sm">
+                        {formatDateTime(job.scheduledDate || job.booking_date)}
+                        <span className="hidden sm:inline">
+                          {" "}
+                          at {job.scheduledTime || job.booking_time}
+                        </span>
+                      </span>
                     </div>
-                    <div className="flex items-center text-gray-600">
-                      <PhoneIcon className="h-4 w-4 mr-2" />
-                      {job.customer?.phone ||
-                        job.customer_phone ||
-                        "Not provided"}
+                    <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                      <MapPinIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+                      <span className="truncate">{job.address}</span>
+                    </div>
+                    <div className="flex items-center text-xs sm:text-sm text-gray-600 sm:col-span-2 lg:col-span-1">
+                      <UserIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+                      <span className="truncate">
+                        {job.customer?.firstName || job.customer_first_name}{" "}
+                        {job.customer?.lastName || job.customer_last_name}
+                      </span>
                     </div>
                   </div>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-600">
-                      <strong>Full Address:</strong> {job.address}, {job.city},{" "}
-                      {job.state} {job.zipCode || job.zip_code}
-                    </p>
-                  </div>
-                </div>
 
-                {/* Special Instructions */}
-                {job.specialInstructions && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-1">
-                      Special Instructions
+                  {/* Customer Contact Info */}
+                  <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4">
+                    <h4 className="text-sm font-medium text-gray-900 mb-3">
+                      Customer Information
                     </h4>
-                    <p className="text-sm text-gray-600 bg-yellow-50 border border-yellow-200 rounded p-3">
-                      {job.specialInstructions}
-                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                      <div className="flex items-center text-gray-600">
+                        <UserIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <span className="truncate">
+                          {job.customer?.firstName || job.customer_first_name}{" "}
+                          {job.customer?.lastName || job.customer_last_name}
+                        </span>
+                      </div>
+                      <div className="flex items-center text-gray-600">
+                        <PhoneIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <span className="truncate">
+                          {job.customer?.phone ||
+                            job.customer_phone ||
+                            "Not provided"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <p className="text-xs sm:text-sm text-gray-600">
+                        <strong>Full Address:</strong>{" "}
+                        <span className="break-words">
+                          {job.address}, {job.city}, {job.state}{" "}
+                          {job.zipCode || job.zip_code}
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                )}
 
-                {/* Job Details */}
-                <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-                  <div>
-                    <span className="text-gray-500">Duration:</span>
-                    <span className="ml-2 font-medium">
-                      {job.durationHours || job.duration_hours} hours
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Payment Status:</span>
-                    <span
-                      className={`ml-2 font-medium ${
-                        job.paymentStatus === "paid"
-                          ? "text-green-600"
-                          : "text-yellow-600"
-                      }`}
-                    >
-                      {capitalizeFirst(
-                        job.paymentStatus || job.payment_status || "pending"
-                      )}
-                    </span>
-                  </div>
-                </div>
+                  {/* Special Instructions */}
+                  {job.specialInstructions && (
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">
+                        Special Instructions
+                      </h4>
+                      <p className="text-xs sm:text-sm text-gray-600 bg-yellow-50 border border-yellow-200 rounded p-3 break-words">
+                        {job.specialInstructions}
+                      </p>
+                    </div>
+                  )}
 
-                {/* Action Buttons */}
-                <div className="flex justify-end space-x-3">
-                  {getJobActions(job)}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                  {/* Job Details */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6 text-xs sm:text-sm">
+                    <div className="bg-gray-50 rounded p-3">
+                      <span className="text-gray-500 block mb-1">
+                        Duration:
+                      </span>
+                      <span className="font-medium text-gray-900">
+                        {job.durationHours || job.duration_hours} hours
+                      </span>
+                    </div>
+                    <div className="bg-gray-50 rounded p-3">
+                      <span className="text-gray-500 block mb-1">
+                        Payment Status:
+                      </span>
+                      <span
+                        className={`font-medium ${
+                          job.paymentStatus === "paid"
+                            ? "text-green-600"
+                            : "text-yellow-600"
+                        }`}
+                      >
+                        {capitalizeFirst(
+                          job.paymentStatus || job.payment_status || "pending"
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-3 sm:pt-2 border-t border-gray-100 mt-3 sm:mt-4">
+                    {getJobActions(job).map((action, index) => (
+                      <div
+                        key={index}
+                        className="touch-manipulation w-full sm:w-auto"
+                        style={{
+                          WebkitTouchCallout: "none",
+                          WebkitUserSelect: "none",
+                          KhtmlUserSelect: "none",
+                          MozUserSelect: "none",
+                          msUserSelect: "none",
+                          userSelect: "none",
+                        }}
+                      >
+                        {action}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
