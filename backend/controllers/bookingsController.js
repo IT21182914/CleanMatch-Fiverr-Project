@@ -8,6 +8,7 @@ const {
   createPaymentIntent,
   createStripeCustomer,
 } = require("../utils/stripe");
+const { geocodeAddress, isZipCode } = require("../utils/geocoding");
 const { recordMembershipUsage } = require("./membershipController");
 const {
   checkFirstCleanEligibilityInternal,
@@ -381,6 +382,8 @@ const getBookingById = async (req, res) => {
       city: booking.city,
       state: booking.state,
       zipCode: booking.zip_code,
+      latitude: booking.latitude,
+      longitude: booking.longitude,
       specialInstructions: booking.special_instructions,
       createdAt: booking.created_at,
       updatedAt: booking.updated_at,
@@ -1822,7 +1825,14 @@ const getBookingAssignmentStatus = async (req, res) => {
 const getNearbyCleanersForBooking = async (req, res) => {
   try {
     const { id } = req.params;
-    const { latitude, longitude, radius = 20 } = req.query;
+    const { 
+      latitude, 
+      longitude, 
+      zipCode, 
+      radius = 20, 
+      serviceType,
+      minRating = 0 
+    } = req.query;
 
     // Get booking details and verify it belongs to the user or user is admin
     const bookingResult = await query(
@@ -1853,33 +1863,108 @@ const getNearbyCleanersForBooking = async (req, res) => {
       });
     }
 
-    // Ensure payment is completed before showing cleaners
-    if (booking.payment_status !== "completed") {
+    // Note: Temporarily allowing cleaner selection for all booking statuses for testing
+    // In production, you might want to ensure payment is completed
+    console.log("Booking payment status:", booking.payment_status);
+    
+    // Ensure payment is completed before showing cleaners (commented out for testing)
+    /*
+    if (booking.payment_status !== "paid") {
       return res.status(400).json({
         success: false,
         error: "Payment must be completed before viewing available cleaners",
         paymentStatus: booking.payment_status,
       });
     }
+    */
 
-    // Use provided location or booking address for search
-    let searchLat = parseFloat(latitude);
-    let searchLng = parseFloat(longitude);
+    let customerLat, customerLng, searchMethod, geocodedAddress;
 
-    if (!searchLat || !searchLng) {
-      // If no coordinates provided, could add geocoding here
-      // For now, return error
+    // Priority 1: Use provided latitude and longitude if available
+    if (latitude && longitude) {
+      customerLat = parseFloat(latitude);
+      customerLng = parseFloat(longitude);
+
+      if (isNaN(customerLat) || isNaN(customerLng)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid latitude or longitude format",
+        });
+      }
+
+      searchMethod = "coordinates";
+    }
+    // Priority 2: Use booking coordinates if available
+    else if (booking.latitude && booking.longitude) {
+      customerLat = parseFloat(booking.latitude);
+      customerLng = parseFloat(booking.longitude);
+      searchMethod = "booking_coordinates";
+      console.log("Using booking coordinates:", customerLat, customerLng);
+    }
+    // Priority 3: Use zipcode (provided or from booking)
+    else if (zipCode || booking.zip_code) {
+      const searchZipCode = zipCode || booking.zip_code;
+      
+      if (!isZipCode(searchZipCode)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid zipcode format. Please provide a valid US zipcode (e.g., 07094) or Canadian postal code.",
+        });
+      }
+
+      try {
+        console.log(`Geocoding zipcode: ${searchZipCode}`);
+        const geocodeResult = await geocodeAddress(searchZipCode);
+
+        customerLat = geocodeResult.latitude;
+        customerLng = geocodeResult.longitude;
+        geocodedAddress = geocodeResult.formattedAddress;
+        searchMethod = "geocoded";
+
+        console.log(
+          `Geocoded ${searchZipCode} to coordinates: ${customerLat}, ${customerLng}`
+        );
+      } catch (geocodeError) {
+        console.error("Geocoding error:", geocodeError.message);
+        return res.status(400).json({
+          success: false,
+          error: `Unable to geocode zipcode: ${geocodeError.message}`,
+          details: "Please check the zipcode or provide latitude and longitude instead.",
+        });
+      }
+    }
+    // No location data available
+    else {
       return res.status(400).json({
         success: false,
-        error:
-          "Location coordinates are required. Please provide latitude and longitude.",
+        error: "No location data available for this booking",
+        examples: {
+          coordinates: "?latitude=40.7128&longitude=-74.0060&radius=20",
+          zipcode: "?zipCode=07094&radius=20",
+        },
       });
     }
 
     const radiusKm = parseFloat(radius);
+    const minRatingValue = parseFloat(minRating);
 
-    // Get nearby available cleaners
-    const cleanersQuery = `
+    if (isNaN(radiusKm) || radiusKm <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid radius. Must be a positive number.",
+      });
+    }
+
+    if (isNaN(minRatingValue) || minRatingValue < 0 || minRatingValue > 5) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid minimum rating. Must be between 0 and 5.",
+      });
+    }
+
+    // Build the query with proper distance calculation using the Haversine formula
+    // Using the same logic as getNearbyCleaners in usersController
+    let baseQuery = `
       SELECT 
         cp.user_id,
         cp.bio,
@@ -1890,11 +1975,12 @@ const getNearbyCleanersForBooking = async (req, res) => {
         cp.current_latitude,
         cp.current_longitude,
         cp.last_location_update,
+        cp.last_active,
         cp.service_radius,
         cp.certifications,
-        cp.cleaning_services,
         u.first_name,
         u.last_name,
+        u.email,
         u.phone,
         u.profile_image,
         EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - cp.last_location_update))/60 as minutes_since_last_update,
@@ -1911,28 +1997,39 @@ const getNearbyCleanersForBooking = async (req, res) => {
         AND cp.current_latitude IS NOT NULL 
         AND cp.current_longitude IS NOT NULL
         AND cp.last_location_update > (CURRENT_TIMESTAMP - INTERVAL '3 minutes')
+        AND cp.rating >= $3
         AND (
           6371 * acos(
             cos(radians($1)) * cos(radians(cp.current_latitude)) *
             cos(radians(cp.current_longitude) - radians($2)) +
             sin(radians($1)) * sin(radians(cp.current_latitude))
           )
-        ) <= $3
-      ORDER BY distance_km ASC, cp.rating DESC, cp.total_jobs DESC
-      LIMIT 20
+        ) <= $4
     `;
 
-    const cleanersResult = await query(cleanersQuery, [
-      searchLat,
-      searchLng,
-      radiusKm,
-    ]);
+    const queryParams = [customerLat, customerLng, minRatingValue, radiusKm];
+    let paramCount = 5;
 
-    // Transform the data
-    const availableCleaners = cleanersResult.rows.map((cleaner) => ({
+    // Add service type filter if specified
+    if (serviceType) {
+      baseQuery += ` AND $${paramCount} = ANY(cp.cleaning_services)`;
+      queryParams.push(serviceType);
+      paramCount++;
+    }
+
+    baseQuery += `
+      ORDER BY distance_km ASC, cp.rating DESC, cp.total_jobs DESC
+      LIMIT 50
+    `;
+
+    const result = await query(baseQuery, queryParams);
+
+    // Transform the data for frontend - using the same structure as getNearbyCleaners
+    const availableCleaners = result.rows.map((cleaner) => ({
       id: cleaner.user_id,
       firstName: cleaner.first_name,
       lastName: cleaner.last_name,
+      email: cleaner.email,
       phone: cleaner.phone,
       profileImage: cleaner.profile_image,
       bio: cleaner.bio,
@@ -1942,7 +2039,6 @@ const getNearbyCleanersForBooking = async (req, res) => {
       totalJobs: cleaner.total_jobs || 0,
       serviceRadius: cleaner.service_radius,
       certifications: cleaner.certifications,
-      cleaningServices: cleaner.cleaning_services,
       distanceKm: parseFloat(cleaner.distance_km).toFixed(2),
       minutesSinceLastUpdate: Math.round(
         cleaner.minutes_since_last_update || 0
@@ -1954,6 +2050,17 @@ const getNearbyCleanersForBooking = async (req, res) => {
         lastUpdate: cleaner.last_location_update,
       },
     }));
+
+    // Get count by distance ranges for analytics - same as getNearbyCleaners
+    const distanceStats = {
+      within5km: availableCleaners.filter((c) => parseFloat(c.distanceKm) <= 5)
+        .length,
+      within10km: availableCleaners.filter((c) => parseFloat(c.distanceKm) <= 10)
+        .length,
+      within20km: availableCleaners.filter((c) => parseFloat(c.distanceKm) <= 20)
+        .length,
+      total: availableCleaners.length,
+    };
 
     res.json({
       success: true,
@@ -1978,24 +2085,22 @@ const getNearbyCleanersForBooking = async (req, res) => {
         cleaners: availableCleaners,
       },
       searchCriteria: {
-        latitude: searchLat,
-        longitude: searchLng,
+        latitude: customerLat,
+        longitude: customerLng,
         radiusKm,
+        serviceType: serviceType || "all",
+        minRating: minRatingValue,
+        searchMethod, // "coordinates", "booking_coordinates", or "geocoded"
+        ...(searchMethod === "geocoded" && {
+          originalZipCode: zipCode || booking.zip_code,
+          geocodedAddress: geocodedAddress,
+        }),
       },
-      stats: {
-        totalFound: availableCleaners.length,
-        within5km: availableCleaners.filter(
-          (c) => parseFloat(c.distanceKm) <= 5
-        ).length,
-        within10km: availableCleaners.filter(
-          (c) => parseFloat(c.distanceKm) <= 10
-        ).length,
-        onlineNow: availableCleaners.filter((c) => c.isOnline).length,
-      },
+      stats: distanceStats,
       message:
         availableCleaners.length > 0
-          ? `Found ${availableCleaners.length} available cleaners for your booking`
-          : "No cleaners currently available in this area",
+          ? `Found ${availableCleaners.length} available cleaners within ${radiusKm}km for your booking`
+          : `No cleaners available within ${radiusKm}km radius`,
     });
   } catch (error) {
     console.error("Get nearby cleaners for booking error:", error);

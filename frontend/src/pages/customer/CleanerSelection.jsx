@@ -26,89 +26,61 @@ const CleanerSelection = () => {
     const [loading, setLoading] = useState(true);
     const [selectedCleaner, setSelectedCleaner] = useState(null);
     const [requesting, setRequesting] = useState(false);
-    const [userLocation, setUserLocation] = useState(null);
     const [booking, setBooking] = useState(null);
+    const [searchRadius, setSearchRadius] = useState(20); // Default 20km radius
 
     // Get booking data from state or navigate to bookings if missing
     useEffect(() => {
         const bookingData = location.state?.booking;
-        // if (!bookingData) {
-        //     toast.error("Booking information not found");
-        //     navigate("/customer/bookings");
-        //     return;
-        // }
+        if (!bookingData) {
+            toast.error("Booking information not found");
+            navigate("/customer/bookings");
+            return;
+        }
         setBooking(bookingData);
     }, [location, navigate]);
 
-    // Get current location or use postal code from booking
+    // Fetch cleaners when booking is loaded
     useEffect(() => {
-        if (!booking) return;
+        if (booking) {
+            fetchNearbyCleaners();
+        }
+    }, [booking, searchRadius]);
 
-        const getLocation = async () => {
-            try {
-                // First try to get user's current location
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        async (position) => {
-                            const coords = {
-                                latitude: position.coords.latitude,
-                                longitude: position.coords.longitude,
-                            };
-                            setUserLocation(coords);
-                            await fetchNearbyCleaners(coords);
-                        },
-                        async (error) => {
-                            console.log("Geolocation error:", error);
-                            // Fallback to postal code if available
-                            if (booking.zipCode || booking.zip_code) {
-                                await fetchNearbyCleaners(null, booking.zipCode || booking.zip_code);
-                            } else {
-                                toast.error("Location access denied. Please enable location services or add postal code to your booking.");
-                                setLoading(false);
-                            }
-                        }
-                    );
-                } else {
-                    // Geolocation not supported, use postal code
-                    if (booking.zipCode || booking.zip_code) {
-                        await fetchNearbyCleaners(null, booking.zipCode || booking.zip_code);
-                    } else {
-                        toast.error("Geolocation not supported and no postal code available.");
-                        setLoading(false);
-                    }
-                }
-            } catch (error) {
-                console.error("Error getting location:", error);
-                setLoading(false);
-            }
-        };
-
-        getLocation();
-    }, [booking]);
-
-    const fetchNearbyCleaners = async (coords = null, zipCode = null) => {
+    const fetchNearbyCleaners = async () => {
         try {
-            console.log("Fetching nearby cleaners with coords:", coords, "zipCode:", zipCode);
+            console.log("Fetching nearby cleaners for booking:", booking.id);
+            console.log(booking)
             setLoading(true);
-            let url = "?radius=15";
+            
+            // Build query parameters
+            const params = { radius: searchRadius };
 
-            if (coords) {
-                url += `&latitude=${coords.latitude}&longitude=${coords.longitude}`;
-            } else if (zipCode) {
-                url += `&zipCode=${zipCode}`;
+            // Use booking location data - check for coordinates first, then fallback to zipCode
+            if (booking.latitude && booking.longitude) {
+                params.latitude = booking.latitude;
+                params.longitude = booking.longitude;
+                console.log("Using booking coordinates:", booking.latitude, booking.longitude);
+            } else if (booking.zipCode || booking.zip_code) {
+                params.zipCode = booking.zipCode || booking.zip_code;
+                console.log("Using booking zipCode:", booking.zipCode || booking.zip_code);
             } else {
-                throw new Error("No location data available");
+                throw new Error("No location data available in booking");
             }
 
+            console.log("API params for fetching cleaners:", params);
 
-            console.log("url for fetching cleaners:", url);
-
-            const response = await userAPI.getNearbyCleaners(url);
-            const cleanersData = response.data.cleaners || response.data.data || [];
+            const response = await bookingsAPI.getNearbyCleaners(booking.id, params);
+            console.log("API Response:", response);
+            console.log("Response data structure:", response.data);
+            
+            const cleanersData = response.data.data?.cleaners || response.data.cleaners || [];
+            console.log("Extracted cleaners data:", cleanersData);
+            
             setCleaners(cleanersData);
 
             if (cleanersData.length === 0) {
-                toast.success("No cleaners available in your area at the moment. Try expanding your search radius.");
+                toast.success(`No cleaners available within ${searchRadius}km. Try expanding your search radius.`);
             }
         } catch (error) {
             console.error("Error fetching cleaners:", error);
@@ -183,7 +155,17 @@ const CleanerSelection = () => {
                                 <div className="flex items-center gap-2 mt-2">
                                     <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                                     <span className="text-xs text-emerald-600 font-medium">
-                                        {cleaners.length} cleaners available
+                                        {cleaners.length} cleaners available within {searchRadius}km
+                                    </span>
+                                </div>
+                                {/* Location Info */}
+                                <div className="flex items-center gap-2 mt-1">
+                                    <MapPinIcon className="h-3 w-3 text-gray-400" />
+                                    <span className="text-xs text-gray-500">
+                                        {booking.latitude && booking.longitude 
+                                            ? `Using GPS coordinates (${parseFloat(booking.latitude).toFixed(4)}, ${parseFloat(booking.longitude).toFixed(4)})`
+                                            : `Using postal code: ${booking.zipCode || booking.zip_code}`
+                                        }
                                     </span>
                                 </div>
                             </div>
@@ -223,8 +205,10 @@ const CleanerSelection = () => {
                                                     <UserIcon className="h-6 w-6 text-emerald-600" />
                                                 )}
                                             </div>
-                                            {selectedCleaner.isOnline && (
-                                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
+                                            {(selectedCleaner.isOnline || selectedCleaner.isAvailable) && (
+                                                <div className={`absolute -top-1 -right-1 w-4 h-4 border-2 border-white rounded-full ${
+                                                    selectedCleaner.isOnline ? 'bg-green-400' : 'bg-blue-400'
+                                                }`}></div>
                                             )}
                                         </div>
                                         <div>
@@ -238,7 +222,10 @@ const CleanerSelection = () => {
                                                 <span>{selectedCleaner.totalJobs} jobs completed</span>
                                             </div>
                                             <p className="text-xs text-emerald-600 mt-1">
-                                                {selectedCleaner.distanceKm} km away • {formatCurrency(selectedCleaner.hourlyRate)}/hour
+                                                {selectedCleaner.hasGPSLocation 
+                                                    ? `${selectedCleaner.distanceKm} km away (GPS) • ${formatCurrency(selectedCleaner.hourlyRate)}/hour`
+                                                    : `${selectedCleaner.distanceKm} km away • ${formatCurrency(selectedCleaner.hourlyRate)}/hour`
+                                                }
                                             </p>
                                         </div>
                                     </div>
@@ -265,6 +252,33 @@ const CleanerSelection = () => {
                         </Card>
                     )}
 
+                    {/* Search Radius Selector */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 lg:p-6">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-900 mb-1">Search Radius</h3>
+                                <p className="text-xs text-gray-500">
+                                    Expand your search to find more cleaners in your area
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {[10, 20, 50, 100].map((radius) => (
+                                    <button
+                                        key={radius}
+                                        onClick={() => setSearchRadius(radius)}
+                                        className={`px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 ${
+                                            searchRadius === radius
+                                                ? "bg-emerald-600 text-white shadow-md"
+                                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                        }`}
+                                    >
+                                        {radius}km
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Available Cleaners */}
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
@@ -272,7 +286,7 @@ const CleanerSelection = () => {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => fetchNearbyCleaners(userLocation, booking.zipCode || booking.zip_code)}
+                                onClick={() => fetchNearbyCleaners()}
                                 className="text-xs"
                             >
                                 <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -297,7 +311,7 @@ const CleanerSelection = () => {
                                         </p>
                                         <Button
                                             variant="outline"
-                                            onClick={() => fetchNearbyCleaners(userLocation, booking.zipCode || booking.zip_code)}
+                                            onClick={() => fetchNearbyCleaners()}
                                             className="text-sm"
                                         >
                                             Refresh Search
@@ -329,8 +343,10 @@ const CleanerSelection = () => {
                                                             <UserIcon className="h-6 w-6 text-gray-400" />
                                                         )}
                                                     </div>
-                                                    {cleaner.isOnline && (
-                                                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
+                                                    {(cleaner.isOnline || cleaner.isAvailable) && (
+                                                        <div className={`absolute -top-1 -right-1 w-4 h-4 border-2 border-white rounded-full ${
+                                                            cleaner.isOnline ? 'bg-green-400' : 'bg-blue-400'
+                                                        }`}></div>
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -345,13 +361,22 @@ const CleanerSelection = () => {
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-end">
-                                                    {cleaner.isOnline ? (
-                                                        <span className="text-green-600 text-xs font-medium bg-green-50 px-2 py-1 rounded-full">
-                                                            Online
-                                                        </span>
+                                                    {cleaner.isAvailable ? (
+                                                        cleaner.isOnline ? (
+                                                            <span className="text-green-600 text-xs font-medium bg-green-50 px-2 py-1 rounded-full">
+                                                                Online Now
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-blue-600 text-xs font-medium bg-blue-50 px-2 py-1 rounded-full">
+                                                                Available
+                                                            </span>
+                                                        )
                                                     ) : (
                                                         <span className="text-gray-400 text-xs bg-gray-50 px-2 py-1 rounded-full">
-                                                            {cleaner.minutesSinceLastUpdate}m ago
+                                                            {cleaner.minutesSinceLastUpdate > 60 
+                                                                ? `${Math.floor(cleaner.minutesSinceLastUpdate / 60)}h ago`
+                                                                : `${cleaner.minutesSinceLastUpdate}m ago`
+                                                            }
                                                         </span>
                                                     )}
                                                 </div>
@@ -362,15 +387,41 @@ const CleanerSelection = () => {
                                                 <div className="flex items-center justify-between text-xs">
                                                     <div className="flex items-center text-gray-600">
                                                         <MapPinIcon className="h-3 w-3 mr-1 flex-shrink-0" />
-                                                        <span>{cleaner.distanceKm} km away</span>
+                                                        <span>
+                                                            {cleaner.hasGPSLocation 
+                                                                ? `${cleaner.distanceKm} km away (GPS)`
+                                                                : cleaner.zipCode 
+                                                                    ? `${cleaner.distanceKm} km away (${cleaner.zipCode})`
+                                                                    : `${cleaner.distanceKm} km away (estimated)`
+                                                            }
+                                                        </span>
+                                                        {cleaner.distanceCategory === 'very_close' && (
+                                                            <span className="ml-1 text-green-600 font-medium">• Very Close</span>
+                                                        )}
+                                                        {cleaner.distanceCategory === 'nearby' && (
+                                                            <span className="ml-1 text-blue-600 font-medium">• Nearby</span>
+                                                        )}
                                                     </div>
                                                     <span className="font-semibold text-emerald-600">
                                                         {formatCurrency(cleaner.hourlyRate)}/hr
                                                     </span>
                                                 </div>
-                                                <div className="flex items-center text-xs text-gray-600">
-                                                    <ClockIcon className="h-3 w-3 mr-1 flex-shrink-0" />
-                                                    <span>{cleaner.experienceYears} years experience</span>
+                                                <div className="flex items-center justify-between text-xs">
+                                                    <div className="flex items-center text-gray-600">
+                                                        <ClockIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+                                                        <span>{cleaner.experienceYears} years experience</span>
+                                                    </div>
+                                                    <div className="flex items-center">
+                                                        {cleaner.isAvailable ? (
+                                                            <span className="text-green-600 text-xs font-medium bg-green-50 px-2 py-1 rounded-full">
+                                                                Available
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-orange-600 text-xs font-medium bg-orange-50 px-2 py-1 rounded-full">
+                                                                Busy
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
 
