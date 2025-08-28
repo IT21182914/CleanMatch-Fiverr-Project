@@ -77,7 +77,7 @@ const createBooking = async (req, res) => {
       finalPostalCode = null;
     } else if (locationMethod === "postal") {
       // For postal method
-      finalPostalCode = postalCode;
+      finalPostalCode = zipCode;
       finalLatitude = null;
       finalLongitude = null;
     }
@@ -1872,19 +1872,6 @@ const getNearbyCleanersForBooking = async (req, res) => {
       });
     }
 
-    // Note: Temporarily allowing cleaner selection for all booking statuses for testing
-    // In production, you might want to ensure payment is completed
-    console.log("Booking payment status:", booking.payment_status);
-
-
-    if (booking.payment_status !== "paid") {
-      return res.status(400).json({
-        success: false,
-        error: "Payment must be completed before viewing available cleaners",
-        paymentStatus: booking.payment_status,
-      });
-    }
-
     let customerLat, customerLng, searchMethod, geocodedAddress;
 
     // Priority 1: Use booking coordinates if available
@@ -2012,8 +1999,6 @@ const getNearbyCleanersForBooking = async (req, res) => {
       LIMIT 50
     `;
 
-    console.log("Executing nearby cleaners query with params:", queryParams);
-    console.log("Base query:", baseQuery);
     const result = await query(baseQuery, queryParams);
 
     // Transform the data for frontend - using the same structure as getNearbyCleaners
