@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "start:local": "cp .env.local .env && node server.js",
     "start:production": "cp .env.production .env && node server.js",
     "dev": "nodemon server.js",
