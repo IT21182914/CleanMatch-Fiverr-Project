@@ -604,7 +604,7 @@ const getNearbyCleaners = async (req, res) => {
       latitude,
       longitude,
       zipCode,
-      radius = 20,
+      radius = 200,
       serviceType,
       minRating = 0,
     } = req.query;
@@ -663,8 +663,8 @@ const getNearbyCleaners = async (req, res) => {
         success: false,
         error: "Either latitude & longitude OR zipcode is required",
         examples: {
-          coordinates: "?latitude=40.7128&longitude=-74.0060&radius=20",
-          zipcode: "?zipCode=07094&radius=20",
+          coordinates: "?latitude=40.7128&longitude=-74.0060&radius=200",
+          zipcode: "?zipCode=07094&radius=200",
         },
       });
     }
@@ -719,7 +719,7 @@ const getNearbyCleaners = async (req, res) => {
       WHERE cp.is_available = true 
         AND cp.current_latitude IS NOT NULL 
         AND cp.current_longitude IS NOT NULL
-        AND cp.last_location_update > (CURRENT_TIMESTAMP - INTERVAL '3 minutes')
+        AND cp.last_location_update > (CURRENT_TIMESTAMP - INTERVAL '3 hours')
         AND cp.rating >= $3
         AND (
           6371 * acos(
@@ -766,7 +766,7 @@ const getNearbyCleaners = async (req, res) => {
       minutesSinceLastUpdate: Math.round(
         cleaner.minutes_since_last_update || 0
       ),
-      isOnline: cleaner.minutes_since_last_update <= 3,
+      isOnline: cleaner.minutes_since_last_update <= 180, // 3 hours = 180 minutes
       location: {
         latitude: cleaner.current_latitude,
         longitude: cleaner.current_longitude,
@@ -774,13 +774,17 @@ const getNearbyCleaners = async (req, res) => {
       },
     }));
 
-    // Get count by distance ranges for analytics
+    // Get count by distance ranges for analytics - updated for wider search radius
     const distanceStats = {
       within5km: nearbyCleaners.filter((c) => parseFloat(c.distanceKm) <= 5)
         .length,
-      within10km: nearbyCleaners.filter((c) => parseFloat(c.distanceKm) <= 10)
-        .length,
       within20km: nearbyCleaners.filter((c) => parseFloat(c.distanceKm) <= 20)
+        .length,
+      within50km: nearbyCleaners.filter((c) => parseFloat(c.distanceKm) <= 50)
+        .length,
+      within100km: nearbyCleaners.filter((c) => parseFloat(c.distanceKm) <= 100)
+        .length,
+      within200km: nearbyCleaners.filter((c) => parseFloat(c.distanceKm) <= 200)
         .length,
       total: nearbyCleaners.length,
     };
@@ -833,7 +837,7 @@ const getOnlineCleanersStats = async (req, res) => {
       WHERE cp.is_available = true 
         AND cp.current_latitude IS NOT NULL 
         AND cp.current_longitude IS NOT NULL
-        AND cp.last_location_update > (CURRENT_TIMESTAMP - INTERVAL '3 minutes')
+        AND cp.last_location_update > (CURRENT_TIMESTAMP - INTERVAL '3 hours')
     `;
 
     const result = await query(statsQuery);

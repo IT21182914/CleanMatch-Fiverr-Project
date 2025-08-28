@@ -51,8 +51,7 @@ api.interceptors.response.use(
     if (import.meta.env.MODE === "development") {
       const duration = new Date() - response.config.metadata.startTime;
       console.log(
-        `✅ ${response.config.method?.toUpperCase()} ${
-          response.config.url
+        `✅ ${response.config.method?.toUpperCase()} ${response.config.url
         } (${duration}ms)`,
         response.data
       );
@@ -205,8 +204,38 @@ export const bookingsAPI = {
     enhancedApi.put(`/bookings/${id}/assign`, { ...params }),
   getRecommendations: (id) =>
     enhancedApi.get(`/bookings/${id}/recommendations`),
-  getNearbyCleaners: (id, params) =>
-    enhancedApi.get(`/bookings/${id}/nearby-cleaners`, { params }),
+  getNearbyCleaners: (id, params = {}) => {
+    // Build query string with proper defaults and filtering out null/undefined values
+    const queryParams = {};
+
+    // Set radius with fallback to 200
+    if (params.radius !== null && params.radius !== undefined && params.radius !== '') {
+      queryParams.radius = params.radius;
+    } else {
+      queryParams.radius = 200; // Default fallback
+    }
+
+    // Set minRating with fallback to 0
+    if (params.minRating !== null && params.minRating !== undefined && params.minRating !== '') {
+      queryParams.minRating = params.minRating;
+    } else {
+      queryParams.minRating = 0; // Default fallback
+    }
+
+    // Add serviceType only if provided
+    if (params.serviceType && params.serviceType !== null && params.serviceType !== undefined) {
+      queryParams.serviceType = params.serviceType;
+    }
+
+    // Build query string manually to ensure proper encoding
+    const queryString = Object.entries(queryParams)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+
+    const url = `/bookings/${id}/nearby-cleaners${queryString ? `?${queryString}` : ''}`;
+
+    return enhancedApi.get(url);
+  },
   // AI-Enhanced ZIP Code Matching
   getZipBasedRecommendations: (searchData) =>
     enhancedApi.post("/bookings/recommendations-by-zip", searchData),

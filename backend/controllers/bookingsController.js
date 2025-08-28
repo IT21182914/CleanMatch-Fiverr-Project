@@ -400,13 +400,13 @@ const getBookingById = async (req, res) => {
       },
       cleaner: booking.cleaner_id
         ? {
-            firstName: booking.cleaner_first_name,
-            lastName: booking.cleaner_last_name,
-            email: booking.cleaner_email,
-            phone: booking.cleaner_phone,
-            rating: booking.cleaner_rating,
-            hourlyRate: booking.cleaner_hourly_rate,
-          }
+          firstName: booking.cleaner_first_name,
+          lastName: booking.cleaner_last_name,
+          email: booking.cleaner_email,
+          phone: booking.cleaner_phone,
+          rating: booking.cleaner_rating,
+          hourlyRate: booking.cleaner_hourly_rate,
+        }
         : null,
       pricing_breakdown: {
         base_amount: Math.round(baseAmount * 100) / 100,
@@ -428,11 +428,11 @@ const getBookingById = async (req, res) => {
         calculatedTotalAmount !== parseFloat(booking.total_amount),
       review: booking.review_id
         ? {
-            id: booking.review_id,
-            rating: booking.review_rating,
-            comment: booking.review_comment,
-            createdAt: booking.review_created_at,
-          }
+          id: booking.review_id,
+          rating: booking.review_rating,
+          comment: booking.review_comment,
+          createdAt: booking.review_created_at,
+        }
         : null,
     };
 
@@ -1104,11 +1104,11 @@ const assignCleanerToBooking = async (req, res) => {
     const updateParams =
       req.user.role === "admin"
         ? [
-            cleanerId,
-            "confirmed",
-            id,
-            overrideReason || "Manual admin assignment",
-          ]
+          cleanerId,
+          "confirmed",
+          id,
+          overrideReason || "Manual admin assignment",
+        ]
         : [cleanerId, updateStatus, id];
 
     await client.query(updateQuery, updateParams);
@@ -1310,10 +1310,10 @@ const getCleanerRecommendationsForBooking = async (req, res) => {
           cleaner.zip_priority === 1
             ? "exact"
             : cleaner.zip_priority === 2
-            ? "area"
-            : cleaner.zip_priority === 3
-            ? "region"
-            : "distant",
+              ? "area"
+              : cleaner.zip_priority === 3
+                ? "region"
+                : "distant",
         priorityScore: cleaner.priorityScore,
         availability: {
           isAvailable: cleaner.is_available,
@@ -1757,8 +1757,8 @@ const getBookingAssignmentStatus = async (req, res) => {
             cleaner.zip_priority === 1
               ? "exact"
               : cleaner.zip_priority === 2
-              ? "area"
-              : "distant",
+                ? "area"
+                : "distant",
           currentJobs: cleaner.current_active_jobs || 0,
         }));
       } catch (error) {
@@ -1781,12 +1781,12 @@ const getBookingAssignmentStatus = async (req, res) => {
         },
         cleaner: booking.cleaner_id
           ? {
-              id: booking.cleaner_id,
-              name: `${booking.cleaner_first_name} ${booking.cleaner_last_name}`,
-              phone: booking.cleaner_phone,
-              rating: booking.cleaner_rating || 0,
-              totalJobs: booking.cleaner_total_jobs || 0,
-            }
+            id: booking.cleaner_id,
+            name: `${booking.cleaner_first_name} ${booking.cleaner_last_name}`,
+            phone: booking.cleaner_phone,
+            rating: booking.cleaner_rating || 0,
+            totalJobs: booking.cleaner_total_jobs || 0,
+          }
           : null,
         location: {
           address: booking.address,
@@ -1818,20 +1818,20 @@ const getBookingAssignmentStatus = async (req, res) => {
 };
 
 /**
- * @desc    Get nearby cleaners for a specific booking after payment
- * @route   GET /api/bookings/:id/nearby-cleaners
+ * @desc    Get nearby cleaners for a specific booking
+ * @route   GET /api/bookings/:id/nearby-cleaners?radius=200&serviceType=deep&minRating=4
  * @access  Private
+ * @note    Location data (latitude, longitude, zipcode) is taken from the booking record
+ *          Only the booking ID is required as a parameter
+ *          Query parameters: radius (default: 200), serviceType, minRating (default: 0)
  */
 const getNearbyCleanersForBooking = async (req, res) => {
   try {
     const { id } = req.params;
-    const { 
-      latitude, 
-      longitude, 
-      zipCode, 
-      radius = 20, 
+    const {
+      radius = 200,
       serviceType,
-      minRating = 0 
+      minRating = 0
     } = req.query;
 
     // Get booking details and verify it belongs to the user or user is admin
@@ -1863,12 +1863,7 @@ const getNearbyCleanersForBooking = async (req, res) => {
       });
     }
 
-    // Note: Temporarily allowing cleaner selection for all booking statuses for testing
-    // In production, you might want to ensure payment is completed
-    console.log("Booking payment status:", booking.payment_status);
-    
-    // Ensure payment is completed before showing cleaners (commented out for testing)
-    /*
+
     if (booking.payment_status !== "paid") {
       return res.status(400).json({
         success: false,
@@ -1876,72 +1871,67 @@ const getNearbyCleanersForBooking = async (req, res) => {
         paymentStatus: booking.payment_status,
       });
     }
-    */
+
+    // Note: Temporarily allowing cleaner selection for all booking statuses for testing
+    // In production, you might want to ensure payment is completed
+    console.log("Booking payment status:", booking.payment_status);
+
+
+    if (booking.payment_status !== "paid") {
+      return res.status(400).json({
+        success: false,
+        error: "Payment must be completed before viewing available cleaners",
+        paymentStatus: booking.payment_status,
+      });
+    }
 
     let customerLat, customerLng, searchMethod, geocodedAddress;
 
-    // Priority 1: Use provided latitude and longitude if available
-    if (latitude && longitude) {
-      customerLat = parseFloat(latitude);
-      customerLng = parseFloat(longitude);
-
-      if (isNaN(customerLat) || isNaN(customerLng)) {
-        return res.status(400).json({
-          success: false,
-          error: "Invalid latitude or longitude format",
-        });
-      }
-
-      searchMethod = "coordinates";
-    }
-    // Priority 2: Use booking coordinates if available
-    else if (booking.latitude && booking.longitude) {
+    // Priority 1: Use booking coordinates if available
+    if (booking.latitude && booking.longitude) {
       customerLat = parseFloat(booking.latitude);
       customerLng = parseFloat(booking.longitude);
       searchMethod = "booking_coordinates";
       console.log("Using booking coordinates:", customerLat, customerLng);
     }
-    // Priority 3: Use zipcode (provided or from booking)
-    else if (zipCode || booking.zip_code) {
-      const searchZipCode = zipCode || booking.zip_code;
-      
+    // Priority 2: Use booking zipcode and geocode it
+    else if (booking.zip_code) {
+      const searchZipCode = booking.zip_code;
+
       if (!isZipCode(searchZipCode)) {
         return res.status(400).json({
           success: false,
-          error: "Invalid zipcode format. Please provide a valid US zipcode (e.g., 07094) or Canadian postal code.",
+          error: "Invalid zipcode format in booking. Please contact support.",
         });
       }
 
       try {
-        console.log(`Geocoding zipcode: ${searchZipCode}`);
+        console.log(`Geocoding booking zipcode: ${searchZipCode}`);
         const geocodeResult = await geocodeAddress(searchZipCode);
 
         customerLat = geocodeResult.latitude;
         customerLng = geocodeResult.longitude;
         geocodedAddress = geocodeResult.formattedAddress;
-        searchMethod = "geocoded";
+        searchMethod = "geocoded_booking_zipcode";
 
         console.log(
-          `Geocoded ${searchZipCode} to coordinates: ${customerLat}, ${customerLng}`
+          `Geocoded booking zipcode ${searchZipCode} to coordinates: ${customerLat}, ${customerLng}`
         );
       } catch (geocodeError) {
         console.error("Geocoding error:", geocodeError.message);
         return res.status(400).json({
           success: false,
-          error: `Unable to geocode zipcode: ${geocodeError.message}`,
-          details: "Please check the zipcode or provide latitude and longitude instead.",
+          error: `Unable to geocode booking zipcode: ${geocodeError.message}`,
+          details: "Please contact support to update booking location information.",
         });
       }
     }
-    // No location data available
+    // No location data available in booking
     else {
       return res.status(400).json({
         success: false,
         error: "No location data available for this booking",
-        examples: {
-          coordinates: "?latitude=40.7128&longitude=-74.0060&radius=20",
-          zipcode: "?zipCode=07094&radius=20",
-        },
+        details: "Booking must have either coordinates or a valid zipcode to find nearby cleaners.",
       });
     }
 
@@ -1996,7 +1986,7 @@ const getNearbyCleanersForBooking = async (req, res) => {
       WHERE cp.is_available = true 
         AND cp.current_latitude IS NOT NULL 
         AND cp.current_longitude IS NOT NULL
-        AND cp.last_location_update > (CURRENT_TIMESTAMP - INTERVAL '3 minutes')
+        AND cp.last_location_update > (CURRENT_TIMESTAMP - INTERVAL '3 hours')
         AND cp.rating >= $3
         AND (
           6371 * acos(
@@ -2022,42 +2012,55 @@ const getNearbyCleanersForBooking = async (req, res) => {
       LIMIT 50
     `;
 
+    console.log("Executing nearby cleaners query with params:", queryParams);
+    console.log("Base query:", baseQuery);
     const result = await query(baseQuery, queryParams);
 
     // Transform the data for frontend - using the same structure as getNearbyCleaners
-    const availableCleaners = result.rows.map((cleaner) => ({
-      id: cleaner.user_id,
-      firstName: cleaner.first_name,
-      lastName: cleaner.last_name,
-      email: cleaner.email,
-      phone: cleaner.phone,
-      profileImage: cleaner.profile_image,
-      bio: cleaner.bio,
-      experienceYears: cleaner.experience_years,
-      hourlyRate: cleaner.hourly_rate,
-      rating: parseFloat(cleaner.rating) || 0,
-      totalJobs: cleaner.total_jobs || 0,
-      serviceRadius: cleaner.service_radius,
-      certifications: cleaner.certifications,
-      distanceKm: parseFloat(cleaner.distance_km).toFixed(2),
-      minutesSinceLastUpdate: Math.round(
-        cleaner.minutes_since_last_update || 0
-      ),
-      isOnline: cleaner.minutes_since_last_update <= 3,
-      location: {
-        latitude: cleaner.current_latitude,
-        longitude: cleaner.current_longitude,
-        lastUpdate: cleaner.last_location_update,
-      },
-    }));
+    const availableCleaners = result.rows.map((cleaner) => {
+      const distanceKm = parseFloat(cleaner.distance_km);
+      const minutesSinceLastUpdate = Math.round(cleaner.minutes_since_last_update || 0);
 
-    // Get count by distance ranges for analytics - same as getNearbyCleaners
+      return {
+        id: cleaner.user_id,
+        firstName: cleaner.first_name,
+        lastName: cleaner.last_name,
+        email: cleaner.email,
+        phone: cleaner.phone,
+        profileImage: cleaner.profile_image,
+        bio: cleaner.bio,
+        experienceYears: cleaner.experience_years,
+        hourlyRate: cleaner.hourly_rate,
+        rating: parseFloat(cleaner.rating) || 0,
+        totalJobs: cleaner.total_jobs || 0,
+        serviceRadius: cleaner.service_radius,
+        certifications: cleaner.certifications,
+        distanceKm: distanceKm.toFixed(2),
+        minutesSinceLastUpdate: minutesSinceLastUpdate,
+        isOnline: minutesSinceLastUpdate <= 180, // 3 hours = 180 minutes
+        isAvailable: true, // Already filtered for available cleaners in query
+        hasGPSLocation: cleaner.current_latitude && cleaner.current_longitude,
+        distanceCategory: distanceKm <= 5 ? 'very_close' : distanceKm <= 20 ? 'nearby' : 'distant',
+        zipCode: cleaner.zip_code, // Include cleaner's zip code
+        location: {
+          latitude: cleaner.current_latitude,
+          longitude: cleaner.current_longitude,
+          lastUpdate: cleaner.last_location_update,
+        },
+      };
+    });
+
+    // Get count by distance ranges for analytics - updated for wider search radius
     const distanceStats = {
       within5km: availableCleaners.filter((c) => parseFloat(c.distanceKm) <= 5)
         .length,
-      within10km: availableCleaners.filter((c) => parseFloat(c.distanceKm) <= 10)
-        .length,
       within20km: availableCleaners.filter((c) => parseFloat(c.distanceKm) <= 20)
+        .length,
+      within50km: availableCleaners.filter((c) => parseFloat(c.distanceKm) <= 50)
+        .length,
+      within100km: availableCleaners.filter((c) => parseFloat(c.distanceKm) <= 100)
+        .length,
+      within200km: availableCleaners.filter((c) => parseFloat(c.distanceKm) <= 200)
         .length,
       total: availableCleaners.length,
     };
@@ -2090,9 +2093,10 @@ const getNearbyCleanersForBooking = async (req, res) => {
         radiusKm,
         serviceType: serviceType || "all",
         minRating: minRatingValue,
-        searchMethod, // "coordinates", "booking_coordinates", or "geocoded"
-        ...(searchMethod === "geocoded" && {
-          originalZipCode: zipCode || booking.zip_code,
+        searchMethod, // "booking_coordinates" or "geocoded_booking_zipcode"
+        locationSource: "booking", // Always from booking data
+        ...(searchMethod === "geocoded_booking_zipcode" && {
+          originalZipCode: booking.zip_code,
           geocodedAddress: geocodedAddress,
         }),
       },
