@@ -16,9 +16,10 @@ const MEMBERSHIP_PLANS = {
     fee: 36.90,
     duration: 30, // days
     tier: "moon",
+    discountPercentage: 15.0, // Service discount percentage
     discountRange: { min: 18, max: 22 },
     features: [
-      "Discounts on services between $18-$22",
+      "15% discounts on services between $18-$22",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -42,9 +43,10 @@ const MEMBERSHIP_PLANS = {
     duration: 90, // days
     tier: "moon",
     discount: 10,
+    discountPercentage: 15.0, // Service discount percentage
     discountRange: { min: 18, max: 22 },
     features: [
-      "Discounts on services between $18-$22",
+      "15% discounts on services between $18-$22",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -70,9 +72,10 @@ const MEMBERSHIP_PLANS = {
     duration: 180, // days
     tier: "moon",
     discount: 15,
+    discountPercentage: 15.0, // Service discount percentage
     discountRange: { min: 18, max: 22 },
     features: [
-      "Discounts on services between $18-$22",
+      "15% discounts on services between $18-$22",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -98,9 +101,10 @@ const MEMBERSHIP_PLANS = {
     duration: 365, // days
     tier: "moon",
     discount: 20,
+    discountPercentage: 15.0, // Service discount percentage
     discountRange: { min: 18, max: 22 },
     features: [
-      "Discounts on services between $18-$22",
+      "15% discounts on services between $18-$22",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -128,9 +132,10 @@ const MEMBERSHIP_PLANS = {
     fee: 63.90,
     duration: 30, // days
     tier: "star",
+    discountPercentage: 20.0, // Service discount percentage
     discountRange: { min: 18, max: 32 },
     features: [
-      "Discounts on services between $18-$32",
+      "20% discounts on services between $18-$32",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -155,9 +160,10 @@ const MEMBERSHIP_PLANS = {
     duration: 90, // days
     tier: "star",
     discount: 10,
+    discountPercentage: 20.0, // Service discount percentage
     discountRange: { min: 18, max: 32 },
     features: [
-      "Discounts on services between $18-$32",
+      "20% discounts on services between $18-$32",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -184,9 +190,10 @@ const MEMBERSHIP_PLANS = {
     duration: 180, // days
     tier: "star",
     discount: 15,
+    discountPercentage: 20.0, // Service discount percentage
     discountRange: { min: 18, max: 32 },
     features: [
-      "Discounts on services between $18-$32",
+      "20% discounts on services between $18-$32",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -213,9 +220,10 @@ const MEMBERSHIP_PLANS = {
     duration: 365, // days
     tier: "star",
     discount: 20,
+    discountPercentage: 20.0, // Service discount percentage
     discountRange: { min: 18, max: 32 },
     features: [
-      "Discounts on services between $18-$32",
+      "20% discounts on services between $18-$32",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -244,9 +252,10 @@ const MEMBERSHIP_PLANS = {
     fee: 96.30,
     duration: 30, // days
     tier: "sun",
+    discountPercentage: 25.0, // Service discount percentage
     discountRange: { min: 18, max: 45 },
     features: [
-      "Discounts on services between $18-$45",
+      "25% discounts on services between $18-$45",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -272,9 +281,10 @@ const MEMBERSHIP_PLANS = {
     duration: 90, // days
     tier: "sun",
     discount: 10,
+    discountPercentage: 25.0, // Service discount percentage
     discountRange: { min: 18, max: 45 },
     features: [
-      "Discounts on services between $18-$45",
+      "25% discounts on services between $18-$45",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -302,9 +312,10 @@ const MEMBERSHIP_PLANS = {
     duration: 180, // days
     tier: "sun",
     discount: 15,
+    discountPercentage: 25.0, // Service discount percentage
     discountRange: { min: 18, max: 45 },
     features: [
-      "Discounts on services between $18-$45",
+      "25% discounts on services between $18-$45",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -332,9 +343,10 @@ const MEMBERSHIP_PLANS = {
     duration: 365, // days
     tier: "sun",
     discount: 20,
+    discountPercentage: 25.0, // Service discount percentage
     discountRange: { min: 18, max: 45 },
     features: [
-      "Discounts on services between $18-$45",
+      "25% discounts on services between $18-$45",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
@@ -1259,22 +1271,8 @@ const calculateMembershipDiscount = (membershipTier, servicePrice) => {
   
   // Check if service price falls within the discount range
   if (servicePrice >= min && servicePrice <= max) {
-    // For Comfort Life plans, we can apply a percentage discount
-    // This can be customized based on your business logic
-    let discountPercentage = 15; // Default 15% discount for eligible services
-    
-    // You can customize discount percentages based on tier
-    switch (plan.tier) {
-      case 'moon':
-        discountPercentage = 15;
-        break;
-      case 'star':
-        discountPercentage = 20;
-        break;
-      case 'sun':
-        discountPercentage = 25;
-        break;
-    }
+    // Use the discount percentage from the plan
+    const discountPercentage = plan.discountPercentage || 15; // Default 15% if not specified
 
     const discountAmount = servicePrice * (discountPercentage / 100);
     const discountedPrice = servicePrice - discountAmount;
