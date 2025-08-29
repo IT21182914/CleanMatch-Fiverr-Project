@@ -8,55 +8,350 @@ const {
 
 // CleanMatch membership plans configuration
 const MEMBERSHIP_PLANS = {
-  // Monthly Plans
-  supersaver_month: {
-    name: "SuperSaver Monthly",
-    monthlyFee: 49.0,
-    fee: 49.0,
+  // Comfort Life Moon Plans
+  moon_1_month: {
+    name: "Comfort Life Moon",
+    subtitle: "1 Month",
+    monthlyFee: 36.90,
+    fee: 36.90,
     duration: 30, // days
-    discountPercentage: 50.0,
+    tier: "moon",
+    discountRange: { min: 18, max: 22 },
     features: [
-      "50% discount on all cleaning services",
+      "Discounts on services between $18-$22",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
       "Flexible scheduling",
       "30-day access",
     ],
-    popular: true,
-    tagline: "Save 50% on every service",
-    badge: "Most Popular",
+    tagline: "Affordable monthly protection",
     canBeRecurring: true,
     recurringInterval: 'month',
     stripePriceIds: {
-      recurring: process.env.STRIPE_SUPERSAVER_PRICE_ID_RECURRENT_MONTH,
-      oneTime: process.env.STRIPE_SUPERSAVER_PRICE_ID_ONE_TIME_MONTH
+      recurring: process.env.STRIPE_MOON_1_MONTH_RECURRING,
+      oneTime: process.env.STRIPE_MOON_1_MONTH_ONETIME
     }
   },
-
-  // Annual Plans
-  supersaver_year: {
-    name: "SuperSaver Annual",
-    monthlyFee: 499.0 / 12, // For display purposes
-    fee: 499.0,
-    duration: 365, // days
-    discountPercentage: 50.0,
+  moon_3_months: {
+    name: "Comfort Life Moon",
+    subtitle: "3 Months",
+    monthlyFee: 33.21, // 99.63 / 3
+    fee: 99.63,
+    originalFee: 110.70,
+    duration: 90, // days
+    tier: "moon",
+    discount: 10,
+    discountRange: { min: 18, max: 22 },
     features: [
-      "50% discount on all cleaning services",
+      "Discounts on services between $18-$22",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "90-day access",
+      "10% discount applied",
+    ],
+    tagline: "Save 10% with quarterly plan",
+    badge: "Save 10%",
+    canBeRecurring: true,
+    recurringInterval: 'quarter',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_MOON_3_MONTHS_RECURRING,
+      oneTime: process.env.STRIPE_MOON_3_MONTHS_ONETIME
+    }
+  },
+  moon_6_months: {
+    name: "Comfort Life Moon",
+    subtitle: "6 Months",
+    monthlyFee: 31.37, // 188.19 / 6
+    fee: 188.19,
+    originalFee: 221.40,
+    duration: 180, // days
+    tier: "moon",
+    discount: 15,
+    discountRange: { min: 18, max: 22 },
+    features: [
+      "Discounts on services between $18-$22",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "180-day access",
+      "15% discount applied",
+    ],
+    tagline: "Save 15% with semi-annual plan",
+    badge: "Save 15%",
+    canBeRecurring: true,
+    recurringInterval: 'semiannual',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_MOON_6_MONTHS_RECURRING,
+      oneTime: process.env.STRIPE_MOON_6_MONTHS_ONETIME
+    }
+  },
+  moon_12_months: {
+    name: "Comfort Life Moon",
+    subtitle: "12 Months",
+    monthlyFee: 29.52, // 354.24 / 12
+    fee: 354.24,
+    originalFee: 442.80,
+    duration: 365, // days
+    tier: "moon",
+    discount: 20,
+    discountRange: { min: 18, max: 22 },
+    features: [
+      "Discounts on services between $18-$22",
       "Priority booking",
       "24/7 customer support",
       "Service guarantee",
       "Flexible scheduling",
       "365-day access",
-      "Best value"
+      "20% discount applied",
+      "Best value",
     ],
-    tagline: "Save 50% on every service for a full year",
+    tagline: "Maximum savings with annual plan",
     badge: "Best Value",
+    popular: true,
     canBeRecurring: true,
     recurringInterval: 'year',
     stripePriceIds: {
-      recurring: process.env.STRIPE_SUPERSAVER_PRICE_ID_RECURRENT_YEAR,
-      oneTime: process.env.STRIPE_SUPERSAVER_PRICE_ID_ONE_TIME_YEAR
+      recurring: process.env.STRIPE_MOON_12_MONTHS_RECURRING,
+      oneTime: process.env.STRIPE_MOON_12_MONTHS_ONETIME
+    }
+  },
+
+  // Comfort Life Star Plans
+  star_1_month: {
+    name: "Comfort Life Star",
+    subtitle: "1 Month",
+    monthlyFee: 63.90,
+    fee: 63.90,
+    duration: 30, // days
+    tier: "star",
+    discountRange: { min: 18, max: 32 },
+    features: [
+      "Discounts on services between $18-$32",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "30-day access",
+      "Extended service range",
+    ],
+    tagline: "Enhanced monthly protection",
+    canBeRecurring: true,
+    recurringInterval: 'month',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_STAR_1_MONTH_RECURRING,
+      oneTime: process.env.STRIPE_STAR_1_MONTH_ONETIME
+    }
+  },
+  star_3_months: {
+    name: "Comfort Life Star",
+    subtitle: "3 Months",
+    monthlyFee: 57.51, // 172.53 / 3
+    fee: 172.53,
+    originalFee: 191.70,
+    duration: 90, // days
+    tier: "star",
+    discount: 10,
+    discountRange: { min: 18, max: 32 },
+    features: [
+      "Discounts on services between $18-$32",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "90-day access",
+      "Extended service range",
+      "10% discount applied",
+    ],
+    tagline: "Save 10% with quarterly plan",
+    badge: "Save 10%",
+    canBeRecurring: true,
+    recurringInterval: 'quarter',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_STAR_3_MONTHS_RECURRING,
+      oneTime: process.env.STRIPE_STAR_3_MONTHS_ONETIME
+    }
+  },
+  star_6_months: {
+    name: "Comfort Life Star",
+    subtitle: "6 Months",
+    monthlyFee: 54.30, // 325.77 / 6
+    fee: 325.77,
+    originalFee: 383.40,
+    duration: 180, // days
+    tier: "star",
+    discount: 15,
+    discountRange: { min: 18, max: 32 },
+    features: [
+      "Discounts on services between $18-$32",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "180-day access",
+      "Extended service range",
+      "15% discount applied",
+    ],
+    tagline: "Save 15% with semi-annual plan",
+    badge: "Save 15%",
+    canBeRecurring: true,
+    recurringInterval: 'semiannual',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_STAR_6_MONTHS_RECURRING,
+      oneTime: process.env.STRIPE_STAR_6_MONTHS_ONETIME
+    }
+  },
+  star_12_months: {
+    name: "Comfort Life Star",
+    subtitle: "12 Months",
+    monthlyFee: 51.12, // 613.44 / 12
+    fee: 613.44,
+    originalFee: 766.80,
+    duration: 365, // days
+    tier: "star",
+    discount: 20,
+    discountRange: { min: 18, max: 32 },
+    features: [
+      "Discounts on services between $18-$32",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "365-day access",
+      "Extended service range",
+      "20% discount applied",
+      "Best value",
+    ],
+    tagline: "Maximum savings with annual plan",
+    badge: "Most Popular",
+    popular: true,
+    canBeRecurring: true,
+    recurringInterval: 'year',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_STAR_12_MONTHS_RECURRING,
+      oneTime: process.env.STRIPE_STAR_12_MONTHS_ONETIME
+    }
+  },
+
+  // Comfort Life Sun Plans
+  sun_1_month: {
+    name: "Comfort Life Sun",
+    subtitle: "1 Month",
+    monthlyFee: 96.30,
+    fee: 96.30,
+    duration: 30, // days
+    tier: "sun",
+    discountRange: { min: 18, max: 45 },
+    features: [
+      "Discounts on services between $18-$45",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "30-day access",
+      "Premium service range",
+      "Concierge support",
+    ],
+    tagline: "Premium monthly protection",
+    canBeRecurring: true,
+    recurringInterval: 'month',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_SUN_1_MONTH_RECURRING,
+      oneTime: process.env.STRIPE_SUN_1_MONTH_ONETIME
+    }
+  },
+  sun_3_months: {
+    name: "Comfort Life Sun",
+    subtitle: "3 Months",
+    monthlyFee: 86.67, // 260.01 / 3
+    fee: 260.01,
+    originalFee: 288.90,
+    duration: 90, // days
+    tier: "sun",
+    discount: 10,
+    discountRange: { min: 18, max: 45 },
+    features: [
+      "Discounts on services between $18-$45",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "90-day access",
+      "Premium service range",
+      "Concierge support",
+      "10% discount applied",
+    ],
+    tagline: "Save 10% with quarterly plan",
+    badge: "Save 10%",
+    canBeRecurring: true,
+    recurringInterval: 'quarter',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_SUN_3_MONTHS_RECURRING,
+      oneTime: process.env.STRIPE_SUN_3_MONTHS_ONETIME
+    }
+  },
+  sun_6_months: {
+    name: "Comfort Life Sun",
+    subtitle: "6 Months",
+    monthlyFee: 81.89, // 491.31 / 6
+    fee: 491.31,
+    originalFee: 577.80,
+    duration: 180, // days
+    tier: "sun",
+    discount: 15,
+    discountRange: { min: 18, max: 45 },
+    features: [
+      "Discounts on services between $18-$45",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "180-day access",
+      "Premium service range",
+      "Concierge support",
+      "15% discount applied",
+    ],
+    tagline: "Save 15% with semi-annual plan",
+    badge: "Save 15%",
+    canBeRecurring: true,
+    recurringInterval: 'semiannual',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_SUN_6_MONTHS_RECURRING,
+      oneTime: process.env.STRIPE_SUN_6_MONTHS_ONETIME
+    }
+  },
+  sun_12_months: {
+    name: "Comfort Life Sun",
+    subtitle: "12 Months",
+    monthlyFee: 77.08, // 924.96 / 12
+    fee: 924.96,
+    originalFee: 1155.60,
+    duration: 365, // days
+    tier: "sun",
+    discount: 20,
+    discountRange: { min: 18, max: 45 },
+    features: [
+      "Discounts on services between $18-$45",
+      "Priority booking",
+      "24/7 customer support",
+      "Service guarantee",
+      "Flexible scheduling",
+      "365-day access",
+      "Premium service range",
+      "Concierge support",
+      "20% discount applied",
+      "Maximum coverage",
+    ],
+    tagline: "Ultimate protection with annual plan",
+    badge: "Premium",
+    canBeRecurring: true,
+    recurringInterval: 'year',
+    stripePriceIds: {
+      recurring: process.env.STRIPE_SUN_12_MONTHS_RECURRING,
+      oneTime: process.env.STRIPE_SUN_12_MONTHS_ONETIME
     }
   },
 };
@@ -88,7 +383,7 @@ const getMembershipPlans = async (req, res) => {
  */
 const subscribeToMembership = async (req, res) => {
   try {
-    const { tier = "supersaver_month", paymentMethodId, isRecurring = false } = req.body;
+    const { tier = "moon_1_month", paymentMethodId, isRecurring = false } = req.body;
 
     if (!MEMBERSHIP_PLANS[tier]) {
       return res.status(400).json({
@@ -106,26 +401,28 @@ const subscribeToMembership = async (req, res) => {
     if (existingMembership.rows.length > 0) {
       const currentTier = existingMembership.rows[0].tier;
 
-      // Allow upgrade from monthly to yearly plan, but not downgrade
-      if (currentTier === "supersaver_month" && tier === "supersaver_year") {
-        // Allow upgrade - we'll cancel the old subscription later in this function
-        console.log("Upgrading user from monthly to yearly plan");
-      } else if (currentTier === "supersaver_year" && tier === "supersaver_month") {
+      // Extract plan details for comparison
+      const currentPlan = MEMBERSHIP_PLANS[currentTier];
+      const newPlan = MEMBERSHIP_PLANS[tier];
+
+      // Prevent downgrade from annual to monthly for any tier
+      if (currentTier.includes("12_months") && tier.includes("1_month")) {
         return res.status(400).json({
           success: false,
           error: "Cannot downgrade from annual to monthly plan while annual plan is active",
         });
-      } else if (currentTier === tier) {
+      }
+      
+      // Allow same user to have same plan (for plan renewals/extensions)
+      if (currentTier === tier) {
         return res.status(400).json({
           success: false,
           error: "User already has this membership tier active",
         });
-      } else {
-        return res.status(400).json({
-          success: false,
-          error: "User already has an active membership",
-        });
       }
+
+      // Allow upgrades and plan changes
+      console.log(`User changing from ${currentTier} to ${tier}`);
     }
 
     // Get user details
@@ -147,12 +444,9 @@ const subscribeToMembership = async (req, res) => {
     const plan = MEMBERSHIP_PLANS[tier];
     let stripePayment, membershipResult;
 
-    // Handle case where user is upgrading from monthly to annual plan
-    if (existingMembership?.rows?.length > 0 &&
-      existingMembership.rows[0].tier === "supersaver_month" &&
-      tier === "supersaver_year") {
-
-      // Cancel the current monthly subscription in Stripe
+    // Handle case where user is upgrading/changing plan
+    if (existingMembership?.rows?.length > 0) {
+      // Cancel the current subscription in Stripe if it exists
       const currentSubscriptionId = existingMembership.rows[0].stripe_subscription_id;
       try {
         await stripe.subscriptions.cancel(currentSubscriptionId, {
@@ -942,6 +1236,68 @@ const activateMembership = async (req, res) => {
   }
 };
 
+/**
+ * Calculate membership discount for a service
+ * @param {string} membershipTier - The membership tier (e.g., 'moon_1_month')
+ * @param {number} servicePrice - The base price of the service
+ * @returns {object} - { isEligible: boolean, discountedPrice: number, originalPrice: number }
+ */
+const calculateMembershipDiscount = (membershipTier, servicePrice) => {
+  const plan = MEMBERSHIP_PLANS[membershipTier];
+  
+  if (!plan || !plan.discountRange) {
+    return {
+      isEligible: false,
+      discountedPrice: servicePrice,
+      originalPrice: servicePrice,
+      discountAmount: 0,
+      message: "No membership discount available"
+    };
+  }
+
+  const { min, max } = plan.discountRange;
+  
+  // Check if service price falls within the discount range
+  if (servicePrice >= min && servicePrice <= max) {
+    // For Comfort Life plans, we can apply a percentage discount
+    // This can be customized based on your business logic
+    let discountPercentage = 15; // Default 15% discount for eligible services
+    
+    // You can customize discount percentages based on tier
+    switch (plan.tier) {
+      case 'moon':
+        discountPercentage = 15;
+        break;
+      case 'star':
+        discountPercentage = 20;
+        break;
+      case 'sun':
+        discountPercentage = 25;
+        break;
+    }
+
+    const discountAmount = servicePrice * (discountPercentage / 100);
+    const discountedPrice = servicePrice - discountAmount;
+
+    return {
+      isEligible: true,
+      discountedPrice: Math.round(discountedPrice * 100) / 100, // Round to 2 decimal places
+      originalPrice: servicePrice,
+      discountAmount: Math.round(discountAmount * 100) / 100,
+      discountPercentage,
+      message: `${discountPercentage}% membership discount applied`
+    };
+  }
+
+  return {
+    isEligible: false,
+    discountedPrice: servicePrice,
+    originalPrice: servicePrice,
+    discountAmount: 0,
+    message: `Service price $${servicePrice} is outside discount range ($${min}-$${max})`
+  };
+};
+
 module.exports = {
   getMembershipPlans,
   subscribeToMembership,
@@ -954,5 +1310,6 @@ module.exports = {
   getMembershipAnalytics,
   getAllMemberships,
   activateMembership,
+  calculateMembershipDiscount,
   MEMBERSHIP_PLANS,
 };

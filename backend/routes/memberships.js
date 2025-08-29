@@ -12,6 +12,7 @@ const {
   getMembershipAnalytics,
   getAllMemberships,
   activateMembership,
+  calculateMembershipDiscount,
 } = require("../controllers/membershipController");
 
 const router = express.Router();
@@ -52,6 +53,35 @@ router.put("/payment-method", auth, authorize("customer"), updatePaymentMethod);
 // @desc    Activate membership after successful payment
 // @access  Private (Customers only)
 router.put("/activate", auth, authorize("customer"), activateMembership);
+
+// @route   POST /api/memberships/calculate-discount
+// @desc    Calculate discount for a service price
+// @access  Public
+router.post("/calculate-discount", (req, res) => {
+  try {
+    const { membershipTier, servicePrice } = req.body;
+    
+    if (!membershipTier || !servicePrice) {
+      return res.status(400).json({
+        success: false,
+        error: "membershipTier and servicePrice are required",
+      });
+    }
+
+    const discount = calculateMembershipDiscount(membershipTier, servicePrice);
+    
+    res.json({
+      success: true,
+      discount,
+    });
+  } catch (error) {
+    console.error("Calculate discount error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error calculating discount",
+    });
+  }
+});
 
 // @route   POST /api/memberships/calculate-pricing
 // @desc    Calculate pricing with membership discount

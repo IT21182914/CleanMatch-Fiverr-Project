@@ -25,7 +25,9 @@ import { useMembership } from "../../hooks/useMembership";
 
 const MembershipSubscription = () => {
   const [plans, setPlans] = useState({});
-  const [selectedTier, setSelectedTier] = useState("supersaver_month");
+  const [selectedTier, setSelectedTier] = useState("moon_1_month");
+  const [selectedPlanTier, setSelectedPlanTier] = useState("moon"); // moon, star, sun
+  const [selectedDuration, setSelectedDuration] = useState("1_month"); // 1_month, 3_months, 6_months, 12_months
   const [isRecurring, setIsRecurring] = useState(false);
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(false);
@@ -41,9 +43,11 @@ const MembershipSubscription = () => {
       const response = await membershipAPI.getPlans();
       setPlans(response.data.plans);
 
-      // Default to supersaver_month if available
-      if (response.data.plans.supersaver_month) {
-        setSelectedTier("supersaver_month");
+      // Default to moon_1_month if available
+      if (response.data.plans.moon_1_month) {
+        setSelectedTier("moon_1_month");
+        setSelectedPlanTier("moon");
+        setSelectedDuration("1_month");
       }
     } catch (error) {
       console.error("Error fetching plans:", error);
@@ -57,10 +61,23 @@ const MembershipSubscription = () => {
     fetchPlans();
   }, [fetchPlans]);
   
+  // Update selected tier based on plan tier and duration
+  useEffect(() => {
+    const tierKey = `${selectedPlanTier}_${selectedDuration}`;
+    if (plans[tierKey]) {
+      setSelectedTier(tierKey);
+    }
+  }, [selectedPlanTier, selectedDuration, plans]);
+  
   // Update selected tier if user has an active membership
   useEffect(() => {
     if (membership?.status === "active" && plans[membership.tier]) {
       setSelectedTier(membership.tier);
+      // Extract tier and duration from membership.tier
+      const [tier, duration] = membership.tier.split('_');
+      const durationPart = membership.tier.replace(`${tier}_`, '');
+      setSelectedPlanTier(tier);
+      setSelectedDuration(durationPart);
     }
   }, [membership, plans]);
 
@@ -85,20 +102,22 @@ const MembershipSubscription = () => {
         }
         
         // Case 2: User is trying to downgrade from annual to monthly
-        if (membership.tier === "supersaver_year" && selectedTier === "supersaver_month") {
+        if (membership.tier.includes("12_months") && selectedTier.includes("1_month")) {
           setError("You cannot downgrade from annual to monthly plan while your annual plan is active. You may cancel your annual plan and subscribe to monthly after it expires.");
           setSubscribing(false);
           return;
         }
         
-        // Case 3: User is upgrading from monthly to annual - this is allowed
-        if (membership.tier === "supersaver_month" && selectedTier === "supersaver_year") {
-          // Show a confirmation dialog
-          if (!window.confirm("You are about to upgrade from a monthly to an annual plan. Your current monthly plan will be cancelled. Do you want to continue?")) {
+        // Case 3: User is upgrading - this is allowed for same tier different duration or different tier
+        if (membership.tier !== selectedTier) {
+          // Show a confirmation dialog for tier changes
+          const currentPlan = plans[membership.tier];
+          const newPlan = plans[selectedTier];
+          if (!window.confirm(`You are about to change from ${currentPlan?.name} ${currentPlan?.subtitle} to ${newPlan?.name} ${newPlan?.subtitle}. Your current plan will be cancelled. Do you want to continue?`)) {
             setSubscribing(false);
             return;
           }
-          // If user confirms, proceed with the upgrade
+          // If user confirms, proceed with the change
         }
       }
 
@@ -173,41 +192,76 @@ const MembershipSubscription = () => {
   };
 
   const getTierIcon = (tier) => {
-    switch (tier) {
-      case "supersaver":
-        return <SparklesIcon className="h-8 w-8 text-orange-500" />;
-      case "gold":
-        return <FaCrown className="h-8 w-8 text-cyan-500" />;
-      case "premium":
-        return <FaStar className="h-8 w-8 text-purple-500" />;
+    const tierName = tier.split('_')[0];
+    switch (tierName) {
+      case "moon":
+        return <SparklesIcon className="h-8 w-8 text-blue-500" />;
+      case "star":
+        return <FaStar className="h-8 w-8 text-yellow-500" />;
+      case "sun":
+        return <FaCrown className="h-8 w-8 text-orange-500" />;
       default:
         return <FaCheckCircle className="h-8 w-8 text-blue-500" />;
     }
   };
 
   const getTierGradient = (tier) => {
-    switch (tier) {
-      case "supersaver":
-        return "from-orange-400 to-red-600";
-      case "gold":
-        return "from-cyan-400 to-cyan-600";
-      case "premium":
-        return "from-purple-400 to-purple-600";
+    const tierName = tier.split('_')[0];
+    switch (tierName) {
+      case "moon":
+        return "from-blue-400 to-blue-600";
+      case "star":
+        return "from-yellow-400 to-yellow-600";
+      case "sun":
+        return "from-orange-400 to-orange-600";
       default:
         return "from-blue-400 to-blue-600";
     }
   };
 
   const getTierColor = (tier) => {
-    switch (tier) {
-      case "supersaver":
+    const tierName = tier.split('_')[0];
+    switch (tierName) {
+      case "moon":
+        return "bg-blue-50 border-blue-200 text-blue-900";
+      case "star":
+        return "bg-yellow-50 border-yellow-200 text-yellow-900";
+      case "sun":
         return "bg-orange-50 border-orange-200 text-orange-900";
-      case "gold":
-        return "bg-cyan-50 border-cyan-200 text-cyan-900";
-      case "premium":
-        return "bg-purple-50 border-purple-200 text-purple-900";
       default:
         return "bg-blue-50 border-blue-200 text-blue-900";
+    }
+  };
+
+  const getPlansByTier = () => {
+    const plansByTier = {
+      moon: {},
+      star: {},
+      sun: {}
+    };
+
+    Object.entries(plans).forEach(([key, plan]) => {
+      const [tierName] = key.split('_');
+      if (plansByTier[tierName]) {
+        plansByTier[tierName][key] = plan;
+      }
+    });
+
+    return plansByTier;
+  };
+
+  const formatDuration = (duration) => {
+    switch (duration) {
+      case "1_month":
+        return "1 Month";
+      case "3_months":
+        return "3 Months";
+      case "6_months":
+        return "6 Months";
+      case "12_months":
+        return "12 Months";
+      default:
+        return duration;
     }
   };
 
@@ -329,15 +383,28 @@ const MembershipSubscription = () => {
                     {plan.isRecurring ? "Monthly fee:" : "One-time fee:"}
                   </span>
                   <span className="text-lg font-bold text-blue-600">
-                    ${selectedTier === 'supersaver_month' ? '49' : '499'}
+                    ${plan?.fee || 0}
                   </span>
                 </div>
+                {plan?.originalFee && (
+                  <div className="flex justify-between items-center mt-1">
+                    <span className="text-xs text-gray-500">Original price:</span>
+                    <span className="text-sm text-gray-500 line-through">
+                      ${plan.originalFee}
+                    </span>
+                  </div>
+                )}
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {plan.isRecurring 
-                    ? "Billed monthly. Cancel anytime." 
-                    : `Valid for ${plan.duration} days. No auto-renewal.`
+                  {plan?.isRecurring 
+                    ? `Billed every ${plan?.duration || 30} days. Cancel anytime.` 
+                    : `Valid for ${plan?.duration || 30} days. No auto-renewal.`
                   }
                 </p>
+                {plan?.discountRange && (
+                  <p className="text-xs text-blue-600 mt-1">
+                    Discounts apply to services between ${plan.discountRange.min}-${plan.discountRange.max}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -368,15 +435,17 @@ const MembershipSubscription = () => {
   }
 
   // Main plan selection view
+  const plansByTier = getPlansByTier();
+  
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div className="text-center">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
           Choose Your Membership Plan
         </h1>
         <p className="text-lg text-gray-600 mb-4">
-          Join CleanMatch and save up to 50% on all cleaning services
+          Join CleanMatch Comfort Life and get discounts on cleaning services
         </p>
       </div>
 
@@ -405,149 +474,181 @@ const MembershipSubscription = () => {
           </button>
         </div>
       </div>
-      
-      {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {Object.entries(plans).map(([tier, plan]) => {
-          // Check if this is the user's active membership
-          const isActive = membership?.tier === tier && membership?.status === "active";
-          
-          return (
-            <Card
-              key={tier}
-              className={`relative cursor-pointer transition-all duration-200 hover:shadow-lg border-2 ${
-                isActive 
-                  ? 'border-green-500 ring-2 ring-green-300' 
-                  : selectedTier === tier
-                    ? `border-${tier === 'supersaver_month' ? 'blue' : 'green'}-400 ring-2 ring-${tier === 'supersaver_month' ? 'blue' : 'green'}-300`
-                    : 'border-gray-200'
-              }`}
-              onClick={() => {
-                // Only allow selection if:
-                // 1. The plan is not already active
-                // 2. Not downgrading from annual to monthly
-                const isDowngrading = membership?.tier === "supersaver_year" && tier === "supersaver_month" && membership?.status === "active";
-                if (!isActive && !isDowngrading) {
-                  setSelectedTier(tier);
-                }
-              }}
-            >
-              {isActive && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    Current Active Plan
-                  </span>
-                </div>
-              )}
-              {/* Show upgrade badge for annual plan if user has monthly active */}
-              {tier === "supersaver_year" && membership?.tier === "supersaver_month" && membership?.status === "active" && !isActive && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    Upgrade Available
-                  </span>
-                </div>
-              )}
-              {/* Show locked badge for monthly plan if user has annual active */}
-              {tier === "supersaver_month" && membership?.tier === "supersaver_year" && membership?.status === "active" && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    Not Available
-                  </span>
-                </div>
-              )}
-              {tier === "premium" && !isActive && !membership?.status && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    Most Popular
-                  </span>
-                </div>
-              )}
 
-              <CardHeader className="text-center py-3">
-                <div className="flex justify-center mb-2">
-                  {getTierIcon(tier)}
+      {/* Plan Tier Selector */}
+      <div className="flex justify-center mb-6">
+        <div className="bg-white border rounded-xl p-2 flex shadow-lg max-w-md">
+          {["moon", "star", "sun"].map((tier) => {
+            const samplePlan = plans[`${tier}_1_month`];
+            return (
+              <button
+                key={tier}
+                className={`px-4 py-4 rounded-lg text-sm font-medium transition-all min-w-[100px] flex-1 ${
+                  selectedPlanTier === tier
+                    ? `bg-gradient-to-r ${getTierGradient(`${tier}_1_month`)} text-white shadow-lg transform scale-105`
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+                onClick={() => setSelectedPlanTier(tier)}
+              >
+                <div className="flex flex-col items-center space-y-1">
+                  <div className={`${selectedPlanTier === tier ? 'text-white' : ''}`}>
+                    {getTierIcon(`${tier}_1_month`)}
+                  </div>
+                  <span className="capitalize font-semibold text-sm">
+                    {tier === 'moon' ? 'Moon' : tier === 'star' ? 'Star' : 'Sun'}
+                  </span>
+                  <span className={`text-xs ${selectedPlanTier === tier ? 'text-white opacity-90' : 'text-gray-500'}`}>
+                    {samplePlan?.discountRange ? `$${samplePlan.discountRange.min}-$${samplePlan.discountRange.max}` : 'Loading...'}
+                  </span>
                 </div>
-                <CardTitle className="text-lg font-bold mb-0">
-                  {tier === 'supersaver_month' ? 'Monthly Plan' : 'Annual Plan'}
-                </CardTitle>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900 mb-1">
-                    ${tier === 'supersaver_month' ? '49' : '499'}
-                    <span className="text-sm font-normal text-gray-600">
-                      {isRecurring ? (tier === 'supersaver_month' ? '/mo' : '/yr') : ' one-time'}
-                    </span>
-                  </div>
-                  <div
-                    className={`inline-flex px-2 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r ${getTierGradient(
-                      tier
-                    )}`}
-                  >
-                    Save {plan.discountPercentage}% on services
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-0 pb-2">
-                <ul className="space-y-1">
-                  {plan.features.slice(0, 4).map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <CheckCircleIcon className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700 text-xs">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-
-              <CardFooter className="pt-0">
-                {isActive ? (
-                  <div className="w-full bg-green-500 text-white p-2 rounded-md text-center font-medium text-xs">
-                    Already Active
-                  </div>
-                ) : membership?.tier === "supersaver_year" && tier === "supersaver_month" && membership?.status === "active" ? (
-                  <div className="w-full bg-gray-500 text-white p-2 rounded-md text-center font-medium text-xs">
-                    Cannot Downgrade
-                  </div>
-                ) : membership?.tier === "supersaver_month" && tier === "supersaver_year" && membership?.status === "active" ? (
-                  <div className="w-full bg-blue-500 text-white p-2 rounded-md text-center font-medium text-xs">
-                    Upgrade Available
-                  </div>
-                ) : selectedTier === tier && (
-                  <div
-                    className={`w-full bg-gradient-to-r ${getTierGradient(
-                      tier
-                    )} text-white p-2 rounded-md text-center font-medium text-xs`}
-                  >
-                    Selected Plan
-                  </div>
-                )}
-              </CardFooter>
-            </Card>
-          );
-        })}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
+      {/* Duration Selector */}
+      <div className="flex justify-center mb-8">
+        <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 md:grid-cols-4 gap-2 max-w-4xl w-full">
+          {["1_month", "3_months", "6_months", "12_months"].map((duration) => {
+            const planKey = `${selectedPlanTier}_${duration}`;
+            const plan = plans[planKey];
+            if (!plan) return null;
+            
+            return (
+              <button
+                key={duration}
+                className={`p-4 rounded-lg text-sm font-medium transition-all ${
+                  selectedDuration === duration
+                    ? 'bg-white text-blue-600 shadow-lg border-2 border-blue-200'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-md'
+                }`}
+                onClick={() => setSelectedDuration(duration)}
+              >
+                <div className="text-center space-y-1">
+                  <div className="font-bold text-lg">{formatDuration(duration)}</div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    ${plan.fee}
+                  </div>
+                  {plan.originalFee && (
+                    <div className="text-sm text-gray-400 line-through">
+                      ${plan.originalFee}
+                    </div>
+                  )}
+                  {plan.discount && (
+                    <div className="inline-block bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">
+                      Save {plan.discount}%
+                    </div>
+                  )}
+                  {plan.popular && (
+                    <div className="inline-block bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-semibold">
+                      Most Popular
+                    </div>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      
+      {/* Selected Plan Details */}
+      {plans[selectedTier] && (
+        <div className="max-w-2xl mx-auto">
+          <Card className={`border-2 ${getTierColor(selectedTier)} shadow-lg`}>
+            {/* Check if this is the user's active membership */}
+            {membership?.tier === selectedTier && membership?.status === "active" && (
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                  Current Active Plan
+                </span>
+              </div>
+            )}
+            
+            <CardHeader className="text-center py-6">
+              <div className="flex justify-center mb-4">
+                {getTierIcon(selectedTier)}
+              </div>
+              <CardTitle className="text-2xl font-bold mb-2">
+                {plans[selectedTier].name}
+              </CardTitle>
+              <div className="text-lg text-gray-600 mb-3">
+                {plans[selectedTier].subtitle}
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-gray-900 mb-2">
+                  ${plans[selectedTier].fee}
+                  <span className="text-lg font-normal text-gray-600">
+                    {isRecurring ? ` / ${plans[selectedTier].duration} days` : ' one-time'}
+                  </span>
+                </div>
+                {plans[selectedTier].originalFee && (
+                  <div className="text-lg text-gray-500 line-through mb-2">
+                    Originally ${plans[selectedTier].originalFee}
+                  </div>
+                )}
+                <div
+                  className={`inline-flex px-3 py-1 rounded-full text-sm font-medium text-white bg-gradient-to-r ${getTierGradient(selectedTier)}`}
+                >
+                  Services ${plans[selectedTier].discountRange.min}-${plans[selectedTier].discountRange.max} get discounts
+                </div>
+                {plans[selectedTier].discount && (
+                  <div className="mt-2">
+                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-medium">
+                      Save {plans[selectedTier].discount}% on plan price
+                    </span>
+                  </div>
+                )}
+              </div>
+            </CardHeader>
+
+            <CardContent className="px-6 pb-6">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-3">Plan Benefits:</h4>
+                  <ul className="space-y-2">
+                    {plans[selectedTier].features.map((feature, index) => (
+                      <li key={index} className="flex items-start">
+                        <CheckCircleIcon className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                {plans[selectedTier].tagline && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-center text-gray-700 font-medium">
+                      {plans[selectedTier].tagline}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* CTA */}
-      <div className="text-center mt-6 pb-6">
+      <div className="text-center mt-8 pb-6">
         <Button
           onClick={handleContinueToPayment}
           loading={subscribing}
           disabled={
             (membership?.tier === selectedTier && membership?.status === "active") || 
-            (membership?.tier === "supersaver_year" && selectedTier === "supersaver_month" && membership?.status === "active")
+            (membership?.tier?.includes("12_months") && selectedTier.includes("1_month") && membership?.status === "active")
           }
-          className="px-6 py-2"
-          size="md"
+          className="px-8 py-3 text-lg"
+          size="lg"
         >
           {membership?.tier === selectedTier && membership?.status === "active" 
             ? "Already Subscribed" 
-            : membership?.tier === "supersaver_year" && selectedTier === "supersaver_month" && membership?.status === "active"
+            : membership?.tier?.includes("12_months") && selectedTier.includes("1_month") && membership?.status === "active"
               ? "Cannot Downgrade to Monthly"
-              : membership?.tier === "supersaver_month" && selectedTier === "supersaver_year" && membership?.status === "active"
-                ? `Upgrade to Annual Plan - $499` 
-                : `Continue with ${selectedTier === 'supersaver_month' ? 'Monthly' : 'Annual'} Plan - $${selectedTier === 'supersaver_month' ? '49' : '499'}`
+              : `Continue with ${plans[selectedTier]?.name} ${plans[selectedTier]?.subtitle} - $${plans[selectedTier]?.fee}`
           }
         </Button>
-        <p className="text-xs text-gray-500 mt-3">
+        <p className="text-sm text-gray-500 mt-4">
           No setup fees • {isRecurring ? 'Cancel anytime' : 'No auto-renewal'} • 30-day money-back guarantee
         </p>
       </div>

@@ -21,7 +21,7 @@ const getServices = async (req, res) => {
 
     const servicesQuery = `
       SELECT 
-        id, name, description, base_price, duration_hours, category, created_at
+        id, name, description, base_price, duration_hours, category, created_at, membership_price
       FROM services
       ${whereClause}
       ORDER BY category, name

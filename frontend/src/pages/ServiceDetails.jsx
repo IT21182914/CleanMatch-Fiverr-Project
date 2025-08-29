@@ -6,176 +6,81 @@ import {
   CheckBadgeIcon,
   ShieldCheckIcon,
   ClockIcon,
-  CalendarIcon,
-  UsersIcon,
-  PhoneIcon,
-  ChatBubbleLeftEllipsisIcon,
-  HeartIcon,
-  ShareIcon,
-  GlobeAltIcon,
-  FireIcon,
-  TrophyIcon,
   SparklesIcon,
-  TruckIcon,
-  HomeIcon,
-  KeyIcon,
-  EyeIcon,
-  WindowIcon,
-  SunIcon,
-  WrenchScrewdriverIcon,
-  BeakerIcon,
-  BugAntIcon,
-  UserGroupIcon,
-  CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
 import {
-  HeartIcon as HeartIconSolid,
   StarIcon as StarIconSolid,
 } from "@heroicons/react/24/solid";
-import { allServices } from "../data/services";
+import { servicesAPI } from "../lib/api";
 import { getServiceImage } from "../utils/serviceImages";
-import ServiceImage from "../components/ui/ServiceImage";
 import LoginRequiredModal from "../components/ui/LoginRequiredModal";
 import { useAuth } from "../hooks/useAuth";
-
-// Import individual service components
-import Service1 from "../components/services/Service1";
-import Service2 from "../components/services/Service2";
-import Service3 from "../components/services/Service3";
-import Service4 from "../components/services/Service4";
-import Service5 from "../components/services/Service5";
-import Service6 from "../components/services/Service6";
-import Service7 from "../components/services/Service7";
-import Service8 from "../components/services/Service8";
-import Service9 from "../components/services/Service9";
-import Service10 from "../components/services/Service10";
-import Service11 from "../components/services/Service11";
-import Service12 from "../components/services/Service12";
-import Service13 from "../components/services/Service13";
-import Service14 from "../components/services/Service14";
-import Service15 from "../components/services/Service15";
-import Service16 from "../components/services/Service16";
-import Service17 from "../components/services/Service17";
-import Service18 from "../components/services/Service18";
-import Service19 from "../components/services/Service19";
-import Service20 from "../components/services/Service20";
-import Service21 from "../components/services/Service21";
-import Service22 from "../components/services/Service22";
-import Service23 from "../components/services/Service23";
-import Service24 from "../components/services/Service24";
-import Service25 from "../components/services/Service25";
-import Service26 from "../components/services/Service26";
-import Service27 from "../components/services/Service27";
-import Service28 from "../components/services/Service28";
-import Service29 from "../components/services/Service29";
-import Service30 from "../components/services/Service30";
-import Service31 from "../components/services/Service31";
-import Service32 from "../components/services/Service32";
-import Service33 from "../components/services/Service33";
-import Service34 from "../components/services/Service34";
-import Service35 from "../components/services/Service35";
-import Service36 from "../components/services/Service36";
-import Service37 from "../components/services/Service37";
-import Service38 from "../components/services/Service38";
-import Service39 from "../components/services/Service39";
-import Service40 from "../components/services/Service40";
-import Service41 from "../components/services/Service41";
-import Service42 from "../components/services/Service42";
-import Service43 from "../components/services/Service43";
-import Service44 from "../components/services/Service44";
-import Service45 from "../components/services/Service45";
-import Service46 from "../components/services/Service46";
-import Service47 from "../components/services/Service47";
-import Service48 from "../components/services/Service48";
-import Service49 from "../components/services/Service49";
-import Service50 from "../components/services/Service50";
 
 const ServiceDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [service, setService] = useState(null);
-  const [isLiked, setIsLiked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Map service IDs to booking service IDs (based on user provided mappings)
-  const getBookingServiceId = (serviceId) => {
-    const serviceIdMapping = {
-      1: 70,
-      2: 71,
-      3: 72,
-      4: 73,
-      5: 74,
-      6: 75,
-      7: 76,
-      8: 77,
-      9: 78,
-      10: 79,
-      11: 80,
-      12: 81,
-      13: 82,
-      14: 83,
-      15: 84,
-      16: 85,
-      17: 86,
-      18: 87,
-      19: 88,
-      20: 89,
-      21: 90,
-      22: 91,
-      23: 92,
-      24: 93,
-      25: 94,
-      26: 95,
-      27: 96,
-      28: 97,
-      29: 98,
-      30: 99,
-      31: 100,
-      32: 101,
-      33: 102,
-      34: 103,
-      35: 104,
-      36: 105,
-      37: 106,
-      38: 107,
-      39: 108,
-      40: 109,
-      41: 110,
-      42: 111,
-      43: 112,
-      44: 113,
-      45: 114,
-      46: 115,
-      47: 116,
-      48: 117,
-      49: 118,
-      50: 119,
-    };
-    return serviceIdMapping[serviceId] || 70;
-  };
-
   useEffect(() => {
-    // Multiple scroll-to-top approaches to ensure it works
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    const fetchService = async () => {
+      try {
+        setLoading(true);
 
-    // Find the service by id
-    const foundService = allServices.find((s) => s.id === parseInt(id));
-    setService(foundService);
-    setLoading(false);
+        // Multiple scroll-to-top approaches to ensure it works
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
 
-    if (foundService) {
-      // Update page title
-      document.title = `${foundService.name} - CleanMatch`;
+        // Fetch service data from API
+        const response = await servicesAPI.getById(id);
+
+        if (response.data?.success) {
+          const serviceData = response.data.data;
+
+          // Transform API data to match the expected structure
+          const transformedService = {
+            id: serviceData.id,
+            name: serviceData.name,
+            description: serviceData.description,
+            category: serviceData.category,
+            memberPrice: `$${serviceData.membership_price}/h`,
+            regularPrice: `$${serviceData.base_price}/h`,
+            duration: serviceData.duration_hours,
+            features: serviceData.features || [],
+            benefits: serviceData.benefits || [],
+            process: serviceData.process || [],
+            pricing_details: serviceData.pricing_details || {},
+            frequently_asked_questions: serviceData.frequently_asked_questions || [],
+            created_at: serviceData.created_at,
+            updated_at: serviceData.updated_at
+          };
+
+          setService(transformedService);
+
+          // Update page title
+          document.title = `${transformedService.name} - CleanMatch`;
+        } else {
+          setService(null);
+        }
+      } catch (error) {
+        console.error("Error fetching service:", error);
+        setService(null);
+      } finally {
+        setLoading(false);
+
+        // Additional scroll after state update
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: "instant" });
+        }, 0);
+      }
+    };
+
+    if (id) {
+      fetchService();
     }
-
-    // Additional scroll after state update
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "instant" });
-    }, 0);
   }, [id]);
 
   // Additional useEffect to ensure scroll to top after component is fully rendered
@@ -248,387 +153,236 @@ const ServiceDetails = () => {
       return;
     }
 
-    // If authenticated, proceed with booking
-    const bookingServiceId = getBookingServiceId(service.id);
-    navigate(`/book?serviceId=${bookingServiceId}&view=details`);
+    // If authenticated, proceed with booking - navigate to book page with service ID
+    // Use replace to remove navigation history
+    navigate(`/book?serviceId=${service.id}&serviceName=${encodeURIComponent(service.name)}&view=booking`, { replace: true });
   };
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: service.name,
-          text: service.description,
-          url: window.location.href,
-        });
-      } catch (err) {
-        console.log("Error sharing:", err);
-      }
-    } else {
-      // Fallback to copying to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      // You could add a toast notification here
-    }
-  };
-
-  // Render custom service component if available
-  const renderServiceComponent = () => {
-    switch (service.id) {
-      case 1:
-        return <Service1 service={service} handleBookNow={handleBookNow} />;
-      case 2:
-        return <Service2 service={service} handleBookNow={handleBookNow} />;
-      case 3:
-        return <Service3 service={service} handleBookNow={handleBookNow} />;
-      case 4:
-        return <Service4 service={service} handleBookNow={handleBookNow} />;
-      case 5:
-        return <Service5 service={service} handleBookNow={handleBookNow} />;
-      case 6:
-        return <Service6 service={service} handleBookNow={handleBookNow} />;
-      case 7:
-        return <Service7 service={service} handleBookNow={handleBookNow} />;
-      case 8:
-        return <Service8 service={service} handleBookNow={handleBookNow} />;
-      case 9:
-        return <Service9 service={service} handleBookNow={handleBookNow} />;
-      case 10:
-        return <Service10 service={service} handleBookNow={handleBookNow} />;
-      case 11:
-        return <Service11 service={service} handleBookNow={handleBookNow} />;
-      case 12:
-        return <Service12 service={service} handleBookNow={handleBookNow} />;
-      case 13:
-        return <Service13 service={service} handleBookNow={handleBookNow} />;
-      case 14:
-        return <Service14 service={service} handleBookNow={handleBookNow} />;
-      case 15:
-        return <Service15 service={service} handleBookNow={handleBookNow} />;
-      case 16:
-        return <Service16 service={service} handleBookNow={handleBookNow} />;
-      case 17:
-        return <Service17 service={service} handleBookNow={handleBookNow} />;
-      case 18:
-        return <Service18 service={service} handleBookNow={handleBookNow} />;
-      case 19:
-        return <Service19 service={service} handleBookNow={handleBookNow} />;
-      case 20:
-        return <Service20 service={service} handleBookNow={handleBookNow} />;
-      case 21:
-        return <Service21 service={service} handleBookNow={handleBookNow} />;
-      case 22:
-        return <Service22 service={service} handleBookNow={handleBookNow} />;
-      case 23:
-        return <Service23 service={service} handleBookNow={handleBookNow} />;
-      case 24:
-        return <Service24 service={service} handleBookNow={handleBookNow} />;
-      case 25:
-        return <Service25 service={service} handleBookNow={handleBookNow} />;
-      case 26:
-        return <Service26 service={service} handleBookNow={handleBookNow} />;
-      case 27:
-        return <Service27 service={service} handleBookNow={handleBookNow} />;
-      case 28:
-        return <Service28 service={service} handleBookNow={handleBookNow} />;
-      case 29:
-        return <Service29 service={service} handleBookNow={handleBookNow} />;
-      case 30:
-        return <Service30 service={service} handleBookNow={handleBookNow} />;
-      case 31:
-        return <Service31 service={service} handleBookNow={handleBookNow} />;
-      case 32:
-        return <Service32 service={service} handleBookNow={handleBookNow} />;
-      case 33:
-        return <Service33 service={service} handleBookNow={handleBookNow} />;
-      case 34:
-        return <Service34 service={service} handleBookNow={handleBookNow} />;
-      case 35:
-        return <Service35 service={service} handleBookNow={handleBookNow} />;
-      case 36:
-        return <Service36 service={service} handleBookNow={handleBookNow} />;
-      case 37:
-        return <Service37 service={service} handleBookNow={handleBookNow} />;
-      case 38:
-        return <Service38 service={service} handleBookNow={handleBookNow} />;
-      case 39:
-        return <Service39 service={service} handleBookNow={handleBookNow} />;
-      case 40:
-        return <Service40 service={service} handleBookNow={handleBookNow} />;
-      case 41:
-        return <Service41 service={service} handleBookNow={handleBookNow} />;
-      case 42:
-        return <Service42 service={service} handleBookNow={handleBookNow} />;
-      case 43:
-        return <Service43 service={service} handleBookNow={handleBookNow} />;
-      case 44:
-        return <Service44 service={service} handleBookNow={handleBookNow} />;
-      case 45:
-        return <Service45 service={service} handleBookNow={handleBookNow} />;
-      case 46:
-        return <Service46 service={service} handleBookNow={handleBookNow} />;
-      case 47:
-        return <Service47 service={service} handleBookNow={handleBookNow} />;
-      case 48:
-        return <Service48 service={service} handleBookNow={handleBookNow} />;
-      case 49:
-        return <Service49 service={service} handleBookNow={handleBookNow} />;
-      case 50:
-        return <Service50 service={service} handleBookNow={handleBookNow} />;
-      default:
-        return renderDefaultService();
-    }
-  };
-
-  const renderDefaultService = () => (
-    <div className="bg-white rounded-2xl shadow-xl p-8">
-      <div className="mb-8">
-        <ServiceImage
-          service={service}
-          className="w-full h-64 sm:h-80 object-cover rounded-xl mb-6"
-        />
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          Professional {service.name}
-        </h2>
-        <p className="text-gray-700 text-lg leading-relaxed mb-6">
-          {service.description}
-        </p>
-      </div>
-
-      {/* Service Features */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-          <CheckBadgeIcon className="h-5 w-5 text-[#4EC6E5] mt-1 flex-shrink-0" />
-          <span className="text-gray-700 font-medium">
-            Professional service guaranteed
-          </span>
-        </div>
-        <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-          <ShieldCheckIcon className="h-5 w-5 text-[#4EC6E5] mt-1 flex-shrink-0" />
-          <span className="text-gray-700 font-medium">
-            Insured and bonded cleaners
-          </span>
-        </div>
-        <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-          <ClockIcon className="h-5 w-5 text-[#4EC6E5] mt-1 flex-shrink-0" />
-          <span className="text-gray-700 font-medium">
-            Flexible scheduling available
-          </span>
-        </div>
-        <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-          <StarIcon className="h-5 w-5 text-[#4EC6E5] mt-1 flex-shrink-0" />
-          <span className="text-gray-700 font-medium">
-            Satisfaction guaranteed
-          </span>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white rounded-2xl p-8 text-center">
-        <h3 className="text-2xl font-bold mb-4">Ready to Book?</h3>
-        <p className="text-lg mb-6 text-white/90">
-          Get professional {service.name.toLowerCase()} service today
-        </p>
-        <button
-          onClick={handleBookNow}
-          className="bg-white text-[#4EC6E5] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
-        >
-          Book Service Now
-        </button>
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50">
       {/* Header Navigation */}
-      <div className="sticky top-0 z-[60] bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-3 sm:py-4 min-h-[60px] sm:min-h-[64px]">
+      <div className="sticky top-0 z-[10] bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center py-2 sm:py-3">
             <button
               onClick={() => navigate("/services")}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors font-medium p-2 -ml-2 rounded-lg touch-manipulation"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors font-medium p-2 -ml-2 rounded-lg touch-manipulation hover:bg-gray-50"
             >
               <ChevronLeftIcon className="h-5 w-5" />
               <span className="text-sm sm:text-base">Back to Services</span>
             </button>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setIsLiked(!isLiked)}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors touch-manipulation"
-              >
-                {isLiked ? (
-                  <HeartIconSolid className="h-6 w-6 text-red-500" />
-                ) : (
-                  <HeartIcon className="h-6 w-6 text-gray-400" />
-                )}
-              </button>
-              <button
-                onClick={handleShare}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors touch-manipulation"
-              >
-                <ShareIcon className="h-6 w-6 text-gray-400" />
-              </button>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Service Title Section */}
-      <div className="relative z-20 bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <div className="flex items-center gap-2 mb-2">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 lg:py-8">
+        {/* Service Details Card */}
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl overflow-hidden">
+          {/* Service Image */}
+          <div className="relative h-40 sm:h-56 lg:h-80 bg-gradient-to-br from-blue-50 to-cyan-50">
+            <img
+              src={getServiceImage(service.name)}
+              alt={service.name}
+              className="w-full h-full object-contain p-2 sm:p-4"
+              loading="lazy"
+            />
+            {/* Category Badge */}
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
+              <span className="inline-block bg-[#4EC6E5] text-white rounded-lg text-xs sm:text-sm font-medium px-2 py-1 sm:px-3 sm:py-1 shadow-lg">
+                {service.category}
+              </span>
+            </div>
+            {/* Popular Badge */}
             {service.popular && (
-              <div className="flex items-center gap-1 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold">
-                <StarIconSolid className="h-3 w-3" />
-                <span>Popular</span>
+              <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
+                <div className="flex items-center gap-1 bg-yellow-500 text-yellow-900 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-semibold shadow-lg">
+                  <StarIconSolid className="h-3 w-3" />
+                  <span>Popular</span>
+                </div>
               </div>
             )}
-            <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium">
-              {service.category}
-            </span>
-          </div>
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
-            {service.name}
-          </h1>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              <StarIconSolid className="h-5 w-5 text-yellow-400" />
-              <span className="font-semibold">4.8</span>
-              <span className="text-white/80">(324 reviews)</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <CheckBadgeIcon className="h-5 w-5 text-green-400" />
-              <span className="text-white/90">Verified Service</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {renderServiceComponent()}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Booking Card */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-24">
-              {/* Service Image */}
-              <div className="mb-6 rounded-xl overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50">
-                <img
-                  src={getServiceImage(service.name)}
-                  alt={service.name}
-                  className="w-full h-40 object-contain"
-                  loading="lazy"
-                />
+          {/* Service Information */}
+          <div className="p-3 sm:p-6 lg:p-8">
+            {/* Header Section */}
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 lg:gap-6 mb-6 lg:mb-8">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 leading-tight">
+                  {service.name}
+                </h1>
+
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
+                  <div className="flex items-center gap-1">
+                    <StarIconSolid className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-400" />
+                    <span className="font-semibold text-sm sm:text-base">4.8</span>
+                    <span className="text-gray-600 text-xs sm:text-sm">(324 reviews)</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <CheckBadgeIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
+                    <span className="text-gray-700 text-xs sm:text-sm">Verified Service</span>
+                  </div>
+                  {service.duration && (
+                    <div className="flex items-center gap-1">
+                      <ClockIcon className="h-4 w-4 sm:h-5 sm:w-5 text-[#4EC6E5]" />
+                      <span className="text-gray-700 text-xs sm:text-sm">{service.duration} hours</span>
+                    </div>
+                  )}
+                </div>
+
+                <p className="text-gray-700 text-sm sm:text-base lg:text-lg leading-relaxed">
+                  {service.description}
+                </p>
               </div>
 
-              <div className="text-center mb-6">
-                <div className="text-3xl font-bold text-gray-900 mb-1">
-                  {service.memberPrice}
-                  <span className="text-lg font-normal text-gray-500">
-                    /session
-                  </span>
+              {/* Pricing & Booking Section */}
+              <div className="w-full lg:min-w-[280px] lg:max-w-[300px] bg-gradient-to-br from-[#F0FBFE] to-[#E0F6FD] rounded-lg lg:rounded-xl p-4 sm:p-6">
+                <div className="text-center mb-4 sm:mb-6">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
+                    {service.memberPrice}
+                    <span className="text-sm sm:text-base lg:text-lg font-normal text-gray-500 ml-1">
+                      per hour
+                    </span>
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-500 line-through mb-1">
+                    Regular: {service.regularPrice}
+                  </div>
+                  <div className="inline-block bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-semibold px-2 sm:px-3 py-1 rounded-full">
+                    Save up to 50% with Membership
+                  </div>
                 </div>
-                <div className="text-sm text-gray-500 line-through">
-                  Regular: {service.regularPrice}
-                </div>
-                <div className="text-sm text-green-600 font-medium">
-                  Save{" "}
-                  {(
-                    ((parseFloat(service.regularPrice.replace("$", "")) -
-                      parseFloat(service.memberPrice.replace("$", ""))) /
-                      parseFloat(service.regularPrice.replace("$", ""))) *
-                    100
-                  ).toFixed(0)}
-                  % with membership
-                </div>
-              </div>
 
-              <button
-                onClick={handleBookNow}
-                className="w-full bg-[#4EC6E5] text-white py-4 rounded-xl font-semibold hover:bg-[#3AA8CC] transition-colors mb-4 text-lg"
-              >
-                Book Now
-              </button>
-
-              <div className="space-y-3 text-sm text-gray-600">
-                <div className="flex items-center gap-3">
-                  <CheckBadgeIcon className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <span>Instant confirmation</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <ShieldCheckIcon className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <span>Satisfaction guaranteed</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <ClockIcon className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <span>Flexible scheduling</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Options */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Need Help?</h3>
-              <div className="space-y-3">
-                <button className="w-full flex items-center justify-center gap-3 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-                  <PhoneIcon className="h-5 w-5 text-[#4EC6E5]" />
-                  <span className="font-medium">Call Us</span>
+                <button
+                  onClick={handleBookNow}
+                  className="w-full bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white py-3 sm:py-4 rounded-lg lg:rounded-xl font-semibold hover:from-[#3BB8DF] hover:to-[#2293B5] transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base lg:text-lg mb-3 sm:mb-4 active:scale-95"
+                >
+                  Book Service Now
                 </button>
-                <button className="w-full flex items-center justify-center gap-3 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-                  <ChatBubbleLeftEllipsisIcon className="h-5 w-5 text-[#4EC6E5]" />
-                  <span className="font-medium">Live Chat</span>
-                </button>
+
+                <div className="space-y-2 text-xs sm:text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <CheckBadgeIcon className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
+                    <span>Instant confirmation</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheckIcon className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
+                    <span>Satisfaction guaranteed</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ClockIcon className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
+                    <span>Flexible scheduling</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Service Highlights */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Why Choose Us</h3>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-1 bg-[#4EC6E5]/10 rounded-full">
-                    <CheckBadgeIcon className="h-4 w-4 text-[#4EC6E5]" />
+            {/* Service Features */}
+            {service.features && service.features.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">What's Included</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {service.features.map((feature, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                      <CheckBadgeIcon className="h-5 w-5 text-[#4EC6E5] mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700 text-sm sm:text-base">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Service Benefits */}
+            {service.benefits && service.benefits.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Benefits</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {service.benefits.map((benefit, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-gradient-to-br from-[#F0FBFE] to-[#E0F6FD] rounded-lg">
+                      <SparklesIcon className="h-5 w-5 text-[#4EC6E5] mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700 text-sm sm:text-base">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Service Process */}
+            {service.process && service.process.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">How It Works</h3>
+                <div className="space-y-3">
+                  {service.process.map((step, index) => (
+                    <div key={index} className="flex items-start gap-4 p-4 bg-white border border-gray-200 rounded-lg">
+                      <div className="bg-[#4EC6E5] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                        {index + 1}
+                      </div>
+                      <span className="text-gray-700 text-sm sm:text-base">{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* FAQ Section */}
+            {service.frequently_asked_questions && service.frequently_asked_questions.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
+                <div className="space-y-3">
+                  {service.frequently_asked_questions.map((faq, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">{faq.question}</h4>
+                      <p className="text-gray-700 text-sm sm:text-base">{faq.answer}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Default Service Features if no API features */}
+            {(!service.features || service.features.length === 0) && (
+              <div className="mb-8">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Service Features</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <CheckBadgeIcon className="h-5 w-5 text-[#4EC6E5] mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm sm:text-base">Professional service guaranteed</span>
                   </div>
-                  <div>
-                    <div className="font-medium text-gray-900 text-sm">
-                      Vetted Professionals
-                    </div>
-                    <div className="text-gray-600 text-xs">
-                      Background checked & insured
-                    </div>
+                  <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <ShieldCheckIcon className="h-5 w-5 text-[#4EC6E5] mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm sm:text-base">Insured and bonded cleaners</span>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <ClockIcon className="h-5 w-5 text-[#4EC6E5] mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm sm:text-base">Flexible scheduling available</span>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <StarIcon className="h-5 w-5 text-[#4EC6E5] mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm sm:text-base">Satisfaction guaranteed</span>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="p-1 bg-[#4EC6E5]/10 rounded-full">
-                    <StarIconSolid className="h-4 w-4 text-[#4EC6E5]" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900 text-sm">
-                      Top Rated Service
-                    </div>
-                    <div className="text-gray-600 text-xs">
-                      4.8+ average rating
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="p-1 bg-[#4EC6E5]/10 rounded-full">
-                    <ShieldCheckIcon className="h-4 w-4 text-[#4EC6E5]" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900 text-sm">
-                      Satisfaction Guarantee
-                    </div>
-                    <div className="text-gray-600 text-xs">
-                      100% satisfaction or we'll make it right
-                    </div>
-                  </div>
-                </div>
+              </div>
+            )}
+
+            {/* Final CTA Section */}
+            <div className="bg-gradient-to-r from-[#4EC6E5] to-[#2BA8CD] text-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 text-center">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3">Ready to Book?</h3>
+              <p className="text-sm sm:text-base lg:text-lg mb-4 sm:mb-6 text-white/90">
+                Get professional {service.name.toLowerCase()} service today
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center items-center">
+                <button
+                  onClick={handleBookNow}
+                  className="w-full sm:w-auto bg-white text-[#4EC6E5] px-4 sm:px-6 lg:px-8 py-3 sm:py-4 rounded-lg lg:rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base lg:text-lg active:scale-95"
+                >
+                  Book Service Now
+                </button>
+                <button
+                  onClick={() => navigate("/contact")}
+                  className="w-full sm:w-auto bg-white/20 backdrop-blur-sm text-white px-4 sm:px-6 lg:px-8 py-3 sm:py-4 rounded-lg lg:rounded-xl font-semibold hover:bg-white/30 transition-all duration-200 text-sm sm:text-base lg:text-lg border border-white/30 active:scale-95"
+                >
+                  Contact Us
+                </button>
               </div>
             </div>
           </div>
