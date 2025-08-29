@@ -486,7 +486,6 @@ const Profile = () => {
 
       {/* Membership Section */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Your Membership</h2>
 
         {membershipLoading ? (
           <LoadingCard />
@@ -574,8 +573,8 @@ const Profile = () => {
                         {membership.auto_renewal ? "Next Renewal:" : "Expires:"}
                       </span>
                       <span className={`font-medium px-2 py-1 rounded text-xs ${isEndingSoon(membership.current_period_end)
-                          ? "bg-red-50 text-red-700"
-                          : "bg-green-50 text-green-700"
+                        ? "bg-red-50 text-red-700"
+                        : "bg-green-50 text-green-700"
                         }`}>
                         {formatDateTime(membership.current_period_end, { dateOnly: true })}
                       </span>
@@ -583,8 +582,8 @@ const Profile = () => {
                     <div className="flex justify-between items-center py-2 border-b border-gray-200">
                       <span className="text-gray-600">Auto-Renewal:</span>
                       <span className={`font-medium px-2 py-1 rounded text-xs ${membership.auto_renewal
-                          ? "bg-green-50 text-green-700"
-                          : "bg-gray-100 text-gray-700"
+                        ? "bg-green-50 text-green-700"
+                        : "bg-gray-100 text-gray-700"
                         }`}>
                         {membership.auto_renewal ? "Enabled" : "Disabled"}
                       </span>

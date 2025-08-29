@@ -147,7 +147,7 @@ const ServiceSearch = ({
       </div>
 
       {/* Filters Section - Fully Responsive */}
-      <div className="bg-white/80 backdrop-blur-sm sticky top-0 z-40 border-b border-slate-200/60">
+      <div className="bg-white/80 backdrop-blur-sm sticky top-0 z-10 border-b border-slate-200/60">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
             {/* Search Input */}
@@ -227,9 +227,8 @@ const ServiceSearch = ({
                 <span>
                   {filteredServices.length === services.length
                     ? `Showing all ${services.length} services`
-                    : `Found ${filteredServices.length} service${
-                        filteredServices.length !== 1 ? "s" : ""
-                      }`}
+                    : `Found ${filteredServices.length} service${filteredServices.length !== 1 ? "s" : ""
+                    }`}
                 </span>
                 {(searchTerm || selectedCategory !== "all") && (
                   <span className="mt-1 sm:mt-0">
@@ -294,32 +293,33 @@ const ServiceSearch = ({
         ) : (
           <>
             <div
-              className={`grid gap-3 sm:gap-4 md:gap-6 ${
-                currentServices.length === 1
-                  ? "grid-cols-1 max-w-xl sm:max-w-2xl lg:max-w-4xl mx-auto"
-                  : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4"
-              }`}
+              className={`grid gap-3 sm:gap-4 md:gap-6 ${currentServices.length === 1
+                ? "grid-cols-1 max-w-xl sm:max-w-2xl lg:max-w-4xl mx-auto"
+                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4"
+                }`}
             >
               {currentServices.map((service) => {
-                // Calculate membership pricing (API services use base_price, static services use memberPrice/regularPrice)
-                const memberPrice = service.memberPrice
-                  ? parseInt(service.memberPrice.replace(/\D/g, ""))
-                  : service.base_price
-                  ? Math.round(service.base_price * 0.5)
-                  : 18;
-                const regularPrice = service.regularPrice
-                  ? parseInt(service.regularPrice.replace(/\D/g, ""))
-                  : service.base_price || 36;
+                // Use actual API pricing - membership_price for members, base_price for non-members
+                const memberPrice = service.membership_price
+                  ? parseFloat(service.membership_price)
+                  : service.memberPrice
+                    ? parseInt(service.memberPrice.replace(/\D/g, ""))
+                    : 18;
+
+                const regularPrice = service.base_price
+                  ? parseFloat(service.base_price)
+                  : service.regularPrice
+                    ? parseInt(service.regularPrice.replace(/\D/g, ""))
+                    : 36;
 
                 return (
                   <div key={service.id} className="group relative">
                     <div
                       onClick={() => onServiceSelect(service)}
-                      className={`block h-full bg-white/80 hover:bg-white rounded-xl sm:rounded-2xl border border-slate-200/60 hover:border-[#4EC6E5]/30 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] sm:hover:scale-105 relative overflow-hidden cursor-pointer ${
-                        currentServices.length === 1
-                          ? "p-6 sm:p-8"
-                          : "p-4 sm:p-6"
-                      }`}
+                      className={`block h-full bg-white/80 hover:bg-white rounded-xl sm:rounded-2xl border border-slate-200/60 hover:border-[#4EC6E5]/30 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] sm:hover:scale-105 relative overflow-hidden cursor-pointer ${currentServices.length === 1
+                        ? "p-6 sm:p-8"
+                        : "p-4 sm:p-6"
+                        }`}
                     >
                       {/* Background Gradient on Hover */}
                       <div className="absolute inset-0 bg-gradient-to-br from-[#F0FBFE] to-[#E0F6FD] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl sm:rounded-2xl"></div>
@@ -329,11 +329,10 @@ const ServiceSearch = ({
                         {/* Service Image Header */}
                         <div className="relative mb-3 sm:mb-4">
                           <div
-                            className={`w-full rounded-lg sm:rounded-xl overflow-hidden ${
-                              currentServices.length === 1
-                                ? "h-56 sm:h-64 lg:h-72"
-                                : "h-40 sm:h-48"
-                            }`}
+                            className={`w-full rounded-lg sm:rounded-xl overflow-hidden ${currentServices.length === 1
+                              ? "h-56 sm:h-64 lg:h-72"
+                              : "h-40 sm:h-48"
+                              }`}
                           >
                             <ServiceImage
                               serviceName={service.name}
@@ -379,22 +378,20 @@ const ServiceSearch = ({
 
                         {/* Title */}
                         <h3
-                          className={`font-bold text-slate-900 mb-2 sm:mb-3 leading-tight group-hover:text-[#2BA8CD] transition-colors duration-200 flex-grow ${
-                            currentServices.length === 1
-                              ? "text-xl sm:text-2xl lg:text-3xl"
-                              : "text-base sm:text-lg"
-                          }`}
+                          className={`font-bold text-slate-900 mb-2 sm:mb-3 leading-tight group-hover:text-[#2BA8CD] transition-colors duration-200 flex-grow ${currentServices.length === 1
+                            ? "text-xl sm:text-2xl lg:text-3xl"
+                            : "text-base sm:text-lg"
+                            }`}
                         >
                           {service.name}
                         </h3>
 
                         {/* Description */}
                         <p
-                          className={`text-slate-600 mb-3 sm:mb-4 leading-relaxed overflow-hidden ${
-                            currentServices.length === 1
-                              ? "text-sm sm:text-base max-h-20 sm:max-h-24"
-                              : "text-xs sm:text-sm max-h-12 sm:max-h-16"
-                          }`}
+                          className={`text-slate-600 mb-3 sm:mb-4 leading-relaxed overflow-hidden ${currentServices.length === 1
+                            ? "text-sm sm:text-base max-h-20 sm:max-h-24"
+                            : "text-xs sm:text-sm max-h-12 sm:max-h-16"
+                            }`}
                           style={{
                             display: "-webkit-box",
                             WebkitLineClamp:
@@ -414,24 +411,23 @@ const ServiceSearch = ({
                                 .map((feature, index) => (
                                   <span
                                     key={index}
-                                    className={`bg-slate-100 text-slate-600 rounded-lg ${
-                                      currentServices.length === 1
-                                        ? "text-xs sm:text-sm px-2 sm:px-3 py-1"
-                                        : "text-xs px-2 py-1"
-                                    }`}
+                                    className={`bg-slate-100 text-slate-600 rounded-lg ${currentServices.length === 1
+                                      ? "text-xs sm:text-sm px-2 sm:px-3 py-1"
+                                      : "text-xs px-2 py-1"
+                                      }`}
                                   >
                                     {feature}
                                   </span>
                                 ))}
                               {service.features?.length >
                                 (currentServices.length === 1 ? 6 : 3) && (
-                                <span className="text-xs text-[#4EC6E5] font-medium">
-                                  +
-                                  {service.features.length -
-                                    (currentServices.length === 1 ? 6 : 3)}{" "}
-                                  more
-                                </span>
-                              )}
+                                  <span className="text-xs text-[#4EC6E5] font-medium">
+                                    +
+                                    {service.features.length -
+                                      (currentServices.length === 1 ? 6 : 3)}{" "}
+                                    more
+                                  </span>
+                                )}
                             </div>
                           </div>
                         )}
@@ -441,31 +437,28 @@ const ServiceSearch = ({
                           <div className="flex items-center justify-between mb-2 sm:mb-3 flex-wrap gap-2">
                             <div className="flex items-center space-x-2">
                               <span
-                                className={`font-bold text-[#4EC6E5] ${
-                                  currentServices.length === 1
-                                    ? "text-2xl sm:text-3xl"
-                                    : "text-lg sm:text-xl"
-                                }`}
+                                className={`font-bold text-[#4EC6E5] ${currentServices.length === 1
+                                  ? "text-2xl sm:text-3xl"
+                                  : "text-lg sm:text-xl"
+                                  }`}
                               >
                                 {formatCurrency(memberPrice)}/h
                               </span>
                               <span
-                                className={`text-slate-400 line-through ${
-                                  currentServices.length === 1
-                                    ? "text-sm sm:text-base"
-                                    : "text-xs sm:text-sm"
-                                }`}
+                                className={`text-slate-400 line-through ${currentServices.length === 1
+                                  ? "text-sm sm:text-base"
+                                  : "text-xs sm:text-sm"
+                                  }`}
                               >
                                 {formatCurrency(regularPrice)}/h
                               </span>
                             </div>
                             {service.category && (
                               <span
-                                className={`bg-[#E0F6FD] text-[#2BA8CD] rounded-lg font-medium shrink-0 ${
-                                  currentServices.length === 1
-                                    ? "text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2"
-                                    : "text-xs px-2 sm:px-3 py-1"
-                                }`}
+                                className={`bg-[#E0F6FD] text-[#2BA8CD] rounded-lg font-medium shrink-0 ${currentServices.length === 1
+                                  ? "text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2"
+                                  : "text-xs px-2 sm:px-3 py-1"
+                                  }`}
                               >
                                 {service.category}
                               </span>
@@ -474,7 +467,12 @@ const ServiceSearch = ({
 
                           {/* Savings Badge */}
                           <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-semibold px-3 py-1.5 sm:py-2 rounded-lg text-center mb-2">
-                            Save up to 50% with Membership
+                            {(() => {
+                              const savingsPercent = regularPrice > 0
+                                ? Math.round(((regularPrice - memberPrice) / regularPrice) * 100)
+                                : 50;
+                              return `Save ${savingsPercent}% with Membership`;
+                            })()}
                           </div>
 
                           {/* Rating Display (if available) */}
@@ -484,11 +482,10 @@ const ServiceSearch = ({
                                 {[...Array(5)].map((_, i) => (
                                   <StarIcon
                                     key={i}
-                                    className={`h-3 w-3 sm:h-4 sm:w-4 ${
-                                      i < Math.floor(service.rating)
-                                        ? "text-yellow-400 fill-current"
-                                        : "text-gray-300"
-                                    }`}
+                                    className={`h-3 w-3 sm:h-4 sm:w-4 ${i < Math.floor(service.rating)
+                                      ? "text-yellow-400 fill-current"
+                                      : "text-gray-300"
+                                      }`}
                                   />
                                 ))}
                               </div>
